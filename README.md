@@ -34,7 +34,7 @@ The question: when the agent's diff is spread across more files and packages, do
   [experimental]
   bestEffortDnsParsing=true
   ```
-- Python 3.12 on the host, with pandas 3.0.1, numpy 2.4.2 and scipy 1.17.1, for `make_task.py` and the analysis. The harness itself needs only bash, python3, git and docker.
+- Python 3.12 on the host: `pip install -r requirements.txt` (pandas 3.0.1, numpy 2.4.2, scipy 1.17.1). These are for `make_task.py` and the analysis; the harness itself needs only bash, python3, git and docker. We also reran `stats.py` with newer versions (pandas 3.1.0, numpy 2.5.4, scipy 1.18.1) and got identical results.
 - At least 25 GB free disk. Task images are 2–20 GB, the chain deletes each one after its task, and it stops below 25 GB. On WSL, run `wsl -d docker-desktop fstrim -av` before compacting the Docker disk.
 
 ### Datasets (pinned versions we used)
@@ -48,7 +48,7 @@ Set `SRC` in `swebench-pro/harness/make_task.py` to this folder. `make_task.py` 
 
 **FeatureBench.** We used the Hugging Face dataset `LiberCoders/FeatureBench` (200 rows) saved as one parquet file:
 ```bash
-python3 -c "from datasets import load_dataset; load_dataset('LiberCoders/FeatureBench', split='full').to_parquet('full.parquet')"
+python3 -c "from datasets import load_dataset; load_dataset('LiberCoders/FeatureBench', split='full')  # splits: lite, full, fast.to_parquet('full.parquet')"
 sha256sum full.parquet   # ours: 1989012f1d7003bde5e79cb5d6f7b5580c1597ae36d533019a53a1da44b2c160
 ```
 If the hash differs, the dataset has changed since our runs. Check the 21 tasks in `featurebench/ran21.tsv` against our `prompt_goalrw.txt` and `meta.json` before running. The benchmark code is at https://github.com/LiberCoders/FeatureBench (we used commit `8d4e347ec57546685c5a87e8676bf575db022ea6`). Task images are pulled from Docker Hub (`image_name` in each `meta.json`).
