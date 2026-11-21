@@ -126,7 +126,7 @@ def sbp_rows():
         p2p_p, p2p_t = map(int, re.search(r'p2p=(\d+)/(\d+)', acc).groups())
         p2p = p2p_p == p2p_t
         reg = 'not_measured (0 P2P tests)' if p2p_t == 0 else ('no_regression' if p2p else 'P2P_FAIL')
-        yield dict(bench='SWE-bench Pro', repo=repo, task=task, cell=c, subset='batch3' if c.endswith('-verb') else ('nohint' if 'protonmail' in iid else 'batch1'),
+        yield dict(bench='SWE-bench Pro', repo=repo, task=task, cell=c, subset=('batch4' if c.split('/')[-1][:11] >= '20261120-22' else 'batch3') if c.endswith('-verb') else ('nohint' if 'protonmail' in iid else 'batch1'),
                    prompt='benchmark text verbatim', **shape, cue_files=cue_files(list(per_file), prompt),
                    cue_tokens=len(code_tokens(prompt)), _gold=td / 'gold.patch', _diff=rd / 'diff.patch',
                    accept_final=f2p_p == f2p_t and p2p, p2p_tests=p2p_t, r0_pass=rounds[0]['accept'] == 'PASS', rounds=len(rounds),

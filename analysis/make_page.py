@@ -616,7 +616,7 @@ _adj = {(yk, xk): SF.panel(rows, xk, xl, lg, yk, yl, True)[1] for yk, yl in SF.Y
 _fbs = sum(1 for v in _adj.values() if v[0][2] < .05); _sbs = sum(1 for v in _adj.values() if v[1][2] < .05)
 adjnote = (f'After the size adjustment, {_fbs} of 9 FeatureBench panels and {_sbs} of 9 SWE-Pro panels still show p &lt; .05. '
            'Within FeatureBench, more scattered diffs go with more tool calls, cost and searches than their size predicts (ρ about .5–.65). '
-           'On SWE-Pro (50 runs) the raw links hold after correction (ρ about .3–.5) but shrink to ρ ≈ .1–.3 after the size adjustment and no longer survive correction: there, scattering adds little beyond size. '
+           'On SWE-Pro (61 runs) the raw links hold after correction (ρ about .3–.5) but shrink to ρ ≈ .1–.35 after the size adjustment and no longer survive correction (best q = .11): there, scattering adds little beyond size. '
            'This is associational: effort could scatter the change (more exploration, more files touched) as easily as the reverse.')
 ncorr = len(SF.XS + SF.XMORE) * len(SF.YS + SF.YMORE)
 page = f'''<title>Scattering vs Agent Effort</title>
@@ -694,10 +694,10 @@ svg .trend{{stroke-width:2}} svg .s1l{{stroke:var(--s1)}} svg .s2l{{stroke:var(-
 The appendix’s benchmark comparison adds output tokens, re-read context tokens, test runs, probe scripts and re-edits.
 <br><b>These are mostly one thing measured several ways.</b> Tool calls and API turns are almost identical (ρ ≈ 1.0 in both benchmarks); cost tracks them at ≈ .9 on FeatureBench and ≈ .8 on SWE-Pro. Read “scattering relates to tool calls, turns and cost” as one finding. On FeatureBench searches also move with tool calls (ρ .96), so they add little separate evidence there; on SWE-Pro they are more distinct (ρ .74).</div>
 <div class="verdict" style="margin:1.2em 0">
-<div><h4>Key findings</h4><p style="margin:0 0 .5em"><small>Only results that hold after correcting for multiple tests. SWE-Pro (50 runs): raw links between scattering and effort survive correction; none survive after the size adjustment.</small></p><p style="margin:.6em 0 .2em"><b>Do scattered changes cost the agent more?</b><br>Yes, beyond their size.</p>
+<div><h4>Key findings</h4><p style="margin:0 0 .5em"><small>Only results that hold after correcting for multiple tests. SWE-Pro (61 runs): raw links between scattering and effort survive correction; none survive after the size adjustment.</small></p><p style="margin:.6em 0 .2em"><b>Do scattered changes cost the agent more?</b><br>Yes, beyond their size.</p>
 <ul style="margin:0;padding-left:1.2em">
 <li>Runs whose change spans more files or packages use more tool calls, cost and searches, even after adjusting for size (FeatureBench ρ ≈ +0.5 to +0.65, surviving correction).</li>
-<li>SWE-Pro (50 runs): the same direction before the size adjustment (ρ ≈ +0.3 to +0.5, surviving correction), but not after it (ρ ≈ +0.1 to +0.35, q &gt; .25). On SWE-Pro, scattering mostly tracks size.</li>
+<li>SWE-Pro (61 runs): the same direction before the size adjustment (ρ ≈ +0.3 to +0.5, surviving correction), but not after it (ρ ≈ +0.1 to +0.35, q ≥ .11). On SWE-Pro, scattering mostly tracks size. Adding 11 multi-file tasks (batch 4) did not change this.</li>
 <li>Focus: when most of the change sits in one file, the run is cheaper (ρ ≈ −0.55).</li>
 <li>Functions touched don’t matter once size is removed. Effort tracks how many places the change lands, not how much code is written.</li>
 </ul>
@@ -715,7 +715,7 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <div><h4>Read with care</h4><ul style="margin:0;padding-left:1.1em">
 <li>All links are correlations, and the direction is open. More exploring can produce a more scattered diff, just as a scattered change can need more exploring.</li>
 <li>Scattering is measured on the agent’s own diff, which can only include files it found.</li>
-<li>Small samples: 21 + 50 runs, one seed each; the 50 SWE-Pro runs come from 10 repos (12 protonmail).</li>
+<li>Small samples: 21 + 61 runs, one seed each; the 61 SWE-Pro runs come from 10 repos (15 protonmail). 11 of them (batch 4) were picked because their reference patch changes ≥ 3 files.</li>
 <li>Chart p-values are uncorrected; the appendix tables show corrected q.</li>
 </ul></div>
 </div>
@@ -742,10 +742,10 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <tr><td>Evenly over 4 packages</td><td>4 × 0.0625 = 0.25</td><td>0.75</td></tr>
 </tbody></table></div>
 <small>A package is the top two path components of a changed file.</small></div>
-<div class="note"><b>How to read “FB ρ +0.60*”.</b> Spearman rank correlation within one benchmark (−1 to +1; ≈ .3 weak, .5 moderate, ≥ .7 strong); * = permutation p &lt; .05, uncorrected.<br>No star is not “no link”: FeatureBench has 21 runs, so ρ below about .45 often misses p &lt; .05; SWE-Pro has 50, which detects about ρ ≥ .4. Correlation only, direction open.</div>
+<div class="note"><b>How to read “FB ρ +0.60*”.</b> Spearman rank correlation within one benchmark (−1 to +1; ≈ .3 weak, .5 moderate, ≥ .7 strong); * = permutation p &lt; .05, uncorrected.<br>No star is not “no link”: FeatureBench has 21 runs, so ρ below about .45 often misses p &lt; .05; SWE-Pro has 61, which detects about ρ ≥ .35. Correlation only, direction open.</div>
 
-<h2 id="bigdos-h">All 71 runs: effort measures by package dispersion</h2>
-<p class="sub">Each colour is one effort measure. Measures have different units, so each is shown as a percentile rank among the 71 runs (0% = lowest, 100% = highest). Lines are straight-line fits. <b>Size-adjusted</b> shows each run relative to what its lines changed predict, fitted within each benchmark (same method as the size-adjusted charts below). ρ = Spearman over all 71 runs pooled, uncorrected; the benchmarks differ in size, so read the within-benchmark results above for inference. Click a legend item to hide it; hover a dot for the run.</p>
+<h2 id="bigdos-h">All 82 runs: effort measures by package dispersion</h2>
+<p class="sub">Each colour is one effort measure. Measures have different units, so each is shown as a percentile rank among the 82 runs (0% = lowest, 100% = highest). Lines are straight-line fits. <b>Size-adjusted</b> shows each run relative to what its lines changed predict, fitted within each benchmark (same method as the size-adjusted charts below). ρ = Spearman over all 82 runs pooled, uncorrected; the benchmarks differ in size, so read the within-benchmark results above for inference. Click a legend item to hide it; hover a dot for the run.</p>
 <div class="fig">{SF.bigdos(rows)}</div>
 <h2 id="adj">The same, adjusted for size: is there anything beyond lines changed?</h2>
 <p>File count mostly measures size. Here each outcome is shown <b>relative to what its number of changed lines predicts</b>. Within each benchmark, log(outcome) is regressed on log(lines changed in the agent’s diff), and the plot shows the residual as a ratio, where 1× means exactly as expected for its size. A trend that remains here is association beyond size.</p>
@@ -761,24 +761,24 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 </ul></div>
 <div><h4>Read with care</h4><ul>
 <li>Scattering is measured on the agent’s own diff, and the agent can only change files it found, so navigation and scattering partly measure the same thing. Neither is shown to cause the other.</li>
-<li>The findings above are FeatureBench only. On SWE-Pro (50 runs) the raw links also hold after correction: more files changed go with more files opened (ρ +.79) and more searches (+.47), and focused diffs with fewer (ρ −.73, −.41). Across low-recall runs of both benchmarks, more scattered diffs had more needed files first found by search (ρ ≈ +.45, q &lt; .05). See the <a href="#navcorr">appendix table</a>.</li>
+<li>The findings above are FeatureBench only. On SWE-Pro (61 runs) the raw links also hold after correction: more files changed go with more files opened (ρ +.74) and more searches (+.48), and focused diffs with fewer (ρ −.68, −.43). Across low-recall runs of both benchmarks, more scattered diffs had more needed files first found by search (ρ ≈ +.4 to +.54, q &lt; .05). See the <a href="#navcorr">appendix table</a>.</li>
 </ul></div>
 </div>
 <p class="sub">FeatureBench, all 21 runs. Each dot is one run. These four charts back the findings above.</p>
 {SF.navkey(rows)}
 <div class="verdict" style="margin-top:2em">
-<div><h4>Key findings (SWE-bench Pro, 50 runs)</h4><p style="margin:0 0 .5em"><small>Only results that hold after correcting for multiple tests.</small></p><ul>
-<li><b>Scattered diffs go with more exploring here too.</b> The more files the diff changes, the more files the agent opened (ρ +.75) and the more it searched (+.46). More packages and wider spread also go with more files opened (+.64, +.66 in the <a href="#navcorr">appendix table</a>, which leaves out 2 runs with no needed files).</li>
-<li><b>Focused diffs go with less exploring.</b> The more of the diff sits in one file, the fewer searches (ρ −.40) and files opened (−.73).</li>
-<li><b>Split at the median:</b> runs changing more than the median number of files opened a median 6 files vs 2 (r +.77) and cost $0.40 vs $0.30 (r +.44). Runs touching more than one package opened 7 vs 3 (r +.73). <a href="#app-split-swe">table</a></li>
+<div><h4>Key findings (SWE-bench Pro, 61 runs)</h4><p style="margin:0 0 .5em"><small>Only results that hold after correcting for multiple tests.</small></p><ul>
+<li><b>Scattered diffs go with more exploring here too.</b> The more files the diff changes, the more files the agent opened (ρ +.71) and the more it searched (+.47). More packages and wider spread also go with more files opened (+.58, +.58 in the <a href="#navcorr">appendix table</a>, which leaves out 2 runs with no needed files).</li>
+<li><b>Focused diffs go with less exploring.</b> The more of the diff sits in one file, the fewer searches (ρ −.42) and files opened (−.68).</li>
+<li><b>Split at the median:</b> runs changing more than 1 file (28 of 61) opened a median 6 files vs 2 (r +.73), searched 7 vs 4 times (r +.42) and cost $0.38 vs $0.28 (r +.37). Runs touching more than one package opened 6 vs 3 (r +.66) and searched 8 vs 5 (r +.48). <a href="#app-split-swe">table</a></li>
 </ul></div>
 <div><h4>Different from FeatureBench</h4><ul>
-<li><b>No “start editing earlier” effect.</b> On FeatureBench, wide diffs had found fewer needed files before the first edit (ρ −.70). On SWE-Pro there is no link (ρ +.01; median split 56% vs 75%, p = .92), probably because the issue text often names the code to change.</li>
-<li><b>The action mix does not shift.</b> On FeatureBench scattered runs read more and use git less. On SWE-Pro, no share of actions differs between scattered and localized runs (all q &gt; .16).</li>
-<li>Effects are smaller than on FeatureBench (median 10 tool calls per run, against 50), and correlations only.</li>
+<li><b>No “start editing earlier” effect.</b> On FeatureBench, wide diffs had found fewer needed files before the first edit (ρ −.70). On SWE-Pro there is no such link (files changed ρ +.16, p = .22; median split 67% vs 33%, p = .21), possibly because the issue text often names the code to change. Functions touched even go the other way (ρ +.35, q = .02).</li>
+<li><b>The action mix does not shift.</b> On FeatureBench scattered runs read more and use git less. On SWE-Pro, no share of actions differs between scattered and localized runs (all q &gt; .19).</li>
+<li>Effects are smaller than on FeatureBench (median 9 tool calls per run, against 50), and correlations only.</li>
 </ul></div>
 </div>
-<p class="sub">SWE-bench Pro, all 50 runs. The same four charts.</p>
+<p class="sub">SWE-bench Pro, all 61 runs. The same four charts.</p>
 {SF.navkey(rows, 'SWE-bench Pro')}
 <h3>How each gold file was first found, per run, most scattered first</h3>
 <p class="sub">One panel per benchmark. Label = benchmark (FB / SW), “·low” = low-recall run, number of files in the agent’s diff, task. Ordered by package dispersion of the agent’s diff. Hover for counts.</p>
@@ -789,17 +789,17 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 </div>
 
 <h2 id="tech">Scattering vs technique</h2>
-<p><b>Probing does not rise with scattering</b>: once size is removed, FeatureBench shows no link, and on SWE-Pro more scattered runs probe somewhat less (ρ ≈ −.35, p &lt; .05 but not surviving correction). Codebook, validation and the full technique tables are in the <a href="#app-tech">appendix</a>.</p>
+<p><b>Probing does not rise with scattering</b>: once size is removed, FeatureBench shows no link, and on SWE-Pro more scattered runs probe somewhat less (ρ ≈ −.28 to −.35, p &lt; .05 but not surviving correction, q = .13). Codebook, validation and the full technique tables are in the <a href="#app-tech">appendix</a>.</p>
 
 <h2 id="tasktype">Task type vs scattering and effort</h2>
-<p>Each task was labelled from its <b>prompt text only</b>, before looking at any outcome (<code>tasktype.csv</code>, with a one-line reason per task). There are two labels. <b>Nature</b> has five groups: data/compute library core (10, all FeatureBench), plotting (4, FeatureBench), tool pipeline/integration such as CLIs, builders, clients and platform support (7 FeatureBench + 17 SWE-Pro), UI component/behaviour (12, SWE-Pro) and small fix/rename (21, SWE-Pro). <b>Bundled</b> marks a prompt that asks for several unrelated features at once (10 of the 21 FeatureBench tasks, no SWE-Pro task). Most groups exist in only one benchmark, so groups are compared <b>within</b> each benchmark (Kruskal–Wallis, permutation p): FeatureBench library/plotting/pipeline and SWE-Pro pipeline/UI/fix.</p>
-<div class="note"><b>Findings.</b> (1) Task nature goes with <b>how</b> a change is spread, not with how much effort it takes. On FeatureBench, package dispersion differs by nature (p = .01): library-core tasks stay inside one package (median dispersion .16), while plotting (.59) and pipeline tasks (.57) spread across packages. (2) Effort (tool calls, cost) does not differ by nature in either benchmark, raw or size-adjusted. The closest is FeatureBench size-adjusted (p ≈ .07), where pipeline tasks run highest. (3) Bundled multi-feature prompts lean bigger (median files 11.5 vs 6, tool calls 50 vs 28, cost $2.11 vs $1.28), but nothing is significant (p ≥ .39), and the gap disappears after the size adjustment. (4) On SWE-Pro (50 tasks: 21 fix, 17 pipeline, 12 UI), raw cost differs by nature (p = .004; median $0.26 fix, $0.36 pipeline, $0.40 UI), but not after the size adjustment (p = .15): fixes are smaller changes. Tool calls do not differ (p = .07 raw, .39 adjusted). Labels are my reading of each prompt, so this is descriptive.</div>
+<p>Each task was labelled from its <b>prompt text only</b>, before looking at any outcome (<code>tasktype.csv</code>, with a one-line reason per task). There are two labels. <b>Nature</b> has five groups: data/compute library core (10, all FeatureBench), plotting (4, FeatureBench), tool pipeline/integration such as CLIs, builders, clients and platform support (7 FeatureBench + 19 SWE-Pro), UI component/behaviour (12, SWE-Pro) and small fix/rename (30, SWE-Pro). <b>Bundled</b> marks a prompt that asks for several unrelated features at once (10 of the 21 FeatureBench tasks, no SWE-Pro task). Most groups exist in only one benchmark, so groups are compared <b>within</b> each benchmark (Kruskal–Wallis, permutation p): FeatureBench library/plotting/pipeline and SWE-Pro pipeline/UI/fix.</p>
+<div class="note"><b>Findings.</b> (1) Task nature goes with <b>how</b> a change is spread, not with how much effort it takes. On FeatureBench, package dispersion differs by nature (p = .01): library-core tasks stay inside one package (median dispersion .16), while plotting (.59) and pipeline tasks (.57) spread across packages. (2) On FeatureBench, effort (tool calls, cost) does not differ by nature, raw or size-adjusted. The closest is size-adjusted (p ≈ .07), where pipeline tasks run highest. On SWE-Pro it differs raw only, see (4). (3) Bundled multi-feature prompts lean bigger (median files 11.5 vs 6, tool calls 50 vs 28, cost $2.11 vs $1.28), but nothing is significant (p ≥ .39), and the gap disappears after the size adjustment. (4) On SWE-Pro (61 tasks: 30 fix, 19 pipeline, 12 UI), raw cost and tool calls differ by nature (cost p = .001, q = .005, median $0.23 fix, $0.33 pipeline, $0.40 UI; tool calls p = .012, q = .04, median 7.5, 9, 12.5; BH over the 6 SWE-Pro tests), but neither after the size adjustment (p = .08, .25): fixes are smaller changes. Labels are my reading of each prompt, so this is descriptive.</div>
 <div class="legend"><span class="key"><i class="s1"></i>FeatureBench</span><span class="key"><i class="s2"></i>SWE-bench Pro</span><span class="key"><i style="background:var(--fg);width:2px"></i>group median</span></div>
 <div class="fig">{_TTG}</div>
 <div class="fig"><h4>Bundled vs single-feature prompts (FeatureBench)</h4>{_TTB}</div>
 
 <h2 id="pass">Scattering vs passing at the first attempt</h2>
-<p>Final diffs include what the agent changed after failure feedback, so here scattering is measured on the <b>first-attempt diff</b> (<code>attempt1.diff.patch</code>; for single-round runs the first attempt is the final diff). Only FeatureBench can be tested: all 50 SWE-Pro runs passed at the first attempt, so there is nothing to compare.</p>
+<p>Final diffs include what the agent changed after failure feedback, so here scattering is measured on the <b>first-attempt diff</b> (<code>attempt1.diff.patch</code>; for single-round runs the first attempt is the final diff). Only FeatureBench can be tested: all {len(SB)} SWE-Pro runs passed at the first attempt, so there is nothing to compare.</p>
 <div class="note"><b>Finding.</b> No scattering measure separates the 4 first-attempt failures from the 17 passes, raw or size-adjusted (all p &gt; .4). The failures lean towards <em>smaller</em> first attempts: fewer lines and functions (r ≈ −.56, p ≈ .10). That looks more like under-doing the task than being lost in a scattered change. With 4 failures, only a very large effect could show up.</div>
 <p class="sub"><b>How to read r:</b> rank-biserial correlation, from −1 to +1. Positive means failed runs tend to have <em>higher</em> values than passed runs. p = two-sided permutation test (5,000 shuffles of pass/fail labels). Size-adjusted = the measure’s residual after regressing it on log lines changed (FeatureBench only).</p>
 <div class="tw">{_PTBL}</div>
@@ -827,7 +827,7 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 
 <h2 id="app-tech">Scattering vs technique (SlopCodeBench codebook)</h2>
 <p>Every tool call is labelled with the same codebook used for SlopCodeBench (<code>scbench/analysis/qual/techniques.py</code>, hand-validated 57/60 on Python traces): read, edit tool, edit via script, probe (run code in the repo / scratch script in <code>/tmp</code>), run tests, static check. One call can carry several labels. For the Go/TS SWE-Pro tasks I added <code>go test</code>/jest/vitest, <code>go run</code>/node and <code>go build</code>/tsc/stylelint patterns. I hand-checked all 101 Go/TS Bash calls: 98/101 have the right label set; the 3 errors come from the unchanged base classifier (<code>GOTS_VALIDATION.md</code>).</p>
-<div class="note"><b>Findings.</b> (1) In FeatureBench almost every technique count rises with the number of files the agent changed; after the size adjustment the ones that stay at p &lt; .05 are <b>reads, script edits and test runs</b> (ρ ≈ .5–.57), though none survives correction (q ≥ .08). (2) On SWE-Pro (50 runs) script edits and static checks (tsc, go build/vet) rise with scattering before size adjustment (ρ ≈ .33–.41), but none survive correction (q ≥ .07), and after size adjustment only script edits vs package dispersion stays at p &lt; .05 among them (ρ +.29, q = .19). The 12-run version of this page showed much stronger SWE-Pro technique links (ρ .7); they did not hold at 50. (3) Probing: in FeatureBench it rises with files only before size adjustment; in SWE-Pro, size-adjusted probing goes slightly <em>down</em> as scattering goes up (ρ ≈ −.35, q = .15). (4) A focused change (most lines in one file) goes with fewer reads and script edits. 56 tests per benchmark (28 per column), with q per column — treat single cells as leads, not results; correlations only.</div>
+<div class="note"><b>Findings.</b> (1) In FeatureBench almost every technique count rises with the number of files the agent changed; after the size adjustment the ones that stay at p &lt; .05 are <b>reads, script edits and test runs</b> (ρ ≈ .5–.57), though none survives correction (q ≥ .08). (2) On SWE-Pro (61 runs) script edits and static checks (tsc, go build/vet) rise with scattering before size adjustment (ρ ≈ .32–.38), but none survive correction (q ≥ .056); after size adjustment only static checks vs packages / dispersion stay at p &lt; .05 among them (ρ +.28, +.25, q = .13). The 12-run version of this page showed much stronger SWE-Pro technique links (ρ .7); they did not hold at 50 or 61. (3) Probing: in FeatureBench it rises with files only before size adjustment; in SWE-Pro, size-adjusted probing goes slightly <em>down</em> as scattering goes up (ρ ≈ −.28 to −.35, q = .13). (4) A focused change (most lines in one file) goes with fewer reads and script edits. 56 tests per benchmark (28 per column), with q per column — treat single cells as leads, not results; correlations only.</div>
 <div class="fig"><h4>Median technique use per run</h4>{_TM}</div>
 <div class="fig"><h4>Technique count vs scattering, within benchmark</h4><p class="sub">Spearman ρ on log(count+1); size-adj. = residual after regressing on log lines changed. Benjamini–Hochberg q per column; shaded where q &lt; .05.</p><div style="overflow-x:auto">{_TC}</div></div>
 <div class="fig"><h4>Surviving correction</h4>{_QTt}</div>
@@ -837,7 +837,7 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <p class="sub">Each split cuts the 21 FeatureBench runs at the median of one scattering measure. Rank-biserial r: +1 = every scattered run is higher, −1 = every localized run is higher. Permutation p (5,000 shuffles); Benjamini–Hochberg q within each split. Shaded = q &lt; .05. Shares of actions use the technique labels above.</p>
 {SF.split_table(rows)}
 <h2 id="app-split-swe">Scattered vs localized runs (SWE-bench Pro)</h2>
-<p class="sub">Same method on the 50 SWE-bench Pro runs. Most SWE-Pro diffs touch one package, so the median package count is 1 and dispersion 0: the package and dispersion splits put the same runs on each side and give identical tables.</p>
+<p class="sub">Same method on the 61 SWE-bench Pro runs. Most SWE-Pro diffs touch one package, so the median package count is 1 and dispersion 0: the package and dispersion splits put the same runs on each side and give identical tables.</p>
 {SF.split_table(rows, 'SWE-bench Pro')}
 <h2 id="bvb" class="part">Benchmark vs benchmark</h2>
 <p>This comparison mixes prompt style, repository, language, size and memorisation, so it is kept for reference only. Shape variables in this appendix come from the <em>reference</em> patch.</p>
@@ -872,9 +872,9 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <div class="fig"><h4>Gold lines reproduced verbatim, per cell</h4><p class="sub">Each dot is one cell; the black tick is the median. Hover for task.</p>{strip("recall_all","Gold lines reproduced verbatim",pct=True)}</div>
 
 <h2 id="comments">Comment-line matching</h2>
-<p>Comment wording is free, so a verbatim comment match is a sharper signal than matching code. Median match: <b>{mFBcm:.0%}</b> on FeatureBench against <b>{mSBcm:.0%}</b> on SWE-Pro. Only {nSBcm} of 50 SWE-Pro gold patches contain any comments; the 14 without any (7 of them protonmail) are left out.</p>
+<p>Comment wording is free, so a verbatim comment match is a sharper signal than matching code. Median match: <b>{mFBcm:.0%}</b> on FeatureBench against <b>{mSBcm:.0%}</b> on SWE-Pro. Only {nSBcm} of {len(SB)} SWE-Pro gold patches contain any comments; the {len(SB)-nSBcm} without any are left out.</p>
 <div class="fig"><h4>Gold comment lines reproduced, per cell</h4><p class="sub">Bar = share reproduced verbatim; “/n” = number of gold comment lines.</p>{cmtbars()}<div class="legend"><span class="key"><i class="s1"></i>FeatureBench</span><span class="key"><i class="s2"></i>SWE-bench Pro</span></div></div>
-<p>Comment match tracks line recall closely (ρ ≈ .8). The effort gaps (tool calls, searches, cost) hold when it is used as the control instead (n = 57 runs with gold comments, p &lt; .001).</p>
+<p>Comment match tracks line recall closely (ρ ≈ .8). The effort gaps (tool calls, searches, cost) hold when it is used as the control instead (n = 61 runs with gold comments, p &lt; .001).</p>
 
 <h2 id="nav">Navigation</h2>
 <div class="fig"><h4>How gold files were first found, all cells pooled</h4><p class="sub">Share of required gold files by discovery method. Hover for counts.</p>{navsvg}<div class="legend">{navleg}</div></div>
@@ -891,8 +891,8 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <li><b>Entangled factors.</b> Benchmark, prompt style, repositories, language and task size change together.</li>
 <li><b>Verbatim recall is not proof of memorisation.</b> It is used as a control, not a diagnosis.</li>
 <li><b>One seed per task.</b> Run-to-run variance is unknown.</li>
-<li><b>SWE-Pro is spread over 10 repos</b> (12 protonmail, 7 flipt, 5 each navidrome, vuls, qutebrowser, …); 12 runs come from earlier batches, 38 from batch 3. All use the issue text verbatim, except two prompts where one function or class name the tests don’t use was replaced.</li>
-<li><b>Small n.</b> With 21 vs 50 cells, only |δ| above about .4 is reliably detectable. A non-significant row is not evidence of no difference.</li>
+<li><b>SWE-Pro is spread over 10 repos</b> (15 protonmail, 9 flipt, 7 each navidrome and vuls, 6 ansible, 5 qutebrowser, …); 12 runs come from earlier batches, 38 from batch 3 and 11 from batch 4. Batch 4 was selected for reference patches changing ≥ 3 files, so it is not a random draw. All use the issue text verbatim, except two prompts where one function or class name the tests don’t use was replaced.</li>
+<li><b>Small n.</b> With 21 vs 61 cells, only |δ| above about .4 is reliably detectable. A non-significant row is not evidence of no difference.</li>
 <li><b>Function counts</b> are parsed from patch text (def/class/func/function declarations and hunk headers), not from a parser.</li>
 <li>Regression checks on existing features are out of scope here.</li>
 </ol>
@@ -904,10 +904,10 @@ The appendix’s benchmark comparison adds output tokens, re-read context tokens
 <h2 id="leads" class="part">Leads that do not survive correction</h2>
 <p>Each of these had uncorrected p &lt; .05 but q ≥ .05 after Benjamini–Hochberg correction (task type: 6 Kruskal–Wallis tests per benchmark; p = .01 gives q = .06). They are directions to re-test with more runs, not results.</p>
 <ol>
-<li><b>Files vs effort on SWE-Pro.</b> Size-adjusted, more files changed went with more searches and longer wall time (ρ +.33, +.29; p &lt; .05, q ≈ .26). Tool calls: ρ +.25, p = .08.</li>
-<li><b>Focus on SWE-Pro.</b> Size-adjusted, more focused diffs went with fewer searches and shorter wall time (ρ −.30, −.32; p &lt; .05, q ≈ .26). Tool calls: ρ −.24, p = .09.</li>
-<li><b>Probing does not rise with scattering.</b> On FeatureBench, the link between probes and files changed vanishes after the size adjustment. On SWE-Pro, more scattered runs probe slightly <em>less</em> than their size predicts (ρ ≈ −.35). These come from 56 tests per benchmark, none surviving correction, so treat them as leads.</li>
-<li><b>Task type shapes the spread, not the effort.</b> On FeatureBench, library-core tasks stay in one package (dispersion .16), while plotting and pipeline tasks spread across packages (.57–.59; p = .01). Tool calls and cost do not differ by task type, and prompts that bundle several features are not significantly costlier. <a href="#tasktype">Task type</a></li>
+<li><b>Files vs effort on SWE-Pro.</b> Size-adjusted, more files changed went with more searches and longer wall time (ρ +.34, p = .01, q = .11; wall time +.25, p = .06). Tool calls: ρ +.25, p = .06.</li>
+<li><b>Focus on SWE-Pro.</b> Size-adjusted, more focused diffs went with fewer searches and shorter wall time (ρ −.32, −.31; p = .015, q = .11). Tool calls: ρ −.26, p = .05.</li>
+<li><b>Probing does not rise with scattering.</b> On FeatureBench, the link between probes and files changed vanishes after the size adjustment. On SWE-Pro, more scattered runs probe slightly <em>less</em> than their size predicts (ρ ≈ −.28 to −.35). These come from 56 tests per benchmark, none surviving correction, so treat them as leads.</li>
+<li><b>Task type shapes the spread, not the effort.</b> On FeatureBench, library-core tasks stay in one package (dispersion .16), while plotting and pipeline tasks spread across packages (.57–.59; p = .01). Tool calls and cost do not differ by task type on FeatureBench, and prompts that bundle several features are not significantly costlier. On SWE-Pro they differ raw (fixes are cheapest) but not after the size adjustment. <a href="#tasktype">Task type</a></li>
 </ol>
 </div>
 <div id="tip" hidden></div>
