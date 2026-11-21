@@ -155,7 +155,14 @@ LIST=lists/batch4_multifile.txt MATCH=verb setsid nohup ./run_batch3.sh > runs/b
 - it isn't flagged as excluded, network-dependent, flaky or dropped;
 - it isn't among the 50 already run.
 
-They span ansible, navidrome, protonmail, flipt and vuls, with 3–6 source files each. They are meant to give more variation in scattering on SWE-bench Pro, where the median run changes 1 file. None has been run yet.
+They span ansible, navidrome, protonmail, flipt and vuls, with 3–6 source files each. They are meant to give more variation in scattering on SWE-bench Pro, where the median run changes 1 file.
+
+**Batch 4 results (run 2026-11-20/21, `lists/ran_batch4.tsv`, runs under `swebench-pro/runs/`, email/org/account ids redacted):**
+- 11 of the 12 ran, all with `prompt_verbatim.txt` (= `prompt.txt` byte for byte for these tasks), same harness and protocol as above.
+- All 11 converged in round 0 (no blind rounds), $0.11–$0.40 each, about $2.30 in total.
+- `vuls-8d5ea98e` was not run: preflight failed because the gold patch itself fails offline (it bumps `golang.org/x/crypto` in `go.mod` to a version not in the image, and the `--network none` acceptance container cannot fetch it). It is network-dependent and should be counted as excluded.
+- The protonmail tasks use Alpine images and need the musl CLI at `instruments/musl/claude-cli-musl/claude` (`@anthropic-ai/claude-code-linux-x64-musl@2.1.310`, sha256 in `claude-cli-musl.sha256`).
+- `make_task.py` does not write `prompt_verbatim.txt`; for new tasks copy `prompt.txt` to it before running with `VERB=1` / `MATCH=verb`. Run `run_batch3.sh` with `LIST=../lists/batch4_multifile.txt` (the path is relative to `harness/`).
 
 ## Rebuilding the analysis
 

