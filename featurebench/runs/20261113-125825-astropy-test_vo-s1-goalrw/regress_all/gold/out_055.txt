@@ -1,0 +1,323 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/visualization/tests.
+
+Date: 2026-11-13T18:24:08
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 271 items / 2 skipped
+
+astropy/visualization/tests/test_basic_rgb.py ..........ss.......        [  7%]
+astropy/visualization/tests/test_histogram.py sss.                       [  8%]
+astropy/visualization/tests/test_interval.py ........................... [ 18%]
+...........................                                              [ 28%]
+astropy/visualization/tests/test_lupton_rgb.py .................s.s.s..  [ 37%]
+astropy/visualization/tests/test_norm.py .ssssssssssssssssssssssssssssss [ 48%]
+sssssssss                                                                [ 52%]
+astropy/visualization/tests/test_stretch.py ............................ [ 62%]
+........................................................................ [ 88%]
+....................                                                     [ 96%]
+astropy/visualization/tests/test_units.py ssssssssss                     [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_image_mapping
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_linear
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_log
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_int8
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_float64
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_linear_min_max
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_log_min_max
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_log_scalar_interval
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_linear_bw
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_log_bw
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_different_shapes_asserts
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_incorrect_interval_length
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_invalid_output_dtype[bool]
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_invalid_output_dtype[str0]
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_invalid_output_dtype[int64]
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_invalid_output_dtype[complex128]
+PASSED astropy/visualization/tests/test_basic_rgb.py::test_invalid_output_dtype[str1]
+PASSED astropy/visualization/tests/test_histogram.py::test_histogram_pathological_input
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_manual
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_manual_defaults
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_manual_zero_limit
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_manual_defaults_with_nan
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_minmax
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_asymmetric_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_asymmetric_percentile_nsamples
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_symmetric_interval_manual
+PASSED astropy/visualization/tests/test_interval.py::TestInterval::test_symmetric_interval_auto
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_manual_defaults
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_manual_zero_limit
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_manual_defaults_with_nan
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_minmax
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_asymmetric_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_asymmetric_percentile_nsamples
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_symmetric_interval_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalList::test_symmetric_interval_auto
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_manual
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_manual_defaults
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_manual_zero_limit
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_manual_defaults_with_nan
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_minmax
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_asymmetric_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_asymmetric_percentile_nsamples
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_symmetric_interval_manual
+PASSED astropy/visualization/tests/test_interval.py::TestInterval2D::test_symmetric_interval_auto
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_manual_defaults
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_manual_zero_limit
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_manual_defaults_with_nan
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_minmax
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_asymmetric_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_asymmetric_percentile_nsamples
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_symmetric_interval_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedArray::test_symmetric_interval_auto
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_manual_defaults
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_manual_zero_limit
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_manual_defaults_with_nan
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_minmax
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_asymmetric_percentile
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_asymmetric_percentile_nsamples
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_symmetric_interval_manual
+PASSED astropy/visualization/tests/test_interval.py::TestIntervalMaskedNDArray::test_symmetric_interval_auto
+PASSED astropy/visualization/tests/test_interval.py::test_zscale
+PASSED astropy/visualization/tests/test_interval.py::test_zscale_npoints
+PASSED astropy/visualization/tests/test_interval.py::test_integers
+PASSED astropy/visualization/tests/test_interval.py::test_constant_data
+PASSED astropy/visualization/tests/test_lupton_rgb.py::test_compute_intensity_1_float
+PASSED astropy/visualization/tests/test_lupton_rgb.py::test_compute_intensity_1_uint
+PASSED astropy/visualization/tests/test_lupton_rgb.py::test_compute_intensity_3_float
+PASSED astropy/visualization/tests/test_lupton_rgb.py::test_compute_intensity_3_uint
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_Asinh
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_Asinh_incorrect_stretch_asserts
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_Asinh_incorrect_Q_asserts
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_Asinh_Q_machine_floor
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_Asinh_Q_ceil
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscaleIntensity
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscaleIntensityBW
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale_pedestal_array
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale_pedestal_float
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale_pedestal_incorrect_assert
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale_incorrect_input_asserts
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_AsinhZscale_incorrect_input_nonimage_asserts
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_make_rgb_incorrect_min_input
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_linear
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_different_shapes_asserts
+PASSED astropy/visualization/tests/test_lupton_rgb.py::TestLuptonRgb::test_incorrect_input_compute_intensity_asserts
+PASSED astropy/visualization/tests/test_norm.py::test_normalize_error_message
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_no_clip[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch0-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch0-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch1-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch1-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch2-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch2-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch3-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch3-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch4-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch4-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch5-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch5-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch6-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch6-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch7-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch7-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch8-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch8-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch9-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch9-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch10-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch10-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch11-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch11-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch12-2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip_ndimensional[stretch12-3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_clip[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_round_trip[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inplace_roundtrip[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch0]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch1]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch2]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch3]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch4]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch5]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch6]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch7]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch8]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch9]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch10]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch11]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_double_inverse[stretch12]
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_inverted
+PASSED astropy/visualization/tests/test_stretch.py::TestStretch::test_chaining
+PASSED astropy/visualization/tests/test_stretch.py::test_clip_invalid
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_powerdist_a[-2.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_powerdist_a[-1]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_powerdist_a[0.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_powerdist_a[1.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_power_log_a[-2.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_power_log_a[-1]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_power_log_a[0.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_sinh_a[-2.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_sinh_a[-1]
+PASSED astropy/visualization/tests/test_stretch.py::test_invalid_sinh_a[0.0]
+PASSED astropy/visualization/tests/test_stretch.py::test_sinh_a
+PASSED astropy/visualization/tests/test_stretch.py::test_histeqstretch_invalid
+PASSED astropy/visualization/tests/test_stretch.py::test_linearstretch_clip
+SKIPPED [2] astropy/visualization/tests/test_time.py:11: could not import 'matplotlib.pyplot': No module named 'matplotlib'
+SKIPPED [1] astropy/visualization/tests/test_basic_rgb.py:306: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_basic_rgb.py:327: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_histogram.py:18: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_histogram.py:33: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_histogram.py:48: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_lupton_rgb.py:258: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_lupton_rgb.py:285: saturation correction is not implemented
+SKIPPED [1] astropy/visualization/tests/test_lupton_rgb.py:318: replaceSaturatedPixels is not implemented in astropy yet
+SKIPPED [1] astropy/visualization/tests/test_norm.py:36: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:40: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:45: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:49: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:53: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:61: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:66: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:77: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:95: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:114: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:127: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:139: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:159: requires matplotlib
+SKIPPED [3] astropy/visualization/tests/test_norm.py:188: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:208: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:213: requires matplotlib
+SKIPPED [3] astropy/visualization/tests/test_norm.py:218: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:229: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:235: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:241: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:248: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:254: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:261: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:268: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:273: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:283: requires matplotlib
+SKIPPED [6] astropy/visualization/tests/test_norm.py:289: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:299: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:321: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_norm.py:345: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:20: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:39: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:61: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:76: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:87: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:105: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:124: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:135: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:146: requires matplotlib
+SKIPPED [1] astropy/visualization/tests/test_units.py:163: requires matplotlib
+======================= 214 passed, 59 skipped in 1.29s ========================

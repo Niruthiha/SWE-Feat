@@ -1,0 +1,1122 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/time/tests.
+
+Date: 2026-11-13T18:22:19
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 989 items
+
+astropy/time/tests/test_basic.py F...................................... [  3%]
+........................................................................ [ 11%]
+...s............s....................................................... [ 18%]
+................................................sssssssssssssssssssss... [ 25%]
+..................................                                       [ 29%]
+astropy/time/tests/test_comparisons.py ..................                [ 31%]
+astropy/time/tests/test_corrs.py ...s                                    [ 31%]
+astropy/time/tests/test_custom_formats.py .............................. [ 34%]
+...                                                                      [ 34%]
+astropy/time/tests/test_delta.py ....................................... [ 38%]
+........................................................................ [ 46%]
+........................................                                 [ 50%]
+astropy/time/tests/test_fast_parser.py ..................                [ 51%]
+astropy/time/tests/test_functions.py ......................              [ 54%]
+astropy/time/tests/test_guess.py ....                                    [ 54%]
+astropy/time/tests/test_mask.py ............................s........... [ 58%]
+........................................................................ [ 65%]
+....                                                                     [ 66%]
+astropy/time/tests/test_methods.py ..................................... [ 69%]
+........................................................................ [ 77%]
+.....................xx................................................. [ 84%]
+..........                                                               [ 85%]
+astropy/time/tests/test_pickle.py ..                                     [ 85%]
+astropy/time/tests/test_precision.py .........................x......... [ 89%]
+...s......s......s......s......s.......s....                             [ 93%]
+astropy/time/tests/test_quantity_interaction.py ......................   [ 95%]
+astropy/time/tests/test_sidereal.py ..........................           [ 98%]
+astropy/time/tests/test_update_leap_seconds.py Fss...F                   [ 99%]
+astropy/time/tests/test_ut1.py ss...F.                                   [100%]
+
+=================================== FAILURES ===================================
+____________________________ TestBasic.test_simple _____________________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/time/tests/test_basic.py:73: in test_simple
+    t = t.tai
+        ^^^^^
+astropy/time/core.py:1768: in __getattr__
+    tm._set_scale(attr)
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+_____________ TestUpdateLeapSeconds.test_auto_update_leap_seconds ______________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/time/tests/test_update_leap_seconds.py:35: in test_auto_update_leap_seconds
+    n_update = update_leap_seconds([iers.IERS_LEAP_SECOND_FILE])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+________________ TestUpdateLeapSeconds.test_init_thread_safety _________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/time/tests/test_update_leap_seconds.py:101: in test_init_thread_safety
+    results = [future.result() for future in futures]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/tests/test_update_leap_seconds.py:101: in <listcomp>
+    results = [future.result() for future in futures]
+               ^^^^^^^^^^^^^^^
+/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/tests/test_update_leap_seconds.py:98: in <lambda>
+    executor.submit(lambda: str(Time("2019-01-01 00:00:00.000").tai))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:1768: in __getattr__
+    tm._set_scale(attr)
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+_________________ TestTimeUT1SpecificIERSTable.test_ut1_iers_A _________________
+astropy/time/tests/test_ut1.py:145: in test_ut1_iers_A
+    do_ut1_prediction_tst(iers.IERS_A)
+astropy/time/tests/test_ut1.py:27: in do_ut1_prediction_tst
+    assert status == iers.FROM_IERS_A_PREDICTION
+E   assert np.int64(-2) == 2
+E    +  where 2 = iers.FROM_IERS_A_PREDICTION
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_different_dimensions
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[jd]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[mjd]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[decimalyear]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[unix]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[unix_tai]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[cxcsec]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[galexsec]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[gps]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[plot_date]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[stardate]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[datetime]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[ymdhms]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[iso]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[isot]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[yday]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[datetime64]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[fits]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[byear]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[jyear]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[byear_str]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_empty_value[jyear_str]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_copy_time[2455197.5]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_copy_time[value1]
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_getitem
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_properties
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_precision
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_precision_input
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_transforms
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_transforms_no_location
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_location
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_location_array
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_all_scale_transforms
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_creating_all_formats
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_local_format_transforms
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_datetime
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_datetime64
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_epoch_transform
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_input_validation
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_utc_leap_sec
+PASSED astropy/time/tests/test_basic.py::TestBasic::test_init_from_time_objects
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_unused_val2_raises[d0]
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_unused_val2_raises[d1]
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_unused_val2_raises[d2]
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_unused_val2_raises[d3]
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_val2
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_val_broadcasts_against_val2
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_broadcast_not_writable
+PASSED astropy/time/tests/test_basic.py::TestVal2::test_broadcast_one_not_writable
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_input_subformat
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_input_subformat_fail
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_bad_input_subformat
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_output_subformat
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_fits_format
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_yday_format
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_scale_input
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_fits_scale
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_scale_default
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_epoch_times
+PASSED astropy/time/tests/test_basic.py::TestSubFormat::test_plot_date
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_example
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_longdouble
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_longdouble_one_val
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_longdouble_for_other_types[mjd]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_longdouble_for_other_types[unix]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_longdouble_for_other_types[cxcsec]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_subformat_input
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_subformat_output[str]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_subformat_output[bytes]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_subformat_output_not_always_preserved
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[jd-2451544.5333981-2451544.5-0.0333981]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[decimalyear-2000.54321-2000.0-0.54321]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[cxcsec-100.0123456-100.0123456-None]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[unix-100.0123456-100.0123456-None]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[gps-100.0123456-100.0123456-None]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[byear-1950.1-1950.1-None]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_explicit_string_other_formats[jyear-2000.1-2000.1-None]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_basic_subformat_setting
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_basic_subformat_cache_does_not_crash
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[jd]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[mjd]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[cxcsec]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[unix]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[gps]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_does_not_affect_string[jyear]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_decimal_context_caching
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_timedelta_basic[sec-long-longdouble]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_timedelta_basic[sec-decimal-Decimal]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_timedelta_basic[sec-str-str]
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_need_format_argument
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_wrong_in_subfmt
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_wrong_subfmt
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_not_allowed_subfmt
+PASSED astropy/time/tests/test_basic.py::TestNumericalSubFormat::test_switch_to_format_with_no_out_subfmt
+PASSED astropy/time/tests/test_basic.py::TestSofaErrors::test_bad_time
+PASSED astropy/time/tests/test_basic.py::TestCopyReplicate::test_immutable_input
+PASSED astropy/time/tests/test_basic.py::TestCopyReplicate::test_replicate
+PASSED astropy/time/tests/test_basic.py::TestCopyReplicate::test_copy
+PASSED astropy/time/tests/test_basic.py::TestStardate::test_iso_to_stardate
+PASSED astropy/time/tests/test_basic.py::TestStardate::test_stardate_to_iso[dates0]
+PASSED astropy/time/tests/test_basic.py::TestStardate::test_stardate_to_iso[dates1]
+PASSED astropy/time/tests/test_basic.py::TestStardate::test_stardate_to_iso[dates2]
+PASSED astropy/time/tests/test_basic.py::test_python_builtin_copy
+PASSED astropy/time/tests/test_basic.py::test_now
+PASSED astropy/time/tests/test_basic.py::test_decimalyear
+PASSED astropy/time/tests/test_basic.py::test_decimalyear_no_quantity
+PASSED astropy/time/tests/test_basic.py::test_fits_year0
+PASSED astropy/time/tests/test_basic.py::test_fits_year10000
+PASSED astropy/time/tests/test_basic.py::test_dir
+PASSED astropy/time/tests/test_basic.py::test_time_from_epoch_jds
+PASSED astropy/time/tests/test_basic.py::test_bool
+PASSED astropy/time/tests/test_basic.py::test_len_size
+PASSED astropy/time/tests/test_basic.py::test_TimeFormat_scale
+PASSED astropy/time/tests/test_basic.py::test_byteorder
+PASSED astropy/time/tests/test_basic.py::test_datetime_tzinfo
+PASSED astropy/time/tests/test_basic.py::test_subfmts_regex
+PASSED astropy/time/tests/test_basic.py::test_set_format_basic
+PASSED astropy/time/tests/test_basic.py::test_unix_tai_format
+PASSED astropy/time/tests/test_basic.py::test_set_format_shares_subfmt
+PASSED astropy/time/tests/test_basic.py::test_set_format_does_not_share_subfmt
+PASSED astropy/time/tests/test_basic.py::test_replicate_value_error
+PASSED astropy/time/tests/test_basic.py::test_remove_astropy_time
+PASSED astropy/time/tests/test_basic.py::test_isiterable
+PASSED astropy/time/tests/test_basic.py::test_to_datetime
+PASSED astropy/time/tests/test_basic.py::test_to_datetime_leap_second_strict
+PASSED astropy/time/tests/test_basic.py::test_cache
+PASSED astropy/time/tests/test_basic.py::test_cache_coherence_with_views[True]
+PASSED astropy/time/tests/test_basic.py::test_cache_coherence_with_views[False]
+PASSED astropy/time/tests/test_basic.py::test_epoch_date_jd_is_day_fraction
+PASSED astropy/time/tests/test_basic.py::test_sum_is_equivalent
+PASSED astropy/time/tests/test_basic.py::test_string_valued_columns
+PASSED astropy/time/tests/test_basic.py::test_bytes_input
+PASSED astropy/time/tests/test_basic.py::test_writeable_flag
+PASSED astropy/time/tests/test_basic.py::test_setitem_location
+PASSED astropy/time/tests/test_basic.py::test_setitem_from_python_objects
+PASSED astropy/time/tests/test_basic.py::test_setitem_from_time_objects
+PASSED astropy/time/tests/test_basic.py::test_setitem_bad_item
+PASSED astropy/time/tests/test_basic.py::test_setitem_deltas
+PASSED astropy/time/tests/test_basic.py::test_subclass
+PASSED astropy/time/tests/test_basic.py::test_strftime_scalar
+PASSED astropy/time/tests/test_basic.py::test_strftime_array
+PASSED astropy/time/tests/test_basic.py::test_strftime_array_2
+PASSED astropy/time/tests/test_basic.py::test_strftime_leapsecond
+PASSED astropy/time/tests/test_basic.py::test_strptime_scalar
+PASSED astropy/time/tests/test_basic.py::test_strptime_array
+PASSED astropy/time/tests/test_basic.py::test_strptime_badinput
+PASSED astropy/time/tests/test_basic.py::test_strptime_input_bytes_scalar
+PASSED astropy/time/tests/test_basic.py::test_strptime_input_bytes_array
+PASSED astropy/time/tests/test_basic.py::test_strptime_leapsecond
+PASSED astropy/time/tests/test_basic.py::test_strptime_3_digit_year
+PASSED astropy/time/tests/test_basic.py::test_strptime_fracsec_scalar
+PASSED astropy/time/tests/test_basic.py::test_strptime_fracsec_array
+PASSED astropy/time/tests/test_basic.py::test_strftime_scalar_fracsec
+PASSED astropy/time/tests/test_basic.py::test_strftime_scalar_fracsec_precision
+PASSED astropy/time/tests/test_basic.py::test_strftime_array_fracsec
+PASSED astropy/time/tests/test_basic.py::test_insert_time
+PASSED astropy/time/tests/test_basic.py::test_insert_time_out_subfmt
+PASSED astropy/time/tests/test_basic.py::test_insert_exceptions
+PASSED astropy/time/tests/test_basic.py::test_datetime64_no_format
+PASSED astropy/time/tests/test_basic.py::test_hash_time
+PASSED astropy/time/tests/test_basic.py::test_hash_masked_time[numpy-None]
+PASSED astropy/time/tests/test_basic.py::test_hash_masked_time[numpy-location1]
+PASSED astropy/time/tests/test_basic.py::test_hash_masked_time[astropy-None]
+PASSED astropy/time/tests/test_basic.py::test_hash_masked_time[astropy-location1]
+PASSED astropy/time/tests/test_basic.py::test_hash_time_delta_masked[numpy]
+PASSED astropy/time/tests/test_basic.py::test_hash_time_delta_masked[astropy]
+PASSED astropy/time/tests/test_basic.py::test_get_time_fmt_exception_messages
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_defaults
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs0-tm_input0]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs0-tm_input1]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs0-tm_input2]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs1-tm_input0]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs1-tm_input1]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[False-kwargs1-tm_input2]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs0-tm_input0]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs0-tm_input1]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs0-tm_input2]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs1-tm_input0]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs1-tm_input1]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_table_like[True-kwargs1-tm_input2]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_dict_array
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_dict_scalar[kwargs0]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_init_from_dict_scalar[kwargs1]
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_exceptions
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_masked
+PASSED astropy/time/tests/test_basic.py::test_ymdhms_output
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[jd]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[mjd]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[decimalyear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[unix]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[unix_tai]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[cxcsec]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[galexsec]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[gps]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[plot_date]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[stardate]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[datetime]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[ymdhms]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[iso]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[isot]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[yday]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[datetime64]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[fits]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[byear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[jyear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[byear_str]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_ecsv[jyear_str]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[jd]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[mjd]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[decimalyear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[unix]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[unix_tai]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[cxcsec]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[galexsec]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[gps]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[plot_date]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[stardate]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[datetime]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[ymdhms]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[iso]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[isot]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[yday]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[datetime64]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[fits]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[byear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[jyear]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[byear_str]
+PASSED astropy/time/tests/test_basic.py::test_write_every_format_to_fits[jyear_str]
+PASSED astropy/time/tests/test_basic.py::test_broadcasting_writeable
+PASSED astropy/time/tests/test_basic.py::test_format_subformat_compatibility
+PASSED astropy/time/tests/test_basic.py::test_format_fractional_string_parsing[force]
+PASSED astropy/time/tests/test_basic.py::test_format_fractional_string_parsing[False]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[jd-TimeJD]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[mjd-TimeMJD]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[decimalyear-TimeDecimalYear]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[unix-TimeUnix]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[unix_tai-TimeUnixTai]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[cxcsec-TimeCxcSec]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[galexsec-TimeGalexSec]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[gps-TimeGPS]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[plot_date-TimePlotDate]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[stardate-TimeStardate]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[datetime-TimeDatetime]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[ymdhms-TimeYMDHMS]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[iso-TimeISO]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[isot-TimeISOT]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[yday-TimeYearDayTime]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[datetime64-TimeDatetime64]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[fits-TimeFITS]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[byear-TimeBesselianEpoch]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[jyear-TimeJulianEpoch]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[byear_str-TimeBesselianEpochString]
+PASSED astropy/time/tests/test_basic.py::test_to_value_with_subfmt_for_every_format[jyear_str-TimeJulianEpochString]
+PASSED astropy/time/tests/test_basic.py::test_location_init[None]
+PASSED astropy/time/tests/test_basic.py::test_location_init[location1]
+PASSED astropy/time/tests/test_basic.py::test_location_init_fail
+PASSED astropy/time/tests/test_basic.py::test_linspace
+PASSED astropy/time/tests/test_basic.py::test_linspace_steps
+PASSED astropy/time/tests/test_basic.py::test_linspace_fmts
+PASSED astropy/time/tests/test_basic.py::test_to_string
+PASSED astropy/time/tests/test_basic.py::test_format_typeerror
+PASSED astropy/time/tests/test_basic.py::test_timedelta_empty_quantity
+PASSED astropy/time/tests/test_basic.py::test_immutable_location[kwargs0]
+PASSED astropy/time/tests/test_basic.py::test_immutable_location[kwargs1]
+PASSED astropy/time/tests/test_basic.py::test_immutable_location[kwargs2]
+PASSED astropy/time/tests/test_comparisons.py::TestTimeComparisons::test_miscompares
+PASSED astropy/time/tests/test_comparisons.py::TestTimeComparisons::test_time
+PASSED astropy/time/tests/test_comparisons.py::TestTimeComparisons::test_time_boolean
+PASSED astropy/time/tests/test_comparisons.py::TestTimeComparisons::test_timedelta
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_time[True-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_time[True-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_time[False-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_time[False-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_time_exceptions
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[True-True-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[True-True-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[True-False-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[True-False-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[False-True-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[False-True-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[False-False-True]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta[False-False-False]
+PASSED astropy/time/tests/test_comparisons.py::test_isclose_timedelta_exceptions
+PASSED astropy/time/tests/test_corrs.py::TestHelioBaryCentric::test_heliocentric
+PASSED astropy/time/tests/test_corrs.py::TestHelioBaryCentric::test_barycentric
+PASSED astropy/time/tests/test_corrs.py::TestHelioBaryCentric::test_arrays
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_set_jds_exception
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_val_type_exception
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_value_exception
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_fine
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_forgot_property
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_time_format_problematic_name
+PASSED astropy/time/tests/test_custom_formats.py::test_mjd_longdouble_preserves_precision
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[foo-None]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[jd11-jd21]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[foo-bar]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[1j-2j]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[jd14-jd24]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[jd15-jd25]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[jd16-jd26]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[jd17-jd27]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_cannot_make_bogus_jd1[<lambda>-<lambda>]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_scalar_jd1_jd2_okay
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[1]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[1.0]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[thing2]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[1j]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[foo0]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[foo1]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[thing6]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[<lambda>]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[thing8]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_scalar[thing9]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing0]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing1]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing2]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing3]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing4]
+PASSED astropy/time/tests/test_custom_formats.py::test_custom_format_can_return_any_iterable[thing5]
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_sub
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_add
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_time_delta_comp_num_quantity
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_time_delta_comp_nan_quantity
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_add_vector
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_sub_vector
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_copy_timedelta[values0]
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_copy_timedelta[values1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_neg_abs
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_mul_div
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_mean
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_keep_properties
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_set_format
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_from_non_float
+PASSED astropy/time/tests/test_delta.py::TestTimeDelta::test_to_value
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_scales_definition
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tai-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcb-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tcg-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tdb-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[tt-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[ut1-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_standard_scales_for_time_minus_time[utc-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_local_scales_for_time_minus_time
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_minus_delta
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[add-local]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_scales_for_delta_scale_is_none[sub-local]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[tai]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[tcb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[tcg]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[tdb]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[tt]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[ut1]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[utc]
+PASSED astropy/time/tests/test_delta.py::TestTimeDeltaScales::test_delta_day_is_86400_seconds[local]
+PASSED astropy/time/tests/test_delta.py::test_timedelta_setitem
+PASSED astropy/time/tests/test_delta.py::test_timedelta_setitem_sec
+PASSED astropy/time/tests/test_delta.py::test_timedelta_mask
+PASSED astropy/time/tests/test_delta.py::test_python_timedelta_scalar
+PASSED astropy/time/tests/test_delta.py::test_python_timedelta_vector
+PASSED astropy/time/tests/test_delta.py::test_timedelta_to_datetime
+PASSED astropy/time/tests/test_delta.py::test_insert_timedelta
+PASSED astropy/time/tests/test_delta.py::test_no_units_warning
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1s-1.0s-1.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1s-1.0s-1.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1s-1.0s-1.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1min-1min-60.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1min-1min-60.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1min-1min-60.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5hr-2hr 30min-9000.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5hr-2hr 30min-9000.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5hr-2hr 30min-9000.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.000001e7s-347d 5hr 20min 10.0s-30000010.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.000001e7s-347d 5hr 20min 10.0s-30000010.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.000001e7s-347d 5hr 20min 10.0s-30000010.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.e7s-347d 5hr 20min-30000000.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.e7s-347d 5hr 20min-30000000.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3.e7s-347d 5hr 20min-30000000.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3e7s-347d 5hr 20min-30000000.0-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3e7s-347d 5hr 20min-30000000.0-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[3e7s-347d 5hr 20min-30000000.0--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1.0123456789012345s-1.012s-1.0123456789012344-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1.0123456789012345s-1.012s-1.0123456789012344-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[1.0123456789012345s-1.012s-1.0123456789012344--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[  100.0 d1.0123456789012345 s -100d 1.012s-8640001.01234568-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[  100.0 d1.0123456789012345 s -100d 1.012s-8640001.01234568-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[  100.0 d1.0123456789012345 s -100d 1.012s-8640001.01234568--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2yr 3d 4hr 5min 6.789s-733d 16hr 5min 6.789s-63389106.789-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2yr 3d 4hr 5min 6.789s-733d 16hr 5min 6.789s-63389106.789-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2yr 3d 4hr 5min 6.789s-733d 16hr 5min 6.789s-63389106.789--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5yr 3.5d 4.5hr 5.5min 6.789s-916d 19hr 35min 36.789s-79212936.789-]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5yr 3.5d 4.5hr 5.5min 6.789s-916d 19hr 35min 36.789s-79212936.789-+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_basic[2.5yr 3.5d 4.5hr 5.5min 6.789s-916d 19hr 35min 36.789s-79212936.789--]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_precision
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[ ]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[+]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[ - ]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[1.0]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[1.0s 2.0s]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[1.0s 2.0]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[1.0s 2min]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[++1.0s]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[2min +1s]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[2d -1s]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_invalid[1sec]
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_out_subfmt
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_out_subfmt_precision
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_out_subfmt_to_value_subfmt
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_out_subfmt_from_non_quantity_str
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_internal_precision
+PASSED astropy/time/tests/test_delta.py::test_time_delta_to_value_validation_error
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_val_type_error
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_zero_value
+PASSED astropy/time/tests/test_delta.py::test_quantity_str_multi_comps_overflow
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_conf
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[0-times0-iso]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[0-times1-isot]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[0-times2-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[0-times3-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[1-times0-iso]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[1-times1-isot]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[1-times2-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[1-times3-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[2-times0-iso]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[2-times1-isot]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[2-times2-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_matches_python[2-times3-yday]
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_yday_exceptions
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_iso_exceptions
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_non_ascii
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_subclass
+PASSED astropy/time/tests/test_fast_parser.py::test_fast_large_arrays
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTime::test_diff[0]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTime::test_diff[1]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_diff[0]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_diff[1]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[sum-0]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[sum-1]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[sum-None]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[mean-0]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[mean-1]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[mean-None]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[median-0]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[median-1]
+PASSED astropy/time/tests/test_functions.py::TestFunctionsTimeDelta::test_sum_like[median-None]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t0-shape]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t0-ndim]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t0-size]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t1-shape]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t1-ndim]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t1-size]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t2-shape]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t2-ndim]
+PASSED astropy/time/tests/test_functions.py::test_shape_attribute_functions[t2-size]
+PASSED astropy/time/tests/test_guess.py::TestGuess::test_guess1
+PASSED astropy/time/tests/test_guess.py::TestGuess::test_guess2
+PASSED astropy/time/tests/test_guess.py::TestGuess::test_guess3
+PASSED astropy/time/tests/test_guess.py::TestGuess::test_guess4
+PASSED astropy/time/tests/test_mask.py::test_simple
+PASSED astropy/time/tests/test_mask.py::test_unmasked
+PASSED astropy/time/tests/test_mask.py::test_filled[4]
+PASSED astropy/time/tests/test_mask.py::test_filled[fill_value1]
+PASSED astropy/time/tests/test_mask.py::test_scalar_init
+PASSED astropy/time/tests/test_mask.py::test_mask_not_writeable
+PASSED astropy/time/tests/test_mask.py::test_str
+PASSED astropy/time/tests/test_mask.py::test_transform
+PASSED astropy/time/tests/test_mask.py::test_masked_input
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[0-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[0-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[nan-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[nan-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[val2-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[val2-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[val3-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input[val3-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[0-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[0-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[val1-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[val1-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[1-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[1-Masked]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[val3-MaskedArray]
+PASSED astropy/time/tests/test_mask.py::test_all_masked_input_str[val3-Masked]
+PASSED astropy/time/tests/test_mask.py::test_some_masked_input_str_no_subfmt
+PASSED astropy/time/tests/test_mask.py::test_masked_input_and_unmasked_array_location
+PASSED astropy/time/tests/test_mask.py::test_serialize_fits_masked
+PASSED astropy/time/tests/test_mask.py::test_serialize_ecsv_masked[jd1_jd2]
+PASSED astropy/time/tests/test_mask.py::test_serialize_ecsv_masked[formatted_value]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-jd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-mjd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-decimalyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-unix]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-unix_tai]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-cxcsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-galexsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-gps]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-plot_date]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-stardate]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-datetime]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-ymdhms]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-iso]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-isot]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-yday]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-datetime64]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-fits]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-byear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-jyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-byear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-MaskedArray-jyear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-jd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-mjd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-decimalyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-unix]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-unix_tai]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-cxcsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-galexsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-gps]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-plot_date]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-stardate]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-datetime]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-ymdhms]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-iso]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-isot]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-yday]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-datetime64]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-fits]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-byear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-jyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-byear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[numpy-Masked-jyear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-jd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-mjd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-decimalyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-unix]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-unix_tai]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-cxcsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-galexsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-gps]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-plot_date]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-stardate]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-datetime]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-ymdhms]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-iso]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-isot]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-yday]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-datetime64]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-fits]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-byear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-jyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-byear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-MaskedArray-jyear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-jd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-mjd]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-decimalyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-unix]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-unix_tai]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-cxcsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-galexsec]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-gps]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-plot_date]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-stardate]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-datetime]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-ymdhms]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-iso]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-isot]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-yday]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-datetime64]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-fits]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-byear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-jyear]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-byear_str]
+PASSED astropy/time/tests/test_mask.py::test_all_formats[astropy-Masked-jyear_str]
+PASSED astropy/time/tests/test_mask.py::test_datetime64_with_nat
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_ravel[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_ravel[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_flatten[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_flatten[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_transpose[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_transpose[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_diagonal[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_diagonal[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_swapaxes[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_swapaxes[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_reshape[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_reshape[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_squeeze[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_squeeze[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_add_dimension[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_add_dimension[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_take[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_take[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_broadcast_via_apply[masked]
+PASSED astropy/time/tests/test_methods.py::TestManipulation::test_broadcast_via_apply[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestSetShape::test_shape_setting[masked]
+PASSED astropy/time/tests/test_methods.py::TestSetShape::test_shape_setting[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_broadcast[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_broadcast[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_1d[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_1d[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_2d[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_2d[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_3d[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_atleast_3d[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_move_axis[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_move_axis[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_roll_axis[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_roll_axis[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_fliplr[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_fliplr[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_rot90[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_rot90[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_roll[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_roll[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_delete[masked]
+PASSED astropy/time/tests/test_methods.py::TestShapeFunctions::test_delete[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_concatenate[masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_concatenate[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_hstack[masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_hstack[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_vstack[masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_vstack[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_dstack[masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_dstack[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_stack[masked]
+PASSED astropy/time/tests/test_methods.py::TestConcatenateFunctions::test_stack[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw0-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw0-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw1-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw1-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw2-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw2-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw3-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw3-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw4-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw4-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw5-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw5-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw6-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw6-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw7-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw7-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw8-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw8-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw9-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw9-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw10-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw10-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw11-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw11-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw12-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw12-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw13-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw13-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw14-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argfuncs[kw14-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw0-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw0-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw1-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw1-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw2-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw2-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw3-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw3-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw4-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw4-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw5-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw5-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw6-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw6-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw7-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw7-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw8-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw8-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw9-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw9-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw10-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw10-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw11-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw11-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw12-min-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw12-min-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw13-max-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw13-max-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw14-sort-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_funcs[kw14-sort-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argmin[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argmin[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argmax[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argmax[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tai-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tai-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tcb-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tcb-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tcg-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tcg-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tdb-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tdb-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tt-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[tt-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[ut1-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[ut1-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[local-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[local-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_min[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_min[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_max[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_max[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_ptp[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_ptp[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_sort[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_sort[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-None-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-None-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-0-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-0-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-1-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-1-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-2-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-2-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-axis4-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-True-axis4-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-None-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-None-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-0-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-0-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-1-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-1-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-2-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-2-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-axis4-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[False-where1-axis4-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-None-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-None-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-0-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-0-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-1-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-1-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-2-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-2-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-axis4-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-True-axis4-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-None-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-None-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-0-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-0-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-1-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-1-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-2-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-2-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-axis4-masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean[True-where1-axis4-not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_precision[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_precision[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_dtype[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_dtype[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_out[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_out[not_masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_leap_second[masked]
+PASSED astropy/time/tests/test_methods.py::TestArithmetic::test_mean_leap_second[not_masked]
+PASSED astropy/time/tests/test_methods.py::test_regression
+PASSED astropy/time/tests/test_pickle.py::TestPickle::test_pickle
+PASSED astropy/time/tests/test_pickle.py::TestPickle::test_cache_not_shared
+PASSED astropy/time/tests/test_precision.py::test_abs_jd2_always_less_than_half
+PASSED astropy/time/tests/test_precision.py::test_abs_jd2_always_less_than_half_on_construction
+PASSED astropy/time/tests/test_precision.py::test_round_to_even
+PASSED astropy/time/tests/test_precision.py::test_addition
+PASSED astropy/time/tests/test_precision.py::test_mult_div
+PASSED astropy/time/tests/test_precision.py::test_init_variations
+PASSED astropy/time/tests/test_precision.py::test_precision_exceeds_64bit
+PASSED astropy/time/tests/test_precision.py::test_through_scale_change
+PASSED astropy/time/tests/test_precision.py::test_iso_init
+PASSED astropy/time/tests/test_precision.py::test_jd1_is_mult_of_one
+PASSED astropy/time/tests/test_precision.py::test_precision_neg
+PASSED astropy/time/tests/test_precision.py::test_precision_epoch
+PASSED astropy/time/tests/test_precision.py::test_leap_seconds_rounded_correctly
+PASSED astropy/time/tests/test_precision.py::test_two_sum
+PASSED astropy/time/tests/test_precision.py::test_two_sum_symmetric
+PASSED astropy/time/tests/test_precision.py::test_two_sum_size
+PASSED astropy/time/tests/test_precision.py::test_day_frac_harmless
+PASSED astropy/time/tests/test_precision.py::test_day_frac_exact
+PASSED astropy/time/tests/test_precision.py::test_day_frac_idempotent
+PASSED astropy/time/tests/test_precision.py::test_mjd_initialization_precise
+PASSED astropy/time/tests/test_precision.py::test_day_frac_always_less_than_half
+PASSED astropy/time/tests/test_precision.py::test_day_frac_round_to_even
+PASSED astropy/time/tests/test_precision.py::test_resolution_never_decreases
+PASSED astropy/time/tests/test_precision.py::test_resolution_never_decreases_utc
+PASSED astropy/time/tests/test_precision.py::test_conversion_preserves_jd1_jd2_invariant
+PASSED astropy/time/tests/test_precision.py::test_leap_stretch_mjd
+PASSED astropy/time/tests/test_precision.py::test_jd_add_subtract_round_trip
+PASSED astropy/time/tests/test_precision.py::test_time_argminmaxsort
+PASSED astropy/time/tests/test_precision.py::test_timedelta_full_precision
+PASSED astropy/time/tests/test_precision.py::test_timedelta_full_precision_arithmetic
+PASSED astropy/time/tests/test_precision.py::test_timedelta_conversion
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[tai]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[tcb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[tcg]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[tdb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[tt]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta[ut1]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[tai]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[tcb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[tcg]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[tdb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[tt]
+PASSED astropy/time/tests/test_precision.py::test_datetime_to_timedelta[ut1]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[tai]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[tcb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[tcg]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[tdb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[tt]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_roundtrip[ut1]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[tai]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[tcb]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[tcg]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[tdb]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[tt]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_datetime_roundtrip[ut1]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[tai]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[tcb]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[tcg]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[tdb]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[tt]
+PASSED astropy/time/tests/test_precision.py::test_timedelta_from_parts[ut1]
+PASSED astropy/time/tests/test_precision.py::test_datetime_difference_agrees_with_timedelta_no_hypothesis
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[tai]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[tcb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[tcg]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[tdb]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[tt]
+PASSED astropy/time/tests/test_precision.py::test_datetime_timedelta_sum[ut1]
+PASSED astropy/time/tests/test_precision.py::test_sidereal_lat_independent[apparent]
+PASSED astropy/time/tests/test_precision.py::test_sidereal_lat_independent[mean]
+PASSED astropy/time/tests/test_precision.py::test_sidereal_lon_independent[apparent]
+PASSED astropy/time/tests/test_precision.py::test_sidereal_lon_independent[mean]
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_valid_quantity_input
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_invalid_quantity_input
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_column_with_and_without_units
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_no_quantity_input_allowed
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_valid_quantity_operations
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeQuantity::test_invalid_quantity_operations
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_valid_quantity_input
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_invalid_quantity_input
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_quantity_output
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_quantity_output_errors
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_valid_quantity_operations1
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_valid_quantity_operations2
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_valid_quantity_operations3
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_invalid_quantity_operations
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_invalid_quantity_operations2
+PASSED astropy/time/tests/test_quantity_interaction.py::TestTimeDeltaQuantity::test_invalid_quantity_broadcast
+PASSED astropy/time/tests/test_quantity_interaction.py::TestDeltaAttributes::test_delta_ut1_utc
+PASSED astropy/time/tests/test_quantity_interaction.py::TestDeltaAttributes::test_delta_tdb_tt
+PASSED astropy/time/tests/test_quantity_interaction.py::test_quantity_conversion_rounding[q10-None]
+PASSED astropy/time/tests/test_quantity_interaction.py::test_quantity_conversion_rounding[q11-None]
+PASSED astropy/time/tests/test_quantity_interaction.py::test_quantity_conversion_rounding[q12-q22]
+PASSED astropy/time/tests/test_quantity_interaction.py::test_quantity_conversion_rounding[q13-q23]
+PASSED astropy/time/tests/test_sidereal.py::test_doc_string_contains_models
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_setup
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input0]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input1]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input2]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input3]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input4]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input5]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_iau_models[erfa_test_input6]
+PASSED astropy/time/tests/test_sidereal.py::TestERFATestCases::test_era
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gmst
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gst
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_era
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gmst_gst_close
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gmst_era_close
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gmst_independent_of_self_location
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_gmst_vs_lmst
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_lst[mean]
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_lst[apparent]
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_lst_string_longitude
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_lst_needs_location
+PASSED astropy/time/tests/test_sidereal.py::TestST::test_lera
+PASSED astropy/time/tests/test_sidereal.py::TestModelInterpretation::test_model_uniqueness[mean]
+PASSED astropy/time/tests/test_sidereal.py::TestModelInterpretation::test_model_uniqueness[apparent]
+PASSED astropy/time/tests/test_sidereal.py::TestModelInterpretation::test_wrong_models_raise_exceptions[mean-apparent]
+PASSED astropy/time/tests/test_sidereal.py::TestModelInterpretation::test_wrong_models_raise_exceptions[apparent-mean]
+PASSED astropy/time/tests/test_update_leap_seconds.py::TestUpdateLeapSeconds::test_auto_update_bad_file
+PASSED astropy/time/tests/test_update_leap_seconds.py::TestUpdateLeapSeconds::test_auto_update_corrupt_file
+PASSED astropy/time/tests/test_update_leap_seconds.py::TestUpdateLeapSeconds::test_auto_update_expired_file
+PASSED astropy/time/tests/test_ut1.py::TestTimeUT1::test_ut1_to_utc
+PASSED astropy/time/tests/test_ut1.py::TestTimeUT1::test_empty_ut1
+PASSED astropy/time/tests/test_ut1.py::TestTimeUT1::test_delta_ut1_utc
+PASSED astropy/time/tests/test_ut1.py::TestTimeUT1SpecificIERSTable::test_ut1_iers_B
+SKIPPED [5] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+SKIPPED [1] astropy/time/tests/test_basic.py:1810: requires pytz
+SKIPPED [21] astropy/time/tests/test_basic.py:2633: Needs h5py
+SKIPPED [1] astropy/time/tests/test_corrs.py:63: requires jplephem
+SKIPPED [1] astropy/time/tests/test_mask.py:274: Needs h5py
+SKIPPED [1] astropy/time/tests/test_precision.py:704: need --run-slow option to run
+SKIPPED [1] astropy/time/tests/test_precision.py:717: need --run-slow option to run
+SKIPPED [1] astropy/time/tests/test_precision.py:729: need --run-slow option to run
+SKIPPED [1] astropy/time/tests/test_precision.py:739: need --run-slow option to run
+SKIPPED [1] astropy/time/tests/test_precision.py:749: need --run-slow option to run
+SKIPPED [1] astropy/time/tests/test_precision.py:769: need --run-slow option to run
+XFAIL astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[utc-masked]
+XFAIL astropy/time/tests/test_methods.py::TestArithmetic::test_argsort_warning[utc-not_masked]
+XFAIL astropy/time/tests/test_precision.py::test_conversion_never_loses_precision
+FAILED astropy/time/tests/test_basic.py::TestBasic::test_simple - astropy.uti...
+FAILED astropy/time/tests/test_update_leap_seconds.py::TestUpdateLeapSeconds::test_auto_update_leap_seconds
+FAILED astropy/time/tests/test_update_leap_seconds.py::TestUpdateLeapSeconds::test_init_thread_safety
+FAILED astropy/time/tests/test_ut1.py::TestTimeUT1SpecificIERSTable::test_ut1_iers_A
+============ 4 failed, 947 passed, 35 skipped, 3 xfailed in 21.59s =============

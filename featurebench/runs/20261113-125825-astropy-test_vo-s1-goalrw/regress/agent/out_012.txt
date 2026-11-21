@@ -1,0 +1,371 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/utils/tests/test_codegen.py /testbed/astropy/utils/tests/test_collections.py /testbed/astropy/utils/tests/test_console.py /testbed/astropy/utils/tests/test_data.py /testbed/astropy/utils/tests/test_data_info.py /testbed/astropy/utils/tests/test_decorators.py /testbed/astropy/utils/tests/test_diff.py /testbed/astropy/utils/tests/test_introspection.py /testbed/astropy/utils/tests/test_misc.py /testbed/astropy/utils/tests/test_parsing.py /testbed/astropy/utils/tests/test_progress_bar_func.py /testbed/astropy/utils/tests/test_shapes.py /testbed/astropy/utils/tests/test_state.py /testbed/astropy/utils/tests/test_xml.py.
+
+Date: 2026-11-13T18:34:59
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 304 items
+
+astropy/utils/tests/test_codegen.py .                                    [  0%]
+astropy/utils/tests/test_collections.py .........                        [  3%]
+astropy/utils/tests/test_console.py ............................         [ 12%]
+astropy/utils/tests/test_data.py ......s................sss.s......s...s [ 25%]
+.s.................s........xx.s.s....................................ss [ 49%]
+sss.sss....................s...s.........                                [ 62%]
+astropy/utils/tests/test_data_info.py .................                  [ 68%]
+astropy/utils/tests/test_decorators.py .........................ss...... [ 78%]
+.......                                                                  [ 81%]
+astropy/utils/tests/test_diff.py ....................                    [ 87%]
+astropy/utils/tests/test_introspection.py .......                        [ 90%]
+astropy/utils/tests/test_misc.py .....s........                          [ 94%]
+astropy/utils/tests/test_parsing.py .                                    [ 95%]
+astropy/utils/tests/test_shapes.py ....                                  [ 96%]
+astropy/utils/tests/test_state.py .                                      [ 96%]
+astropy/utils/tests/test_xml.py .........s                               [100%]
+
+==================================== PASSES ====================================
+_______________________________ test_color_print _______________________________
+----------------------------- Captured stdout call -----------------------------
+foo
+foobar
+___________________________ test_color_print_unicode ___________________________
+----------------------------- Captured stdout call -----------------------------
+überbær
+________________________ test_color_print_invalid_color ________________________
+----------------------------- Captured stdout call -----------------------------
+foo
+_____________________________ test_generate_parser _____________________________
+----------------------------- Captured stderr call -----------------------------
+WARNING: no p_error() function is defined
+WARNING: no p_error() function is defined
+=========================== short test summary info ============================
+PASSED astropy/utils/tests/test_codegen.py::test_make_function_with_signature_lineno
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list2
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list3
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list4
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list5
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list_setitem_works
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list_setitem_works_with_slice
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list_init_got_invalid_type
+PASSED astropy/utils/tests/test_collections.py::test_homogeneous_list_works_with_generators
+PASSED astropy/utils/tests/test_console.py::test_fake_tty
+PASSED astropy/utils/tests/test_console.py::test_color_text
+PASSED astropy/utils/tests/test_console.py::test_color_print
+PASSED astropy/utils/tests/test_console.py::test_color_print2
+PASSED astropy/utils/tests/test_console.py::test_color_print3
+PASSED astropy/utils/tests/test_console.py::test_color_print_unicode
+PASSED astropy/utils/tests/test_console.py::test_color_print_invalid_color
+PASSED astropy/utils/tests/test_console.py::test_spinner_non_unicode_console
+PASSED astropy/utils/tests/test_console.py::test_progress_bar
+PASSED astropy/utils/tests/test_console.py::test_progress_bar2
+PASSED astropy/utils/tests/test_console.py::test_progress_bar3
+PASSED astropy/utils/tests/test_console.py::test_zero_progress_bar
+PASSED astropy/utils/tests/test_console.py::test_progress_bar_as_generator
+PASSED astropy/utils/tests/test_console.py::test_progress_bar_map
+PASSED astropy/utils/tests/test_console.py::test_human_time[864088- 1w 3d]
+PASSED astropy/utils/tests/test_console.py::test_human_time[187213- 2d 4h]
+PASSED astropy/utils/tests/test_console.py::test_human_time[3905- 1h 5m]
+PASSED astropy/utils/tests/test_console.py::test_human_time[64- 1m 4s]
+PASSED astropy/utils/tests/test_console.py::test_human_time[15-   15s]
+PASSED astropy/utils/tests/test_console.py::test_human_time[2-    2s]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[8640882-8.6M]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[187213-187k]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[3905-3.9k]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[64- 64 ]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[2-  2 ]
+PASSED astropy/utils/tests/test_console.py::test_human_file_size[size5- 10G]
+PASSED astropy/utils/tests/test_console.py::test_bad_human_file_size[size0]
+PASSED astropy/utils/tests/test_console.py::test_bad_human_file_size[size1]
+PASSED astropy/utils/tests/test_data.py::test_download_file_basic
+PASSED astropy/utils/tests/test_data.py::test_download_file_absolute_path
+PASSED astropy/utils/tests/test_data.py::test_unicode_url
+PASSED astropy/utils/tests/test_data.py::test_too_long_url
+PASSED astropy/utils/tests/test_data.py::test_case_collision
+PASSED astropy/utils/tests/test_data.py::test_domain_name_case
+PASSED astropy/utils/tests/test_data.py::test_temp_cache
+PASSED astropy/utils/tests/test_data.py::test_download_with_sources_and_bogus_original[False]
+PASSED astropy/utils/tests/test_data.py::test_download_with_sources_and_bogus_original[True]
+PASSED astropy/utils/tests/test_data.py::test_download_file_threaded_many
+PASSED astropy/utils/tests/test_data.py::test_threaded_segfault
+PASSED astropy/utils/tests/test_data.py::test_download_file_threaded_many_partial_success
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache
+PASSED astropy/utils/tests/test_data.py::test_clear_download_multiple_references_doesnt_corrupt_storage
+PASSED astropy/utils/tests/test_data.py::test_download_file_local_cache_survives[False]
+PASSED astropy/utils/tests/test_data.py::test_download_file_local_cache_survives[True]
+PASSED astropy/utils/tests/test_data.py::test_sources_normal
+PASSED astropy/utils/tests/test_data.py::test_sources_fallback
+PASSED astropy/utils/tests/test_data.py::test_sources_ignore_primary
+PASSED astropy/utils/tests/test_data.py::test_sources_multiple
+PASSED astropy/utils/tests/test_data.py::test_sources_multiple_missing
+PASSED astropy/utils/tests/test_data.py::test_update_url
+PASSED astropy/utils/tests/test_data.py::test_download_cache_after_clear
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_fills_cache[None]
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_fills_cache[spawn]
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_with_empty_sources
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_with_sources_and_bogus_original
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_many
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_partial_success
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_update
+PASSED astropy/utils/tests/test_data.py::test_update_parallel
+PASSED astropy/utils/tests/test_data.py::test_update_parallel_multi
+PASSED astropy/utils/tests/test_data.py::test_find_by_hash
+PASSED astropy/utils/tests/test_data.py::test_get_invalid[None]
+PASSED astropy/utils/tests/test_data.py::test_get_invalid[astropy]
+PASSED astropy/utils/tests/test_data.py::test_get_invalid[numpy]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj[local.dat]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj[local.dat.gz]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj[local.dat.bz2]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj[local.dat.xz]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj[local.dat.Z]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj_invalid[invalid.dat.bz2]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj_invalid[invalid.dat.xz]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj_invalid[invalid.dat.gz]
+PASSED astropy/utils/tests/test_data.py::test_local_data_obj_invalid[invalid.dat.Z]
+PASSED astropy/utils/tests/test_data.py::test_local_data_name
+PASSED astropy/utils/tests/test_data.py::test_data_name_third_party_package
+PASSED astropy/utils/tests/test_data.py::test_local_data_nonlocalfail
+PASSED astropy/utils/tests/test_data.py::test_compute_hash
+PASSED astropy/utils/tests/test_data.py::test_get_pkg_data_contents
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt-utf-8]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt-binary]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.gz-utf-8]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.gz-binary]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.bz2-utf-8]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.bz2-binary]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.xz-utf-8]
+PASSED astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.xz-binary]
+PASSED astropy/utils/tests/test_data.py::test_compressed_stream
+PASSED astropy/utils/tests/test_data.py::test_invalid_location_download_noconnect
+PASSED astropy/utils/tests/test_data.py::test_is_url_in_cache_local
+PASSED astropy/utils/tests/test_data.py::test_check_download_cache
+PASSED astropy/utils/tests/test_data.py::test_export_import_roundtrip_one
+PASSED astropy/utils/tests/test_data.py::test_export_url_not_present
+PASSED astropy/utils/tests/test_data.py::test_import_one
+PASSED astropy/utils/tests/test_data.py::test_export_import_roundtrip
+PASSED astropy/utils/tests/test_data.py::test_export_import_roundtrip_stream
+PASSED astropy/utils/tests/test_data.py::test_export_overwrite_flag_works
+PASSED astropy/utils/tests/test_data.py::test_export_import_roundtrip_different_location
+PASSED astropy/utils/tests/test_data.py::test_cache_size_is_zero_when_empty
+PASSED astropy/utils/tests/test_data.py::test_cache_size_changes_correctly_when_files_are_added_and_removed
+PASSED astropy/utils/tests/test_data.py::test_cache_contents_agrees_with_get_urls
+PASSED astropy/utils/tests/test_data.py::test_free_space_checker_huge[1000000000000000000]
+PASSED astropy/utils/tests/test_data.py::test_free_space_checker_huge[desired_size1]
+PASSED astropy/utils/tests/test_data.py::test_get_free_space_file_directory
+PASSED astropy/utils/tests/test_data.py::test_download_file_bogus_settings
+PASSED astropy/utils/tests/test_data.py::test_download_file_local_directory
+PASSED astropy/utils/tests/test_data.py::test_download_file_schedules_deletion
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache_refuses_to_delete_outside_the_cache
+PASSED astropy/utils/tests/test_data.py::test_check_download_cache_finds_bogus_entries
+PASSED astropy/utils/tests/test_data.py::test_check_download_cache_finds_bogus_subentries
+PASSED astropy/utils/tests/test_data.py::test_check_download_cache_cleanup
+PASSED astropy/utils/tests/test_data.py::test_download_cache_update_doesnt_damage_cache
+PASSED astropy/utils/tests/test_data.py::test_cache_dir_is_actually_a_file
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_str
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_pathlib
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_binary
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_already_open_text
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_already_open_binary
+PASSED astropy/utils/tests/test_data.py::test_get_fileobj_binary_already_open_binary
+PASSED astropy/utils/tests/test_data.py::test_cache_contents_not_writable
+PASSED astropy/utils/tests/test_data.py::test_cache_relocatable
+PASSED astropy/utils/tests/test_data.py::test_get_readable_fileobj_cleans_up_temporary_files
+PASSED astropy/utils/tests/test_data.py::test_path_objects_get_readable_fileobj
+PASSED astropy/utils/tests/test_data.py::test_nested_get_readable_fileobj
+PASSED astropy/utils/tests/test_data.py::test_download_file_wrong_size
+PASSED astropy/utils/tests/test_data.py::test_import_file_cache_invalid_cross_device_link
+PASSED astropy/utils/tests/test_data.py::test_read_cache_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_download_file_cache_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_mkdtemp_cache_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_TD_cache_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_import_file_cache_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_download_file_cache_fake_readonly_cache_miss
+PASSED astropy/utils/tests/test_data.py::test_download_file_cache_fake_readonly_update
+PASSED astropy/utils/tests/test_data.py::test_check_download_cache_works_if_fake_readonly
+PASSED astropy/utils/tests/test_data.py::test_pkgname_isolation
+PASSED astropy/utils/tests/test_data.py::test_transport_cache_via_zip
+PASSED astropy/utils/tests/test_data.py::test_download_parallel_respects_pkgname
+PASSED astropy/utils/tests/test_data.py::test_removal_of_open_files
+PASSED astropy/utils/tests/test_data.py::test_update_of_open_files
+PASSED astropy/utils/tests/test_data.py::test_removal_of_open_files_windows
+PASSED astropy/utils/tests/test_data.py::test_update_of_open_files_windows
+PASSED astropy/utils/tests/test_data.py::test_no_allow_internet
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache_not_too_aggressive
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache_variants
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache_invalid_cross_device_link
+PASSED astropy/utils/tests/test_data.py::test_clear_download_cache_raises_os_error
+PASSED astropy/utils/tests/test_data.py::test_url_trailing_slash[http://example.com]
+PASSED astropy/utils/tests/test_data.py::test_url_trailing_slash[https://example.com]
+PASSED astropy/utils/tests/test_data.py::test_empty_url
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[http://googlecom-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[https://google.com-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[ftp://google.com-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[sftp://google.com-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[ssh://google.com-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[file:///c:/path/to/the%20file.txt-True]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[google.com-False]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[C:\\\\path\\\\file.docx-False]
+PASSED astropy/utils/tests/test_data.py::test_string_is_url_check[data://file-False]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[input0-bytes4]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[input1-str4]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[S4-bytes4]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[U4-str4]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[void-void]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[int32-int32]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[bool-bool]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[float-float64]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[<f4-float32]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[u8-uint64]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[c16-complex128]
+PASSED astropy/utils/tests/test_data_info.py::test_dtype_info_name[object-object]
+PASSED astropy/utils/tests/test_data_info.py::test_info_no_copy_numpy
+PASSED astropy/utils/tests/test_data_info.py::test_info_no_copy_mixin_with_index[col0]
+PASSED astropy/utils/tests/test_data_info.py::test_info_no_copy_mixin_with_index[col1]
+PASSED astropy/utils/tests/test_data_info.py::test_info_no_copy_skycoord
+PASSED astropy/utils/tests/test_data_info.py::test_setting_info_name_to_with_invalid_type
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_attribute
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_class
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_class_with_new_method
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_class_with_super
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_class_with_custom_metaclass
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_static_and_classmethod
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_custom_message
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_in_kwargs
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_relaxed
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_pending
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_multi_deprecation
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_multi_deprecation_2
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_not_allowed_use
+PASSED astropy/utils/tests/test_decorators.py::test_deprecated_argument_remove
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_invalid_since
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_invalid_names
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_not_pos_or_kw[arg-is-positional-only]
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_not_pos_or_kw[arg-is-keyword-only]
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_not_pos_or_kw[arg-is-var-positional]
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_not_pos_or_kw[arg-is-var-keyword]
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_broken_pos_allowed
+PASSED astropy/utils/tests/test_decorators.py::test_future_kwo_warn_if_and_only_if_needed
+PASSED astropy/utils/tests/test_decorators.py::test_sharedmethod_reuse_on_subclasses
+PASSED astropy/utils/tests/test_decorators.py::test_classproperty_docstring
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_stringInput_simple
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_stringInput_format
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_objectInput_simple
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_objectInput_format
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_selfInput_simple
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_selfInput_format
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_onMethod
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_onClass
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_exceptions[empty string]
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_exceptions[missing args or kwargs (str)]
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_exceptions[function without a docstring]
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_exceptions[None]
+PASSED astropy/utils/tests/test_decorators.py::test_format_doc_indexerrors
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_false[nan]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_false[inf]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_false[1.11]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_false[1]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_false[a]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[inf-nan]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[1.11-1.1]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[1-2]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[1-a]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[a-b]
+PASSED astropy/utils/tests/test_diff.py::test_diff_values_true[nan-1.1]
+PASSED astropy/utils/tests/test_diff.py::test_float_comparison
+PASSED astropy/utils/tests/test_diff.py::test_diff_types
+PASSED astropy/utils/tests/test_diff.py::test_diff_numeric_scalar_types
+PASSED astropy/utils/tests/test_diff.py::test_array_comparison
+PASSED astropy/utils/tests/test_diff.py::test_diff_shaped_array_comparison
+PASSED astropy/utils/tests/test_diff.py::test_tablediff
+PASSED astropy/utils/tests/test_diff.py::test_large_table_diff
+PASSED astropy/utils/tests/test_diff.py::test_where_not_allclose[kwargs0]
+PASSED astropy/utils/tests/test_diff.py::test_where_not_allclose[kwargs1]
+PASSED astropy/utils/tests/test_introspection.py::test_pkg_finder
+PASSED astropy/utils/tests/test_introspection.py::test_find_current_mod
+PASSED astropy/utils/tests/test_introspection.py::test_find_mod_objs
+PASSED astropy/utils/tests/test_introspection.py::test_minversion
+PASSED astropy/utils/tests/test_introspection.py::test_find_current_module_bundle
+PASSED astropy/utils/tests/test_introspection.py::test_deprecated_isinstancemethod
+PASSED astropy/utils/tests/test_introspection.py::test_resolve_name_deprecation
+PASSED astropy/utils/tests/test_misc.py::test_isiterable[2-False]
+PASSED astropy/utils/tests/test_misc.py::test_isiterable[obj1-True]
+PASSED astropy/utils/tests/test_misc.py::test_isiterable[obj2-True]
+PASSED astropy/utils/tests/test_misc.py::test_isiterable[obj3-False]
+PASSED astropy/utils/tests/test_misc.py::test_isiterable[obj4-True]
+PASSED astropy/utils/tests/test_misc.py::test_is_path_hidden_deprecation
+PASSED astropy/utils/tests/test_misc.py::test_skip_hidden
+PASSED astropy/utils/tests/test_misc.py::test_JsonCustomEncoder
+PASSED astropy/utils/tests/test_misc.py::test_JsonCustomEncoder_FITS_rec_from_files
+PASSED astropy/utils/tests/test_misc.py::test_set_locale
+PASSED astropy/utils/tests/test_misc.py::test_dtype_bytes_or_chars
+PASSED astropy/utils/tests/test_misc.py::test_indent_deprecation
+PASSED astropy/utils/tests/test_misc.py::test_format_exception_deprecation
+PASSED astropy/utils/tests/test_parsing.py::test_generate_parser
+PASSED astropy/utils/tests/test_shapes.py::test_check_broadcast_deprecation
+PASSED astropy/utils/tests/test_shapes.py::test_check_broadcast
+PASSED astropy/utils/tests/test_shapes.py::test_unbroadcast
+PASSED astropy/utils/tests/test_shapes.py::TestSimplifyBasicIndex::test_indexing
+PASSED astropy/utils/tests/test_state.py::test_ScienceState_and_Context
+PASSED astropy/utils/tests/test_xml.py::test_writer
+PASSED astropy/utils/tests/test_xml.py::test_check_id
+PASSED astropy/utils/tests/test_xml.py::test_fix_id
+PASSED astropy/utils/tests/test_xml.py::test_check_token
+PASSED astropy/utils/tests/test_xml.py::test_check_mime_content_type
+PASSED astropy/utils/tests/test_xml.py::test_check_anyuri
+PASSED astropy/utils/tests/test_xml.py::test_unescape_all
+PASSED astropy/utils/tests/test_xml.py::test_escape_xml
+PASSED astropy/utils/tests/test_xml.py::test_escape_xml_without_bleach
+SKIPPED [13] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+SKIPPED [1] astropy/utils/tests/test_data.py:803: need --run-slow option to run
+SKIPPED [1] astropy/utils/tests/test_data.py:1881: We are root, we can't make a directory un-writable with chmod.
+SKIPPED [1] astropy/utils/tests/test_data.py:1907: We are root, we can't make a file un-writable with chmod.
+SKIPPED [1] astropy/utils/tests/test_data.py:1911: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_data.py:1916: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_data.py:1923: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_data.py:1957: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_data.py:1966: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_data.py:1975: Unable to make directory readonly
+SKIPPED [1] astropy/utils/tests/test_decorators.py:706: need --run-slow option to run
+SKIPPED [1] astropy/utils/tests/test_decorators.py:734: need --run-slow option to run
+SKIPPED [1] astropy/utils/tests/test_xml.py:96: requires bleach
+XFAIL astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.Z-utf-8] - no lzw support
+XFAIL astropy/utils/tests/test_data.py::test_read_unicode[unicode.txt.Z-binary] - no lzw support
+================== 277 passed, 25 skipped, 2 xfailed in 5.19s ==================

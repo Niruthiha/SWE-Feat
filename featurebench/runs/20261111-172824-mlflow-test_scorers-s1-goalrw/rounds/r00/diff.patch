@@ -1,0 +1,1312 @@
+diff --git a/mlflow/cli/scorers.py b/mlflow/cli/scorers.py
+index dd41e35..88ef0ca 100644
+--- a/mlflow/cli/scorers.py
++++ b/mlflow/cli/scorers.py
+@@ -6,7 +6,7 @@ import click
+ from mlflow.environment_variables import MLFLOW_EXPERIMENT_ID
+ from mlflow.genai.judges import make_judge
+ from mlflow.genai.scorers import list_scorers as list_scorers_api
+-
++from mlflow.utils.string_utils import _create_table
+ 
+ 
+ @click.group("scorers")
+@@ -17,15 +17,137 @@ def commands():
+     """
+ 
+ 
++@commands.command("list")
++@click.option(
++    "--experiment-id",
++    "-x",
++    envvar=MLFLOW_EXPERIMENT_ID.name,
++    type=click.STRING,
++    required=True,
++    help="Experiment ID for which to list scorers. Can be set via MLFLOW_EXPERIMENT_ID env var.",
++)
++@click.option(
++    "--output",
++    type=click.Choice(["table", "json"]),
++    default="table",
++    help="Output format: 'table' for formatted table (default) or 'json' for JSON format",
++)
++def list_scorers(experiment_id: str, output: Literal["table", "json"]) -> None:
++    """
++    List all registered scorers, including LLM judges, for the specified experiment.
+ 
++    \b
++    Examples:
+ 
++    .. code-block:: bash
+ 
++        # List scorers in table format (default)
++        mlflow scorers list --experiment-id 123
+ 
++        # List scorers in JSON format
++        mlflow scorers list --experiment-id 123 --output json
+ 
++        # Using environment variable
++        export MLFLOW_EXPERIMENT_ID=123
++        mlflow scorers list
++    """
++    scorers = list_scorers_api(experiment_id=experiment_id)
++    scorer_data = [{"name": scorer.name, "description": scorer.description} for scorer in scorers]
++
++    if output == "json":
++        click.echo(json.dumps({"scorers": scorer_data}, indent=2))
++    else:
++        table = [[s["name"], s["description"] or ""] for s in scorer_data]
++        click.echo(_create_table(table, headers=["Scorer Name", "Description"]))
++
++
++@commands.command("register-llm-judge")
++@click.option(
++    "--name",
++    "-n",
++    type=click.STRING,
++    required=True,
++    help="Name for the judge scorer",
++)
++@click.option(
++    "--instructions",
++    "-i",
++    type=click.STRING,
++    required=True,
++    help=(
++        "Instructions for evaluation. Must contain at least one template variable: "
++        "``{{ inputs }}``, ``{{ outputs }}``, ``{{ expectations }}``, or ``{{ trace }}``. "
++        "See the make_judge documentation for variable interpretations."
++    ),
++)
++@click.option(
++    "--model",
++    "-m",
++    type=click.STRING,
++    required=False,
++    help=(
++        "Model identifier to use for evaluation (e.g., ``openai:/gpt-4``). "
++        "If not provided, uses the default model."
++    ),
++)
++@click.option(
++    "--experiment-id",
++    "-x",
++    envvar=MLFLOW_EXPERIMENT_ID.name,
++    type=click.STRING,
++    required=True,
++    help="Experiment ID to register the judge in. Can be set via MLFLOW_EXPERIMENT_ID env var.",
++)
++@click.option(
++    "--description",
++    "-d",
++    type=click.STRING,
++    required=False,
++    help="Description of what the judge evaluates.",
++)
++def register_llm_judge(
++    name: str,
++    instructions: str,
++    model: str | None,
++    experiment_id: str,
++    description: str | None,
++) -> None:
++    """
++    Register an LLM judge scorer in the specified experiment.
+ 
++    This command creates an LLM judge using natural language instructions and registers
++    it in an experiment for use in evaluation workflows. The instructions must contain at
++    least one template variable (``{{ inputs }}``, ``{{ outputs }}``, ``{{ expectations }}``,
++    or ``{{ trace }}``) to define what the judge will evaluate.
+ 
++    \b
++    Examples:
+ 
++    .. code-block:: bash
+ 
++        # Register a basic quality judge
++        mlflow scorers register-llm-judge -n quality_judge \\
++            -i "Evaluate if {{ outputs }} answers {{ inputs }}. Return yes or no." -x 123
+ 
++        # Register a judge with a custom model and description
++        mlflow scorers register-llm-judge -n custom_judge \\
++            -i "Check whether {{ outputs }} is professional and formal. Rate pass, fail, or na" \\
++            -m "openai:/gpt-4" -x 123 -d "Checks for professional tone"
+ 
+-
++        # Using environment variable
++        export MLFLOW_EXPERIMENT_ID=123
++        mlflow scorers register-llm-judge -n my_judge \\
++            -i "Check whether {{ outputs }} contains PII"
++    """
++    judge = make_judge(
++        name=name,
++        instructions=instructions,
++        model=model,
++        description=description,
++        feedback_value_type=str,
++    )
++    registered_judge = judge.register(experiment_id=experiment_id)
++    click.echo(
++        f"Successfully created and registered judge scorer '{registered_judge.name}' "
++        f"in experiment {experiment_id}"
++    )
+diff --git a/mlflow/cli/traces.py b/mlflow/cli/traces.py
+index 9597d1d..099ba42 100644
+--- a/mlflow/cli/traces.py
++++ b/mlflow/cli/traces.py
+@@ -86,7 +86,7 @@ from mlflow.utils.jsonpath_utils import (
+     jsonpath_extract_values,
+     validate_field_paths,
+ )
+-from mlflow.utils.string_utils import format_table_cell_value
++from mlflow.utils.string_utils import _create_table, format_table_cell_value
+ 
+ # Define reusable options following mlflow/runs.py pattern
+ EXPERIMENT_ID = click.option(
+diff --git a/mlflow/experiments.py b/mlflow/experiments.py
+index ba627f9..29d0daa 100644
+--- a/mlflow/experiments.py
++++ b/mlflow/experiments.py
+@@ -6,7 +6,7 @@ import mlflow
+ from mlflow.entities import ViewType
+ from mlflow.tracking import _get_store, fluent
+ from mlflow.utils.data_utils import is_uri
+-
++from mlflow.utils.string_utils import _create_table
+ 
+ EXPERIMENT_ID = click.option("--experiment-id", "-x", type=click.STRING, required=True)
+ 
+diff --git a/mlflow/genai/__init__.py b/mlflow/genai/__init__.py
+index eda9e0d..d38cdc2 100644
+--- a/mlflow/genai/__init__.py
++++ b/mlflow/genai/__init__.py
+@@ -40,7 +40,7 @@ from mlflow.genai.prompts import (
+ from mlflow.genai.scheduled_scorers import (
+     ScorerScheduleConfig,
+ )
+-from mlflow.genai.scorers import Scorer
++from mlflow.genai.scorers import Scorer, scorer
+ 
+ __all__ = [
+     "datasets",
+diff --git a/mlflow/genai/judges/__init__.py b/mlflow/genai/judges/__init__.py
+index 41f61bb..2eb234d 100644
+--- a/mlflow/genai/judges/__init__.py
++++ b/mlflow/genai/judges/__init__.py
+@@ -10,7 +10,7 @@ from mlflow.genai.judges.builtin import (
+     meets_guidelines,
+ )
+ from mlflow.genai.judges.custom_prompt_judge import custom_prompt_judge
+-
++from mlflow.genai.judges.make_judge import make_judge
+ from mlflow.genai.judges.utils import CategoricalRating
+ 
+ __all__ = [
+diff --git a/mlflow/genai/judges/make_judge.py b/mlflow/genai/judges/make_judge.py
+index 25fa40f..7c402f5 100644
+--- a/mlflow/genai/judges/make_judge.py
++++ b/mlflow/genai/judges/make_judge.py
+@@ -1,9 +1,125 @@
+ from typing import Any, Literal, get_args, get_origin
+ 
++from mlflow.exceptions import MlflowException
+ from mlflow.genai.judges.base import Judge
+ from mlflow.genai.judges.instructions_judge import InstructionsJudge
+ from mlflow.telemetry.events import MakeJudgeEvent
+ from mlflow.telemetry.track import record_usage_event
+ from mlflow.utils.annotations import experimental
+ 
++_PRIMITIVE_TYPES = (int, float, str, bool)
+ 
++
++def _validate_feedback_value_type(feedback_value_type: Any) -> None:
++    """
++    Validate that feedback_value_type is one of the supported types for judge output.
++
++    Supported types are int, float, str, bool, Literal types with primitive values,
++    dict[str, T] and list[T] where T is one of int, float, str or bool.
++    """
++    if feedback_value_type in _PRIMITIVE_TYPES:
++        return
++
++    origin = get_origin(feedback_value_type)
++    args = get_args(feedback_value_type)
++
++    if origin is Literal:
++        if args and all(type(arg) in _PRIMITIVE_TYPES for arg in args):
++            return
++        raise MlflowException.invalid_parameter_value(
++            "The `feedback_value_type` argument does not support a Literal type with "
++            f"non-primitive values. Got {feedback_value_type}. Literal values must be of "
++            "type int, float, str or bool."
++        )
++
++    if origin is dict:
++        if len(args) == 2 and args[0] is str and args[1] in _PRIMITIVE_TYPES:
++            return
++        raise MlflowException.invalid_parameter_value(
++            "The `feedback_value_type` argument does not support a dict type with non-str keys "
++            f"or non-primitive values. Got {feedback_value_type}. Use dict[str, T] where T is "
++            "one of int, float, str or bool."
++        )
++
++    if origin is list:
++        if len(args) == 1 and args[0] in _PRIMITIVE_TYPES:
++            return
++        raise MlflowException.invalid_parameter_value(
++            "The `feedback_value_type` argument does not support a list type with "
++            f"non-primitive values. Got {feedback_value_type}. Use list[T] where T is "
++            "one of int, float, str or bool."
++        )
++
++    raise MlflowException.invalid_parameter_value(
++        f"Unsupported feedback_value_type: {feedback_value_type}. Supported types are "
++        "int, float, str, bool, Literal types with primitive values, dict[str, T] and "
++        "list[T] where T is one of int, float, str or bool."
++    )
++
++
++@experimental(version="3.4.0")
++@record_usage_event(MakeJudgeEvent)
++def make_judge(
++    name: str,
++    instructions: str,
++    model: str | None = None,
++    description: str | None = None,
++    feedback_value_type: Any = str,
++) -> Judge:
++    """
++    Create a custom MLflow judge instance.
++
++    Args:
++        name: The name of the judge.
++        instructions: Natural language instructions for evaluation. Must contain at least one
++            template variable: {{ inputs }}, {{ outputs }}, {{ expectations }},
++            or {{ trace }} to reference evaluation data. Custom variables are not
++            supported.
++        model: The model identifier to use for evaluation (e.g., "openai:/gpt-4").
++            If not provided, the default judge model is used.
++        description: A description of what the judge evaluates.
++        feedback_value_type: Type specification for the 'value' field in the Feedback
++            object. Defaults to ``str``. Supported types: ``int``, ``float``, ``str``,
++            ``bool``, ``Literal`` of primitive values, ``dict[str, T]`` and ``list[T]``
++            where ``T`` is one of ``int``, ``float``, ``str`` or ``bool``.
++
++    Returns:
++        An InstructionsJudge instance configured with the provided parameters.
++
++    Example:
++        .. code-block:: python
++
++            import mlflow
++            from mlflow.genai.judges import make_judge
++            from typing import Literal
++
++            # Create a judge that evaluates response quality using template variables
++            quality_judge = make_judge(
++                name="response_quality",
++                instructions=(
++                    "Evaluate if the response in {{ outputs }} correctly answers "
++                    "the question in {{ inputs }}. The response should be accurate, "
++                    "complete, and professional."
++                ),
++                model="openai:/gpt-4",
++                feedback_value_type=Literal["yes", "no"],
++            )
++
++            # Evaluate a response
++            result = quality_judge(
++                inputs={"question": "What is machine learning?"},
++                outputs="ML is basically when computers learn stuff on their own",
++            )
++
++            # Register the judge in an experiment
++            quality_judge.register(experiment_id="123")
++    """
++    _validate_feedback_value_type(feedback_value_type)
++
++    return InstructionsJudge(
++        name=name,
++        instructions=instructions,
++        model=model,
++        description=description,
++        feedback_value_type=feedback_value_type,
++    )
+diff --git a/mlflow/genai/scorers/__init__.py b/mlflow/genai/scorers/__init__.py
+index 99b08d3..e5c88d7 100644
+--- a/mlflow/genai/scorers/__init__.py
++++ b/mlflow/genai/scorers/__init__.py
+@@ -1,6 +1,6 @@
+ from typing import TYPE_CHECKING
+ 
+-from mlflow.genai.scorers.base import Scorer, ScorerSamplingConfig
++from mlflow.genai.scorers.base import Scorer, ScorerSamplingConfig, scorer
+ from mlflow.genai.scorers.registry import delete_scorer, get_scorer, list_scorers
+ 
+ # NB: We use lazy imports for builtin_scorers to avoid a circular dependency issue.
+diff --git a/mlflow/genai/scorers/base.py b/mlflow/genai/scorers/base.py
+index afccf88..28734c6 100644
+--- a/mlflow/genai/scorers/base.py
++++ b/mlflow/genai/scorers/base.py
+@@ -85,27 +85,26 @@ class SerializedScorer:
+     # InstructionsJudge fields (for make_judge created judges)
+     instructions_judge_pydantic_data: dict[str, Any] | None = None
+ 
++    def __post_init__(self):
++        """Validate that exactly one type of scorer fields is present."""
++        has_builtin_fields = self.builtin_scorer_class is not None
++        has_decorator_fields = self.call_source is not None
++        has_instructions_fields = self.instructions_judge_pydantic_data is not None
++
++        field_count = sum([has_builtin_fields, has_decorator_fields, has_instructions_fields])
++
++        if field_count == 0:
++            raise ValueError(
++                "SerializedScorer must have either builtin scorer fields "
++                "(builtin_scorer_class), decorator scorer fields (call_source), "
++                "or instructions judge fields (instructions_judge_pydantic_data) present"
++            )
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++        if field_count > 1:
++            raise ValueError(
++                "SerializedScorer cannot have multiple types of scorer fields present "
++                "simultaneously"
++            )
+ 
+ 
+ class Scorer(BaseModel):
+@@ -185,7 +184,7 @@ class Scorer(BaseModel):
+ 
+     def _extract_source_code_info(self) -> dict[str, str | None]:
+         """Extract source code information for the original decorated function."""
+-
++        from mlflow.genai.scorers.scorer_utils import extract_function_body
+ 
+         result = {"call_source": None, "call_signature": None, "original_func_name": None}
+ 
+@@ -300,7 +299,7 @@ class Scorer(BaseModel):
+ 
+     @classmethod
+     def _reconstruct_decorator_scorer(cls, serialized: SerializedScorer) -> "Scorer":
+-
++        from mlflow.genai.scorers.scorer_utils import recreate_function
+ 
+         # NB: Custom (@scorer) scorers use exec() during deserialization, which poses a code
+         # execution risk. Only allow loading in Databricks runtime environments where the
+@@ -567,7 +566,7 @@ class Scorer(BaseModel):
+                 )
+         """
+         # Get the current tracking store
+-        from mlflow.genai.scorers.registry import DatabricksStore
++        from mlflow.genai.scorers.registry import DatabricksStore, _get_scorer_store
+ 
+         self._check_can_be_registered()
+         store = _get_scorer_store()
+@@ -804,7 +803,7 @@ class Scorer(BaseModel):
+         return copy
+ 
+     def _check_can_be_registered(self, error_message: str | None = None) -> None:
+-        from mlflow.genai.scorers.registry import DatabricksStore
++        from mlflow.genai.scorers.registry import DatabricksStore, _get_scorer_store
+ 
+         if self.kind not in _ALLOWED_SCORERS_FOR_REGISTRATION:
+             if error_message is None:
+@@ -844,39 +843,156 @@ class Scorer(BaseModel):
+             )
+ 
+ 
++def scorer(
++    func=None,
++    *,
++    name: str | None = None,
++    description: str | None = None,
++    aggregations: list[_AggregationType] | None = None,
++):
++    """
++    A decorator to define a custom scorer that can be used in ``mlflow.genai.evaluate()``.
+ 
++    The scorer function should take in a **subset** of the following parameters:
+ 
++    .. list-table::
++        :widths: 20 20 20
++        :header-rows: 1
+ 
++        * - Parameter
++          - Description
++          - Source
+ 
++        * - ``inputs``
++          - A single input to the target model/app.
++          - Derived from either dataset or trace.
+ 
++        * - ``outputs``
++          - A single output from the target model/app.
++          - Derived from either dataset, trace, or output of ``predict_fn``.
+ 
++        * - ``expectations``
++          - Ground truth or any expectation for each prediction, e.g., expected retrieved docs.
++          - Derived from either dataset or trace.
+ 
++        * - ``trace``
++          - A trace object corresponding to the prediction for the row.
++          - Specified as a ``trace`` column in the dataset, or generated during the prediction.
+ 
++    The scorer function should return one of the following:
+ 
++    * A boolean value
++    * An integer value
++    * A float value
++    * A string value
++    * A single :class:`~mlflow.entities.Feedback` object
++    * A list of :class:`~mlflow.entities.Feedback` objects
+ 
++    .. note::
+ 
++        The metric name will be determined by the scorer function's name or a custom name
++        specified in the `name` parameter for the scorer.
+ 
++    Args:
++        func: The scorer function to be decorated.
++        name: The name of the scorer. Defaults to the name of the decorated function.
++        description: A description of what the scorer evaluates.
++        aggregations: A list of aggregation functions to apply to the scorer's output.
++            The aggregation functions can be either a string or a callable.
+ 
++            * If a string, it must be one of `["min", "max", "mean", "median", "variance", "p90"]`.
++            * If a callable, it must take a list of values and return a single value.
+ 
++            By default, "mean" is used as the aggregation function.
+ 
++    Example:
+ 
++        .. code-block:: python
+ 
++            import json
++            from mlflow.genai.scorers import scorer
++            from mlflow.entities import AssessmentSource, Feedback
+ 
+ 
++            # Basic scorers that returns primitive values
++            @scorer
++            def not_empty(outputs) -> bool:
++                return outputs != ""
+ 
+ 
++            @scorer
++            def exact_match(outputs, expectations) -> bool:
++                return outputs == expectations["expected_response"]
+ 
+ 
++            @scorer
++            def num_tool_calls(trace) -> int:
++                spans = trace.search_spans(name="tool_call")
++                return len(spans)
+ 
+ 
++            # Use `Feedback` object to return additional information about the scorer's
++            # result, such as a rationale for the score.
++            @scorer
++            def harmfulness(outputs) -> Feedback:
++                import openai
+ 
++                prompt = f'''
++                    Judge if the following text is harmful. Return "yes" or "no".
+ 
++                    Text: {outputs}
++                '''
++                response = openai.OpenAI().chat.completions.create(
++                    model="gpt-4o-mini",
++                    messages=[{"role": "user", "content": prompt}],
++                )
++                return Feedback(
++                    value=response.choices[0].message.content,
++                    rationale="Judged by gpt-4o-mini",
++                    source=AssessmentSource(source_type="LLM_JUDGE", source_id="gpt-4o-mini"),
++                )
+ 
+ 
++            # Use the scorer in an evaluation
++            mlflow.genai.evaluate(
++                data=data,
++                scorers=[not_empty, exact_match, num_tool_calls, harmfulness],
++            )
++    """
+ 
++    if func is None:
++        return functools.partial(
++            scorer, name=name, description=description, aggregations=aggregations
++        )
+ 
+-
+-
+-
+-
+-
++    class CustomScorer(Scorer):
++        # Store reference to the original function
++        _original_func: Callable[..., Any] | None = PrivateAttr(default=None)
++
++        def __init__(self, **data):
++            super().__init__(**data)
++            # Use object.__setattr__ to bypass Pydantic's attribute handling for private
++            # attributes during model initialization
++            object.__setattr__(self, "_original_func", func)
++
++        def __call__(self, *args, **kwargs):
++            return func(*args, **kwargs)
++
++        @property
++        def kind(self) -> ScorerKind:
++            return ScorerKind.DECORATOR
++
++    # Update the __call__ method's signature to match the original function but add 'self' as
++    # the first parameter. This is required for MLflow to pass the correct set of parameters
++    # to the scorer.
++    signature = inspect.signature(func)
++    params = list(signature.parameters.values())
++    new_params = [inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD)] + params
++    new_signature = signature.replace(parameters=new_params)
++    CustomScorer.__call__.__signature__ = new_signature
++
++    return CustomScorer(
++        name=name or func.__name__,
++        description=description,
++        aggregations=aggregations,
++    )
+diff --git a/mlflow/genai/scorers/registry.py b/mlflow/genai/scorers/registry.py
+index 49935dd..c1fba66 100644
+--- a/mlflow/genai/scorers/registry.py
++++ b/mlflow/genai/scorers/registry.py
+@@ -12,7 +12,7 @@ from abc import ABCMeta, abstractmethod
+ from mlflow.exceptions import MlflowException
+ from mlflow.genai.scheduled_scorers import ScorerScheduleConfig
+ from mlflow.genai.scorers.base import Scorer, ScorerSamplingConfig
+-from mlflow.tracking._tracking_service.utils import _get_store
++from mlflow.tracking._tracking_service.utils import _get_store, _resolve_tracking_uri
+ from mlflow.tracking.fluent import _get_experiment_id
+ from mlflow.utils.plugins import get_entry_points
+ from mlflow.utils.uri import get_uri_scheme
+@@ -149,34 +149,32 @@ class ScorerStoreRegistry:
+                     stacklevel=2,
+                 )
+ 
++    def get_store_builder(self, store_uri):
++        """Get a store from the registry based on the scheme of store_uri
+ 
++        Args:
++            store_uri: The store URI. If None, it will be inferred from the environment. This
++                URI is used to select which scorer store implementation to instantiate
++                and is passed to the constructor of the implementation.
+ 
++        Returns:
++            A function that returns an instance of
++            ``mlflow.genai.scorers.registry.AbstractScorerStore`` that fulfills the store
++            URI requirements.
++        """
++        scheme = store_uri if store_uri == "databricks" else get_uri_scheme(store_uri)
++        try:
++            store_builder = self._registry[scheme]
++        except KeyError:
++            raise UnsupportedScorerStoreURIException(
++                unsupported_uri=store_uri, supported_uri_schemes=list(self._registry.keys())
++            )
++        return store_builder
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++    def get_store(self, tracking_uri=None):
++        resolved_store_uri = _resolve_tracking_uri(tracking_uri)
++        builder = self.get_store_builder(resolved_store_uri)
++        return builder(tracking_uri=resolved_store_uri)
+ 
+ 
+ class MlflowTrackingStore(AbstractScorerStore):
+@@ -422,9 +420,9 @@ def _register_scorer_stores():
+ _register_scorer_stores()
+ 
+ 
+-
+-
+-
++def _get_scorer_store(tracking_uri=None):
++    """Get a scorer store from the registry"""
++    return _scorer_store_registry.get_store(tracking_uri)
+ 
+ 
+ _ERROR_MSG = (
+@@ -625,4 +623,4 @@ def delete_scorer(
+     """
+ 
+     store = _get_scorer_store()
+-    return store.delete_scorer(experiment_id, name, version)
+\ No newline at end of file
++    return store.delete_scorer(experiment_id, name, version)
+diff --git a/mlflow/genai/scorers/scorer_utils.py b/mlflow/genai/scorers/scorer_utils.py
+index aa0ba01..5a6f1f6 100644
+--- a/mlflow/genai/scorers/scorer_utils.py
++++ b/mlflow/genai/scorers/scorer_utils.py
+@@ -18,49 +18,109 @@ class FunctionBodyExtractor(ast.NodeVisitor):
+     AST NodeVisitor class to extract the body of a function.
+     """
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++    def __init__(self, func_name: str, source_code: str):
++        self.func_name = func_name
++        self.source_code = source_code
++        self.function_body = ""
++        self.indent_unit = 4
++        self.found = False
++
++    def visit_FunctionDef(self, node: ast.FunctionDef):
++        if not self.found and node.name == self.func_name:
++            self.found = True
++            self.extract_body(node)
++
++    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
++        if not self.found and node.name == self.func_name:
++            self.found = True
++            self.extract_body(node)
++
++    def extract_body(self, node: ast.FunctionDef | ast.AsyncFunctionDef):
++        body = node.body
++        # Skip the docstring
++        if (
++            body
++            and isinstance(body[0], ast.Expr)
++            and isinstance(body[0].value, ast.Constant)
++            and isinstance(body[0].value.value, str)
++        ):
++            body = body[1:]
++
++        if not body:
++            return
++
++        start_lineno = body[0].lineno
++        end_lineno = body[-1].end_lineno
++
++        source_lines = self.source_code.splitlines(keepends=True)
++        function_body_lines = source_lines[start_lineno - 1 : end_lineno]
++
++        self.function_body = dedent("".join(function_body_lines)).rstrip("\n")
++
++        indents = [stmt.col_offset for stmt in body if stmt.col_offset is not None]
++        if indents:
++            self.indent_unit = min(indents)
+ 
+ 
+ # extract_function_body function is forked from https://github.com/unitycatalog/unitycatalog/blob/20dd3820be332ac04deec4e063099fb863eb3392/ai/core/src/unitycatalog/ai/core/utils/callable_utils.py
++def extract_function_body(func: Callable[..., Any]) -> tuple[str, int]:
++    """
++    Extracts the body of a function as a string without the signature or docstring,
++    dedents the code, and returns the indentation unit used in the function (e.g., 2 or 4 spaces).
++    """
++    source_lines, _ = inspect.getsourcelines(func)
++    dedented_source = dedent("".join(source_lines))
++    func_name = func.__name__
+ 
++    extractor = FunctionBodyExtractor(func_name, dedented_source)
++    parsed_source = ast.parse(dedented_source)
++    extractor.visit(parsed_source)
+ 
++    return extractor.function_body, extractor.indent_unit
+ 
+ 
++def recreate_function(source: str, signature: str, func_name: str) -> Callable[..., Any]:
++    """
++    Recreate a function from its source code body, signature, and name.
+ 
++    Args:
++        source: The function body source code (without the ``def`` line).
++        signature: The function signature string, e.g. ``"(inputs, outputs)"``.
++        func_name: The name of the function.
+ 
++    Returns:
++        The recreated function.
++    """
++    import mlflow
++    from mlflow.entities import (
++        Assessment,
++        AssessmentError,
++        AssessmentSource,
++        AssessmentSourceType,
++        Expectation,
++        Feedback,
++        Trace,
++    )
++
++    signature = signature.strip()
++    if not re.fullmatch(r"\(.*\)(\s*->.*)?", signature, flags=re.DOTALL):
++        raise MlflowException(
++            f"Invalid signature format: '{signature}'", error_code=INVALID_PARAMETER_VALUE
++        )
++
++    indented_source = "\n".join(f"    {line}" for line in source.split("\n"))
++    func_def = f"def {func_name}{signature}:\n{indented_source}"
++
++    # Make commonly used MLflow objects available to the recreated function
++    namespace = {
++        "mlflow": mlflow,
++        "Assessment": Assessment,
++        "AssessmentError": AssessmentError,
++        "AssessmentSource": AssessmentSource,
++        "AssessmentSourceType": AssessmentSourceType,
++        "Expectation": Expectation,
++        "Feedback": Feedback,
++        "Trace": Trace,
++    }
++    exec(func_def, namespace)  # noqa: S102
++    return namespace[func_name]
+diff --git a/mlflow/runs.py b/mlflow/runs.py
+index 855757d..9e355eb 100644
+--- a/mlflow/runs.py
++++ b/mlflow/runs.py
+@@ -12,7 +12,7 @@ from mlflow.entities import RunStatus, ViewType
+ from mlflow.environment_variables import MLFLOW_EXPERIMENT_ID, MLFLOW_EXPERIMENT_NAME
+ from mlflow.exceptions import MlflowException
+ from mlflow.tracking import _get_store
+-
++from mlflow.utils.string_utils import _create_table
+ from mlflow.utils.time import conv_longdate_to_str
+ 
+ RUN_ID = click.option("--run-id", type=click.STRING, required=True)
+diff --git a/mlflow/store/tracking/sqlalchemy_store.py b/mlflow/store/tracking/sqlalchemy_store.py
+index 597ce26..060e464 100644
+--- a/mlflow/store/tracking/sqlalchemy_store.py
++++ b/mlflow/store/tracking/sqlalchemy_store.py
+@@ -2024,124 +2024,106 @@ class SqlAlchemyStore(AbstractStore):
+                     RESOURCE_DOES_NOT_EXIST,
+                 )
+ 
++    def register_scorer(
++        self, experiment_id: str, name: str, serialized_scorer: str
++    ) -> ScorerVersion:
++        """
++        Register a scorer for an experiment. If a scorer with the same name already exists
++        in the experiment, a new version of it is created.
+ 
++        Args:
++            experiment_id: The experiment ID.
++            name: The scorer name.
++            serialized_scorer: The serialized scorer string (JSON).
+ 
++        Returns:
++            mlflow.entities.ScorerVersion: The newly registered scorer version with scorer_id.
++        """
++        with self.ManagedSessionMaker() as session:
++            # Validate experiment exists and is active
++            experiment = self.get_experiment(experiment_id)
++            self._check_experiment_is_active(experiment)
+ 
++            # Get or create the scorer record
++            scorer = (
++                session.query(SqlScorer)
++                .filter(
++                    SqlScorer.experiment_id == experiment.experiment_id,
++                    SqlScorer.scorer_name == name,
++                )
++                .first()
++            )
++            if scorer is None:
++                scorer = SqlScorer(
++                    experiment_id=experiment.experiment_id,
++                    scorer_name=name,
++                    scorer_id=str(uuid.uuid4()),
++                )
++                session.add(scorer)
++                session.flush()
+ 
++            # Determine the next version number
++            max_version = (
++                session.query(func.max(SqlScorerVersion.scorer_version))
++                .filter(SqlScorerVersion.scorer_id == scorer.scorer_id)
++                .scalar()
++            )
++            new_version = (max_version or 0) + 1
+ 
++            sql_scorer_version = SqlScorerVersion(
++                scorer_id=scorer.scorer_id,
++                scorer_version=new_version,
++                serialized_scorer=serialized_scorer,
++                creation_time=get_current_time_millis(),
++            )
++            session.add(sql_scorer_version)
++            session.flush()
++            session.refresh(sql_scorer_version)
+ 
++            return sql_scorer_version.to_mlflow_entity()
+ 
++    def list_scorers(self, experiment_id) -> list[ScorerVersion]:
++        """
++        List all scorers for an experiment.
+ 
++        Args:
++            experiment_id: The experiment ID.
+ 
++        Returns:
++            List of mlflow.entities.scorer.ScorerVersion objects
++            (latest version for each scorer name), sorted by scorer name.
++        """
++        with self.ManagedSessionMaker() as session:
++            # Validate experiment exists and is active
++            experiment = self.get_experiment(experiment_id)
++            self._check_experiment_is_active(experiment)
+ 
++            latest_versions = (
++                session.query(
++                    SqlScorerVersion.scorer_id,
++                    func.max(SqlScorerVersion.scorer_version).label("max_version"),
++                )
++                .join(SqlScorer, SqlScorer.scorer_id == SqlScorerVersion.scorer_id)
++                .filter(SqlScorer.experiment_id == experiment.experiment_id)
++                .group_by(SqlScorerVersion.scorer_id)
++                .subquery()
++            )
+ 
++            sql_scorer_versions = (
++                session.query(SqlScorerVersion)
++                .join(
++                    latest_versions,
++                    and_(
++                        SqlScorerVersion.scorer_id == latest_versions.c.scorer_id,
++                        SqlScorerVersion.scorer_version == latest_versions.c.max_version,
++                    ),
++                )
++                .join(SqlScorer, SqlScorer.scorer_id == SqlScorerVersion.scorer_id)
++                .order_by(SqlScorer.scorer_name)
++                .all()
++            )
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++            return [v.to_mlflow_entity() for v in sql_scorer_versions]
+ 
+     def get_scorer(self, experiment_id, name, version=None) -> ScorerVersion:
+         """
+@@ -5011,4 +4993,4 @@ def _get_search_datasets_order_by_clauses(order_by):
+     if not any(col == SqlEvaluationDataset.dataset_id for col, _ in order_by_clauses):
+         order_by_clauses.append((SqlEvaluationDataset.dataset_id, False))
+ 
+-    return [col.asc() if ascending else col.desc() for col, ascending in order_by_clauses]
+\ No newline at end of file
++    return [col.asc() if ascending else col.desc() for col, ascending in order_by_clauses]
+diff --git a/mlflow/utils/string_utils.py b/mlflow/utils/string_utils.py
+index 7f6235e..c1a9e1f 100644
+--- a/mlflow/utils/string_utils.py
++++ b/mlflow/utils/string_utils.py
+@@ -39,33 +39,30 @@ def truncate_str_from_middle(s: str, max_length: int) -> str:
+         return f"{s[:left_part_len]}...{s[-right_part_len:]}"
+ 
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++def _create_table(
++    rows: list[list[str]],
++    headers: list[str],
++    column_sep: str = " " * 2,
++    min_column_width: int = 4,
++) -> str:
++    """
++    Creates a table from a list of lists of strings. Every column is left-aligned and padded
++    to the width of its longest entry (at least ``min_column_width``). A line of dashes
++    separates the headers from the rows. If there are no rows, a newline is returned.
++    """
++    column_widths = [
++        max(len(max(col, key=len)), len(header), min_column_width)
++        for col, header in zip(zip(*rows), headers)
++    ]
++    aligned_rows = [
++        column_sep.join(header.ljust(width) for header, width in zip(headers, column_widths)),
++        column_sep.join("-" * width for width in column_widths),
++        *(
++            column_sep.join(cell.ljust(width) for cell, width in zip(row, column_widths))
++            for row in rows
++        ),
++    ]
++    return "\n".join(aligned_rows)
+ 
+ 
+ # Source: https://github.com/smoofra/mslex/blob/3338c347324d52af619ba39cebfdf7cbf46fa51b/mslex.py#L89-L139
+@@ -188,4 +185,4 @@ def format_table_cell_value(field: str, cell_value: Any, values: list[Any] | Non
+         if len(str(cell_value)) > 20:
+             cell_value = str(cell_value)[:17] + "..."
+ 
+-    return str(cell_value)
+\ No newline at end of file
++    return str(cell_value)
+diff --git a/tests/cli/test_scorers.py b/tests/cli/test_scorers.py
+new file mode 100644
+index 0000000..a84477c
+--- /dev/null
++++ b/tests/cli/test_scorers.py
+@@ -0,0 +1,128 @@
++import json
++
++import pytest
++from click.testing import CliRunner
++
++import mlflow
++from mlflow.cli.scorers import commands
++from mlflow.genai.judges import make_judge
++
++
++@pytest.fixture
++def runner():
++    return CliRunner(catch_exceptions=False)
++
++
++@pytest.fixture
++def experiment_id():
++    return mlflow.create_experiment("test_scorers_cli")
++
++
++def _register_judge(experiment_id, name, description=None):
++    judge = make_judge(
++        name=name,
++        instructions="Evaluate {{ outputs }}",
++        model="openai:/gpt-4",
++        description=description,
++    )
++    judge.register(experiment_id=experiment_id)
++
++
++def test_list_scorers_table(runner, experiment_id):
++    _register_judge(experiment_id, "quality", description="Checks quality")
++    _register_judge(experiment_id, "safety")
++
++    result = runner.invoke(commands, ["list", "--experiment-id", experiment_id])
++
++    assert result.exit_code == 0
++    assert result.output.splitlines() == [
++        "Scorer Name  Description   ",
++        "-----------  --------------",
++        "quality      Checks quality",
++        "safety                     ",
++    ]
++
++
++def test_list_scorers_json(runner, experiment_id):
++    _register_judge(experiment_id, "quality", description="Checks quality")
++    _register_judge(experiment_id, "safety")
++
++    result = runner.invoke(commands, ["list", "-x", experiment_id, "--output", "json"])
++
++    assert result.exit_code == 0
++    assert json.loads(result.output) == {
++        "scorers": [
++            {"name": "quality", "description": "Checks quality"},
++            {"name": "safety", "description": None},
++        ]
++    }
++
++
++def test_list_scorers_empty(runner, experiment_id):
++    result = runner.invoke(commands, ["list", "-x", experiment_id])
++
++    assert result.exit_code == 0
++    assert result.output.strip() == ""
++
++
++def test_list_scorers_with_env_var(runner, experiment_id, monkeypatch):
++    _register_judge(experiment_id, "quality")
++    monkeypatch.setenv("MLFLOW_EXPERIMENT_ID", experiment_id)
++
++    result = runner.invoke(commands, ["list", "--output", "json"])
++
++    assert result.exit_code == 0
++    assert json.loads(result.output) == {"scorers": [{"name": "quality", "description": None}]}
++
++
++def test_register_llm_judge(runner, experiment_id):
++    result = runner.invoke(
++        commands,
++        [
++            "register-llm-judge",
++            "-n",
++            "my_judge",
++            "-i",
++            "Is {{ outputs }} a good answer to {{ inputs }}?",
++            "-m",
++            "openai:/gpt-4",
++            "-x",
++            experiment_id,
++            "-d",
++            "Checks answers",
++        ],
++    )
++
++    assert result.exit_code == 0
++    assert result.output.strip() == (
++        f"Successfully created and registered judge scorer 'my_judge' in experiment {experiment_id}"
++    )
++    scorers = mlflow.genai.scorers.list_scorers(experiment_id=experiment_id)
++    assert len(scorers) == 1
++    assert scorers[0].name == "my_judge"
++    assert scorers[0].description == "Checks answers"
++    assert scorers[0].instructions == "Is {{ outputs }} a good answer to {{ inputs }}?"
++    assert scorers[0].model == "openai:/gpt-4"
++    assert scorers[0]._feedback_value_type is str
++
++
++def test_register_llm_judge_with_env_var(runner, experiment_id, monkeypatch):
++    monkeypatch.setenv("MLFLOW_EXPERIMENT_ID", experiment_id)
++
++    result = runner.invoke(
++        commands,
++        ["register-llm-judge", "-n", "my_judge", "-i", "Rate {{ outputs }}", "-m", "openai:/gpt-4"],
++    )
++
++    assert result.exit_code == 0
++    assert f"in experiment {experiment_id}" in result.output
++
++
++def test_register_llm_judge_invalid_instructions(runner, experiment_id):
++    result = CliRunner().invoke(
++        commands,
++        ["register-llm-judge", "-n", "j", "-i", "no variables", "-x", experiment_id],
++    )
++
++    assert result.exit_code != 0
++    assert "at least one variable" in str(result.exception)
+diff --git a/tests/utils/test_string_utils.py b/tests/utils/test_string_utils.py
+index 4623a33..48c720a 100644
+--- a/tests/utils/test_string_utils.py
++++ b/tests/utils/test_string_utils.py
+@@ -1,6 +1,7 @@
+ import pytest
+ 
+ from mlflow.utils.string_utils import (
++    _create_table,
+     format_table_cell_value,
+     is_string_type,
+     mslex_quote,
+@@ -99,3 +100,22 @@ def test_format_table_cell_value_invalid_duration():
+     """Test handling of invalid duration values."""
+     result = format_table_cell_value("info.execution_duration_ms", "not-a-number")
+     assert result == "not-a-number"  # Should return original
++
++
++def test_create_table():
++    table = _create_table([["a", "long value"], ["bb", ""]], headers=["Name", "Desc"])
++    assert table.splitlines() == [
++        "Name  Desc      ",
++        "----  ----------",
++        "a     long value",
++        "bb              ",
++    ]
++
++
++def test_create_table_min_column_width():
++    table = _create_table([["a", "b"]], headers=["x", "y"])
++    assert table == "x     y   \n----  ----\na     b   "
++
++
++def test_create_table_without_rows():
++    assert _create_table([], headers=["Name", "Desc"]) == "\n"

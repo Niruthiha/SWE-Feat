@@ -1,0 +1,435 @@
+{
+  "run_dir": "20261111-161051-mlflow-test_mlflow-s1-goalrw",
+  "metrics_version": "6.0",
+  "run_id": "20261111-161051-mlflow-test_mlflow-s1-goalrw",
+  "instance_id": "mlflow__mlflow.93dab383.test_mlflow.d1847ff9.lv1",
+  "task": "mlflow-test_mlflow",
+  "seed": "1",
+  "repo": "mlflow/mlflow",
+  "image": "fbexp-agent:mlflow-efffa87e",
+  "base_image": "libercoders/featurebench-specs_mlflow-instance_efffa87e",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "effort": "default",
+  "harness_version": "6.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "8f908eac-f2b9-4630-84ab-a226d72602b5",
+  "prompt_sha256": "7ca99d2f9a6ed1bb26321897e2a10919eea9140fd3c93e60135310d6596b1eba",
+  "index_preamble_sha256": "",
+  "mask_sha256": "4e7d2577c2c0c470fa8a71c33786dd89117f92c18afd6d71de6152ac484e8ea8",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "PASS"
+    ],
+    "p2p_by_round": [
+      "PASS"
+    ],
+    "first_f2p_pass_round": 0,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "f2p": "tests/deployments/mlflow/test_mlflow.py",
+  "p2p": [
+    "tests/models/test_dependencies_schema.py",
+    "tests/pyfunc/test_pyfunc_input_converter.py",
+    "tests/genai/scorers/test_scorer.py",
+    "tests/tracing/utils/test_search.py",
+    "tests/entities/test_trace_state.py"
+  ],
+  "max_rounds": 0,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "base_tree": "54ee2cba6f5eda51758807163ac1ba4aa7b930a8",
+  "base_commit": "307e38e921e7f74b454cba4aafe930a5102f30c2",
+  "image_id": "sha256:470c707aa8757a9abdd12c6e005a6fb275b9d0c218db3e8818ad0a935446e63d",
+  "arm": "goalrw",
+  "docstrip_sha256": "",
+  "docstrip_script_sha256": "",
+  "nav_index_sha256": "",
+  "nav_generator_sha256": "",
+  "prepare_tree_source": "image:/usr/local/bin/prepare_tree",
+  "impact_preamble_sha256": "",
+  "impact_hook_sha256": "",
+  "impact_graph_sha256": "",
+  "impact_settings_sha256": "",
+  "started": "2026-11-11T16:12:10-05:00",
+  "finished": "2026-11-11T16:23:08-05:00",
+  "wall_ms": 657022,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 3.1753,
+    "to_acceptance": 3.1753
+  },
+  "prompt_r0_sha256": "7ca99d2f9a6ed1bb26321897e2a10919eea9140fd3c93e60135310d6596b1eba",
+  "tokens": {
+    "input_tokens": 134,
+    "output_tokens": 39567,
+    "cache_read_input_tokens": 6677770,
+    "cache_creation_input_tokens": 130987,
+    "total": 6848458,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 130987,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 13558,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 3.175325999999999,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 3.175325999999999,
+  "turns": 69,
+  "agent_reported_duration_ms": 544584,
+  "api_duration_ms": 385930,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 134,
+      "outputTokens": 39567,
+      "cacheReadInputTokens": 6677770,
+      "cacheCreationInputTokens": 130987,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 3.175325999999999
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 134,
+    "output_tokens": 733,
+    "cache_read_input_tokens": 6677770,
+    "cache_creation_input_tokens": 130987
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 67,
+  "context_k": {
+    "mean": 101.6,
+    "max": 142.2
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 140,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 3.175326,
+      "cum_cost_usd": 3.175325999999999,
+      "turns": 69,
+      "duration_ms": 544584,
+      "wall_ms": 546915,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 134,
+        "output_tokens": 39567,
+        "cache_read_input_tokens": 6677770,
+        "cache_creation_input_tokens": 130987
+      },
+      "accept": "PASS",
+      "f2p": "PASS",
+      "p2p": "PASS",
+      "test_integrity": "0",
+      "tool_calls": 68
+    }
+  ],
+  "response_text_chars": 6213,
+  "reasoning": {
+    "stream_json_thinking_blocks": 48,
+    "stream_json_thinking_chars": 681,
+    "session_store_files": [
+      "session/-testbed/8f908eac-f2b9-4630-84ab-a226d72602b5.jsonl"
+    ],
+    "session_store_session_ids": [
+      "8f908eac-f2b9-4630-84ab-a226d72602b5"
+    ],
+    "session_store_thinking_blocks": 50,
+    "session_store_thinking_chars": 681,
+    "session_store_tool_uses": 72,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 67,
+    "Read": 1
+  },
+  "tool_calls_total": 68,
+  "files_read_unique": 1,
+  "file_reads_total": 1,
+  "file_rereads": 0,
+  "reads_before_first_edit": 1,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [
+    "/agent-home/.claude/projects/-testbed/8f908eac-f2b9-4630-84ab-a226d72602b5/tool-results/bn6b0gzaj.txt"
+  ],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 1,
+      "total": 1
+    },
+    "bash_channel": {
+      "unique": 34,
+      "total": 43
+    },
+    "combined_unique": 35,
+    "combined_total": 44,
+    "combined_rereads": 9,
+    "searches_tool": 0,
+    "searches_bash": 74,
+    "bash_python_runs": 14,
+    "bash_pytest_runs": 0,
+    "bash_git": 4,
+    "unclassified_commands": {
+      "cd": 67,
+      "timeout": 14,
+      "ruff": 12,
+      "sort": 9,
+      "uniq": 5,
+      "wc": 2,
+      "pip": 2,
+      "for": 2,
+      "do": 2,
+      "done": 2,
+      "echo": 1,
+      "uv": 1,
+      "mkdir": 1,
+      "cut": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 7,
+    "bash_channel_writes_total": 8,
+    "bash_written_files": [
+      "/tmp/scan/conftest_plugin.py",
+      "/tmp/scan/e2e.py",
+      "/tmp/scan/patch.py",
+      "/tmp/scan/scan.py",
+      "mlflow/deployments/server/config.py",
+      "mlflow/store/tracking/databricks_rest_store.py",
+      "mlflow/utils/request_utils.py"
+    ]
+  },
+  "reads_before_first_write": 21,
+  "diff": {
+    "files_changed": 22,
+    "insertions": 560,
+    "deletions": 496
+  },
+  "files_touched": 22,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "mlflow/deployments/__init__.py",
+      "mlflow/deployments/base.py",
+      "mlflow/deployments/databricks/__init__.py",
+      "mlflow/deployments/interface.py",
+      "mlflow/deployments/mlflow/__init__.py",
+      "mlflow/deployments/plugin_manager.py",
+      "mlflow/deployments/server/config.py",
+      "mlflow/deployments/utils.py",
+      "mlflow/gateway/config.py",
+      "mlflow/store/_unity_catalog/registry/rest_store.py",
+      "mlflow/store/artifact/databricks_models_artifact_repo.py",
+      "mlflow/store/artifact/dbfs_artifact_repo.py",
+      "mlflow/store/artifact/http_artifact_repo.py",
+      "mlflow/store/tracking/databricks_rest_store.py",
+      "mlflow/store/tracking/rest_store.py",
+      "mlflow/tracking/request_header/databricks_request_header_provider.py",
+      "mlflow/tracking/request_header/default_request_header_provider.py",
+      "mlflow/tracking/request_header/registry.py",
+      "mlflow/utils/databricks_utils.py",
+      "mlflow/utils/request_utils.py",
+      "mlflow/utils/rest_utils.py",
+      "mlflow/utils/string_utils.py"
+    ]
+  },
+  "mask_files": [
+    "mlflow/deployments/__init__.py",
+    "mlflow/deployments/base.py",
+    "mlflow/deployments/databricks/__init__.py",
+    "mlflow/deployments/interface.py",
+    "mlflow/deployments/mlflow/__init__.py",
+    "mlflow/deployments/plugin_manager.py",
+    "mlflow/deployments/server/config.py",
+    "mlflow/deployments/utils.py",
+    "mlflow/gateway/config.py",
+    "mlflow/store/_unity_catalog/registry/rest_store.py",
+    "mlflow/store/artifact/databricks_models_artifact_repo.py",
+    "mlflow/store/artifact/dbfs_artifact_repo.py",
+    "mlflow/store/artifact/http_artifact_repo.py",
+    "mlflow/store/tracking/databricks_rest_store.py",
+    "mlflow/store/tracking/rest_store.py",
+    "mlflow/tracking/request_header/databricks_request_header_provider.py",
+    "mlflow/tracking/request_header/default_request_header_provider.py",
+    "mlflow/tracking/request_header/registry.py",
+    "mlflow/utils/databricks_utils.py",
+    "mlflow/utils/request_utils.py",
+    "mlflow/utils/rest_utils.py",
+    "mlflow/utils/string_utils.py",
+    "tests/deployments/mlflow/test_mlflow.py"
+  ],
+  "agent_vs_mask_files": {
+    "agent_only": [],
+    "mask_only_not_touched": [
+      "tests/deployments/mlflow/test_mlflow.py"
+    ],
+    "both": [
+      "mlflow/deployments/__init__.py",
+      "mlflow/deployments/base.py",
+      "mlflow/deployments/databricks/__init__.py",
+      "mlflow/deployments/interface.py",
+      "mlflow/deployments/mlflow/__init__.py",
+      "mlflow/deployments/plugin_manager.py",
+      "mlflow/deployments/server/config.py",
+      "mlflow/deployments/utils.py",
+      "mlflow/gateway/config.py",
+      "mlflow/store/_unity_catalog/registry/rest_store.py",
+      "mlflow/store/artifact/databricks_models_artifact_repo.py",
+      "mlflow/store/artifact/dbfs_artifact_repo.py",
+      "mlflow/store/artifact/http_artifact_repo.py",
+      "mlflow/store/tracking/databricks_rest_store.py",
+      "mlflow/store/tracking/rest_store.py",
+      "mlflow/tracking/request_header/databricks_request_header_provider.py",
+      "mlflow/tracking/request_header/default_request_header_provider.py",
+      "mlflow/tracking/request_header/registry.py",
+      "mlflow/utils/databricks_utils.py",
+      "mlflow/utils/request_utils.py",
+      "mlflow/utils/rest_utils.py",
+      "mlflow/utils/string_utils.py"
+    ]
+  },
+  "attempt1_files": [
+    "mlflow/deployments/__init__.py",
+    "mlflow/deployments/base.py",
+    "mlflow/deployments/databricks/__init__.py",
+    "mlflow/deployments/interface.py",
+    "mlflow/deployments/mlflow/__init__.py",
+    "mlflow/deployments/plugin_manager.py",
+    "mlflow/deployments/server/config.py",
+    "mlflow/deployments/utils.py",
+    "mlflow/gateway/config.py",
+    "mlflow/store/_unity_catalog/registry/rest_store.py",
+    "mlflow/store/artifact/databricks_models_artifact_repo.py",
+    "mlflow/store/artifact/dbfs_artifact_repo.py",
+    "mlflow/store/artifact/http_artifact_repo.py",
+    "mlflow/store/tracking/databricks_rest_store.py",
+    "mlflow/store/tracking/rest_store.py",
+    "mlflow/tracking/request_header/databricks_request_header_provider.py",
+    "mlflow/tracking/request_header/default_request_header_provider.py",
+    "mlflow/tracking/request_header/registry.py",
+    "mlflow/utils/databricks_utils.py",
+    "mlflow/utils/request_utils.py",
+    "mlflow/utils/rest_utils.py",
+    "mlflow/utils/string_utils.py"
+  ],
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [
+      "/testbed/CLAUDE.md"
+    ],
+    "repo_shipped_claude_md": [
+      "/testbed/mlflow/server/AGENTS.md",
+      "/testbed/mlflow/server/js/CLAUDE.md",
+      "/testbed/.claude",
+      "/testbed/CLAUDE.md"
+    ],
+    "hidden_test_absent": true,
+    "mask_and_pristine_absent": true,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "raw.githubusercontent.com": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

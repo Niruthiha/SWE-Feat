@@ -1,0 +1,244 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/tests/test_logger.py.
+
+Date: 2026-11-13T17:55:23
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 32 items
+
+astropy/tests/test_logger.py ............s...................            [100%]
+
+==================================== PASSES ====================================
+____________________________ test_warnings_logging _____________________________
+----------------------------- Captured stderr call -----------------------------
+WARNING: This is a warning [astropy.tests.test_logger]
+WARNING: This is a warning [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:logger.py:244 This is a warning
+WARNING  astropy:logger.py:244 This is a warning
+___________________ test_warnings_logging_with_custom_class ____________________
+----------------------------- Captured stderr call -----------------------------
+WARNING: CustomAstropyWarningClass: This is a warning [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:logger.py:244 CustomAstropyWarningClass: This is a warning
+_________________ test_warning_logging_with_io_votable_warning _________________
+----------------------------- Captured stderr call -----------------------------
+WARNING: W02: ?:?:?: W02: a attribute 'b' is invalid.  Must be a standard XML id [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:logger.py:244 W02: ?:?:?: W02: a attribute 'b' is invalid.  Must be a standard XML id
+_____________________ test_import_error_in_warning_logging _____________________
+----------------------------- Captured stderr call -----------------------------
+WARNING: Regression test for #2671 [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:logger.py:246 Regression test for #2671
+____________________________ test_exception_logging ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Exception: This is an Exception [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:logger.py:304 Exception: This is an Exception
+________________________ test_exception_logging_origin _________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: TypeError: homogeneous list must contain only objects of type '<class 'int'>' [astropy.utils.collections]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:logger.py:304 TypeError: homogeneous list must contain only objects of type '<class 'int'>'
+____________________________ test_log_to_list[None] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:301 Error message
+WARNING  astropy:test_logger.py:302 Warning message
+INFO     astropy:test_logger.py:303 Information message
+___________________________ test_log_to_list[DEBUG] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+DEBUG: Debug message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:301 Error message
+WARNING  astropy:test_logger.py:302 Warning message
+INFO     astropy:test_logger.py:303 Information message
+DEBUG    astropy:test_logger.py:304 Debug message
+____________________________ test_log_to_list[INFO] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:301 Error message
+WARNING  astropy:test_logger.py:302 Warning message
+INFO     astropy:test_logger.py:303 Information message
+____________________________ test_log_to_list[WARN] ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:301 Error message
+WARNING  astropy:test_logger.py:302 Warning message
+___________________________ test_log_to_list[ERROR] ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:301 Error message
+____________________________ test_log_to_list_level ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:346 Error message
+WARNING  astropy:test_logger.py:347 Warning message
+___________________________ test_log_to_list_origin1 ___________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:354 Error message
+WARNING  astropy:test_logger.py:355 Warning message
+___________________________ test_log_to_list_origin2 ___________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:362 Error message
+WARNING  astropy:test_logger.py:363 Warning message
+____________________________ test_log_to_file[None] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:380 Error message
+WARNING  astropy:test_logger.py:381 Warning message
+INFO     astropy:test_logger.py:382 Information message
+___________________________ test_log_to_file[DEBUG] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+DEBUG: Debug message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:380 Error message
+WARNING  astropy:test_logger.py:381 Warning message
+INFO     astropy:test_logger.py:382 Information message
+DEBUG    astropy:test_logger.py:383 Debug message
+____________________________ test_log_to_file[INFO] ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: Information message [astropy.tests.test_logger]
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:380 Error message
+WARNING  astropy:test_logger.py:381 Warning message
+INFO     astropy:test_logger.py:382 Information message
+____________________________ test_log_to_file[WARN] ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:380 Error message
+WARNING  astropy:test_logger.py:381 Warning message
+___________________________ test_log_to_file[ERROR] ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:380 Error message
+____________________________ test_log_to_file_level ____________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:443 Error message
+WARNING  astropy:test_logger.py:444 Warning message
+___________________________ test_log_to_file_origin1 ___________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:462 Error message
+WARNING  astropy:test_logger.py:463 Warning message
+___________________________ test_log_to_file_origin2 ___________________________
+----------------------------- Captured stderr call -----------------------------
+ERROR: Error message [astropy.tests.test_logger]
+WARNING: Warning message [astropy.tests.test_logger]
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:test_logger.py:480 Error message
+WARNING  astropy:test_logger.py:481 Warning message
+=========================== short test summary info ============================
+PASSED astropy/tests/test_logger.py::test_warnings_logging_disable_no_enable
+PASSED astropy/tests/test_logger.py::test_warnings_logging_enable_twice
+PASSED astropy/tests/test_logger.py::test_warnings_logging_overridden
+PASSED astropy/tests/test_logger.py::test_warnings_logging
+PASSED astropy/tests/test_logger.py::test_warnings_logging_with_custom_class
+PASSED astropy/tests/test_logger.py::test_warning_logging_with_io_votable_warning
+PASSED astropy/tests/test_logger.py::test_import_error_in_warning_logging
+PASSED astropy/tests/test_logger.py::test_exception_logging_disable_no_enable
+PASSED astropy/tests/test_logger.py::test_exception_logging_enable_twice
+PASSED astropy/tests/test_logger.py::test_exception_logging_overridden
+PASSED astropy/tests/test_logger.py::test_exception_logging
+PASSED astropy/tests/test_logger.py::test_exception_logging_origin
+PASSED astropy/tests/test_logger.py::test_log_to_list[None]
+PASSED astropy/tests/test_logger.py::test_log_to_list[DEBUG]
+PASSED astropy/tests/test_logger.py::test_log_to_list[INFO]
+PASSED astropy/tests/test_logger.py::test_log_to_list[WARN]
+PASSED astropy/tests/test_logger.py::test_log_to_list[ERROR]
+PASSED astropy/tests/test_logger.py::test_log_to_list_level
+PASSED astropy/tests/test_logger.py::test_log_to_list_origin1
+PASSED astropy/tests/test_logger.py::test_log_to_list_origin2
+PASSED astropy/tests/test_logger.py::test_log_to_file[None]
+PASSED astropy/tests/test_logger.py::test_log_to_file[DEBUG]
+PASSED astropy/tests/test_logger.py::test_log_to_file[INFO]
+PASSED astropy/tests/test_logger.py::test_log_to_file[WARN]
+PASSED astropy/tests/test_logger.py::test_log_to_file[ERROR]
+PASSED astropy/tests/test_logger.py::test_log_to_file_level
+PASSED astropy/tests/test_logger.py::test_log_to_file_origin1
+PASSED astropy/tests/test_logger.py::test_log_to_file_origin2
+PASSED astropy/tests/test_logger.py::test_log_to_file_encoding[]
+PASSED astropy/tests/test_logger.py::test_log_to_file_encoding[utf-8]
+PASSED astropy/tests/test_logger.py::test_log_to_file_encoding[cp1252]
+SKIPPED [1] astropy/tests/test_logger.py:268: Infinite recursion on Python 3.5+, probably a real issue
+======================== 31 passed, 1 skipped in 0.22s =========================

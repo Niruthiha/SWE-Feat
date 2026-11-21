@@ -1,0 +1,276 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/stats/tests.
+
+Date: 2026-11-13T18:29:09
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 243 items
+
+astropy/stats/tests/test_bayesian_blocks.py .........                    [  3%]
+astropy/stats/tests/test_biweight.py ................................... [ 18%]
+.........                                                                [ 21%]
+astropy/stats/tests/test_circstats.py ..s....s.                          [ 25%]
+astropy/stats/tests/test_funcs.py ......ss...s..............s.s..sssssss [ 41%]
+sssss...ssssssssssssssssssssssssss.....ssss                              [ 58%]
+astropy/stats/tests/test_histogram.py ..ss..........s..                  [ 65%]
+astropy/stats/tests/test_info_theory.py ....                             [ 67%]
+astropy/stats/tests/test_jackknife.py .ss.                               [ 69%]
+astropy/stats/tests/test_sigma_clipping.py ..s.......................... [ 81%]
+....ss..........s................s                                       [ 95%]
+astropy/stats/tests/test_spatial.py ............                         [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_single_change_point
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_duplicate_events
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_measures_fitness_homoscedastic
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_measures_fitness_heteroscedastic
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_regular_events
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_errors
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_fitness_function_results
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_zero_change_points
+PASSED astropy/stats/tests/test_bayesian_blocks.py::test_binned_data_with_zeros
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_constant
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_constant_axis_2d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_constant_axis_3d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_small
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_3d[5-4-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_3d[5-1-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_3d[1-4-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_3d[1-1-5]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_tuple[shape0]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_tuple[shape1]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_tuple[shape2]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_axis_tuple[shape3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_ignore_nan
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_nan
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_location_masked
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_scale
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_small
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_5127
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_axis
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_axis_3d[5-4-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_axis_3d[5-1-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_axis_3d[1-4-3]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_axis_3d[1-1-5]
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_ignore_nan
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_scale_nan
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_masked
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_scale_axis_tuple
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_constant_axis
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_constant_axis_2d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midvariance_constant_axis_3d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcovariance_1d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcovariance_2d
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcovariance_constant
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcovariance_midvariance
+PASSED astropy/stats/tests/test_biweight.py::test_midcovariance_shape
+PASSED astropy/stats/tests/test_biweight.py::test_midcovariance_M_shape
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcovariance_symmetric
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcorrelation
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_midcorrelation_inputs
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_32bit_runtime_warnings
+PASSED astropy/stats/tests/test_biweight.py::test_biweight_scl_var_constant_units
+PASSED astropy/stats/tests/test_circstats.py::test__length
+PASSED astropy/stats/tests/test_circstats.py::test_circmean
+PASSED astropy/stats/tests/test_circstats.py::test_circvar
+PASSED astropy/stats/tests/test_circstats.py::test_circmoment
+PASSED astropy/stats/tests/test_circstats.py::test_circcorrcoef
+PASSED astropy/stats/tests/test_circstats.py::test_rayleightest
+PASSED astropy/stats/tests/test_circstats.py::test_vonmisesmle
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation_masked
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation_nans
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation_nans_masked
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation_multidim_axis
+PASSED astropy/stats/tests/test_funcs.py::test_median_absolute_deviation_quantity
+PASSED astropy/stats/tests/test_funcs.py::test_binned_binom_proportion_exception
+PASSED astropy/stats/tests/test_funcs.py::test_signal_to_noise_oir_ccd
+PASSED astropy/stats/tests/test_funcs.py::test_bootstrap
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_scalar_return
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_warns
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_withnan
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_with_axis
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_with_axis_and_nan
+PASSED astropy/stats/tests/test_funcs.py::test_mad_std_with_axis_and_nan_array_type
+PASSED astropy/stats/tests/test_funcs.py::test_gaussian_fwhm_to_sigma
+PASSED astropy/stats/tests/test_funcs.py::test_gaussian_sigma_to_fwhm
+PASSED astropy/stats/tests/test_funcs.py::test_gaussian_sigma_to_fwhm_to_sigma
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_interval_rootn
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_large[root-n-0]
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_large[pearson]
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_large[sherpagehrels]
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_array_rootn0_zero
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_list_rootn0_zero
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_array_rootn0
+PASSED astropy/stats/tests/test_funcs.py::test_mpmath_poisson_limit
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_value_errors
+PASSED astropy/stats/tests/test_funcs.py::test_poisson_conf_kbn_value_errors
+PASSED astropy/stats/tests/test_funcs.py::test_histogram_intervals_known[ii0-rr0]
+PASSED astropy/stats/tests/test_funcs.py::test_histogram_intervals_known[ii1-rr1]
+PASSED astropy/stats/tests/test_funcs.py::test_histogram_intervals_known[ii2-rr2]
+PASSED astropy/stats/tests/test_funcs.py::test_histogram_intervals_known[ii3-rr3]
+PASSED astropy/stats/tests/test_funcs.py::test_histogram_intervals_known[ii4-rr4]
+PASSED astropy/stats/tests/test_histogram.py::test_scott_bin_width
+PASSED astropy/stats/tests/test_histogram.py::test_freedman_bin_width
+PASSED astropy/stats/tests/test_histogram.py::test_histogram[30]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram[scott]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram[freedman]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram[blocks]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram[bin_type4]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_range[30]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_range[scott]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_range[freedman]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_range[blocks]
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_range_with_bins_list
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_output
+PASSED astropy/stats/tests/test_histogram.py::test_histogram_badargs
+PASSED astropy/stats/tests/test_info_theory.py::test_bayesian_info_criterion
+PASSED astropy/stats/tests/test_info_theory.py::test_akaike_info_criterion
+PASSED astropy/stats/tests/test_info_theory.py::test_akaike_info_criterion_lsq
+PASSED astropy/stats/tests/test_info_theory.py::test_bayesian_info_criterion_lsq
+PASSED astropy/stats/tests/test_jackknife.py::test_jackknife_resampling
+PASSED astropy/stats/tests/test_jackknife.py::test_jackknife_stats_exceptions
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_axis_none
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_scalar_mask
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_masked_array
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_class
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_mean
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_invalid_cenfunc_stdfunc
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clipped_stats
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clipped_stats_ddof
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clipped_stats_masked_col
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.0-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.0-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.3333333333333335-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.3333333333333335-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.6666666666666665-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[2.6666666666666665-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.0-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.0-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.333333333333333-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.333333333333333-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.6666666666666665-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[3.6666666666666665-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.0-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.0-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.333333333333333-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.333333333333333-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.666666666666666-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[4.666666666666666-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[5.0-False]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_stats[5.0-True]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_mask
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclippedstats_axis
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_invalid_sigma_clip
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclip_negative_axis
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclip_fully_masked
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclip_empty_masked
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclip_empty
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_tuple_3D
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigmaclip_repr
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clippped_stats_unit
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clippped_stats_all_masked
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_masked_data_values
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[0-bounds_shape0]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[1-bounds_shape1]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[-1-bounds_shape2]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[axis3-bounds_shape3]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[axis4-bounds_shape4]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_axis_shapes[axis5-bounds_shape5]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[>f2]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[<f2]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[>f4]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[<f4]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[>f8]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[<f8]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[<i4]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_sigma_clip_dtypes[>i8]
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_mad_std
+PASSED astropy/stats/tests/test_sigma_clipping.py::test_mad_std_large
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_K_implementation[points0-0-10]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_K_implementation[points1--5-5]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_uniform_property[points0]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_uniform_property[points1]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_large_density[points0-0-1]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_large_density[points1--1-0]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_modes[points0-5-10]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_modes[points1--10--5]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_large_density_var_width[points0-0-1]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_large_density_var_width[points1--1-0]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_var_width[points0-5-10]
+PASSED astropy/stats/tests/test_spatial.py::test_ripley_var_width[points1--10--5]
+SKIPPED [1] astropy/stats/tests/test_circstats.py:36: requires scipy
+SKIPPED [1] astropy/stats/tests/test_circstats.py:118: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:143: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:228: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:290: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:443: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:477: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:514: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:531: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:557: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:590: requires scipy
+SKIPPED [7] astropy/stats/tests/test_funcs.py:618: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:628: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:792: requires neither scipy nor mpmath
+SKIPPED [4] astropy/stats/tests/test_funcs.py:800: requires scipy
+SKIPPED [6] astropy/stats/tests/test_funcs.py:807: requires scipy
+SKIPPED [6] astropy/stats/tests/test_funcs.py:816: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:828: requires scipy
+SKIPPED [6] astropy/stats/tests/test_funcs.py:835: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:854: requires scipy
+SKIPPED [1] astropy/stats/tests/test_funcs.py:860: requires scipy
+SKIPPED [4] astropy/stats/tests/test_funcs.py:897: requires scipy
+SKIPPED [1] astropy/stats/tests/test_histogram.py:61: requires scipy
+SKIPPED [1] astropy/stats/tests/test_histogram.py:76: requires scipy
+SKIPPED [1] astropy/stats/tests/test_histogram.py:126: requires scipy
+SKIPPED [1] astropy/stats/tests/test_jackknife.py:18: requires scipy
+SKIPPED [1] astropy/stats/tests/test_jackknife.py:28: requires scipy
+SKIPPED [1] astropy/stats/tests/test_sigma_clipping.py:77: requires scipy
+SKIPPED [2] astropy/stats/tests/test_sigma_clipping.py:285: test a workaround for upstream bug in bottleneck
+SKIPPED [1] astropy/stats/tests/test_sigma_clipping.py:509: requires scipy
+SKIPPED [1] astropy/stats/tests/test_sigma_clipping.py:718: test requires scipy
+======================= 184 passed, 59 skipped in 2.52s ========================

@@ -1,0 +1,77 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.19, pytest-9.0.1, pluggy-1.6.0
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: timeout-2.4.0, xdist-3.8.0, cov-7.0.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 61 items
+
+tests/test_regression.py ................ss....ss.........ssss.......... [ 77%]
+.........s....                                                           [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_frame
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_series
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_array
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_lists
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_mix
+PASSED tests/test_regression.py::TestLinearPlotter::test_establish_variables_from_bad
+PASSED tests/test_regression.py::TestLinearPlotter::test_dropna
+PASSED tests/test_regression.py::TestRegressionPlotter::test_variables_from_frame
+PASSED tests/test_regression.py::TestRegressionPlotter::test_variables_from_series
+PASSED tests/test_regression.py::TestRegressionPlotter::test_variables_from_mix
+PASSED tests/test_regression.py::TestRegressionPlotter::test_variables_must_be_1d
+PASSED tests/test_regression.py::TestRegressionPlotter::test_dropna
+PASSED tests/test_regression.py::TestRegressionPlotter::test_singleton[x0-y0]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_singleton[x1-y1]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_singleton[x2-y2]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_ci
+PASSED tests/test_regression.py::TestRegressionPlotter::test_statsmodels_missing_errors[logistic]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_statsmodels_missing_errors[robust]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_statsmodels_missing_errors[lowess]
+PASSED tests/test_regression.py::TestRegressionPlotter::test_regress_logx
+PASSED tests/test_regression.py::TestRegressionPlotter::test_regress_bootstrap_seed
+PASSED tests/test_regression.py::TestRegressionPlotter::test_numeric_bins
+PASSED tests/test_regression.py::TestRegressionPlotter::test_provided_bins
+PASSED tests/test_regression.py::TestRegressionPlotter::test_bin_results
+PASSED tests/test_regression.py::TestRegressionPlotter::test_scatter_data
+PASSED tests/test_regression.py::TestRegressionPlotter::test_estimate_data
+PASSED tests/test_regression.py::TestRegressionPlotter::test_estimate_cis
+PASSED tests/test_regression.py::TestRegressionPlotter::test_estimate_units
+PASSED tests/test_regression.py::TestRegressionPlotter::test_partial
+PASSED tests/test_regression.py::TestRegressionPlotter::test_regression_options
+PASSED tests/test_regression.py::TestRegressionPlotter::test_regression_limits
+PASSED tests/test_regression.py::TestRegressionPlots::test_regplot_basic
+PASSED tests/test_regression.py::TestRegressionPlots::test_regplot_selective
+PASSED tests/test_regression.py::TestRegressionPlots::test_regplot_scatter_kws_alpha
+PASSED tests/test_regression.py::TestRegressionPlots::test_regplot_binned
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_no_data
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_basic
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_hue
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_markers
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_marker_linewidths
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_facets
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_hue_col_nolegend
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_scatter_kws
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_facet_truncate[True]
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_facet_truncate[False]
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_sharey
+PASSED tests/test_regression.py::TestRegressionPlots::test_lmplot_facet_kws
+PASSED tests/test_regression.py::TestRegressionPlots::test_residplot
+PASSED tests/test_regression.py::TestRegressionPlots::test_residplot_statsmodels_missing_errors[robust]
+PASSED tests/test_regression.py::TestRegressionPlots::test_residplot_statsmodels_missing_errors[lowess]
+PASSED tests/test_regression.py::TestRegressionPlots::test_three_point_colors
+PASSED tests/test_regression.py::TestRegressionPlots::test_regplot_xlim
+SKIPPED [1] tests/test_regression.py:186: no statsmodels
+SKIPPED [1] tests/test_regression.py:200: no statsmodels
+SKIPPED [1] tests/test_regression.py:234: no statsmodels
+SKIPPED [1] tests/test_regression.py:251: no statsmodels
+SKIPPED [1] tests/test_regression.py:392: no statsmodels
+SKIPPED [1] tests/test_regression.py:401: no statsmodels
+SKIPPED [1] tests/test_regression.py:412: no statsmodels
+SKIPPED [1] tests/test_regression.py:425: no statsmodels
+SKIPPED [1] tests/test_regression.py:660: no statsmodels
+======================== 52 passed, 9 skipped in 13.09s ========================

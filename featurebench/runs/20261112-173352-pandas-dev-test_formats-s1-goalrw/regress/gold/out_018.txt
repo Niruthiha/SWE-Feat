@@ -1,0 +1,184 @@
+/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_cython/__init__.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import get_distribution
+[1/1] Generating write_version_file with a custom command
++ /opt/miniconda3/envs/testbed/bin/ninja
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+PyQt5 5.15.11 -- Qt runtime 5.15.18 -- Qt compiled 5.15.14
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: cython-0.3.1, hypothesis-6.148.2, timeout-2.4.0, localserver-0.9.0.post0, xdist-3.8.0, qt-4.5.0, cov-7.0.0, anyio-4.11.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 146 items
+
+pandas/tests/interchange/test_impl.py ...................................................................................
+pandas/tests/interchange/test_spec_conformance.py ................
+pandas/tests/interchange/test_utils.py ...............................................
+
+==================================== PASSES ====================================
+------------------ generated xml file: /testbed/test-data.xml ------------------
+============================= slowest 30 durations =============================
+0.02s call     pandas/tests/interchange/test_impl.py::test_interchange_from_non_pandas_tz_aware
+0.01s call     pandas/tests/interchange/test_impl.py::test_categorical_pyarrow
+0.01s call     pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>4]
+0.01s call     pandas/tests/interchange/test_impl.py::test_categorical_dtype[data0]
+0.01s call     pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>3]
+0.01s call     pandas/tests/interchange/test_impl.py::test_categorical_dtype[data1]
+0.01s call     pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>0]
+0.01s call     pandas/tests/interchange/test_impl.py::test_large_string_pyarrow
+0.01s call     pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>1]
+0.01s call     pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>2]
+0.01s call     pandas/tests/interchange/test_impl.py::test_large_string
+0.01s call     pandas/tests/interchange/test_impl.py::test_multi_chunk_column
+
+(18 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+PASSED pandas/tests/interchange/test_impl.py::test_categorical_dtype[data0]
+PASSED pandas/tests/interchange/test_impl.py::test_categorical_dtype[data1]
+PASSED pandas/tests/interchange/test_impl.py::test_categorical_pyarrow
+PASSED pandas/tests/interchange/test_impl.py::test_empty_categorical_pyarrow
+PASSED pandas/tests/interchange/test_impl.py::test_large_string_pyarrow
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[0-None-expected_values0]
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[1-None-expected_values1]
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[2-None-expected_values2]
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[0-2-expected_values3]
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[0-1-expected_values4]
+PASSED pandas/tests/interchange/test_impl.py::test_bitmasks_pyarrow[1-1-expected_values5]
+PASSED pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>0]
+PASSED pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>1]
+PASSED pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>2]
+PASSED pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>3]
+PASSED pandas/tests/interchange/test_impl.py::test_dataframe[<lambda>4]
+PASSED pandas/tests/interchange/test_impl.py::test_missing_from_masked
+PASSED pandas/tests/interchange/test_impl.py::test_mixed_data[data0]
+PASSED pandas/tests/interchange/test_impl.py::test_mixed_data[data1]
+PASSED pandas/tests/interchange/test_impl.py::test_mixed_data[data2]
+PASSED pandas/tests/interchange/test_impl.py::test_mixed_missing
+PASSED pandas/tests/interchange/test_impl.py::test_string
+PASSED pandas/tests/interchange/test_impl.py::test_nonstring_object
+PASSED pandas/tests/interchange/test_impl.py::test_datetime
+PASSED pandas/tests/interchange/test_impl.py::test_categorical_to_numpy_dlpack
+PASSED pandas/tests/interchange/test_impl.py::test_empty_pyarrow[data0]
+PASSED pandas/tests/interchange/test_impl.py::test_empty_pyarrow[data1]
+PASSED pandas/tests/interchange/test_impl.py::test_multi_chunk_pyarrow
+PASSED pandas/tests/interchange/test_impl.py::test_multi_chunk_column
+PASSED pandas/tests/interchange/test_impl.py::test_timestamp_ns_pyarrow
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[s-UTC]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[s-US/Pacific]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[ms-UTC]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[ms-US/Pacific]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[us-UTC]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[us-US/Pacific]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[ns-UTC]
+PASSED pandas/tests/interchange/test_impl.py::test_datetimetzdtype[ns-US/Pacific]
+PASSED pandas/tests/interchange/test_impl.py::test_interchange_from_non_pandas_tz_aware
+PASSED pandas/tests/interchange/test_impl.py::test_interchange_from_corrected_buffer_dtypes
+PASSED pandas/tests/interchange/test_impl.py::test_empty_string_column
+PASSED pandas/tests/interchange/test_impl.py::test_large_string
+PASSED pandas/tests/interchange/test_impl.py::test_non_str_names
+PASSED pandas/tests/interchange/test_impl.py::test_non_str_names_w_duplicates
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data0-Int64-int64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data1-Int64[pyarrow]-int64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data2-Int8-int8]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data3-Int8[pyarrow]-int8]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data4-UInt64-uint64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data5-UInt64[pyarrow]-uint64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data6-Float32-float32]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data7-Float32[pyarrow]-float32]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data8-boolean-bool]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data9-boolean[pyarrow]-bool]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data10-dtype10-large_string]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data11-string[pyarrow]-large_string]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data12-timestamp[ns][pyarrow]-timestamp[ns]]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data13-timestamp[us][pyarrow]-timestamp[us]]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_with_missing_values[data14-timestamp[us, Asia/Kathmandu][pyarrow]-timestamp[us, tz=Asia/Kathmandu]]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data0-Int64-int64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data1-Int64[pyarrow]-int64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data2-Int8-int8]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data3-Int8[pyarrow]-int8]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data4-UInt64-uint64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data5-UInt64[pyarrow]-uint64]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data6-Float32-float32]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data7-Float32[pyarrow]-float32]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data8-boolean-bool]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data9-boolean[pyarrow]-bool]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data10-dtype10-large_string]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data11-string[pyarrow]-large_string]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data12-timestamp[ns][pyarrow]-timestamp[ns]]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data13-timestamp[us][pyarrow]-timestamp[us]]
+PASSED pandas/tests/interchange/test_impl.py::test_pandas_nullable_without_missing_values[data14-timestamp[us, Asia/Kathmandu][pyarrow]-timestamp[us, tz=Asia/Kathmandu]]
+PASSED pandas/tests/interchange/test_impl.py::test_string_validity_buffer
+PASSED pandas/tests/interchange/test_impl.py::test_string_validity_buffer_no_missing
+PASSED pandas/tests/interchange/test_impl.py::test_empty_dataframe
+PASSED pandas/tests/interchange/test_impl.py::test_buffer_dtype_categorical[data0-expected_dtype0-expected_buffer_dtype0]
+PASSED pandas/tests/interchange/test_impl.py::test_buffer_dtype_categorical[data1-expected_dtype1-expected_buffer_dtype1]
+PASSED pandas/tests/interchange/test_impl.py::test_buffer_dtype_categorical[data2-expected_dtype2-expected_buffer_dtype2]
+PASSED pandas/tests/interchange/test_impl.py::test_buffer_dtype_categorical[data3-expected_dtype3-expected_buffer_dtype3]
+PASSED pandas/tests/interchange/test_impl.py::test_buffer_dtype_categorical[data4-expected_dtype4-expected_buffer_dtype4]
+PASSED pandas/tests/interchange/test_impl.py::test_from_dataframe_list_dtype
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_only_one_dtype[str_data]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_only_one_dtype[float_data]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_only_one_dtype[int_data]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_mixed_dtypes
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_na_float
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_noncategorical
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_categorical
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_dataframe
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_df_get_chunks[10-3]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_df_get_chunks[12-3]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_df_get_chunks[12-5]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_column_get_chunks[10-3]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_column_get_chunks[12-3]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_column_get_chunks[12-5]
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_get_columns
+PASSED pandas/tests/interchange/test_spec_conformance.py::test_buffer
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype0-b]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype1-c]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype2-C]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype3-s]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype4-S]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype5-i]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype6-I]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype7-l]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype8-L]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype9-e]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype10-f]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype11-g]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype12-u]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype13-tsn:]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype14-l]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt[pandas_dtype15-u]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[null-args_kwargs0-n]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[bool_-args_kwargs1-b]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[uint8-args_kwargs2-C]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[uint16-args_kwargs3-S]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[uint32-args_kwargs4-I]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[uint64-args_kwargs5-L]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[int8-args_kwargs6-c]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[int16-args_kwargs7-S]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[int32-args_kwargs8-i]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[int64-args_kwargs9-l]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[float16-args_kwargs10-e]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[float32-args_kwargs11-f]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[float64-args_kwargs12-g]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[string-args_kwargs13-u]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[binary-args_kwargs14-z]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[time32-args_kwargs15-tts]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[time32-args_kwargs16-ttm]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[time64-args_kwargs17-ttu]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[time64-args_kwargs18-ttn]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[date32-args_kwargs19-tdD]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[date64-args_kwargs20-tdm]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[timestamp-args_kwargs21-tss:]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[timestamp-args_kwargs22-tsm:]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[timestamp-args_kwargs23-tsu:]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[timestamp-args_kwargs24-tsn:]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[timestamp-args_kwargs25-tsn:UTC]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[duration-args_kwargs26-tDs]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[duration-args_kwargs27-tDm]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[duration-args_kwargs28-tDu]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[duration-args_kwargs29-tDn]
+PASSED pandas/tests/interchange/test_utils.py::test_dtype_to_arrow_c_fmt_arrowdtype[decimal128-args_kwargs30-d:4,2]
+============================= 146 passed in 0.66s ==============================

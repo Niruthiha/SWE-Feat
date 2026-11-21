@@ -1,0 +1,627 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/wcs/tests.
+
+Date: 2026-11-13T18:24:12
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 463 items
+
+astropy/wcs/tests/test_auxprm.py .....                                   [  1%]
+astropy/wcs/tests/test_celprm.py ..........                              [  3%]
+astropy/wcs/tests/test_pickle.py .........                               [  5%]
+astropy/wcs/tests/test_prjprm.py .....................                   [  9%]
+astropy/wcs/tests/test_profiling.py .................................... [ 17%]
+                                                                         [ 17%]
+astropy/wcs/tests/test_tab.py .....                                      [ 18%]
+astropy/wcs/tests/test_tabprm.py ..............                          [ 21%]
+astropy/wcs/tests/test_utils.py ...................F.................... [ 30%]
+...........................sssssssssssss........                         [ 40%]
+astropy/wcs/tests/test_wcs.py .......................................... [ 49%]
+........................................................................ [ 65%]
+............                                                             [ 67%]
+astropy/wcs/tests/test_wcsprm.py ....................................... [ 76%]
+........................................................................ [ 91%]
+............................                                             [ 97%]
+astropy/wcs/tests/test_wtbarr.py ..........                              [100%]
+
+=================================== FAILURES ===================================
+_________________________ test_celestial_frame_to_wcs __________________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/wcs/tests/test_utils.py:615: in test_celestial_frame_to_wcs
+    mywcs = celestial_frame_to_wcs(frame, projection="CAR")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/wcs/utils.py:403: in celestial_frame_to_wcs
+    wcs = func(frame, projection=projection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/wcs/utils.py:241: in _celestial_frame_to_wcs_builtin
+    wcs.wcs.dateobs = frame.obstime.utc.isot
+                      ^^^^^^^^^^^^^^^^^
+astropy/time/core.py:1768: in __getattr__
+    tm._set_scale(attr)
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+==================================== PASSES ====================================
+________________________ test_custom_wcs_to_from_frame _________________________
+----------------------------- Captured stdout call -----------------------------
+['CSLN-TAN', 'CSLT-TAN']
+______________________________ test_all_world2pix ______________________________
+----------------------------- Captured stdout call -----------------------------
+
+Finished running 'test_all_world2pix'.
+Mean error = 3.702985e-07  (Max error = 1.515191e-06)
+Run time: 0:00:00.019422
+
+______________________________ test_tpv_ctype_tpv ______________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: 
+                Inconsistent SIP distortion information is present in the FITS header and the WCS object:
+                SIP coefficients were detected, but CTYPE is missing a "-SIP" suffix.
+                astropy.wcs is using the SIP distortion coefficients,
+                therefore the coordinates calculated here might be incorrect.
+
+                If you do not want to apply the SIP distortion coefficients,
+                please remove the SIP coefficients from the FITS header or the
+                WCS object.  As an example, if the image is already distortion-corrected
+                (e.g., drizzled) then distortion components should not apply and the SIP
+                coefficients should be removed.
+
+                While the SIP distortion coefficients are being applied here, if that was indeed the intent,
+                for consistency please append "-SIP" to the CTYPE in the FITS header or the WCS object.
+
+                 [astropy.wcs.wcs]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:wcs.py:1427 
+                Inconsistent SIP distortion information is present in the FITS header and the WCS object:
+                SIP coefficients were detected, but CTYPE is missing a "-SIP" suffix.
+                astropy.wcs is using the SIP distortion coefficients,
+                therefore the coordinates calculated here might be incorrect.
+
+                If you do not want to apply the SIP distortion coefficients,
+                please remove the SIP coefficients from the FITS header or the
+                WCS object.  As an example, if the image is already distortion-corrected
+                (e.g., drizzled) then distortion components should not apply and the SIP
+                coefficients should be removed.
+
+                While the SIP distortion coefficients are being applied here, if that was indeed the intent,
+                for consistency please append "-SIP" to the CTYPE in the FITS header or the WCS object.
+____________________________ test_inconsistent_sip _____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: 
+        Inconsistent SIP distortion information is present in the current WCS:
+        SIP coefficients were detected, but CTYPE is missing "-SIP" suffix,
+        therefore the current WCS is internally inconsistent.
+
+        Because relax has been set to True, the resulting output WCS will have
+        "-SIP" appended to CTYPE in order to make the header internally consistent.
+
+        However, this may produce incorrect astrometry in the output WCS, if
+        in fact the current WCS is already distortion-corrected.
+
+        Therefore, if current WCS is already distortion-corrected (eg, drizzled)
+        then SIP distortion components should not apply. In that case, for a WCS
+        that is already distortion-corrected, please remove the SIP coefficients
+        from the header.
+
+         [astropy.wcs.wcs]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:wcs.py:3111 
+        Inconsistent SIP distortion information is present in the current WCS:
+        SIP coefficients were detected, but CTYPE is missing "-SIP" suffix,
+        therefore the current WCS is internally inconsistent.
+
+        Because relax has been set to True, the resulting output WCS will have
+        "-SIP" appended to CTYPE in order to make the header internally consistent.
+
+        However, this may produce incorrect astrometry in the output WCS, if
+        in fact the current WCS is already distortion-corrected.
+
+        Therefore, if current WCS is already distortion-corrected (eg, drizzled)
+        then SIP distortion components should not apply. In that case, for a WCS
+        that is already distortion-corrected, please remove the SIP coefficients
+        from the header.
+=========================== short test summary info ============================
+PASSED astropy/wcs/tests/test_auxprm.py::test_empty
+PASSED astropy/wcs/tests/test_auxprm.py::test_solar_aux_get
+PASSED astropy/wcs/tests/test_auxprm.py::test_solar_aux_set
+PASSED astropy/wcs/tests/test_auxprm.py::test_set_aux_on_empty
+PASSED astropy/wcs/tests/test_auxprm.py::test_unset_aux
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_init
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_copy
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_offset
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_prj
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_phi0
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_theta0
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_ref
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_isolat
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_latpreq
+PASSED astropy/wcs/tests/test_celprm.py::test_celprm_euler
+PASSED astropy/wcs/tests/test_pickle.py::test_basic
+PASSED astropy/wcs/tests/test_pickle.py::test_dist
+PASSED astropy/wcs/tests/test_pickle.py::test_sip
+PASSED astropy/wcs/tests/test_pickle.py::test_sip2
+PASSED astropy/wcs/tests/test_pickle.py::test_wcs
+PASSED astropy/wcs/tests/test_pickle.py::test_subclass
+PASSED astropy/wcs/tests/test_pickle.py::test_axes_info
+PASSED astropy/wcs/tests/test_pickle.py::test_pixlist_wcs_colsel
+PASSED astropy/wcs/tests/test_pickle.py::test_alt_wcskey
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_init
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_copy
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_flag
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_code
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_phi0
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_theta0
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_pv
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_pvrange
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_bounds
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_category
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_name
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_w
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_simplezen
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_equiareal
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_conformal
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_global_projection
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_divergent
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_r0
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_x0_y0
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_n_m
+PASSED astropy/wcs/tests/test_prjprm.py::test_prjprm_prj_roundtrips
+PASSED astropy/wcs/tests/test_profiling.py::test_read_map_files
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_CAR.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_SIN.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_AZP.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_AIR.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_AIT.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_QSC.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_HPX.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_SFL.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_STG.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_ZEA.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_CSC.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_BON.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_CYP.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_COD.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_PCO.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_COE.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_COP.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_NCP.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_COO.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_TSC.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_MOL.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_PAR.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_CEA.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_ARC.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_MER.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_TAN.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_SZP.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_map[1904-66_ZPN.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_read_spec_files
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-freq-1.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-wave-4.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-velo-4.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-wave-1.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-freq-4.hdr]
+PASSED astropy/wcs/tests/test_profiling.py::test_spectrum[orion-velo-1.hdr]
+PASSED astropy/wcs/tests/test_tab.py::test_2d_spatial_tab_roundtrip
+PASSED astropy/wcs/tests/test_tab.py::test_2d_spatial_tab_vs_model
+PASSED astropy/wcs/tests/test_tab.py::test_mixed_celest_and_1d_tab_roundtrip
+PASSED astropy/wcs/tests/test_tab.py::test_wcstab_swapaxes
+PASSED astropy/wcs/tests/test_tab.py::test_wcstab_swapaxes_same_val_roundtrip
+PASSED astropy/wcs/tests/test_tabprm.py::test_wcsprm_tab_basic
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_coord
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_crval_and_deepcopy
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_delta
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_K
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_M
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_nc
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_extrema
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_map
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_sense
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_p0
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_print
+PASSED astropy/wcs/tests/test_tabprm.py::test_wcstab_copy
+PASSED astropy/wcs/tests/test_tabprm.py::test_tabprm_crval
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_dropping
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_swapping
+PASSED astropy/wcs/tests/test_utils.py::test_add_stokes[2]
+PASSED astropy/wcs/tests/test_utils.py::test_add_stokes[3]
+PASSED astropy/wcs/tests/test_utils.py::test_slice
+PASSED astropy/wcs/tests/test_utils.py::test_slice_with_sip
+PASSED astropy/wcs/tests/test_utils.py::test_slice_with_cpdis_tables
+PASSED astropy/wcs/tests/test_utils.py::test_slice_getitem
+PASSED astropy/wcs/tests/test_utils.py::test_slice_fitsorder
+PASSED astropy/wcs/tests/test_utils.py::test_slice_wcs
+PASSED astropy/wcs/tests/test_utils.py::test_slice_nd
+PASSED astropy/wcs/tests/test_utils.py::test_slice_ellipsis
+PASSED astropy/wcs/tests/test_utils.py::test_slice_drop_dimensions_order
+PASSED astropy/wcs/tests/test_utils.py::test_axis_names
+PASSED astropy/wcs/tests/test_utils.py::test_celestial
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_to_celestial_frame
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_to_body_frame
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_to_celestial_frame_correlated
+PASSED astropy/wcs/tests/test_utils.py::test_wcs_to_celestial_frame_extend
+PASSED astropy/wcs/tests/test_utils.py::test_body_to_wcs_frame
+PASSED astropy/wcs/tests/test_utils.py::test_celestial_frame_to_wcs_extend
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_nodrop
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_withdrop
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_cd
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_cd_rotated[30]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_cd_rotated[45]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_cd_rotated[60]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_cd_rotated[75]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_pc_rotated[30]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_pc_rotated[45]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_pc_rotated[60]
+PASSED astropy/wcs/tests/test_utils.py::test_pixscale_pc_rotated[75]
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_scale_matrix[cdelt0-pc0-pccd0]
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_scale_matrix[cdelt1-pc1-pccd1]
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_scale_matrix[cdelt2-pc2-pccd2]
+PASSED astropy/wcs/tests/test_utils.py::test_is_celestial[ctype0-True]
+PASSED astropy/wcs/tests/test_utils.py::test_is_celestial[ctype1-False]
+PASSED astropy/wcs/tests/test_utils.py::test_is_celestial[ctype2-False]
+PASSED astropy/wcs/tests/test_utils.py::test_has_celestial[ctype0-True]
+PASSED astropy/wcs/tests/test_utils.py::test_has_celestial[ctype1-True]
+PASSED astropy/wcs/tests/test_utils.py::test_has_celestial[ctype2-False]
+PASSED astropy/wcs/tests/test_utils.py::test_has_celestial_correlated
+PASSED astropy/wcs/tests/test_utils.py::test_noncelestial_scale[cdelt0-pc0-cd0-True]
+PASSED astropy/wcs/tests/test_utils.py::test_noncelestial_scale[cdelt1-pc1-cd1-True]
+PASSED astropy/wcs/tests/test_utils.py::test_noncelestial_scale[cdelt2-pc2-None-False]
+PASSED astropy/wcs/tests/test_utils.py::test_noncelestial_scale[cdelt3-None-cd3-True]
+PASSED astropy/wcs/tests/test_utils.py::test_skycoord_to_pixel[all]
+PASSED astropy/wcs/tests/test_utils.py::test_skycoord_to_pixel[wcs]
+PASSED astropy/wcs/tests/test_utils.py::test_skycoord_to_pixel_swapped
+PASSED astropy/wcs/tests/test_utils.py::test_is_proj_plane_distorted
+PASSED astropy/wcs/tests/test_utils.py::test_skycoord_to_pixel_distortions[all]
+PASSED astropy/wcs/tests/test_utils.py::test_skycoord_to_pixel_distortions[wcs]
+PASSED astropy/wcs/tests/test_utils.py::test_local_pixel_derivatives
+PASSED astropy/wcs/tests/test_utils.py::test_local_pixel_derivatives_cube
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_world_correlation_matrix_celestial
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_world_correlation_matrix_spectral_cube_uncorrelated
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_world_correlation_matrix_spectral_cube_correlated
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlation_matrix_celestial
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlation_matrix_spectral_cube_uncorrelated
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlation_matrix_spectral_cube_correlated
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlation_matrix_mismatch
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlation_matrix_nonsquare
+PASSED astropy/wcs/tests/test_utils.py::test_split_matrix
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_correlated
+PASSED astropy/wcs/tests/test_utils.py::test_pixel_to_pixel_1d
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_cartesian
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_spherical
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_infinite
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_invalid[obsgeo0]
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_invalid[None]
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_invalid[obsgeo2]
+PASSED astropy/wcs/tests/test_utils.py::test_obsgeo_invalid[obsgeo3]
+PASSED astropy/wcs/tests/test_utils.py::test_custom_wcs_to_from_frame
+PASSED astropy/wcs/tests/test_wcs.py::TestMaps::test_consistency
+PASSED astropy/wcs/tests/test_wcs.py::TestMaps::test_maps
+PASSED astropy/wcs/tests/test_wcs.py::TestSpectra::test_consistency
+PASSED astropy/wcs/tests/test_wcs.py::TestSpectra::test_spectra
+PASSED astropy/wcs/tests/test_wcs.py::test_fixes
+PASSED astropy/wcs/tests/test_wcs.py::test_outside_sky
+PASSED astropy/wcs/tests/test_wcs.py::test_pix2world
+PASSED astropy/wcs/tests/test_wcs.py::test_load_fits_path
+PASSED astropy/wcs/tests/test_wcs.py::test_dict_init
+PASSED astropy/wcs/tests/test_wcs.py::test_extra_kwarg
+PASSED astropy/wcs/tests/test_wcs.py::test_3d_shapes
+PASSED astropy/wcs/tests/test_wcs.py::test_preserve_shape
+PASSED astropy/wcs/tests/test_wcs.py::test_broadcasting
+PASSED astropy/wcs/tests/test_wcs.py::test_shape_mismatch
+PASSED astropy/wcs/tests/test_wcs.py::test_invalid_shape
+PASSED astropy/wcs/tests/test_wcs.py::test_warning_about_defunct_keywords
+PASSED astropy/wcs/tests/test_wcs.py::test_warning_about_defunct_keywords_exception
+PASSED astropy/wcs/tests/test_wcs.py::test_to_header_string
+PASSED astropy/wcs/tests/test_wcs.py::test_to_fits
+PASSED astropy/wcs/tests/test_wcs.py::test_to_header_warning
+PASSED astropy/wcs/tests/test_wcs.py::test_no_comments_in_header
+PASSED astropy/wcs/tests/test_wcs.py::test_find_all_wcs_crash
+PASSED astropy/wcs/tests/test_wcs.py::test_validate
+PASSED astropy/wcs/tests/test_wcs.py::test_validate_wcs_tab
+PASSED astropy/wcs/tests/test_wcs.py::test_validate_with_2_wcses
+PASSED astropy/wcs/tests/test_wcs.py::test_crpix_maps_to_crval
+PASSED astropy/wcs/tests/test_wcs.py::test_all_world2pix
+PASSED astropy/wcs/tests/test_wcs.py::test_scamp_sip_distortion_parameters
+PASSED astropy/wcs/tests/test_wcs.py::test_fixes2
+PASSED astropy/wcs/tests/test_wcs.py::test_unit_normalization
+PASSED astropy/wcs/tests/test_wcs.py::test_footprint_to_file
+PASSED astropy/wcs/tests/test_wcs.py::test_validate_faulty_wcs
+PASSED astropy/wcs/tests/test_wcs.py::test_error_message
+PASSED astropy/wcs/tests/test_wcs.py::test_out_of_bounds
+PASSED astropy/wcs/tests/test_wcs.py::test_calc_footprint_1
+PASSED astropy/wcs/tests/test_wcs.py::test_calc_footprint_2
+PASSED astropy/wcs/tests/test_wcs.py::test_calc_footprint_3
+PASSED astropy/wcs/tests/test_wcs.py::test_sip
+PASSED astropy/wcs/tests/test_wcs.py::test_sub_3d_with_sip
+PASSED astropy/wcs/tests/test_wcs.py::test_printwcs
+PASSED astropy/wcs/tests/test_wcs.py::test_invalid_spherical
+PASSED astropy/wcs/tests/test_wcs.py::test_no_iteration
+PASSED astropy/wcs/tests/test_wcs.py::test_sip_tpv_agreement
+PASSED astropy/wcs/tests/test_wcs.py::test_tpv_ctype_sip
+PASSED astropy/wcs/tests/test_wcs.py::test_tpv_ctype_tpv
+PASSED astropy/wcs/tests/test_wcs.py::test_tpv_ctype_tan
+PASSED astropy/wcs/tests/test_wcs.py::test_car_sip_with_pv
+PASSED astropy/wcs/tests/test_wcs.py::test_tpv_copy
+PASSED astropy/wcs/tests/test_wcs.py::test_hst_wcs
+PASSED astropy/wcs/tests/test_wcs.py::test_cpdis_comments
+PASSED astropy/wcs/tests/test_wcs.py::test_d2im_comments
+PASSED astropy/wcs/tests/test_wcs.py::test_sip_broken
+PASSED astropy/wcs/tests/test_wcs.py::test_no_truncate_crval
+PASSED astropy/wcs/tests/test_wcs.py::test_no_truncate_crval_try2
+PASSED astropy/wcs/tests/test_wcs.py::test_no_truncate_crval_p17
+PASSED astropy/wcs/tests/test_wcs.py::test_no_truncate_using_compare
+PASSED astropy/wcs/tests/test_wcs.py::test_passing_ImageHDU
+PASSED astropy/wcs/tests/test_wcs.py::test_inconsistent_sip
+PASSED astropy/wcs/tests/test_wcs.py::test_bounds_check
+PASSED astropy/wcs/tests/test_wcs.py::test_naxis
+PASSED astropy/wcs/tests/test_wcs.py::test_naxis_1d
+PASSED astropy/wcs/tests/test_wcs.py::test_sip_with_altkey
+PASSED astropy/wcs/tests/test_wcs.py::test_to_fits_1
+PASSED astropy/wcs/tests/test_wcs.py::test_keyedsip
+PASSED astropy/wcs/tests/test_wcs.py::test_zero_size_input
+PASSED astropy/wcs/tests/test_wcs.py::test_scalar_inputs
+PASSED astropy/wcs/tests/test_wcs.py::test_footprint_contains
+PASSED astropy/wcs/tests/test_wcs.py::test_cunit
+PASSED astropy/wcs/tests/test_wcs.py::TestWcsWithTime::test_keywods2wcsprm
+PASSED astropy/wcs/tests/test_wcs.py::TestWcsWithTime::test_transforms
+PASSED astropy/wcs/tests/test_wcs.py::test_invalid_coordinate_masking
+PASSED astropy/wcs/tests/test_wcs.py::test_no_pixel_area
+PASSED astropy/wcs/tests/test_wcs.py::test_distortion_header
+PASSED astropy/wcs/tests/test_wcs.py::test_pixlist_wcs_colsel
+PASSED astropy/wcs/tests/test_wcs.py::test_time_axis_selection
+PASSED astropy/wcs/tests/test_wcs.py::test_temporal
+PASSED astropy/wcs/tests/test_wcs.py::test_swapaxes_same_val_roundtrip
+PASSED astropy/wcs/tests/test_wcs.py::test_DistortionLookupTable
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_preserve_units_property
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_cunit
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_cunit
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_cdelt
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_cdelt_indiv
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_cdelt
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_cdelt_indiv
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_cdelt_meth
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_crval
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_crval_indiv
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_crval
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_crval_indiv
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_p2s
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_s2p
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_wcs_pix2world
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_wcs_world2pix
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_all_pix2world
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_all_world2pix
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_get_cd
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_set_cd
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_header
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[p2s-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[p2s-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[s2p-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[s2p-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[wcs_pix2world-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[wcs_pix2world-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[wcs_world2pix-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[wcs_world2pix-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[all_pix2world-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[all_pix2world-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[all_world2pix-False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_programmatic[all_world2pix-True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_change_cunit
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_change_cunit_original_deg
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_change_cunit_inplace
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_change_cunit_incompatible
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_str_and_repr
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_print_contents
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_unit_scaling
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_no_scaling_if_no_unit_changes
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_no_scaling_if_no_scale_changes
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_wcstab_cunit_conversion[False]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_wcstab_cunit_conversion[True]
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_copy
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_deepcopy
+PASSED astropy/wcs/tests/test_wcs.py::TestPreserveUnits::test_sub
+PASSED astropy/wcs/tests/test_wcs.py::test_thread_safe_conversions
+PASSED astropy/wcs/tests/test_wcsprm.py::test_alt
+PASSED astropy/wcs/tests/test_wcsprm.py::test_alt_invalid1
+PASSED astropy/wcs/tests/test_wcsprm.py::test_alt_invalid2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_axis_types
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cd
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cd_missing
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cd_missing2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cd_invalid
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cdfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cdelt
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cdelt_delete
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cel_offset
+PASSED astropy/wcs/tests/test_wcsprm.py::test_celfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cname
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cname_invalid
+PASSED astropy/wcs/tests/test_wcsprm.py::test_colax
+PASSED astropy/wcs/tests/test_wcsprm.py::test_colnum
+PASSED astropy/wcs/tests/test_wcsprm.py::test_colnum_invalid
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crder
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crota
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crota_missing
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crota_missing2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crpix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_crval
+PASSED astropy/wcs/tests/test_wcsprm.py::test_csyer
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ctype
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ctype_repr
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ctype_index_error
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ctype_invalid_error
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cubeface
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cunit
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cunit_invalid
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cunit_invalid2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_unit
+PASSED astropy/wcs/tests/test_wcsprm.py::test_unit2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_unit3
+PASSED astropy/wcs/tests/test_wcsprm.py::test_unitfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cylfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_dateavg
+PASSED astropy/wcs/tests/test_wcsprm.py::test_dateobs
+PASSED astropy/wcs/tests/test_wcsprm.py::test_datfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_equinox
+PASSED astropy/wcs/tests/test_wcsprm.py::test_fix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_fix2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_fix3
+PASSED astropy/wcs/tests/test_wcsprm.py::test_fix4
+PASSED astropy/wcs/tests/test_wcsprm.py::test_fix5
+PASSED astropy/wcs/tests/test_wcsprm.py::test_get_ps
+PASSED astropy/wcs/tests/test_wcsprm.py::test_get_pv
+PASSED astropy/wcs/tests/test_wcsprm.py::test_imgpix_matrix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_imgpix_matrix2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_isunity
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lat
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lat_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_latpole
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lattyp
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lattyp_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lng
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lng_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lngtyp
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lngtyp_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_lonpole
+PASSED astropy/wcs/tests/test_wcsprm.py::test_mix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_mjdavg
+PASSED astropy/wcs/tests/test_wcsprm.py::test_mjdobs
+PASSED astropy/wcs/tests/test_wcsprm.py::test_name
+PASSED astropy/wcs/tests/test_wcsprm.py::test_naxis
+PASSED astropy/wcs/tests/test_wcsprm.py::test_naxis_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_obsgeo
+PASSED astropy/wcs/tests/test_wcsprm.py::test_pc
+PASSED astropy/wcs/tests/test_wcsprm.py::test_pc_missing
+PASSED astropy/wcs/tests/test_wcsprm.py::test_phi0
+PASSED astropy/wcs/tests/test_wcsprm.py::test_piximg_matrix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_piximg_matrix2
+PASSED astropy/wcs/tests/test_wcsprm.py::test_str
+PASSED astropy/wcs/tests/test_wcsprm.py::test_print_contents
+PASSED astropy/wcs/tests/test_wcsprm.py::test_radesys
+PASSED astropy/wcs/tests/test_wcsprm.py::test_restfrq
+PASSED astropy/wcs/tests/test_wcsprm.py::test_restwav
+PASSED astropy/wcs/tests/test_wcsprm.py::test_set_ps
+PASSED astropy/wcs/tests/test_wcsprm.py::test_set_ps_realloc
+PASSED astropy/wcs/tests/test_wcsprm.py::test_set_pv
+PASSED astropy/wcs/tests/test_wcsprm.py::test_set_pv_realloc
+PASSED astropy/wcs/tests/test_wcsprm.py::test_spcfix
+PASSED astropy/wcs/tests/test_wcsprm.py::test_spec
+PASSED astropy/wcs/tests/test_wcsprm.py::test_spec_set
+PASSED astropy/wcs/tests/test_wcsprm.py::test_specsys
+PASSED astropy/wcs/tests/test_wcsprm.py::test_sptr
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ssysobs
+PASSED astropy/wcs/tests/test_wcsprm.py::test_ssyssrc
+PASSED astropy/wcs/tests/test_wcsprm.py::test_tab
+PASSED astropy/wcs/tests/test_wcsprm.py::test_theta0
+PASSED astropy/wcs/tests/test_wcsprm.py::test_toheader
+PASSED astropy/wcs/tests/test_wcsprm.py::test_velangl
+PASSED astropy/wcs/tests/test_wcsprm.py::test_velosys
+PASSED astropy/wcs/tests/test_wcsprm.py::test_velref
+PASSED astropy/wcs/tests/test_wcsprm.py::test_zsource
+PASSED astropy/wcs/tests/test_wcsprm.py::test_cd_3d
+PASSED astropy/wcs/tests/test_wcsprm.py::test_get_pc
+PASSED astropy/wcs/tests/test_wcsprm.py::test_detailed_err
+PASSED astropy/wcs/tests/test_wcsprm.py::test_header_parse
+PASSED astropy/wcs/tests/test_wcsprm.py::test_locale
+PASSED astropy/wcs/tests/test_wcsprm.py::test_unicode
+PASSED astropy/wcs/tests/test_wcsprm.py::test_sub_segfault
+PASSED astropy/wcs/tests/test_wcsprm.py::test_bounds_check
+PASSED astropy/wcs/tests/test_wcsprm.py::test_wcs_sub_error_message
+PASSED astropy/wcs/tests/test_wcsprm.py::test_wcs_sub
+PASSED astropy/wcs/tests/test_wcsprm.py::test_compare
+PASSED astropy/wcs/tests/test_wcsprm.py::test_radesys_defaults
+PASSED astropy/wcs/tests/test_wcsprm.py::test_radesys_defaults_full
+PASSED astropy/wcs/tests/test_wcsprm.py::test_iteration
+PASSED astropy/wcs/tests/test_wcsprm.py::test_invalid_args
+PASSED astropy/wcs/tests/test_wcsprm.py::test_datebeg
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[timesys]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[trefpos]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[trefdir]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[plephem]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[timeunit]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[dateref]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[dateavg]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_char_keys[dateend]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[mjdobs]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[mjdbeg]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[mjdend]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[jepoch]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[bepoch]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[tstart]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[tstop]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[xposure0]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[timsyer]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[timrder]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[timedel]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[timepixr]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[timeoffs]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[telapse]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_num_keys[xposure1]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_array_keys[czphs]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_array_keys[cperi]
+PASSED astropy/wcs/tests/test_wcsprm.py::test_array_keys[mjdref]
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_i
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_m
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_kind
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_extnam
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_extver
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_extlev
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_ttype
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_row
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_ndim
+PASSED astropy/wcs/tests/test_wtbarr.py::test_wtbarr_print
+SKIPPED [8] astropy/wcs/tests/test_utils.py:1414: requires scipy
+SKIPPED [1] astropy/wcs/tests/test_utils.py:1506: requires scipy
+SKIPPED [1] astropy/wcs/tests/test_utils.py:1562: requires scipy
+SKIPPED [1] astropy/wcs/tests/test_utils.py:1591: requires scipy
+SKIPPED [2] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+FAILED astropy/wcs/tests/test_utils.py::test_celestial_frame_to_wcs - astropy...
+================== 1 failed, 449 passed, 13 skipped in 4.92s ===================

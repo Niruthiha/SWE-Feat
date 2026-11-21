@@ -1,0 +1,187 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/io/misc/tests.
+
+Date: 2026-11-13T18:28:30
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 200 items / 6 skipped
+
+astropy/io/misc/tests/test_hdf5.py .ssssssssssssssssssssssssssssssssssss [ 18%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 54%]
+sssxsss                                                                  [ 58%]
+astropy/io/misc/tests/test_pickle_helpers.py ....                        [ 60%]
+astropy/io/misc/tests/test_yaml.py ..................................... [ 78%]
+...........................................                              [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/io/misc/tests/test_hdf5.py::astropy.io.misc.tests.test_hdf5.test_round_trip_masked_table_default
+PASSED astropy/io/misc/tests/test_pickle_helpers.py::test_fnpickling_simple
+PASSED astropy/io/misc/tests/test_pickle_helpers.py::test_fnpickling_class
+PASSED astropy/io/misc/tests/test_pickle_helpers.py::test_fnpickling_protocol
+PASSED astropy/io/misc/tests/test_pickle_helpers.py::test_fnpickling_many
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[True]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c2]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c3]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c5]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[2.0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[0.0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[(3+4j)]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[c9]
+PASSED astropy/io/misc/tests/test_yaml.py::test_numpy_types[(0.9999999999999998+0.9999999999999998j)]
+PASSED astropy/io/misc/tests/test_yaml.py::test_astropydumper_represent_float_override[inf0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_astropydumper_represent_float_override[-inf0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_astropydumper_represent_float_override[inf1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_astropydumper_represent_float_override[-inf1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_unit[c0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_unit[c1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_unit[c2]
+PASSED astropy/io/misc/tests/test_yaml.py::test_unit[c3]
+PASSED astropy/io/misc/tests/test_yaml.py::test_unit[c4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_custom_unit[c0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_custom_unit[c1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c2]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c3]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c5]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c6]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c7]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c8]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c9]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c10]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c11]
+PASSED astropy/io/misc/tests/test_yaml.py::test_ndarray_subclasses[c12]
+PASSED astropy/io/misc/tests/test_yaml.py::test_skycoord_galactocentric
+PASSED astropy/io/misc/tests/test_yaml.py::test_skycoord[fk4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_skycoord[altaz]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep0]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep1]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep2]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep3]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep5]
+PASSED astropy/io/misc/tests/test_yaml.py::test_representations[rep6]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[AltAz]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[BarycentricMeanEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[BarycentricTrueEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[CIRS]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[CustomBarycentricEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[FK4]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[FK4NoETerms]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[FK5]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[GCRS]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[Galactic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[GalacticLSR]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[Galactocentric]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[GeocentricMeanEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[GeocentricTrueEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[HADec]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[HCRS]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[HeliocentricEclipticIAU76]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[HeliocentricMeanEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[HeliocentricTrueEcliptic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[ICRS]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[ITRS]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[LSR]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[LSRD]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[LSRK]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[PrecessedGeocentric]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[Supergalactic]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[TEME]
+PASSED astropy/io/misc/tests/test_yaml.py::test_frames[TETE]
+PASSED astropy/io/misc/tests/test_yaml.py::test_time
+PASSED astropy/io/misc/tests/test_yaml.py::test_timedelta
+PASSED astropy/io/misc/tests/test_yaml.py::test_serialized_column
+PASSED astropy/io/misc/tests/test_yaml.py::test_load_all
+PASSED astropy/io/misc/tests/test_yaml.py::test_ecsv_astropy_objects_in_meta
+PASSED astropy/io/misc/tests/test_yaml.py::test_yaml_dump_of_object_arrays_fail
+PASSED astropy/io/misc/tests/test_yaml.py::test_yaml_load_of_object_arrays_fail
+SKIPPED [2] astropy/io/misc/tests/test_pandas.py:16: could not import 'pandas': No module named 'pandas'
+SKIPPED [2] astropy/io/misc/tests/test_parquet.py:30: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [2] astropy/io/misc/tests/test_parquet_votable.py:14: could not import 'pyarrow': No module named 'pyarrow'
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:72: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:86: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:100: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:108: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:119: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:134: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:144: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:155: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:164: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:174: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:183: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:193: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:204: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:214: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:224: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:235: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:249: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:264: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:283: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:298: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:313: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:328: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:340: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:355: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:379: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:394: requires h5py
+SKIPPED [12] astropy/io/misc/tests/test_hdf5.py:405: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:422: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:442: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:463: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:492: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:518: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:547: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:574: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:597: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:611: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:638: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:709: requires h5py
+SKIPPED [2] astropy/io/misc/tests/test_hdf5.py:742: requires h5py
+SKIPPED [60] astropy/io/misc/tests/test_hdf5.py:773: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:816: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:850: requires h5py
+SKIPPED [1] astropy/io/misc/tests/test_hdf5.py:873: requires h5py
+XFAIL astropy/io/misc/tests/test_hdf5.py::test_fits_unsupported_mixin[name_col0] - column type unsupported
+================== 85 passed, 120 skipped, 1 xfailed in 0.62s ==================

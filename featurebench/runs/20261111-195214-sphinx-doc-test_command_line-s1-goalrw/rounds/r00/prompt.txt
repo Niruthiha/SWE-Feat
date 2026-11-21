@@ -1,0 +1,23 @@
+## Task
+**The sphinx-build command line**
+
+In this Sphinx repository, the `sphinx-build` command does not work: parts of it are missing from
+the code. Make it work end to end, so that a user can:
+
+- run `sphinx-build` with its usual command line: a source directory, an output directory and
+  optional file names, plus Sphinx's full set of options, organised into its usual groups (general
+  options such as the builder and the number of parallel jobs, path options, build configuration
+  options, console output options, and warning control options), with Sphinx's usual defaults.
+  The jobs option also accepts "auto", meaning all available CPU cores. The program is named
+  sphinx-build, help text is translatable, and the version option reports Sphinx's display version;
+- run `sphinx-build -M <builder> <sourcedir> <outputdir> [options]`, the make-mode that replaces the
+  Makefile / make.bat approach. It needs at least the builder, the source directory and the output
+  directory; with fewer arguments it exits with status 1. Builders that need special handling
+  (latexpdf, latexpdfja, info, clean, gettext) use their own dedicated build logic; any other
+  builder name goes through the generic build. The exit status is that of the build, normally 0 on
+  success. Make-mode must start fast, so it does not import heavy Sphinx modules up front.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Sphinx. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/sphinx-doc/sphinx/.

@@ -1,0 +1,26 @@
+== step 1: restore /testbed from /root/my_repo ==
+== step 2: apply mask patch ==
+/tmp/mask.patch:155: new blank line at EOF.
++
+/tmp/mask.patch:544: new blank line at EOF.
++
+/tmp/mask.patch:1036: new blank line at EOF.
++
+/tmp/mask.patch:1428: new blank line at EOF.
++
+warning: 4 lines add whitespace errors.
+== step 3: delete F2P test file ==
+deleted /testbed/tests/cli/test_scorers.py
+== step 4: repository-specific environment fixes ==
+Removed MLflow parallel source: /testbed/libs/skinny/mlflow
+Removed MLflow parallel source: /testbed/libs/tracing/mlflow
+== step 5: remove stale python bytecode ==
+== step 6: re-initialise git ==
+bdcebd19c2d6db2674cb549a40206c7a84864a34
+== clear package caches (InferenceRuntime.clear_package_caches) ==
+Cleared package cache: /opt/miniconda3/pkgs (1578856 KB)
+Cleared package cache: /root/.cache/pip (3048404 KB)
+== base tree ==
+BASE_TREE 032d10dea3fcfa47a4e5428bb88fd50002a57238
+== harness-only: hand the tree to the agent uid ==
+prepare_tree done

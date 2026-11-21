@@ -1,0 +1,341 @@
+{
+  "run_dir": "20261113-222522-mwaskom-test_scales-s1-goalrw",
+  "metrics_version": "6.0",
+  "run_id": "20261113-222522-mwaskom-test_scales-s1-goalrw",
+  "instance_id": "mwaskom__seaborn.7001ebe7.test_scales.d9dcdef6.lv1",
+  "task": "mwaskom-test_scales",
+  "seed": "1",
+  "repo": "mwaskom/seaborn",
+  "image": "fbexp-agent:seaborn-52738fbb",
+  "base_image": "libercoders/featurebench-specs_seaborn-instance_52738fbb",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "effort": "default",
+  "harness_version": "6.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "5abb1e94-ed34-41ac-a779-9e5a2ea677e2",
+  "prompt_sha256": "38eafb3cdbce113ced5367c80a119f4d6ee4c78cb1bbc59072c84bbc4935c1e2",
+  "index_preamble_sha256": "",
+  "mask_sha256": "2f2bb34892a4aaef1c10d1d8e9f0ae407ceff2c24b8daa1bbddab8963ad3083f",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "PASS"
+    ],
+    "p2p_by_round": [
+      "PASS"
+    ],
+    "first_f2p_pass_round": 0,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "f2p": "tests/_core/test_scales.py",
+  "p2p": [
+    "tests/_core/test_rules.py",
+    "tests/_stats/test_counting.py",
+    "tests/test_rcmod.py",
+    "tests/_stats/test_regression.py",
+    "tests/test_matrix.py"
+  ],
+  "max_rounds": 0,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "base_tree": "b940c1c430615a3fcf30a5fb20377e9adadcb605",
+  "base_commit": "c5214ab2b34f0c301f6ade6c72c9fa329a44379d",
+  "image_id": "sha256:d3fa22b58b33d4653fca5a777197f5cddb9647a31f0285892d2ddd4179f486b4",
+  "arm": "goalrw",
+  "agent_mem_cap": "6g",
+  "docstrip_sha256": "",
+  "docstrip_script_sha256": "",
+  "nav_index_sha256": "",
+  "nav_generator_sha256": "",
+  "prepare_tree_source": "image:/usr/local/bin/prepare_tree",
+  "impact_preamble_sha256": "",
+  "impact_hook_sha256": "",
+  "impact_graph_sha256": "",
+  "impact_settings_sha256": "",
+  "started": "2026-11-13T22:25:30-05:00",
+  "finished": "2026-11-13T22:31:27-05:00",
+  "wall_ms": 357360,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 1.217,
+    "to_acceptance": 1.217
+  },
+  "prompt_r0_sha256": "38eafb3cdbce113ced5367c80a119f4d6ee4c78cb1bbc59072c84bbc4935c1e2",
+  "tokens": {
+    "input_tokens": 40,
+    "output_tokens": 24920,
+    "cache_read_input_tokens": 976279,
+    "cache_creation_input_tokens": 65404,
+    "total": 1066643,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 65404,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 8361,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 1.2170478,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 1.2170478,
+  "turns": 21,
+  "agent_reported_duration_ms": 335515,
+  "api_duration_ms": 217269,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 40,
+      "outputTokens": 24920,
+      "cacheReadInputTokens": 976279,
+      "cacheCreationInputTokens": 65404,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 1.2170478
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 40,
+    "output_tokens": 240,
+    "cache_read_input_tokens": 976279,
+    "cache_creation_input_tokens": 65404
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 20,
+  "context_k": {
+    "mean": 52.1,
+    "max": 78.2
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 43,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 1.217048,
+      "cum_cost_usd": 1.2170478,
+      "turns": 21,
+      "duration_ms": 335515,
+      "wall_ms": 336951,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 40,
+        "output_tokens": 24920,
+        "cache_read_input_tokens": 976279,
+        "cache_creation_input_tokens": 65404
+      },
+      "accept": "PASS",
+      "f2p": "PASS",
+      "p2p": "PASS",
+      "test_integrity": "0",
+      "tool_calls": 20
+    }
+  ],
+  "response_text_chars": 2773,
+  "reasoning": {
+    "stream_json_thinking_blocks": 13,
+    "stream_json_thinking_chars": 221,
+    "session_store_files": [
+      "session/-testbed/5abb1e94-ed34-41ac-a779-9e5a2ea677e2.jsonl"
+    ],
+    "session_store_session_ids": [
+      "5abb1e94-ed34-41ac-a779-9e5a2ea677e2"
+    ],
+    "session_store_thinking_blocks": 25,
+    "session_store_thinking_chars": 442,
+    "session_store_tool_uses": 40,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 20
+  },
+  "tool_calls_total": 20,
+  "files_read_unique": 0,
+  "file_reads_total": 0,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 5,
+      "total": 10
+    },
+    "combined_unique": 5,
+    "combined_total": 10,
+    "combined_rereads": 5,
+    "searches_tool": 0,
+    "searches_bash": 13,
+    "bash_python_runs": 7,
+    "bash_pytest_runs": 3,
+    "bash_git": 4,
+    "unclassified_commands": {
+      "flake8": 2,
+      "wc": 1,
+      "for": 1,
+      "do": 1,
+      "done": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 4,
+    "bash_channel_writes_total": 4,
+    "bash_written_files": [
+      "/tmp/edit_pal.py",
+      "/tmp/edit_props.py",
+      "/tmp/edit_scales.py",
+      "/tmp/husl_new.py"
+    ]
+  },
+  "reads_before_first_write": 5,
+  "diff": {
+    "files_changed": 4,
+    "insertions": 600,
+    "deletions": 600
+  },
+  "files_touched": 4,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "seaborn/_core/properties.py",
+      "seaborn/_core/scales.py",
+      "seaborn/external/husl.py",
+      "seaborn/palettes.py"
+    ]
+  },
+  "mask_files": [
+    "seaborn/_core/properties.py",
+    "seaborn/_core/scales.py",
+    "seaborn/external/husl.py",
+    "seaborn/palettes.py"
+  ],
+  "agent_vs_mask_files": {
+    "agent_only": [],
+    "mask_only_not_touched": [],
+    "both": [
+      "seaborn/_core/properties.py",
+      "seaborn/_core/scales.py",
+      "seaborn/external/husl.py",
+      "seaborn/palettes.py"
+    ]
+  },
+  "attempt1_files": [
+    "seaborn/_core/properties.py",
+    "seaborn/_core/scales.py",
+    "seaborn/external/husl.py",
+    "seaborn/palettes.py"
+  ],
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": true,
+    "mask_and_pristine_absent": true,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "raw.githubusercontent.com": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {
+    "featurebench": 2
+  }
+}

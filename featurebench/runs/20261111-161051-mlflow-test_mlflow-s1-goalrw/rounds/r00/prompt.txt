@@ -1,0 +1,22 @@
+## Task
+**MLflow deployments client for the AI Gateway**
+
+In this MLflow repository, using MLflow's deployments API to work with an MLflow AI Gateway
+(deployments server) does not work: parts of the feature are missing from the code. Make the
+feature work end to end, so that a user can:
+
+- get a deployment client for a deployment target, either one they name or the default target
+  configured for the session or through the environment; when no target is given or configured,
+  they get no client and an informational message instead of an error;
+- use that client with a gateway server to list and inspect its endpoints. Each endpoint is
+  described by its name, its type (completions, chat or embeddings, written in MLflow's
+  "llm/v1/..." form), the model and provider behind it, the URL used to invoke it, and an optional
+  rate limit (a number of calls per renewal period, optionally tied to a key);
+- have the client's requests go over HTTP to MLflow and Databricks hosts with the usual
+  authentication options, retries with exponential backoff on transient failures, configurable
+  timeouts, and the Databricks SDK as the request path when that is enabled.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of MLflow. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mlflow/mlflow/.

@@ -1,0 +1,191 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/utils/iers/tests.
+
+Date: 2026-11-13T18:31:17
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 30 items / 2 skipped
+
+astropy/utils/iers/tests/test_iers.py .......FEEEE.........sssFs....     [100%]
+
+==================================== ERRORS ====================================
+______ ERROR at setup of TestIERS_Auto.test_interpolate_error_formatting _______
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/utils/iers/tests/test_iers.py:244: in setup_class
+    self.t = Time.now() + TimeDelta(10, format="jd") * np.arange(self.N)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+____________ ERROR at setup of TestIERS_Auto.test_auto_max_age_none ____________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/utils/iers/tests/test_iers.py:244: in setup_class
+    self.t = Time.now() + TimeDelta(10, format="jd") * np.arange(self.N)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+__________ ERROR at setup of TestIERS_Auto.test_auto_max_age_minimum ___________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/utils/iers/tests/test_iers.py:244: in setup_class
+    self.t = Time.now() + TimeDelta(10, format="jd") * np.arange(self.N)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+_________________ ERROR at setup of TestIERS_Auto.test_simple __________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/utils/iers/tests/test_iers.py:244: in setup_class
+    self.t = Time.now() + TimeDelta(10, format="jd") * np.arange(self.N)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+=================================== FAILURES ===================================
+____________________________ TestIERS_A.test_simple ____________________________
+astropy/utils/iers/tests/test_iers.py:227: in test_simple
+    assert status3 == iers.FROM_IERS_A_PREDICTION
+E   assert np.int64(-2) == 2
+E    +  where 2 = iers.FROM_IERS_A_PREDICTION
+______________________ test_iers_b_out_of_range_handling _______________________
+astropy/utils/iers/tests/test_iers.py:470: in test_iers_b_out_of_range_handling
+    (now - 300 * u.day).ut1
+astropy/time/core.py:1768: in __getattr__
+    tm._set_scale(attr)
+astropy/time/core.py:827: in _set_scale
+    args.append(get_dt(jd1, jd2))
+                ^^^^^^^^^^^^^^^^
+astropy/time/core.py:2543: in _get_delta_ut1_utc
+    delta = iers_table.ut1_utc(jd1, jd2)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:341: in ut1_utc
+    return self._interpolate(
+astropy/utils/iers/iers.py:495: in _interpolate
+    self._check_interpolate_indices(i1, i, np.max(mjd, initial=50000))
+astropy/utils/iers/iers.py:430: in _check_interpolate_indices
+    raise IERSRangeError(msg)
+E   astropy.utils.iers.iers.IERSRangeError: (some) times are outside of range covered by IERS table. Cannot convert with full accuracy. To allow conversion with degraded accuracy set astropy.utils.iers.conf.iers_degraded_accuracy to "warn" or "silent". For more information about setting this configuration parameter or controlling its value globally, see the Astropy configuration system documentation https://docs.astropy.org/en/stable/config/index.html.
+==================================== PASSES ====================================
+________________________ TestIERS_AExcerpt.test_simple _________________________
+----------------------------- Captured stdout call -----------------------------
+[-0.086 -0.093 -0.087] marcsec
+[0.094 0.081 0.072] marcsec
+=========================== short test summary info ============================
+PASSED astropy/utils/iers/tests/test_iers.py::TestBasic::test_simple[IERS_B]
+PASSED astropy/utils/iers/tests/test_iers.py::TestBasic::test_simple[IERS]
+PASSED astropy/utils/iers/tests/test_iers.py::TestBasic::test_open_filename
+PASSED astropy/utils/iers/tests/test_iers.py::TestBasic::test_open_network_url
+PASSED astropy/utils/iers/tests/test_iers.py::test_IERS_B_old_style_excerpt[fspath]
+PASSED astropy/utils/iers/tests/test_iers.py::test_IERS_B_old_style_excerpt[Path]
+PASSED astropy/utils/iers/tests/test_iers.py::TestIERS_AExcerpt::test_simple
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[False-jd0-ut1_utc]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[False-jd0-pm_xy]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[False-jd1-ut1_utc]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[False-jd1-pm_xy]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[True-jd0-ut1_utc]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[True-jd0-pm_xy]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[True-jd1-ut1_utc]
+PASSED astropy/utils/iers/tests/test_iers.py::test_empty_mjd[True-jd1-pm_xy]
+PASSED astropy/utils/iers/tests/test_iers.py::test_IERS_B_parameters_loading_into_IERS_Auto
+PASSED astropy/utils/iers/tests/test_iers.py::test_get_pkg_data_filename_backcompat[Leap_Second.dat]
+PASSED astropy/utils/iers/tests/test_iers.py::test_get_pkg_data_filename_backcompat[ReadMe.eopc04]
+PASSED astropy/utils/iers/tests/test_iers.py::test_get_pkg_data_filename_backcompat[ReadMe.finals2000A]
+PASSED astropy/utils/iers/tests/test_iers.py::test_get_pkg_data_filename_backcompat[eopc04.1962-now]
+SKIPPED [2] astropy/visualization/wcsaxes/__init__.py:9: could not import 'matplotlib': No module named 'matplotlib'
+SKIPPED [4] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+ERROR astropy/utils/iers/tests/test_iers.py::TestIERS_Auto::test_interpolate_error_formatting
+ERROR astropy/utils/iers/tests/test_iers.py::TestIERS_Auto::test_auto_max_age_none
+ERROR astropy/utils/iers/tests/test_iers.py::TestIERS_Auto::test_auto_max_age_minimum
+ERROR astropy/utils/iers/tests/test_iers.py::TestIERS_Auto::test_simple - ast...
+FAILED astropy/utils/iers/tests/test_iers.py::TestIERS_A::test_simple - asser...
+FAILED astropy/utils/iers/tests/test_iers.py::test_iers_b_out_of_range_handling
+============== 2 failed, 20 passed, 6 skipped, 4 errors in 2.51s ===============

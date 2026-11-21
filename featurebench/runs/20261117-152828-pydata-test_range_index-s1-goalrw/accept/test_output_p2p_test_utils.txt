@@ -1,0 +1,84 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: mypy-plugins-3.2.0, zarr-3.1.3, hypothesis-6.147.0, timeout-2.4.0, cov-7.0.0, xdist-3.8.0, asyncio-1.3.0, env-1.2.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 67 items
+
+xarray/tests/test_utils.py ............................................. [ 67%]
+......................                                                   [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED xarray/tests/test_utils.py::TestAlias::test
+PASSED xarray/tests/test_utils.py::test_maybe_coerce_to_str[a0-b0-expected0]
+PASSED xarray/tests/test_utils.py::test_maybe_coerce_to_str[a1-b1-expected1]
+PASSED xarray/tests/test_utils.py::test_maybe_coerce_to_str_minimal_str_dtype
+PASSED xarray/tests/test_utils.py::TestArrayEquiv::test_0d
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_equivalent
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_safe
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_unsafe
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_compat_dict_intersection
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_compat_dict_union
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_dict_equiv
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_frozen
+PASSED xarray/tests/test_utils.py::TestDictionaries::test_filtered
+PASSED xarray/tests/test_utils.py::test_flat_items
+PASSED xarray/tests/test_utils.py::test_repr_object
+PASSED xarray/tests/test_utils.py::test_repr_object_magic_methods
+PASSED xarray/tests/test_utils.py::test_is_remote_uri
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_sorted_uniform
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_sorted_not_uniform
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_not_sorted_uniform
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_not_sorted_not_uniform
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_two_numbers
+PASSED xarray/tests/test_utils.py::Test_is_uniform_and_sorted::test_relative_tolerance
+PASSED xarray/tests/test_utils.py::Test_hashable::test_hashable
+PASSED xarray/tests/test_utils.py::test_dask_array_is_scalar
+PASSED xarray/tests/test_utils.py::test_hidden_key_dict
+PASSED xarray/tests/test_utils.py::test_either_dict_or_kwargs
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied0-all_0-expected0]
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied1-all_1-expected1]
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied2-all_2-expected2]
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied3-all_3-expected3]
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied4-all_4-expected4]
+PASSED xarray/tests/test_utils.py::test_infix_dims[supplied5-all_5-expected5]
+PASSED xarray/tests/test_utils.py::test_infix_dims_errors[supplied0-all_0]
+PASSED xarray/tests/test_utils.py::test_infix_dims_errors[supplied1-all_1]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[str]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[list_of_str]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[list_mixed]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[list_with_ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[tuple_of_str]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[list_with_tuple]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[tuple_of_tuple]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[non_sequence_collection]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[empty_tuple]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[empty_collection]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[None]
+PASSED xarray/tests/test_utils.py::test_parse_dims_as_tuple[ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_dims_set
+PASSED xarray/tests/test_utils.py::test_parse_dims_replace_none[None]
+PASSED xarray/tests/test_utils.py::test_parse_dims_replace_none[ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_dims_raises[str_missing]
+PASSED xarray/tests/test_utils.py::test_parse_dims_raises[list_missing_one]
+PASSED xarray/tests/test_utils.py::test_parse_dims_raises[list_missing_all]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims[str]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims[list]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims[list_only_ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims[list_with_ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims[list_with_middle_ellipsis]
+PASSED xarray/tests/test_utils.py::test_parse_ordered_dims_raises
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list0-expected0]
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list1-expected1]
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list2-expected2]
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list3-expected3]
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list4-expected4]
+PASSED xarray/tests/test_utils.py::test_iterate_nested[nested_list5-expected5]
+PASSED xarray/tests/test_utils.py::test_find_stack_level
+PASSED xarray/tests/test_utils.py::test_attempt_import
+============================== 67 passed in 0.50s ==============================

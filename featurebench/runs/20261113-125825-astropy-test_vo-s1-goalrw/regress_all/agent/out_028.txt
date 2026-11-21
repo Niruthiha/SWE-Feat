@@ -1,0 +1,981 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/nddata/tests.
+
+Date: 2026-11-13T18:28:54
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 714 items
+
+astropy/nddata/tests/test_bitmask.py ................................... [  4%]
+........................................................................ [ 14%]
+...............                                                          [ 17%]
+astropy/nddata/tests/test_blocks.py ....................                 [ 19%]
+astropy/nddata/tests/test_ccddata.py ................................... [ 24%]
+...................................................................      [ 34%]
+astropy/nddata/tests/test_compat.py .................                    [ 36%]
+astropy/nddata/tests/test_covariance.py .ss.ssssssssssssssssssssss       [ 40%]
+astropy/nddata/tests/test_decorators.py ................................ [ 44%]
+...                                                                      [ 45%]
+astropy/nddata/tests/test_flag_collection.py ..........                  [ 46%]
+astropy/nddata/tests/test_nddata.py .................................... [ 51%]
+.s...................................................................... [ 61%]
+........................................................................ [ 71%]
+........................................                                 [ 77%]
+astropy/nddata/tests/test_nddata_base.py ..                              [ 77%]
+astropy/nddata/tests/test_nduncertainty.py ............................. [ 81%]
+.......................................................                  [ 89%]
+astropy/nddata/tests/test_utils.py ..................................... [ 94%]
+.......................................                                  [100%]
+
+==================================== PASSES ====================================
+________________ test_initialize_from_fits_with_unit_in_header _________________
+----------------------------- Captured stdout call -----------------------------
+INFO: using the unit photon passed to the FITS reader instead of the unit adu in the FITS file. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:719 using the unit photon passed to the FITS reader instead of the unit adu in the FITS file.
+__________ test_initialize_from_fits_with_data_in_different_extension __________
+----------------------------- Captured stdout call -----------------------------
+INFO: first HDU with data is extension 1. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:689 first HDU with data is extension 1.
+_____________________________ test_ccddata_writer ______________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: using the unit adu passed to the FITS reader instead of the unit adu in the FITS file. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:719 using the unit adu passed to the FITS reader instead of the unit adu in the FITS file.
+_____________________ test_setting_uncertainty_with_array ______________________
+----------------------------- Captured stdout call -----------------------------
+INFO: array provided for uncertainty; assuming it is a StdDevUncertainty. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:283 array provided for uncertainty; assuming it is a StdDevUncertainty.
+___________________ test_infol_logged_if_unit_in_fits_header ___________________
+----------------------------- Captured stdout call -----------------------------
+INFO: using the unit photon passed to the FITS reader instead of the unit adu in the FITS file. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:719 using the unit photon passed to the FITS reader instead of the unit adu in the FITS file.
+____________________ test_wcs_keywords_removed_from_header _____________________
+----------------------------- Captured stdout call -----------------------------
+INFO: first HDU with data is extension 1. [astropy.nddata.ccddata]
+INFO: using the unit count passed to the FITS reader instead of the unit COUNTS in the FITS file. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:689 first HDU with data is extension 1.
+INFO     astropy:ccddata.py:719 using the unit count passed to the FITS reader instead of the unit COUNTS in the FITS file.
+_________________________ test_read_wcs_not_creatable __________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: An exception happened while extracting WCS information from the Header.
+FITSFixedWarning: RADECSYS= 'FK5 ' / The equatorial coordinate system 
+the RADECSYS keyword is deprecated, use RADESYSa. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:521 An exception happened while extracting WCS information from the Header.
+FITSFixedWarning: RADECSYS= 'FK5 ' / The equatorial coordinate system 
+the RADECSYS keyword is deprecated, use RADESYSa.
+_________________________________ test_header __________________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current meta with specified meta. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:191 overwriting NDData's current meta with specified meta.
+____________________ test_read_old_style_multiextensionfits ____________________
+----------------------------- Captured stdout call -----------------------------
+INFO: array provided for uncertainty; assuming it is a StdDevUncertainty. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:283 array provided for uncertainty; assuming it is a StdDevUncertainty.
+_____________ test_stddevuncertainty_compat_descriptor_no_weakref ______________
+----------------------------- Captured stdout call -----------------------------
+INFO: parent_nddata should be a weakref to an NDData object. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:246 parent_nddata should be a weakref to an NDData object.
+___________________________ test_read_returns_image ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: first HDU with data is extension 2. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:689 first HDU with data is extension 2.
+_________________________ test_read_write_tilde_paths __________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: using the unit adu passed to the FITS reader instead of the unit adu in the FITS file. [astropy.nddata.ccddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:ccddata.py:719 using the unit adu passed to the FITS reader instead of the unit adu in the FITS file.
+___________________________ test_uncertainty_setter ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: uncertainty should have attribute uncertainty_type. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:432 uncertainty should have attribute uncertainty_type.
+_______________________________ test_mask_setter _______________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current mask with specified mask. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:176 overwriting NDData's current mask with specified mask.
+____________________ test_nddata_init_data_quantity[data0] _____________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:243 overwriting Quantity's current unit with specified unit.
+______________________ test_nddata_init_data_quantity[5] _______________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:243 overwriting Quantity's current unit with specified unit.
+_________________________ test_nddata_init_data_nddata _________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current unit with specified unit. [astropy.nddata.nddata]
+INFO: overwriting NDData's current uncertainty with specified uncertainty. [astropy.nddata.nddata]
+INFO: overwriting NDData's current mask with specified mask. [astropy.nddata.nddata]
+INFO: overwriting NDData's current wcs with specified wcs. [astropy.nddata.nddata]
+INFO: Overwriting NDData's current psf with specified psf. [astropy.nddata.nddata]
+INFO: overwriting NDData's current meta with specified meta. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:165 overwriting NDData's current unit with specified unit.
+INFO     astropy:nddata.py:168 overwriting NDData's current uncertainty with specified uncertainty.
+INFO     astropy:nddata.py:176 overwriting NDData's current mask with specified mask.
+INFO     astropy:nddata.py:181 overwriting NDData's current wcs with specified wcs.
+INFO     astropy:nddata.py:186 Overwriting NDData's current psf with specified psf.
+INFO     astropy:nddata.py:191 overwriting NDData's current meta with specified meta.
+____________________________ test_param_uncertainty ____________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current uncertainty with specified uncertainty. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:168 overwriting NDData's current uncertainty with specified uncertainty.
+________________________________ test_param_wcs ________________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current wcs with specified wcs. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:181 overwriting NDData's current wcs with specified wcs.
+_______________________________ test_param_meta ________________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current meta with specified meta. [astropy.nddata.nddata]
+INFO: overwriting NDData's current meta with specified meta. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:191 overwriting NDData's current meta with specified meta.
+INFO     astropy:nddata.py:191 overwriting NDData's current meta with specified meta.
+_______________________________ test_param_mask ________________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting NDData's current mask with specified mask. [astropy.nddata.nddata]
+INFO: overwriting masked ndarray's current mask with specified mask. [astropy.nddata.nddata]
+INFO: overwriting masked ndarray's current mask with specified mask. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:176 overwriting NDData's current mask with specified mask.
+INFO     astropy:nddata.py:233 overwriting masked ndarray's current mask with specified mask.
+INFO     astropy:nddata.py:233 overwriting masked ndarray's current mask with specified mask.
+_______________________________ test_param_unit ________________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nddata]
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nddata]
+INFO: overwriting NDData's current unit with specified unit. [astropy.nddata.nddata]
+INFO: overwriting MaskedNDArray's current unit with specified unit. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:243 overwriting Quantity's current unit with specified unit.
+INFO     astropy:nddata.py:243 overwriting Quantity's current unit with specified unit.
+INFO     astropy:nddata.py:165 overwriting NDData's current unit with specified unit.
+INFO     astropy:nddata.py:211 overwriting MaskedNDArray's current unit with specified unit.
+_________________________ test_pickle_uncertainty_only _________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: the associated NDData object was deleted and cannot be accessed anymore. You can prevent the NDData object from being deleted by assigning it to a variable. If this happened after unpickling make sure you pickle the parent not the uncertainty directly. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:243 the associated NDData object was deleted and cannot be accessed anymore. You can prevent the NDData object from being deleted by assigning it to a variable. If this happened after unpickling make sure you pickle the parent not the uncertainty directly.
+________________ test_init_fake_with_quantity[FakeUncertainty] _________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:136 overwriting Quantity's current unit with specified unit.
+_______________ test_init_fake_with_quantity[StdDevUncertainty] ________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:136 overwriting Quantity's current unit with specified unit.
+______________ test_init_fake_with_quantity[VarianceUncertainty] _______________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:136 overwriting Quantity's current unit with specified unit.
+________________ test_init_fake_with_quantity[InverseVariance] _________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:136 overwriting Quantity's current unit with specified unit.
+_______________ test_init_fake_with_quantity[UnknownUncertainty] _______________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Quantity's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:136 overwriting Quantity's current unit with specified unit.
+__________________ test_init_fake_with_fake[FakeUncertainty] ___________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Uncertainty's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:128 overwriting Uncertainty's current unit with specified unit.
+_________________ test_init_fake_with_fake[StdDevUncertainty] __________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Uncertainty's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:128 overwriting Uncertainty's current unit with specified unit.
+________________ test_init_fake_with_fake[VarianceUncertainty] _________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Uncertainty's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:128 overwriting Uncertainty's current unit with specified unit.
+__________________ test_init_fake_with_fake[InverseVariance] ___________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Uncertainty's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:128 overwriting Uncertainty's current unit with specified unit.
+_________________ test_init_fake_with_fake[UnknownUncertainty] _________________
+----------------------------- Captured stdout call -----------------------------
+INFO: overwriting Uncertainty's current unit with specified unit. [astropy.nddata.nduncertainty]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nduncertainty.py:128 overwriting Uncertainty's current unit with specified unit.
+_________________________ test_for_stolen_uncertainty __________________________
+----------------------------- Captured stdout call -----------------------------
+INFO: uncertainty should have attribute uncertainty_type. [astropy.nddata.nddata]
+------------------------------ Captured log call -------------------------------
+INFO     astropy:nddata.py:432 uncertainty should have attribute uncertainty_type.
+=========================== short test summary info ============================
+PASSED astropy/nddata/tests/test_bitmask.py::test_nonpositive_not_a_bit_flag[0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_nonpositive_not_a_bit_flag[-1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_bit_flag[1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_bit_flag[flag1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_bit_flag[9223372036854775808]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_bit_flag[18446744073709551616]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_int[0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_int[1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_int[number2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_is_int[18446744073709551616]
+PASSED astropy/nddata/tests/test_bitmask.py::test_nonint_is_not_an_int[1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_nonint_is_not_an_int[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_nonint_is_not_an_int[1.0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_int_bit_flags[3-None-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_int_bit_flags[3-True--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_int_bit_flags[3-False-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_int_bit_flags[flag3-False-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_int_bit_flags[flag4-True--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_none_bit_flags_as_None[None0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_none_bit_flags_as_None[ ]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_none_bit_flags_as_None[None1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_none_bit_flags_as_None[Indef]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[1-1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~-1-0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~1--2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[1,2-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[1|2-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[1+2-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[(1,2)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[(1+2)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~1,2--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~1+2--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~(1,2)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_str_bit_flags[~(1+2)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR-1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~CR--2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR|HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR,HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR+HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[flag5-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[(CR,HOT)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[(HOT+CR)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~HOT,CR--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~CR+HOT--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(HOT,CR)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(HOT|CR)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(CR+HOT)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR | HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR , HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[CR + HOT-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[(CR , HOT)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[(HOT + CR)-3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~HOT , CR--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~CR + HOT--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(HOT , CR)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(HOT | CR)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~(CR + HOT)--4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[ CR -1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[ CR , HOT -3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~ CR + HOT --4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_valid_mnemonic_bit_flags[~ ( CR | HOT ) --4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[None-True0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[ -True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[None-True1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[Indef-True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[None-False0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[ -False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[None-False1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[Indef-False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[1-True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_None_or_str_and_flip_incompatibility[1-False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_flag_type[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_flag_type[1.0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_flag_type[flag2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_flag_type[object]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_string_int_format[SOMETHING]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_wrong_string_int_format[1.0,2,3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_duplicate_flag_warning
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_non_flag[flag0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_non_flag[1, 2, 3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_allow_single_value_str_nonflags
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[~]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[( )]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[(~1,2)]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[~(1,2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[1,~2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[1,(2,4)]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[1,2+4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[1+4,2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_interpret_bad_str_syntax[1|4+2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_must_be_integer_check
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_to_boolean_mask[data0-None-None-True-bool-ref0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_to_boolean_mask[data1-None-None-False-bool-ref1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_to_boolean_mask[data2-flags2-False-True-bool-ref2]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_to_boolean_mask[data3-flags3-False-False-bool-ref3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitfield_to_boolean_mask[data4-flags4-True-True-int8-ref4]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag[flag0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag[8]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_docs2
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_not_pow2[0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_not_pow2[3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_not_int_flag[0.0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_not_int_flag[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_bitflag_not_int_flag[1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_basic_map[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_basic_map[False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_extend_map[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_extend_map[False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_extend_map_redefine_flag[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_extend_map_redefine_flag[False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_redefine_flag[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_redefine_flag[False]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_cant_modify_version
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_not_bit_flag[0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_not_bit_flag[3]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_not_int_flag[0.0]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_not_int_flag[True]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_not_int_flag[1]
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_access_undefined_flag
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_delete_flag
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_repr
+PASSED astropy/nddata/tests/test_bitmask.py::test_map_add_flags
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_1d
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_2d
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_3d
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_view
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_invalid_block_dim
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_invalid_block_size
+PASSED astropy/nddata/tests/test_blocks.py::TestReshapeAsBlocks::test_invalid_block_value
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_1d
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_1d_mean
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_2d
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_2d_mean
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_2d_trim
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_block_size_broadcasting
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReduce::test_block_size_len
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_1d
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_1d_conserve_sum
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_2d
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_2d_conserve_sum
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_block_size_broadcasting
+PASSED astropy/nddata/tests/test_blocks.py::TestBlockReplicate::test_block_size_len
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_empty
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_must_have_unit
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_unit_cannot_be_set_to_none
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_meta_header_conflict
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_simple
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_init_with_string_electron_unit
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_FITS
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_unit_in_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_ADU_in_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_invalid_unit_in_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_technically_invalid_but_not_really
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_data_in_different_extension
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_fits_with_extension
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_unit_to_hdu
+PASSED astropy/nddata/tests/test_ccddata.py::test_initialize_from_FITS_bad_keyword_raises_error
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_writer
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_writer_as_imagehdu
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_meta_is_case_sensitive
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_meta_is_not_fits_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_fromMEF
+PASSED astropy/nddata/tests/test_ccddata.py::test_metafromheader
+PASSED astropy/nddata/tests/test_ccddata.py::test_metafromdict
+PASSED astropy/nddata/tests/test_ccddata.py::test_header2meta
+PASSED astropy/nddata/tests/test_ccddata.py::test_metafromstring_fail
+PASSED astropy/nddata/tests/test_ccddata.py::test_setting_bad_uncertainty_raises_error
+PASSED astropy/nddata/tests/test_ccddata.py::test_setting_uncertainty_with_array
+PASSED astropy/nddata/tests/test_ccddata.py::test_setting_uncertainty_wrong_shape_raises_error
+PASSED astropy/nddata/tests/test_ccddata.py::test_to_hdu
+PASSED astropy/nddata/tests/test_ccddata.py::test_to_hdu_as_imagehdu
+PASSED astropy/nddata/tests/test_ccddata.py::test_copy
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-2.0-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-2.0-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-operand1-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-operand1-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-operand2-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[True-operand2-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-2.0-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-2.0-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-operand1-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-operand1-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-operand2-multiply-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mult_div_overload[False-operand2-divide-True]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-2.0-UnitsError-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-2.0-UnitsError-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-operand1-UnitsError-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-operand1-UnitsError-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-operand2-False-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[True-operand2-False-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-2.0-UnitsError-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-2.0-UnitsError-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-operand1-UnitsError-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-operand1-UnitsError-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-operand2-False-add-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_add_sub_overload[False-operand2-False-subtract-False]
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_overload_fails
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_no_wcs_compare
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_with_wcs_compare
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_with_wcs_compare_fail
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_overload_ccddata_operand
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_overload_differing_units
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_add_with_array
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_subtract_with_array
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_multiply_with_array
+PASSED astropy/nddata/tests/test_ccddata.py::test_arithmetic_divide_with_array
+PASSED astropy/nddata/tests/test_ccddata.py::test_history_preserved_if_metadata_is_fits_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_infol_logged_if_unit_in_fits_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_attribute
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_keywords_removed_from_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_SIP_coefficient_keywords_removed
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_keyword_removal_for_wcs_test_files
+PASSED astropy/nddata/tests/test_ccddata.py::test_read_wcs_not_creatable
+PASSED astropy/nddata/tests/test_ccddata.py::test_header
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_arithmetic
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_arithmetic_ccd[multiply]
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_arithmetic_ccd[divide]
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_arithmetic_ccd[add]
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_arithmetic_ccd[subtract]
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs_sip_handling
+PASSED astropy/nddata/tests/test_ccddata.py::test_mask_arithmetic_ccd[multiply]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mask_arithmetic_ccd[divide]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mask_arithmetic_ccd[add]
+PASSED astropy/nddata/tests/test_ccddata.py::test_mask_arithmetic_ccd[subtract]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_mask_default
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_default[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_default[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_default[InverseVariance]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_different_uncertainty_key[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_different_uncertainty_key[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_uncertainty_different_uncertainty_key[InverseVariance]
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_not
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_multiextensionfits_custom_ext_names
+PASSED astropy/nddata/tests/test_ccddata.py::test_read_old_style_multiextensionfits
+PASSED astropy/nddata/tests/test_ccddata.py::test_wcs
+PASSED astropy/nddata/tests/test_ccddata.py::test_recognized_fits_formats_for_read_write
+PASSED astropy/nddata/tests/test_ccddata.py::test_stddevuncertainty_compat_descriptor_no_parent
+PASSED astropy/nddata/tests/test_ccddata.py::test_stddevuncertainty_compat_descriptor_no_weakref
+PASSED astropy/nddata/tests/test_ccddata.py::test_read_returns_image
+PASSED astropy/nddata/tests/test_ccddata.py::test_sliced_ccdata_to_hdu
+PASSED astropy/nddata/tests/test_ccddata.py::test_read_write_tilde_paths
+PASSED astropy/nddata/tests/test_ccddata.py::test_ccddata_with_psf
+PASSED astropy/nddata/tests/test_ccddata.py::test_psf_setter
+PASSED astropy/nddata/tests/test_ccddata.py::test_write_read_psf
+PASSED astropy/nddata/tests/test_compat.py::test_nddataarray_has_attributes_of_old_nddata
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_simple
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_parameters
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_conversion
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in0]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in1]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in2]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in3]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in4]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_init_without_np_array[flags_in5]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_invalid_shape[shape0]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_invalid_shape[shape1]
+PASSED astropy/nddata/tests/test_compat.py::test_nddata_flags_invalid_shape[shape2]
+PASSED astropy/nddata/tests/test_compat.py::test_convert_unit_to
+PASSED astropy/nddata/tests/test_compat.py::test_init_of_subclass_in_convert_unit_to
+PASSED astropy/nddata/tests/test_compat.py::test_nddataarray_from_nddataarray
+PASSED astropy/nddata/tests/test_compat.py::test_nddataarray_from_nddata
+PASSED astropy/nddata/tests/test_covariance.py::test_scipy_funcs
+PASSED astropy/nddata/tests/test_covariance.py::test_parse_shape
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_numpy
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_all_separate
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_kwarg_only[<lambda>0]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_kwarg_only[<lambda>1]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_constrained_signature[data_wcs_mask_pos-only]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_constrained_signature[data_wcs_pos-only]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_constrained_signature[data_pos-or-kw]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_constrained_signature[data_kw-only]
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_and_explicit
+PASSED astropy/nddata/tests/test_decorators.py::test_pass_nddata_ignored
+PASSED astropy/nddata/tests/test_decorators.py::test_incorrect_first_argument[<lambda>0]
+PASSED astropy/nddata/tests/test_decorators.py::test_incorrect_first_argument[<lambda>1]
+PASSED astropy/nddata/tests/test_decorators.py::test_wrap_function_no_kwargs
+PASSED astropy/nddata/tests/test_decorators.py::test_wrap_function_repack_valid
+PASSED astropy/nddata/tests/test_decorators.py::test_wrap_function_accepts
+PASSED astropy/nddata/tests/test_decorators.py::test_wrap_preserve_signature_docstring
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures1
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures2
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures9
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures3
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures4
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures10
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures5
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures6
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures7
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures8
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_failures11
+PASSED astropy/nddata/tests/test_decorators.py::test_setup_numpyarray_default
+PASSED astropy/nddata/tests/test_decorators.py::test_still_accepts_other_input
+PASSED astropy/nddata/tests/test_decorators.py::test_accepting_property_normal
+PASSED astropy/nddata/tests/test_decorators.py::test_parameter_default_identical_to_explicit_passed_argument
+PASSED astropy/nddata/tests/test_decorators.py::test_accepting_property_notexist
+PASSED astropy/nddata/tests/test_decorators.py::test_accepting_property_translated
+PASSED astropy/nddata/tests/test_decorators.py::test_accepting_property_meta_empty
+PASSED astropy/nddata/tests/test_flag_collection.py::test_init
+PASSED astropy/nddata/tests/test_flag_collection.py::test_init_noshape
+PASSED astropy/nddata/tests/test_flag_collection.py::test_init_notiterable
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_type[1]
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_type[1.0]
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_type[spam]
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_type[value3]
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_type[value4]
+PASSED astropy/nddata/tests/test_flag_collection.py::test_setitem_invalid_shape
+PASSED astropy/nddata/tests/test_nddata.py::test_uncertainty_setter
+PASSED astropy/nddata/tests/test_nddata.py::test_mask_setter
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_empty
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_nonarray
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_ndarray
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_maskedarray
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_quantity[data0]
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_quantity[5]
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_masked_quantity
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_nddata
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_nddata_subclass
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_fail
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_data_fakes
+PASSED astropy/nddata/tests/test_nddata.py::test_param_uncertainty
+PASSED astropy/nddata/tests/test_nddata.py::test_param_wcs
+PASSED astropy/nddata/tests/test_nddata.py::test_param_meta
+PASSED astropy/nddata/tests/test_nddata.py::test_param_mask
+PASSED astropy/nddata/tests/test_nddata.py::test_param_unit
+PASSED astropy/nddata/tests/test_nddata.py::test_pickle_nddata_with_uncertainty
+PASSED astropy/nddata/tests/test_nddata.py::test_pickle_uncertainty_only
+PASSED astropy/nddata/tests/test_nddata.py::test_pickle_nddata_without_uncertainty
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_none
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_init[meta0]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_init[meta1]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_init[meta2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_init[ceci n'est pas un meta]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_init[1.2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_init[meta2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_set[meta0]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_set[meta1]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_mapping_set[meta2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_set[ceci n'est pas un meta]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_set[1.2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_non_mapping_set[meta2]
+PASSED astropy/nddata/tests/test_nddata.py::TestMetaNDData::test_meta_fits_header
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_str
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_repr
+PASSED astropy/nddata/tests/test_nddata.py::test_slicing_not_supported
+PASSED astropy/nddata/tests/test_nddata.py::test_arithmetic_not_supported
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_wcs_setter_error_cases
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_wcs_setter_with_low_level_wcs
+PASSED astropy/nddata/tests/test_nddata.py::test_nddata_init_with_low_level_wcs
+PASSED astropy/nddata/tests/test_nddata.py::test_overriden_wcs
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask0-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask1-unit1-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask2-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask3-unit3-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask4-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask5-unit5-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask6-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask7-unit7-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask8-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask9-unit9-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask10-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask11-unit11-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask12-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask13-unit13-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask14-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask15-unit15-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask16-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask17-unit17-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask18-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask19-unit19-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask20-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask21-unit21-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask22-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask23-unit23-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask24-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask25-unit25-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask26-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask27-unit27-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask28-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask29-unit29-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask30-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask31-unit31-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask32-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask33-unit33-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask34-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask35-unit35-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask36-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask37-unit37-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask38-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask39-unit39-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask40-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask41-unit41-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask42-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask43-unit43-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask44-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask45-unit45-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask46-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask47-unit47-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask48-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask49-unit49-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask50-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask51-unit51-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask52-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask53-unit53-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask54-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask55-unit55-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask56-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask57-unit57-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask58-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask59-unit59-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask60-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask61-unit61-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask62-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask63-unit63-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask64-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask65-unit65-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask66-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask67-unit67-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask68-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask69-unit69-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask70-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask71-unit71-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask72-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask73-unit73-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask74-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask75-unit75-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask76-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask77-unit77-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask78-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask79-unit79-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask80-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask81-unit81-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask82-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask83-unit83-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask84-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask85-unit85-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask86-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask87-unit87-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask88-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask89-unit89-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask90-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask91-unit91-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask92-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask93-unit93-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask94-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask95-unit95-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask96-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask97-unit97-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask98-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask99-unit99-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask100-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask101-unit101-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask102-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask103-unit103-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask104-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask105-unit105-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask106-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask107-unit107-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask108-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask109-unit109-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask110-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask111-unit111-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask112-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask113-unit113-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask114-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask115-unit115-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask116-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask117-unit117-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask118-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask119-unit119-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask120-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask121-unit121-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask122-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask123-unit123-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask124-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask125-unit125-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask126-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask127-unit127-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask128-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask129-unit129-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask130-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask131-unit131-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask132-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask133-unit133-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask134-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask135-unit135-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask136-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask137-unit137-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask138-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask139-unit139-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask140-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask141-unit141-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask142-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask143-unit143-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask144-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask145-unit145-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask146-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask147-unit147-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask148-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask149-unit149-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask150-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask151-unit151-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask152-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask153-unit153-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask154-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask155-unit155-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask156-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask157-unit157-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask158-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask159-unit159-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask160-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask161-unit161-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask162-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask163-unit163-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask164-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask165-unit165-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask166-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask167-unit167-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask168-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask169-unit169-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask170-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask171-unit171-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask172-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask173-unit173-False-False]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask174-None-True-True]
+PASSED astropy/nddata/tests/test_nddata.py::test_collapse[mask175-unit175-False-False]
+PASSED astropy/nddata/tests/test_nddata_base.py::test_nddata_base_subclass
+PASSED astropy/nddata/tests/test_nddata_base.py::test_omitting_psf_is_ok
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_list[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_list[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_list[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_list[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_list[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_ndarray[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_ndarray[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_ndarray[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_ndarray[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_ndarray[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_quantity[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_quantity[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_quantity[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_quantity[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_quantity[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_fake[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_fake[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_fake[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_fake[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_fake[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_somethingElse[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_somethingElse[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_somethingElse[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_somethingElse[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_somethingElse[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_init_fake_with_StdDevUncertainty
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_uncertainty_type
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_uncertainty_correlated
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_for_leak_with_uncertainty
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_for_stolen_uncertainty
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_stddevuncertainty_pickle
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_quantity[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_quantity[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_quantity[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_quantity[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_quantity[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_setting_uncertainty_unit_results_in_unit_object[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_setting_uncertainty_unit_results_in_unit_object[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_setting_uncertainty_unit_results_in_unit_object[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[VarianceUncertainty-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[VarianceUncertainty-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[VarianceUncertainty-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[StdDevUncertainty-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[StdDevUncertainty-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[StdDevUncertainty-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[InverseVariance-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[InverseVariance-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_changing_unit_to_value_inconsistent_with_parent_fails[InverseVariance-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[VarianceUncertainty-expected_unit0-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[VarianceUncertainty-expected_unit0-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[VarianceUncertainty-expected_unit0-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[StdDevUncertainty-expected_unit1-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[StdDevUncertainty-expected_unit1-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[StdDevUncertainty-expected_unit1-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[InverseVariance-expected_unit2-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[InverseVariance-expected_unit2-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_to_parent_gives_correct_unit[InverseVariance-expected_unit2-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[VarianceUncertainty-expected_unit0-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[VarianceUncertainty-expected_unit0-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[VarianceUncertainty-expected_unit0-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[StdDevUncertainty-expected_unit1-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[StdDevUncertainty-expected_unit1-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[StdDevUncertainty-expected_unit1-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[InverseVariance-expected_unit2-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[InverseVariance-expected_unit2-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_unit_to_parent_with_unit[InverseVariance-expected_unit2-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[VarianceUncertainty-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[VarianceUncertainty-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[VarianceUncertainty-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[StdDevUncertainty-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[StdDevUncertainty-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[StdDevUncertainty-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[InverseVariance-NDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[InverseVariance-NDDataArray]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_assigning_uncertainty_with_bad_unit_to_parent_fails[InverseVariance-CCDData]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_self_conversion_via_variance_supported[StdDevUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_self_conversion_via_variance_supported[VarianceUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_self_conversion_via_variance_supported[InverseVariance]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_conversion_to_from_variance_supported[StdDevUncertainty-<lambda>]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_conversion_to_from_variance_supported[VarianceUncertainty-<lambda>]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_conversion_to_from_variance_supported[InverseVariance-<lambda>]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_self_conversion_via_variance_not_supported[FakeUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_self_conversion_via_variance_not_supported[UnknownUncertainty]
+PASSED astropy/nddata/tests/test_nduncertainty.py::test_reshape_ndarray_methods
+PASSED astropy/nddata/tests/test_utils.py::test_slices_different_dim
+PASSED astropy/nddata/tests/test_utils.py::test_slices_pos_different_dim
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs0]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs1]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs2]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs3]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs4]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs5]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs6]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_no_overlap[inputs7]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_partial_overlap
+PASSED astropy/nddata/tests/test_utils.py::test_slices_edges
+PASSED astropy/nddata/tests/test_utils.py::test_slices_overlap_wrong_mode
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position0]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position1]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position2]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position3]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position4]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_nonfinite_position[position5]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape0-position0-ceil-expected_lg0-expected_sm0]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape1-position1-floor-expected_lg1-expected_sm1]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape2-position2-round-expected_lg2-expected_sm2]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape3-position3-round-expected_lg3-expected_sm3]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape4-position4-round-expected_lg4-expected_sm4]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_limit_rounding_method[small_array_shape5-position5-trunc-expected_lg5-expected_sm5]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[None-^Limit rounding method must be a callable]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[invalid-^Limit rounding method must be a callable]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[<lambda>-^Limit rounding method must accept a single number0]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[<lambda>-^Limit rounding method must accept a single number1]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[<lambda>-^Limit rounding method must accept a single number2]
+PASSED astropy/nddata/tests/test_utils.py::test_slices_wrong_limit_rounding_method[<lambda>-^Limit rounding method must accept a single number3]
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_even_shape_rounding
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_odd_shape_rounding
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_wrong_mode
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_1d_even
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_1d_odd
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_1d
+PASSED astropy/nddata/tests/test_utils.py::test_extract_Array_float
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_1d_trim
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_easy[partial]
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_easy[trim]
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_easy[strict]
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_return_pos
+PASSED astropy/nddata/tests/test_utils.py::test_extract_array_nan_fillvalue
+PASSED astropy/nddata/tests/test_utils.py::test_add_array_odd_shape
+PASSED astropy/nddata/tests/test_utils.py::test_add_array_even_shape
+PASSED astropy/nddata/tests/test_utils.py::test_add_array_equal_shape
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position0-subpixel_index0]
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position1-subpixel_index1]
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position2-subpixel_index2]
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position3-subpixel_index3]
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position4-subpixel_index4]
+PASSED astropy/nddata/tests/test_utils.py::test_subpixel_indices[position5-subpixel_index5]
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_cutout
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_size_length
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_size_units
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_size_pixel
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_size_angle
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_size_angle_without_wcs
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_cutout_trim_overlap
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_cutout_partial_overlap
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_cutout_partial_overlap_fill_value
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_copy
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_limit_rounding_method[position0-ceil-expected_slices_original0]
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_limit_rounding_method[position1-floor-expected_slices_original1]
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_limit_rounding_method[position2-round-expected_slices_original2]
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_limit_rounding_method[position3-trunc-expected_slices_original3]
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_to_from_large
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_skycoord_without_wcs
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_skycoord
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_skycoord_partial
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_naxis_update
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_crpix_maps_to_crval
+PASSED astropy/nddata/tests/test_utils.py::TestCutout2D::test_cutout_with_nddata_as_input
+PASSED astropy/nddata/tests/test_utils.py::test_cutout_section
+PASSED astropy/nddata/tests/test_utils.py::test_cutout_section_with_bzero_bscale_blank
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:72: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:90: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:117: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:151: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:170: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:181: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:187: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:198: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:215: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:224: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:231: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:276: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:316: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:325: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:365: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:410: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:474: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:483: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:502: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:563: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:582: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:594: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:609: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_covariance.py:649: scipy not installed
+SKIPPED [1] astropy/nddata/tests/test_nddata.py:515: requires dask to be available
+======================= 689 passed, 25 skipped in 9.33s ========================

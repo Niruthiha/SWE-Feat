@@ -1,0 +1,650 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0 -- /opt/miniconda3/envs/testbed/bin/python3.11
+cachedir: .pytest_cache
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: timeout-2.4.0, asyncio-1.3.0, mock-3.15.1, xdist-3.8.0, cov-7.0.0, anyio-4.11.0
+timeout: 20.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 159 items
+
+tests/utils/test_validation.py::test_path_not_unique[a-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  0%]
+tests/utils/test_validation.py::test_path_not_unique[a/b/c-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  1%]
+tests/utils/test_validation.py::test_path_not_unique[a.b/c-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  1%]
+tests/utils/test_validation.py::test_path_not_unique[.a-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  2%]
+tests/utils/test_validation.py::test_path_not_unique[./a-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  3%]
+tests/utils/test_validation.py::test_path_not_unique[a/b/../c-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  3%]
+tests/utils/test_validation.py::test_path_not_unique[.-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  4%]
+tests/utils/test_validation.py::test_path_not_unique[../a/b-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  5%]
+tests/utils/test_validation.py::test_path_not_unique[/a/b/c-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  5%]
+tests/utils/test_validation.py::test_is_numeric[0-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  6%]
+tests/utils/test_validation.py::test_is_numeric[0.0-True] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  6%]
+tests/utils/test_validation.py::test_is_numeric[True-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  7%]
+tests/utils/test_validation.py::test_is_numeric[False-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  8%]
+tests/utils/test_validation.py::test_is_numeric[0-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  8%]
+tests/utils/test_validation.py::test_is_numeric[None-False] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [  9%]
+tests/utils/test_validation.py::test_validate_metric_name_good[a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 10%]
+tests/utils/test_validation.py::test_validate_metric_name_good[Ab-5_] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 10%]
+tests/utils/test_validation.py::test_validate_metric_name_good[a/b/c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 11%]
+tests/utils/test_validation.py::test_validate_metric_name_good[a.b.c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 11%]
+tests/utils/test_validation.py::test_validate_metric_name_good[.a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 12%]
+tests/utils/test_validation.py::test_validate_metric_name_good[b.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 13%]
+tests/utils/test_validation.py::test_validate_metric_name_good[a..a/._./o_O/.e.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 13%]
+tests/utils/test_validation.py::test_validate_metric_name_good[a b/c d] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 14%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 15%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 15%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 16%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[..] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 16%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[//] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 17%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[a//b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 18%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[a/./b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 18%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[/a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 19%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[a/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 20%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[\\] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 20%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 21%]
+tests/utils/test_validation.py::test_validate_metric_name_bad[/./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 22%]
+tests/utils/test_validation.py::test_validate_param_name_good[a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 22%]
+tests/utils/test_validation.py::test_validate_param_name_good[Ab-5_] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 23%]
+tests/utils/test_validation.py::test_validate_param_name_good[a/b/c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 23%]
+tests/utils/test_validation.py::test_validate_param_name_good[a.b.c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 24%]
+tests/utils/test_validation.py::test_validate_param_name_good[.a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 25%]
+tests/utils/test_validation.py::test_validate_param_name_good[b.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 25%]
+tests/utils/test_validation.py::test_validate_param_name_good[a..a/._./o_O/.e.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 26%]
+tests/utils/test_validation.py::test_validate_param_name_good[a b/c d] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 27%]
+tests/utils/test_validation.py::test_validate_param_name_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 27%]
+tests/utils/test_validation.py::test_validate_param_name_bad[.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 28%]
+tests/utils/test_validation.py::test_validate_param_name_bad[/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 28%]
+tests/utils/test_validation.py::test_validate_param_name_bad[..] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 29%]
+tests/utils/test_validation.py::test_validate_param_name_bad[//] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 30%]
+tests/utils/test_validation.py::test_validate_param_name_bad[a//b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 30%]
+tests/utils/test_validation.py::test_validate_param_name_bad[a/./b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 31%]
+tests/utils/test_validation.py::test_validate_param_name_bad[/a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 32%]
+tests/utils/test_validation.py::test_validate_param_name_bad[a/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 32%]
+tests/utils/test_validation.py::test_validate_param_name_bad[\\] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 33%]
+tests/utils/test_validation.py::test_validate_param_name_bad[./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 33%]
+tests/utils/test_validation.py::test_validate_param_name_bad[/./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 34%]
+tests/utils/test_validation.py::test_validate_colon_name_bad_windows[:] SKIPPED [ 35%]
+tests/utils/test_validation.py::test_validate_colon_name_bad_windows[aa:bb:cc] SKIPPED [ 35%]
+tests/utils/test_validation.py::test_validate_tag_name_good[a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 36%]
+tests/utils/test_validation.py::test_validate_tag_name_good[Ab-5_] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 37%]
+tests/utils/test_validation.py::test_validate_tag_name_good[a/b/c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 37%]
+tests/utils/test_validation.py::test_validate_tag_name_good[a.b.c] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 38%]
+tests/utils/test_validation.py::test_validate_tag_name_good[.a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 38%]
+tests/utils/test_validation.py::test_validate_tag_name_good[b.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 39%]
+tests/utils/test_validation.py::test_validate_tag_name_good[a..a/._./o_O/.e.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 40%]
+tests/utils/test_validation.py::test_validate_tag_name_good[a b/c d] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 40%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 41%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 42%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 42%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[..] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 43%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[//] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 44%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[a//b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 44%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[a/./b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 45%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[/a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 45%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[a/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 46%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[\\] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 47%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 47%]
+tests/utils/test_validation.py::test_validate_tag_name_bad[/./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 48%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 49%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[Ab-5_] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 49%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[test-alias] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 50%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[1a2b5cDeFgH] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 50%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 51%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[lates] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 52%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[v123_temp] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 52%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[123] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 53%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[123v] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 54%]
+tests/utils/test_validation.py::test_validate_model_alias_name_good[temp_V123] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 54%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 55%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[.] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 55%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 56%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[..] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 57%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[//] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 57%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[a b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 58%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[a/./b] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 59%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[/a] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 59%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[a/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 60%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[:] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 61%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[\\] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 61%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 62%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[/./] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 62%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 63%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[None] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 64%]
+tests/utils/test_validation.py::test_validate_model_alias_name_bad[$dgs] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 64%]
+tests/utils/test_validation.py::test_validate_model_alias_name_reserved[latest] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 65%]
+tests/utils/test_validation.py::test_validate_model_alias_name_reserved[LATEST] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 66%]
+tests/utils/test_validation.py::test_validate_model_alias_name_reserved[Latest] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 66%]
+tests/utils/test_validation.py::test_validate_model_alias_name_reserved[v123] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 67%]
+tests/utils/test_validation.py::test_validate_model_alias_name_reserved[V1] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 67%]
+tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 68%]
+tests/utils/test_validation.py::test_validate_run_id_good[f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 69%]
+tests/utils/test_validation.py::test_validate_run_id_good[abcdef0123456789abcdef0123456789] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 69%]
+tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 70%]
+tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 71%]
+tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 71%]
+tests/utils/test_validation.py::test_validate_run_id_good[AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 72%]
+tests/utils/test_validation.py::test_validate_run_id_good[gggggggggggggggggggggggggggggggg] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 72%]
+tests/utils/test_validation.py::test_validate_run_id_good[a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 73%]
+tests/utils/test_validation.py::test_validate_run_id_good[abcdefghijklmnopqrstuvqxyz] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 74%]
+tests/utils/test_validation.py::test_validate_run_id_bad[a/bca/bca/bca/bca/bca/bca/bca/bc] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 74%]
+tests/utils/test_validation.py::test_validate_run_id_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 75%]
+tests/utils/test_validation.py::test_validate_run_id_bad[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 76%]
+tests/utils/test_validation.py::test_validate_run_id_bad[*****] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 76%]
+tests/utils/test_validation.py::test_validate_batch_log_limits PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 77%]
+tests/utils/test_validation.py::test_validate_batch_log_data PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 77%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_good[abcde] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 78%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_good[None] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 79%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_bad[runs:/blah/bleh/blergh] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 79%]
+tests/utils/test_validation.py::test_validate_experiment_name_good[validstring] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 80%]
+tests/utils/test_validation.py::test_validate_experiment_name_good[test byte string] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 81%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 81%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[12] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 82%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[12.7] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 83%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[None] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 83%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[experiment_name4] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 84%]
+tests/utils/test_validation.py::test_validate_experiment_name_bad[experiment_name5] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 84%]
+tests/utils/test_validation.py::test_validate_db_type_string_good[mysql] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 85%]
+tests/utils/test_validation.py::test_validate_db_type_string_good[mssql] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 86%]
+tests/utils/test_validation.py::test_validate_db_type_string_good[postgresql] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 86%]
+tests/utils/test_validation.py::test_validate_db_type_string_good[sqlite] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 87%]
+tests/utils/test_validation.py::test_validate_db_type_string_bad[MySQL] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 88%]
+tests/utils/test_validation.py::test_validate_db_type_string_bad[mongo] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 88%]
+tests/utils/test_validation.py::test_validate_db_type_string_bad[cassandra] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 89%]
+tests/utils/test_validation.py::test_validate_db_type_string_bad[sql] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 89%]
+tests/utils/test_validation.py::test_validate_db_type_string_bad[] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 90%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[s3://test-bucket/] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 91%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[file:///path/to/artifacts] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 91%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[mlflow-artifacts:/path/to/artifacts] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 92%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[dbfs:/databricks/mlflow-tracking/some-id] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 93%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_bad[s3://test-bucket/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 93%]
+tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_bad[file:///path/to/directorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectory] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 94%]
+tests/utils/test_validation.py::test_setting_experiment_artifact_location_env_var_works PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 94%]
+tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value0] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 95%]
+tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value1] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 96%]
+tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value2] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 96%]
+tests/utils/test_validation.py::test_validate_list_param_with_none_not_allowed PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 97%]
+tests/utils/test_validation.py::test_validate_list_param_with_none_allowed PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 98%]
+tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[experiment_ids-4-int] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 98%]
+tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[param_name-value-str] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [ 99%]
+tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[my_param-param_value2-dict] PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB [100%]
+
+==================================== PASSES ====================================
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/11 22:51:11 INFO mlflow.tracking.fluent: Active model is cleared
+============================= slowest 10 durations =============================
+
+(10 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[a-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[a/b/c-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[a.b/c-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[.a-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[./a-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[a/b/../c-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[.-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[../a/b-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_path_not_unique[/a/b/c-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[0-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[0.0-True]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[True-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[False-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[0-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_is_numeric[None-False]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[Ab-5_]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[a/b/c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[a.b.c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[.a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[b.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[a..a/._./o_O/.e.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_good[a b/c d]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[..]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[//]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[a//b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[a/./b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[/a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[a/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[\\]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_metric_name_bad[/./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[Ab-5_]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[a/b/c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[a.b.c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[.a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[b.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[a..a/._./o_O/.e.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_good[a b/c d]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[..]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[//]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[a//b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[a/./b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[/a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[a/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[\\]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_param_name_bad[/./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[Ab-5_]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[a/b/c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[a.b.c]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[.a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[b.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[a..a/._./o_O/.e.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_good[a b/c d]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[..]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[//]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[a//b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[a/./b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[/a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[a/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[\\]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_tag_name_bad[/./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[Ab-5_]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[test-alias]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[1a2b5cDeFgH]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[lates]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[v123_temp]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[123]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[123v]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_good[temp_V123]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[.]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[..]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[//]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[a b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[a/./b]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[/a]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[a/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[:]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[\\]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[/./]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[None]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_bad[$dgs]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_reserved[latest]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_reserved[LATEST]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_reserved[Latest]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_reserved[v123]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_model_alias_name_reserved[V1]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[abcdef0123456789abcdef0123456789]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[gggggggggggggggggggggggggggggggg]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_a_]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_good[abcdefghijklmnopqrstuvqxyz]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_bad[a/bca/bca/bca/bca/bca/bca/bca/bc]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_bad[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_run_id_bad[*****]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_batch_log_limits
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_batch_log_data
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_good[abcde]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_good[None]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_bad[runs:/blah/bleh/blergh]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_good[validstring]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_good[test byte string]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[12]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[12.7]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[None]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[experiment_name4]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_name_bad[experiment_name5]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_good[mysql]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_good[mssql]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_good[postgresql]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_good[sqlite]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_bad[MySQL]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_bad[mongo]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_bad[cassandra]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_bad[sql]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_db_type_string_bad[]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[s3://test-bucket/]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[file:///path/to/artifacts]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[mlflow-artifacts:/path/to/artifacts]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_good[dbfs:/databricks/mlflow-tracking/some-id]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_bad[s3://test-bucket/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_experiment_artifact_location_length_bad[file:///path/to/directorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectorydirectory]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_setting_experiment_artifact_location_env_var_works
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value0]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value1]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_valid_list[param_value2]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_none_not_allowed
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_none_allowed
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[experiment_ids-4-int]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[param_name-value-str]
+PASSED | MEM 3.4/7.6 GB | DISK 26.2/1006.9 GB tests/utils/test_validation.py::test_validate_list_param_with_invalid_type[my_param-param_value2-dict]
+SKIPPED [2] tests/utils/test_validation.py:158: Windows do not support colon in params and metrics
+======================== 157 passed, 2 skipped in 0.46s ========================

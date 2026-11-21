@@ -1,0 +1,65 @@
+== whoami ==
+uid=1000(nonroot) gid=1000(nonroot) groups=1000(nonroot)
+== HOME ==
+/agent-home
+== find $HOME ==
+/agent-home
+/agent-home/.claude
+/agent-home/.claude/.credentials.json
+== python/pytest on PATH ==
+/opt/miniconda3/envs/testbed/bin/python
+Python 3.11.14
+/opt/miniconda3/envs/testbed/bin/pytest
+== env (claude/anthropic/conda names; HOME and proxy values) ==
+CONDA_DEFAULT_ENV=<redacted>
+CONDA_EXE=<redacted>
+CONDA_PREFIX=<redacted>
+CONDA_PROMPT_MODIFIER=<redacted>
+CONDA_PYTHON_EXE=<redacted>
+CONDA_SHLVL=<redacted>
+PATH=<redacted>
+_CE_CONDA=<redacted>
+HOME=/agent-home
+HTTPS_PROXY=http://hcexp-egress:8888
+HTTP_PROXY=http://hcexp-egress:8888
+NO_PROXY=localhost,127.0.0.1
+http_proxy=http://hcexp-egress:8888
+https_proxy=http://hcexp-egress:8888
+no_proxy=localhost,127.0.0.1
+== instruction files on the search path (a repo-shipped one is part of the as-is codebase, recorded not removed) ==
+absent  //CLAUDE.md
+absent  //AGENTS.md
+absent  //.mcp.json
+absent  /testbed/CLAUDE.md
+absent  /testbed/AGENTS.md
+absent  /testbed/.mcp.json
+absent  /agent-home/CLAUDE.md
+absent  /agent-home/AGENTS.md
+absent  /agent-home/.mcp.json
+  (find done)
+== hidden test file absent ==
+absent  /testbed/tests/test_extensions/test_ext_math.py
+== mask patch / pristine copy absent ==
+ls: cannot access '/tmp/mask.patch': No such file or directory
+ls: cannot access '/root/my_repo': Permission denied
+== git history visible to the agent ==
+f1d93fd Initial commit for FeatureBench evaluation
+== mounts ==
+/creds/credentials.json ro,relatime
+== egress (only the model API may answer) ==
+  api.anthropic.com -> 404
+  platform.claude.com -> 200
+  github.com -> 000
+  pypi.org -> 000
+  raw.githubusercontent.com -> 000
+== as root: pristine copy and mask patch gone ==
+absent  /root/my_repo
+absent  /tmp/mask.patch
+== as root: nothing claude-related under /root ==
+. .. .bashrc .cache .conda .condarc .config .pip .profile .tcshrc .wget-hsts .xonshrc .zshrc setup_env.sh 
+== as root: package caches (cleared by prepare_tree) ==
+20K	/opt/miniconda3/pkgs
+8.0K	/root/.cache/pip
+du: cannot access '/root/.cache/uv': No such file or directory
+== arm ==
+arm goalrw

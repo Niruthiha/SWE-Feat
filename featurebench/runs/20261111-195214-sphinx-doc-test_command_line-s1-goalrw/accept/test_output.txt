@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+libraries: Sphinx-8.3.0+/aa3a857, docutils-0.22.3
+test roots directory: /testbed/tests/roots
+base tmp_path: /tmp/pytest-of-root/pytest-0
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: timeout-2.4.0, xdist-3.8.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 10 items
+
+tests/test_command_line.py ...x....x.                                    [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_command_line.py::test_build_main_parse_arguments_pos_first
+PASSED tests/test_command_line.py::test_build_main_parse_arguments_pos_last
+PASSED tests/test_command_line.py::test_build_main_parse_arguments_pos_middle
+PASSED tests/test_command_line.py::test_build_main_parse_arguments_pos_intermixed
+PASSED tests/test_command_line.py::test_make_mode_parse_arguments_pos_first
+PASSED tests/test_command_line.py::test_make_mode_parse_arguments_pos_last
+PASSED tests/test_command_line.py::test_make_mode_parse_arguments_pos_middle
+PASSED tests/test_command_line.py::test_make_mode_parse_arguments_pos_intermixed
+XFAIL tests/test_command_line.py::test_build_main_parse_arguments_filenames_last - sphinx-build does not yet support filenames after options
+XFAIL tests/test_command_line.py::test_make_mode_parse_arguments_filenames_last - sphinx-build does not yet support filenames after options
+========================= 8 passed, 2 xfailed in 0.21s =========================

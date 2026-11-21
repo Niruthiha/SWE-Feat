@@ -1,0 +1,16 @@
+ mlflow/cli/scorers.py                     | 126 ++++++++++++++++++-
+ mlflow/cli/traces.py                      |   2 +-
+ mlflow/experiments.py                     |   2 +-
+ mlflow/genai/__init__.py                  |   2 +-
+ mlflow/genai/judges/__init__.py           |   2 +-
+ mlflow/genai/judges/make_judge.py         | 116 ++++++++++++++++++
+ mlflow/genai/scorers/__init__.py          |   2 +-
+ mlflow/genai/scorers/base.py              | 174 +++++++++++++++++++++-----
+ mlflow/genai/scorers/registry.py          |  58 +++++----
+ mlflow/genai/scorers/scorer_utils.py      | 134 ++++++++++++++------
+ mlflow/runs.py                            |   2 +-
+ mlflow/store/tracking/sqlalchemy_store.py | 196 ++++++++++++++----------------
+ mlflow/utils/string_utils.py              |  53 ++++----
+ tests/cli/test_scorers.py                 | 128 +++++++++++++++++++
+ tests/utils/test_string_utils.py          |  20 +++
+ 15 files changed, 778 insertions(+), 239 deletions(-)

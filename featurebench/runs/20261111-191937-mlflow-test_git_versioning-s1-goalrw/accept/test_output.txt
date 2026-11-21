@@ -1,0 +1,1153 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0 -- /opt/miniconda3/envs/testbed/bin/python3.11
+cachedir: .pytest_cache
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: timeout-2.4.0, asyncio-1.3.0, mock-3.15.1, xdist-3.8.0, cov-7.0.0, anyio-4.11.0
+timeout: 20.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items
+
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [  6%]
+tests/genai/test_git_versioning.py::test_disable_git_model_versioning_in_non_git_repo PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 13%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_context_manager PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 20%]
+tests/genai/test_git_versioning.py::test_disable_git_model_versioning_resets_context PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 26%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_sets_active_context PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 33%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_initial_logged_model PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 40%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_reuses_model_when_no_changes PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 46%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_new_model_on_commit PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 53%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_new_model_on_dirty_repo PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 60%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_ignores_untracked_files PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 66%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_default_remote_name PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 73%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_custom_remote_name PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 80%]
+tests/genai/test_git_versioning.py::test_enable_git_model_versioning_no_remote PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 86%]
+tests/genai/test_git_versioning.py::test_git_diff_collected_when_dirty PASSED | MEM 3.5/7.6 GB | DISK 26.1/1006.9 GB [ 93%]
+tests/genai/test_git_versioning.py::test_git_diff_includes_staged_changes PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB [100%]
+
+==================================== PASSES ====================================
+_______________________ test_enable_git_model_versioning _______________________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni0/test_repo/.git/
+[master (root-commit) 562576f] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:29:47 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:48 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:29:48 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:29:48 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:29:49 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:29:49 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:29:49 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:29:49 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:29:50 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:29:51 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-87be067a465a424c8038a083e7368b21
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:29:51 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:51 INFO mlflow.genai.git_versioning: Using existing model with branch 'master', commit '562576f53f49b815c4016134e11df01fc97e7dac', dirty state 'False'.
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-87be067a465a424c8038a083e7368b21
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+Switched to a new branch 'new-branch'
+2026/11/12 00:29:51 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:51 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-e1ca1085b92340bfb98585358f027245
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:51 INFO mlflow.tracking.fluent: Active model is cleared
+_______________ test_enable_git_model_versioning_context_manager _______________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni1/test_repo/.git/
+[master (root-commit) a60b8f9] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:29:51 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:51 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:29:51 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:29:51 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:29:51 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:29:51 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:29:51 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:29:52 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:29:53 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:29:53 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-91f99b632af24799a8c2c34b5aa0a4c8
+2026/11/12 00:29:53 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:29:53 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:29:53 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:53 INFO mlflow.tracking.fluent: Active model is cleared
+_______________ test_disable_git_model_versioning_resets_context _______________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_disable_git_model_version1/test_repo/.git/
+[master (root-commit) d1c2335] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:29:53 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:53 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:29:53 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:29:53 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:29:53 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:29:54 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:29:54 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:29:54 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:55 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:29:55 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-02aaa8cdc32e40f990126081318f6e66
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:56 INFO mlflow.tracking.fluent: Active model is cleared
+_____________ test_enable_git_model_versioning_sets_active_context _____________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni2/test_repo/.git/
+[master (root-commit) 8d7ebe5] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:29:56 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:56 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:29:56 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:29:56 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:29:56 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:29:56 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:29:56 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:29:57 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:29:58 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:29:58 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-a78aee2b87c0406483895db5126ca674
+2026/11/12 00:29:58 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:29:58 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:29:58 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:29:58 INFO mlflow.tracking.fluent: Active model is cleared
+________ test_enable_git_model_versioning_creates_initial_logged_model _________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni3/test_repo/.git/
+[master (root-commit) 2f64803] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:29:58 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:29:58 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:29:58 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:29:58 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:29:58 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:29:58 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:29:58 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:29:59 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:00 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:00 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:00 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-50940444d1a14f80bfac7d3e3126349d
+2026/11/12 00:30:00 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:00 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:00 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:00 INFO mlflow.tracking.fluent: Active model is cleared
+________ test_enable_git_model_versioning_reuses_model_when_no_changes _________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni4/test_repo/.git/
+[master (root-commit) ce8bd4a] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:01 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:01 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:01 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:01 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:01 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:01 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:01 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:02 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:03 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:04 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-03e311ffbe7548c3817f765d33e1c794
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:04 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:04 INFO mlflow.genai.git_versioning: Using existing model with branch 'master', commit 'ce8bd4a48ff1b59876991c747774dff1efbcd9e4', dirty state 'False'.
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-03e311ffbe7548c3817f765d33e1c794
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:04 INFO mlflow.tracking.fluent: Active model is cleared
+_________ test_enable_git_model_versioning_creates_new_model_on_commit _________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni5/test_repo/.git/
+[master (root-commit) 24204f8] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stdout call -----------------------------
+[master 693ba86] commit
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:04 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:04 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:04 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:04 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:04 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:04 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:04 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:05 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:06 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-d6939c57279a4b7abce8668713b5506f
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:06 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:06 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-748385ab9ebf4b91ad9c93f23ba0a727
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:06 INFO mlflow.tracking.fluent: Active model is cleared
+_______ test_enable_git_model_versioning_creates_new_model_on_dirty_repo _______
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni6/test_repo/.git/
+[master (root-commit) b7f9b62] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:06 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:06 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:06 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:06 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:07 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:07 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:07 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:07 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:08 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:09 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-34c512beb4c640979a1b8d6c2621fd63
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:09 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:09 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-619f2eefb2f84b38b340193ba9b3d16d
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:09 INFO mlflow.tracking.fluent: Active model is cleared
+___________ test_enable_git_model_versioning_ignores_untracked_files ___________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni7/test_repo/.git/
+[master (root-commit) fae0f9e] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:09 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:09 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:09 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:09 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:09 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:09 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:09 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:10 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:11 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-9c4fe8c1a31b436b9bb710d704029bab
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:11 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:11 INFO mlflow.genai.git_versioning: Using existing model with branch 'master', commit 'fae0f9e9da178ccea554e47b21eb5dfb7c69f852', dirty state 'False'.
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-9c4fe8c1a31b436b9bb710d704029bab
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is cleared
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:11 INFO mlflow.tracking.fluent: Active model is cleared
+_____________ test_enable_git_model_versioning_default_remote_name _____________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni8/test_repo/.git/
+[master (root-commit) bb8a9cf] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:11 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:11 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:11 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:11 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:11 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:11 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:12 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:13 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:13 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-823d2d2f72b54c4c9a84d043ff16d84e
+2026/11/12 00:30:13 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:13 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:13 INFO mlflow.tracking.fluent: Active model is cleared
+_____________ test_enable_git_model_versioning_custom_remote_name ______________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni9/test_repo/.git/
+[master (root-commit) 6096e18] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:13 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:13 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:13 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:14 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:14 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:14 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:14 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:15 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:16 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:16 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-118011202e8146368e2e01fcbf7e2e7d
+2026/11/12 00:30:16 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:16 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:16 INFO mlflow.tracking.fluent: Active model is cleared
+__________________ test_enable_git_model_versioning_no_remote __________________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_enable_git_model_versioni10/test_repo/.git/
+[master (root-commit) 5489ac9] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:16 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:16 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:16 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:16 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:16 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:16 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:16 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:17 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:18 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:19 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:19 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-91194e2c9c2d41509413ada740c3ddc5
+2026/11/12 00:30:19 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:19 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:19 INFO mlflow.tracking.fluent: Active model is cleared
+______________________ test_git_diff_collected_when_dirty ______________________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_git_diff_collected_when_d0/test_repo/.git/
+[master (root-commit) 467f5d9] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:19 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:19 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:19 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:19 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:19 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:19 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:19 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:20 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:21 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:21 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:21 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-d230d1bb09ac4ac0aad0c30af2ea17a8
+2026/11/12 00:30:21 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:21 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:22 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:22 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-e741b07b5d564571a69b71c12f747328
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+2026/11/12 00:30:22 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:22 INFO mlflow.genai.git_versioning: Using existing model with branch 'master', commit '467f5d9e906c74f2ee818e2df51db7da2aa76207', dirty state 'True'.
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-e741b07b5d564571a69b71c12f747328
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:22 INFO mlflow.tracking.fluent: Active model is cleared
+____________________ test_git_diff_includes_staged_changes _____________________
+---------------------------- Captured stdout setup -----------------------------
+Initialized empty Git repository in /tmp/pytest-of-root/pytest-0/test_git_diff_includes_staged_0/test_repo/.git/
+[master (root-commit) d4411d4] init
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 test.txt
+---------------------------- Captured stderr setup -----------------------------
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+----------------------------- Captured stderr call -----------------------------
+2026/11/12 00:30:22 WARNING mlflow.genai.git_versioning.git_info: No remote named 'origin' found. Repository URL will not be set.
+2026/11/12 00:30:22 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/11/12 00:30:22 INFO mlflow.store.db.utils: Updating database tables
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade  -> 451aebb31d03, add metric step
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 451aebb31d03 -> 90e64c465722, migrate user column to tags
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 90e64c465722 -> 181f10493468, allow nulls for metric values
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 181f10493468 -> df50e92ffc5e, Add Experiment Tags Table
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade df50e92ffc5e -> 7ac759974ad8, Update run tags with larger limit
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 7ac759974ad8 -> 89d4b8295536, create latest metrics table
+2026-11-12 00:30:22 INFO  [89d4b8295536_create_latest_metrics_table_py] Migration complete!
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 89d4b8295536 -> 2b4d017a5e9b, add model registry tables to db
+2026-11-12 00:30:22 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Adding registered_models and model_versions tables to database.
+2026-11-12 00:30:22 INFO  [2b4d017a5e9b_add_model_registry_tables_to_db_py] Migration complete!
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 2b4d017a5e9b -> cfd24bdc0731, Update run status constraint with killed
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade cfd24bdc0731 -> 0a8213491aaa, drop_duplicate_killed_constraint
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 0a8213491aaa -> 728d730b5ebd, add registered model tags table
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 728d730b5ebd -> 27a6a02d2cf1, add model version tags table
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 27a6a02d2cf1 -> 84291f40a231, add run_link to model_version
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 84291f40a231 -> a8c4a736bde6, allow nulls for run_id
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade a8c4a736bde6 -> 39d1c3be5f05, add_is_nan_constraint_for_metrics_tables_if_necessary
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 39d1c3be5f05 -> c48cb773bb87, reset_default_value_for_is_nan_in_metrics_table_for_mysql
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade c48cb773bb87 -> bd07f7e963c5, create index on run_uuid
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade bd07f7e963c5 -> 0c779009ac13, add deleted_time field to runs table
+2026-11-12 00:30:22 INFO  [alembic.runtime.migration] Running upgrade 0c779009ac13 -> cc1f77228345, change param value length to 500
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade cc1f77228345 -> 97727af70f4d, Add creation_time and last_update_time to experiments table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 97727af70f4d -> 3500859a5d39, Add Model Aliases table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 3500859a5d39 -> 7f2a7d5fae7d, add datasets inputs input_tags tables
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 7f2a7d5fae7d -> 2d6e25af4d3e, increase max param val length from 500 to 8000
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 2d6e25af4d3e -> acf3f17fdcc7, add storage location field to model versions
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade acf3f17fdcc7 -> 867495a8f9d4, add trace tables
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 867495a8f9d4 -> 5b0e9adcef9c, add cascade deletion to trace tables foreign keys
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 5b0e9adcef9c -> 4465047574b1, increase max dataset schema size
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 4465047574b1 -> f5a4f2784254, increase run tag value limit to 8000
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade f5a4f2784254 -> 0584bdc529eb, add cascading deletion to datasets from experiments
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 0584bdc529eb -> 400f98739977, add logged model tables
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 400f98739977 -> 6953534de441, add step to inputs table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 6953534de441 -> bda7b8c39065, increase_model_version_tag_value_limit
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade bda7b8c39065 -> cbc13b556ace, add V3 trace schema columns
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade cbc13b556ace -> 770bee3ae1dd, add assessments table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 770bee3ae1dd -> a1b2c3d4e5f6, add spans table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> de4033877273, create entity_associations table
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade de4033877273 -> 1a0cddfcaa16, Add webhooks and webhook_events tables
+2026-11-12 00:30:23 INFO  [alembic.runtime.migration] Running upgrade 1a0cddfcaa16 -> 534353b11cbc, add scorer tables
+2026-11-12 00:30:24 INFO  [alembic.runtime.migration] Running upgrade 534353b11cbc -> 71994744cf8e, add evaluation datasets
+2026-11-12 00:30:24 INFO  [alembic.runtime.migration] Running upgrade 71994744cf8e -> 3da73c924c2f, add outputs to dataset record
+2026-11-12 00:30:24 INFO  [alembic.runtime.migration] Running upgrade 3da73c924c2f -> bf29a5ff90ea, add jobs table
+2026-11-12 00:30:24 INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+2026-11-12 00:30:24 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+2026/11/12 00:30:24 INFO mlflow.genai.git_versioning: No existing model found with the current git information. Creating a new model.
+2026/11/12 00:30:24 INFO mlflow.tracking.fluent: Active model is set to the logged model with ID: m-1152c2365cfc4cf7bb8a5108f0c39dac
+2026/11/12 00:30:24 INFO mlflow.tracking.fluent: Use `mlflow.set_active_model` to set the active model to a different one if needed.
+--------------------------- Captured stderr teardown ---------------------------
+2026/11/12 00:30:24 INFO mlflow.tracking.fluent: Active model is cleared
+2026/11/12 00:30:24 INFO mlflow.tracking.fluent: Active model is cleared
+============================= slowest 10 durations =============================
+3.39s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning
+3.09s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_reuses_model_when_no_changes
+2.97s call     tests/genai/test_git_versioning.py::test_git_diff_collected_when_dirty
+2.76s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_no_remote
+2.69s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_new_model_on_commit
+2.52s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_sets_active_context
+2.45s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_custom_remote_name
+2.36s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_context_manager
+2.36s call     tests/genai/test_git_versioning.py::test_enable_git_model_versioning_default_remote_name
+2.32s call     tests/genai/test_git_versioning.py::test_disable_git_model_versioning_resets_context
+
+========================= per-file durations (sorted) ==========================
+::group::per-file durations (sorted)
+
+| Rank | File                                 | Duration | Tests | Min    | Max    | Avg    |
+| ---- | ------------------------------------ | -------- | ----- | ------ | ------ | ------ |
+| 1    | `tests/genai/test_git_versioning.py` | 37.69s   | 15    | 0.006s | 4.604s | 2.513s |
+
+::endgroup::
+
+=========================== short test summary info ============================
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_disable_git_model_versioning_in_non_git_repo
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_context_manager
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_disable_git_model_versioning_resets_context
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_sets_active_context
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_initial_logged_model
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_reuses_model_when_no_changes
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_new_model_on_commit
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_creates_new_model_on_dirty_repo
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_ignores_untracked_files
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_default_remote_name
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_custom_remote_name
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_enable_git_model_versioning_no_remote
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_git_diff_collected_when_dirty
+PASSED | MEM 3.6/7.6 GB | DISK 26.1/1006.9 GB tests/genai/test_git_versioning.py::test_git_diff_includes_staged_changes
+============================= 15 passed in 37.82s ==============================

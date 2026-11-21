@@ -1,0 +1,111 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/constants/tests.
+
+Date: 2026-11-13T18:24:36
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 42 items
+
+astropy/constants/tests/test_constant.py ........                        [ 19%]
+astropy/constants/tests/test_pickle.py ............                      [ 47%]
+astropy/constants/tests/test_prior_version.py ..FF.F..........           [ 85%]
+astropy/constants/tests/test_sciencestate.py ......                      [100%]
+
+=================================== FAILURES ===================================
+_______________ test_defined_constants_do_not_change[codata2014] _______________
+astropy/constants/tests/test_prior_version.py:43: in test_defined_constants_do_not_change
+    version_mod = getattr(const, version)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'astropy.constants' has no attribute 'codata2014'
+_______________ test_defined_constants_do_not_change[codata2018] _______________
+astropy/constants/tests/test_prior_version.py:43: in test_defined_constants_do_not_change
+    version_mod = getattr(const, version)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'astropy.constants' has no attribute 'codata2018'
+________________ test_defined_constants_do_not_change[iau2012] _________________
+astropy/constants/tests/test_prior_version.py:43: in test_defined_constants_do_not_change
+    version_mod = getattr(const, version)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'astropy.constants' has no attribute 'iau2012'
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/constants/tests/test_constant.py::test_c
+PASSED astropy/constants/tests/test_constant.py::test_h
+PASSED astropy/constants/tests/test_constant.py::test_e
+PASSED astropy/constants/tests/test_constant.py::test_g0
+PASSED astropy/constants/tests/test_constant.py::test_b_wien
+PASSED astropy/constants/tests/test_constant.py::test_unit
+PASSED astropy/constants/tests/test_constant.py::test_copy
+PASSED astropy/constants/tests/test_constant.py::test_view
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[0-original0]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[0-original1]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[0-original2]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[1-original0]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[1-original1]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[1-original2]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[4-original0]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[4-original1]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[4-original2]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[-1-original0]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[-1-original1]
+PASSED astropy/constants/tests/test_pickle.py::test_new_constant[-1-original2]
+PASSED astropy/constants/tests/test_prior_version.py::test_c
+PASSED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[codata2010]
+PASSED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[codata2022]
+PASSED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[iau2015]
+PASSED astropy/constants/tests/test_prior_version.py::test_h
+PASSED astropy/constants/tests/test_prior_version.py::test_e
+PASSED astropy/constants/tests/test_prior_version.py::test_g0
+PASSED astropy/constants/tests/test_prior_version.py::test_b_wien
+PASSED astropy/constants/tests/test_prior_version.py::test_pc
+PASSED astropy/constants/tests/test_prior_version.py::test_masses
+PASSED astropy/constants/tests/test_prior_version.py::test_unit
+PASSED astropy/constants/tests/test_prior_version.py::test_copy
+PASSED astropy/constants/tests/test_prior_version.py::test_view
+PASSED astropy/constants/tests/test_sciencestate.py::test_version_match
+PASSED astropy/constants/tests/test_sciencestate.py::test_previously_imported
+PASSED astropy/constants/tests/test_sciencestate.py::test_physical_constants_versions[codata2010]
+PASSED astropy/constants/tests/test_sciencestate.py::test_physical_constants_versions[codata2014]
+PASSED astropy/constants/tests/test_sciencestate.py::test_physical_constants_versions[codata2018]
+PASSED astropy/constants/tests/test_sciencestate.py::test_physical_constants_versions[codata2022]
+FAILED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[codata2014]
+FAILED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[codata2018]
+FAILED astropy/constants/tests/test_prior_version.py::test_defined_constants_do_not_change[iau2012]
+========================= 3 failed, 39 passed in 1.43s =========================

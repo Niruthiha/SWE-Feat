@@ -1,0 +1,327 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/cosmology/_src/tests/test_core.py /testbed/astropy/cosmology/_src/tests/test_parameters.py /testbed/astropy/cosmology/_src/tests/test_realizations.py /testbed/astropy/cosmology/_src/tests/test_scipy_compat.py /testbed/astropy/cosmology/_src/tests/test_units.py /testbed/astropy/cosmology/_src/tests/test_utils.py.
+
+Date: 2026-11-13T18:25:13
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 276 items
+
+astropy/cosmology/_src/tests/test_core.py .............................. [ 10%]
+..........................................................sssssssss..... [ 36%]
+......sx.x.sx.x...............................................           [ 59%]
+astropy/cosmology/_src/tests/test_parameters.py .........                [ 62%]
+astropy/cosmology/_src/tests/test_realizations.py ...................... [ 70%]
+................................                                         [ 82%]
+astropy/cosmology/_src/tests/test_scipy_compat.py .                      [ 82%]
+astropy/cosmology/_src/tests/test_units.py .sssssss.ssssssssssss.        [ 90%]
+astropy/cosmology/_src/tests/test_utils.py ..............s...........    [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_yaml
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_yaml_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_yaml_autoidentify
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_yaml[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_yaml[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_yaml[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_yaml_specify_format
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_bad_index
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_failed_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_cls[QTable]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_cls[Table]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_in_meta[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table_in_meta[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_table
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_not_table
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_table_instance
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_table_subclass_partial_info
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_table_mutlirow[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_table_mutlirow[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_table_rename
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_table_renamed_index_column
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_table[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_table[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_table[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_table[astropy.table]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_row_in_meta[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_row_in_meta[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_not_row
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_row_instance
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_row_rename
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_row_subclass_partial_info
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_row[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_row[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_row[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_row[astropy.row]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_model_wrong_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_toformat_model_not_method
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_toformat_model_not_callable
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_toformat_model
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_model_instance
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_model_subclass_partial_info
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_model[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_model[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_model[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_model[astropy.model]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_wrong_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_cls[dict]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_cls[OrderedDict]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_cosmology_as_str
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_mapping_cosmology_as_str
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_move_from_meta
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_mapping_move_tofrom_meta
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_mapping_rename_conflict
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_mapping_rename_conflict
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofrom_mapping_rename_roundtrip
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_not_mapping
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_mapping_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_partial_info_mapping
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_mapping[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_mapping[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_mapping[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_mapping[mapping]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_cosmology_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_not_cosmology
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_from_cosmology_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_cosmology[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_cosmology[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_cosmology[None]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent_to_cosmology[astropy.cosmology]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_complete_info[mapping-dict]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_complete_info[yaml-str]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_complete_info[astropy.cosmology-Cosmology]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_complete_info[astropy.row-Row]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_tofromformat_complete_info[astropy.table-QTable]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_complete_info[mapping-dict]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_complete_info[yaml-str]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_complete_info[astropy.cosmology-Cosmology]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_complete_info[astropy.row-Row]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_fromformat_subclass_complete_info[astropy.table-QTable]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_latex_failed_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_latex_cls[QTable]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_latex_cls[Table]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_latex_columns
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_write_latex_invalid_path
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_write_latex_false_overwrite
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_write_latex_unsupported_format
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_json_subclass_partial_info
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_bad_index
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_failed_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_cls[QTable]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_cls[Table]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_in_meta[True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_to_ecsv_in_meta[False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_ecsv_instance
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_ecsv_renamed_columns
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_ecsv_subclass_partial_info
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_ecsv_mutlirow
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_complete_info[ascii.ecsv-True-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_complete_info[json-True-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_from_subclass_complete_info[ascii.ecsv-True-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_from_subclass_complete_info[json-True-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_meta_on_class
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_meta_on_instance
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_meta_mutable
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_from_class[parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_from_class[_derived_parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_from_instance[parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_from_instance[_derived_parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_cannot_set_on_instance[parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_parameters_cannot_set_on_instance[_derived_parameters]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_instance_attributes
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_fvalidate
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_name
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_unit
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_equivalencies
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_derived
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_default
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_descriptor_get
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_descriptor_set
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_Parameter_listed
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_init_subclass
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_init
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_name
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_name_immutable
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_name_on_cls
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_identical
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_name
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_meta
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_change_param
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_fail_unexpected_arg
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_clone_fail_positional_arg
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_equivalent
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_equality
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_astropy_table[Table-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_astropy_table[Table-False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_astropy_table[QTable-True]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_astropy_table[QTable-False]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_immutability
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_class[0]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_class[1]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_class[4]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_class[-1]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_instance[0]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_instance[1]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_instance[4]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_pickle_instance[-1]
+PASSED astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_is_flat
+PASSED astropy/cosmology/_src/tests/test_core.py::test__nonflatclass__multiple_nonflat_inheritance
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_realizations_in_dir
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[WMAP1]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[WMAP3]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[WMAP5]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[WMAP7]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[WMAP9]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[Planck13]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[Planck15]
+PASSED astropy/cosmology/_src/tests/test_parameters.py::test_getting_parameters[Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_realizations_in_toplevel_dir
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_realizations_in_realizations_dir
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_get_current
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_fail
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_default
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_str[Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_cosmo[Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::Test_default_cosmology::test_validate_no_default
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[0-Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[1-Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[4-Planck18]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-WMAP1]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-WMAP3]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-WMAP5]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-WMAP7]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-WMAP9]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-Planck13]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-Planck15]
+PASSED astropy/cosmology/_src/tests/test_realizations.py::test_pickle_builtin_realizations[-1-Planck18]
+PASSED astropy/cosmology/_src/tests/test_scipy_compat.py::test_optional_deps_functions
+PASSED astropy/cosmology/_src/tests/test_units.py::test_littleh
+PASSED astropy/cosmology/_src/tests/test_units.py::test_redshift_distance_wrong_kind
+PASSED astropy/cosmology/_src/tests/test_units.py::test_equivalency_context_manager
+PASSED astropy/cosmology/_src/tests/test_utils.py::test_vectorize_redshift_method
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[0-0]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[1-1]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[1100-1100]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[3300.0-3300.0]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z4-2.0]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z5-3.0]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z6-expect6]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z7-expect7]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z8-expect8]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_valid[z9-expect9]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_invalid[None-TypeError]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_invalid[z1-exc1]
+PASSED astropy/cosmology/_src/tests/test_utils.py::Test_aszarr::test_invalid[z2-exc2]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_type_safety
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_no_warn[1]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_no_warn[2]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_no_warn[4]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[1 deprecation, 1 warn]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[2 deprecation, 1 warn]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[2 deprecations, 2 warns]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[4 deprecations, 4 warns]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[4 deprecations, 3 warns]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[4 deprecations, 2 warns]
+PASSED astropy/cosmology/_src/tests/test_utils.py::TestDeprecatedKeywords::test_warn[4 deprecations, 1 warn]
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_html.py:29: requires beautifulsoup4
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_html.py:46: requires beautifulsoup4
+SKIPPED [2] astropy/cosmology/_src/tests/io/test_html.py:54: requires beautifulsoup4
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_html.py:62: requires beautifulsoup4
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_html.py:120: requires beautifulsoup4
+SKIPPED [2] astropy/cosmology/_src/tests/io/test_html.py:142: requires beautifulsoup4
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_html.py:179: requires beautifulsoup4
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_connect.py:81: missing a dependency
+SKIPPED [1] astropy/cosmology/_src/tests/io/test_connect.py:111: missing a dependency
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:39: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:71: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:101: Cosmology needs scipy
+SKIPPED [4] astropy/cosmology/_src/tests/test_units.py:142: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:181: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:186: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:193: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:211: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:241: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:261: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:302: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:318: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_units.py:327: Cosmology needs scipy
+SKIPPED [3] astropy/cosmology/_src/tests/test_units.py:332: Cosmology needs scipy
+SKIPPED [1] astropy/cosmology/_src/tests/test_utils.py:71: requires pandas
+XFAIL astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_complete_info[ascii.latex-False-True] - no read method is registered for format 'ascii.latex'
+XFAIL astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_complete_info[latex-False-True] - no read method is registered for format 'latex'
+XFAIL astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_from_subclass_complete_info[ascii.latex-False-True] - no read method is registered for format 'ascii.latex'
+XFAIL astropy/cosmology/_src/tests/test_core.py::TestCosmology::test_readwrite_from_subclass_complete_info[latex-False-True] - no read method is registered for format 'latex'
+================== 241 passed, 31 skipped, 4 xfailed in 0.99s ==================

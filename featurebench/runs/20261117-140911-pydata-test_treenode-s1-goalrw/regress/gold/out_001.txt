@@ -1,0 +1,298 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: mypy-plugins-3.2.0, zarr-3.1.3, hypothesis-6.147.0, timeout-2.4.0, cov-7.0.0, xdist-3.8.0, asyncio-1.3.0, env-1.2.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 20766 items / 3 skipped
+
+xarray/tests/test_accessor_dt.py ....................................... [  0%]
+........................................................................ [  0%]
+........................................................................ [  0%]
+........................................................................ [  1%]
+........................................................................ [  1%]
+...........................                                              [  1%]
+xarray/tests/test_accessor_str.py ...................................... [  1%]
+........................................................................ [  2%]
+........................................................................ [  2%]
+.............................................                            [  2%]
+xarray/tests/test_assertions.py ...........s..s..s..s..s..s.....         [  2%]
+xarray/tests/test_backends.py .....................s.................x.. [  3%]
+..x..........s.s.....................s.................................. [  3%]
+.....xxxxxxs.................................s................x....x.... [  3%]
+......s.s.....................s......................................xxx [  4%]
+xxxs..s.s......................s................x.s.sssss.......s....s.. [  4%]
+..............x.....s.........s.s.................ss.................... [  4%]
+................................................s.....s.....s.....s..... [  5%]
+s.....ssssss...................s................x.s.sssss.......s....s.. [  5%]
+..............x.....s.........s.s.................ss.................... [  5%]
+..............................................................s......... [  6%]
+.......x.s.sssss.......s....s................x.....s.........s.s........ [  6%]
+.........ss............................................................. [  6%]
+.....................s................x.s.sssss.......s....s............ [  7%]
+....x.....s.........s.s.................ss.............................. [  7%]
+........................................................................ [  8%]
+.........s................x.s.sssss.......s.s..s................x.....s. [  8%]
+........ss..................ss.......................................... [  8%]
+..........................s.....s.....s.....s.....s.....ssssss.......... [  9%]
+.........s................x.s.sssss.......s.s..s................x.....s. [  9%]
+........ss..................ss.......................................... [  9%]
+........................................s................x.s.sssss...... [ 10%]
+.s.s..s................x.....s.........ss..................ss........... [ 10%]
+.......................................................................s [ 10%]
+................x.s.sssss.......s.s..s................x.....s.........ss [ 11%]
+..................ss.................................................... [ 11%]
+........................................s..........................s.... [ 11%]
+.............x.s..x.s........s.s.....................s.................. [ 12%]
+..s.................x.s..x.s........s.s.....................sss......... [ 12%]
+.............s.................x.s..x.s........s.s.....................s [ 12%]
+.........................s.................x.s..x.s........s.s.......... [ 13%]
+...........s......................s.................x.s..x.s........s.s. [ 13%]
+....................s..FFFFFFFFFFFFFFFFFFFFsFF.FFFFFFFFFFF.FFxFsFFxFsFFF [ 13%]
+FFFFFsFs.FFFFFFFFFFFFFFFFFFFFs..F....................s.................x [ 14%]
+.s..x.s........s.s....................s......xFFFFFFFFFFFFFFFFFFFFsFF.FF [ 14%]
+FFFFFFFFF.FFxFsFFxFsFFFFFFFFsFs.FFFFFFFFFFFFFFFFFFFFsFFFFFFFFFFFFF.F.FFF [ 14%]
+FFFFF...FFFFFFsssFF.FFF..FF.FFFFFFFFFFFFFFFFFFFFFFsFF.FFFFFFFFFFF.FFxFsF [ 15%]
+FxFsFFFFFFFFsFs.FFFFFFFFFFFFFFFFFFFFsFFFFFFFFFFFFF.F.FFFFFFFF...FFFFFFss [ 15%]
+sFF.FFF..FF.FFFFFF.FFFFFFFFFFFFFFFFFFFFsFF.FFFFFFFFFFF.FFxFsFFxFsFFFFFFF [ 15%]
+FsFs.FFFFFFFFFFFFFFFFFFFFsFFFFFFFFFFFFF.F.FFFFFFFF...FFFFFFsssFF.FFF..FF [ 16%]
+sFFFsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss. [ 16%]
+........................................................................ [ 17%]
+.s...................s............................s..Fatal Python error: Segmentation fault
+
+Thread 0x0000730f8e7fc640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730f8effd640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730f8f7fe640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730f8ffff640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb0ff9640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb17fa640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb1ffb640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb27fc640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb2ffd640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb37fe640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fb3fff640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fc8dfa640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fc95fb640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fca0fc640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fca8fd640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fcb0fe640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fcb8ff640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/selectors.py", line 468 in select
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/asyncio/base_events.py", line 1898 in _run_once
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/asyncio/base_events.py", line 608 in run_forever
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fe18fc640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fe2ffd640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Current thread 0x0000730fe37fe640 (most recent call first):
+  File "/testbed/xarray/backends/file_manager.py", line 242 in close
+  File "/testbed/xarray/backends/netCDF4_.py", line 673 in close
+  File "/testbed/xarray/backends/api.py", line 129 in _finalize_store
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/_task_spec.py", line 759 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/local.py", line 258 in execute_task
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/local.py", line 272 in <listcomp>
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/local.py", line 272 in batch_execute_tasks
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 58 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 83 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000730fe3fff640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000731000ff9640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x00007310017fa640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000731001ffb640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x00007310027fc640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000731002ffd640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x00007310037fe640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000731003fff640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x0000731008fc1640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x00007310097c2640 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/concurrent/futures/thread.py", line 81 in _worker
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 982 in run
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1045 in _bootstrap_inner
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 1002 in _bootstrap
+
+Thread 0x00007310b5b9c440 (most recent call first):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/threading.py", line 327 in wait
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/queue.py", line 171 in get
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/local.py", line 141 in queue_get
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/local.py", line 538 in get_async
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/threaded.py", line 91 in get
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/base.py", line 681 in compute
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/dask/base.py", line 373 in compute
+  File "/testbed/xarray/tests/test_backends.py", line 6376 in test_save_mfdataset_compute_false_roundtrip
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 372 in _main
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/config/__init__.py", line 197 in main
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/config/__init__.py", line 221 in console_main
+  File "/opt/miniconda3/envs/testbed/bin/pytest", line 7 in <module>
+
+Extension modules: yaml._yaml, markupsafe._speedups, regex._regex, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, numcodecs.compat_ext, numcodecs.blosc, numcodecs.zstd, numcodecs.lz4, numcodecs._shuffle, numcodecs.jenkins, crc32c._crc32c, numcodecs.vlen, numcodecs.fletcher32, msgpack._cmsgpack, lz4._version, lz4.frame._frame, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._mt19937, numpy.random._generator, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, bottleneck.move, bottleneck.nonreduce, bottleneck.nonreduce_axis, bottleneck.reduce, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, cftime._cftime, scipy._lib._ccallback_c, charset_normalizer.md, scipy.sparse._sparsetools, _csparsetools, _cyutility, scipy._cyutility, scipy.sparse._csparsetools, scipy.io.matlab._mio_utils, scipy.io.matlab._streams, scipy.io.matlab._mio5_utils, PIL._imaging, kiwisolver._cext, requests.packages.charset_normalizer.md, requests.packages.chardet.md, netCDF4._netCDF4, h5py._errors, h5py.defs, h5py._objects, h5py.h5, h5py.utils, h5py.h5t, h5py.h5s, h5py.h5ac, h5py.h5p, h5py.h5r, h5py._npystrings, h5py._proxy, h5py._conv, h5py.h5z, h5py.h5a, h5py.h5d, h5py.h5ds, h5py.h5g, h5py.h5i, h5py.h5o, h5py.h5f, h5py.h5fd, h5py.h5pl, h5py.h5l, h5py._selector, psutil._psutil_linux, numba.core.typeconv._typeconv, numba._helperlib, numba._dynfunc, numba._dispatcher, numba.core.runtime._nrt_python, numba.np.ufunc._internal, numba.experimental.jitclass._box, scipy.spatial._ckdtree, scipy._lib.messagestream, scipy.linalg._fblas, scipy.linalg._flapack, scipy.linalg.cython_lapack, scipy.linalg._cythonized_array_utils, scipy.linalg._solve_toeplitz, scipy.linalg._decomp_lu_cython, scipy.linalg._matfuncs_schur_sqrtm, scipy.linalg._matfuncs_expm, scipy.linalg._linalg_pythran, scipy.linalg.cython_blas, scipy.linalg._decomp_update, scipy.spatial._qhull, scipy.spatial._voronoi, scipy.special._ufuncs_cxx, scipy.special._ellip_harm_2, scipy.special._special_ufuncs, scipy.special._gufuncs, scipy.special._ufuncs, scipy.special._specfun, scipy.special._comb, scipy.spatial._hausdorff, scipy.spatial._distance_wrap, scipy.spatial.transform._rotation, scipy.spatial.transform._rigid_transform, scipy.sparse.linalg._dsolve._superlu, scipy.sparse.linalg._eigen.arpack._arpack, scipy.sparse.linalg._propack._spropack, scipy.sparse.linalg._propack._dpropack, scipy.sparse.linalg._propack._cpropack, scipy.sparse.linalg._propack._zpropack, scipy.optimize._group_columns, scipy.optimize._trlib._trlib, scipy.optimize._lbfgsb, _moduleTNC, scipy.optimize._moduleTNC, scipy.optimize._slsqplib, scipy.optimize._minpack, scipy.optimize._lsq.givens_elimination, scipy.optimize._zeros, scipy._lib._uarray._uarray, scipy.linalg._decomp_interpolative, scipy.optimize._bglu_dense, scipy.optimize._lsap, scipy.optimize._direct, scipy.integrate._odepack, scipy.integrate._quadpack, scipy.integrate._vode, scipy.integrate._dop, scipy.integrate._lsoda, scipy.interpolate._fitpack, scipy.interpolate._dfitpack, scipy.interpolate._dierckx, scipy.interpolate._ppoly, scipy.interpolate._interpnd, scipy.interpolate._rbfinterp_pythran, scipy.interpolate._rgi_cython, scipy.special.cython_special, scipy.stats._stats, scipy.stats._biasedurn, scipy.stats._stats_pythran, scipy.stats._levy_stable.levyst, scipy.stats._ansari_swilk_statistics, scipy.sparse.csgraph._tools, scipy.sparse.csgraph._shortest_path, scipy.sparse.csgraph._traversal, scipy.sparse.csgraph._min_spanning_tree, scipy.sparse.csgraph._flow, scipy.sparse.csgraph._matching, scipy.sparse.csgraph._reordering, scipy.stats._sobol, scipy.stats._qmc_cy, scipy.stats._rcont.rcont, scipy.stats._qmvnt_cy, scipy.ndimage._nd_image, scipy.ndimage._rank_filter_1d, _ni_label, scipy.ndimage._ni_label, scipy.cluster._vq, scipy.cluster._hierarchy, scipy.cluster._optimal_leaf_ordering, pyproj._compat, pyproj._context, pyproj._network, pyproj._version, pyproj._geod, pyproj.list, pyproj._crs, pyproj.database, pyproj._transformer, pyproj._sync, shapely.lib, shapely._geos, shapely._geometry_helpers, cartopy.trace, scipy.fftpack.convolve, pyarrow._fs, pyarrow._azurefs, pyarrow._hdfs, pyarrow._gcsfs, pyarrow._s3fs, pyarrow._acero, pyarrow._csv, pyarrow._json, pyarrow._substrait, pyarrow._dataset, pyarrow._dataset_orc, pyarrow._parquet, pyarrow._parquet_encryption, pyarrow._dataset_parquet_encryption, pyarrow._dataset_parquet, tornado.speedups, lz4.block._block, native_internal, mypy, mypy.state, mypy.errorcodes, mypy.error_formatter, mypy.defaults, mypy.util, mypy.options, mypy.visitor, mypy.strconv, mypy.cache, mypy.nodes, mypy.scope, mypy.type_visitor, mypy.typevartuples, mypy.expandtype, mypy.types, mypy.errors, mypy.message_registry, mypy.lookup, mypy.plugin, mypy.erasetype, mypy.typevars, mypy.checker_shared, mypy.checker_state, mypy.copytype, mypy.maptype, mypy.typetraverser, mypy.typeops, mypy.argmap, mypy.types_utils, mypy.server, mypy.server.trigger, mypy.typestate, mypy.constraints, mypy.subtypes, mypy.applytype, mypy.join, mypy.operators, mypy.meet, mypy.messages, mypy.checkmember, mypy.parse, mypy.checkstrformat, mypy.graph_utils, mypy.solve, mypy.infer, mypy.literals, mypy.tvar_scope, mypy.semanal_shared, mypy.semanal_enum, mypy.patterns, mypy.traverser, mypy.typeanal, mypy.checkexpr, mypy.binder, mypy.checkpattern, mypy.mro, mypy.plugins, mypy.fixup, mypy.plugins.common, mypy.plugins.dataclasses, mypy.constant_fold, mypy.reachability, mypy.sharedparse, mypy.fastparse, mypy.exprtotype, mypy.semanal_namedtuple, mypy.semanal_newtype, mypy.semanal_typeddict, mypy.semanal, mypy.treetransform, mypy.checker, mypy.semanal_classprop, mypy.semanal_infer, mypy.mixedtraverser, mypy.semanal_typeargs, mypy.server.aststrip, mypy.semanal_main, mypy.indirection, mypy.partially_defined, mypy.semanal_pass1, mypy.config_parser, mypy.freetree, mypy.fscache, mypy.metastore, mypy.stubinfo, mypy.modulefinder, mypy.plugins.attrs, mypy.plugins.constants, mypy.plugins.ctypes, mypy.plugins.enums, mypy.plugins.functools, mypy.plugins.singledispatch, mypy.plugins.default, mypy.renaming, mypy.stats, mypy.build, mypy.find_sources, mypy.main (total: 335)
+timeout: the monitored command dumped core
+/usr/local/bin/regress_in_container: line 45:    35 Segmentation fault      timeout -k 10 "$T_RUN" bash -c "$CMD $pp"

@@ -14,11 +14,11 @@ The question: when the agent's diff is spread across more files and packages, do
 | `featurebench/harness/` | `run_cell.sh`, `prep_goalrw*.sh`, `build_image.sh`, `preflight_task.sh`, `make_task.py`, `audit_isolation.sh`, `HARNESS.md` (full protocol), `*-GOALRW-SELECTION.md` (how tasks were picked per repo) |
 | `featurebench/tasks/<instance_id>/` | `prompt_goalrw.txt` (the goal-only prompt each run got), `meta.json` |
 | `featurebench/ran21.tsv` | the 21 runs |
+| `swebench-pro/runs/`, `featurebench/runs/` | full output of the 71 runs: transcripts, per-round snapshots and diffs, acceptance logs, `manifest.json`, `metrics.json`. The account email and organization id are replaced with `<redacted-email>` / `<redacted-org>`. Regression `results.tsv` files over 20 MB (3 pandas runs) are left out |
 | `analysis/` | the full analysis pipeline, its CSVs, the statistics check (`verify/`) and the results page (`page/index.html`) |
 
 **Not included on purpose:**
 - Hidden tests (`verifier/`, `test.patch`), gold patches and mask patches. `make_task.py` rebuilds them from the public datasets on your machine. Keep them out of anything the agent can see.
-- Raw agent traces, since this repo is public. Ask for them if you need them.
 - The pinned Claude CLI binary (`instruments/claude-cli`, 279 MB) and `musl`. `claude-cli.sha256` records the exact build.
 - Credentials.
 
@@ -84,7 +84,7 @@ python3 stats.py
 (cd verify && python3 verify.py)
 python3 make_page.py      # -> page/index.html
 ```
-`extract_all.py` reads the run directories, so it needs the traces. The CSVs here are its output for the 71 runs.
+`extract_all.py` reads the run directories under `*/runs/` (edit its paths). The CSVs here are its output for the 71 runs.
 
 ## Rules we followed
 

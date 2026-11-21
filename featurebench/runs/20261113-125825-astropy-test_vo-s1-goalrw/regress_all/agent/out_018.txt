@@ -1,0 +1,3098 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/io/fits/tests.
+
+Date: 2026-11-13T18:28:14
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 1053 items / 2 skipped
+
+astropy/io/fits/tests/test_checksum.py .....................             [  1%]
+astropy/io/fits/tests/test_connect.py .................................. [  5%]
+........................................................................ [ 12%]
+....................ssss......ss........................ss.xxxxx........ [ 18%]
+...                                                                      [ 19%]
+astropy/io/fits/tests/test_convenience.py .............................. [ 22%]
+...........                                                              [ 23%]
+astropy/io/fits/tests/test_core.py ..................................... [ 26%]
+.s................ssss...............................................    [ 33%]
+astropy/io/fits/tests/test_diff.py ..................................... [ 36%]
+.............                                                            [ 37%]
+astropy/io/fits/tests/test_division.py .....                             [ 38%]
+astropy/io/fits/tests/test_fitscheck.py ........                         [ 39%]
+astropy/io/fits/tests/test_fitsdiff.py ..............s..s...             [ 41%]
+astropy/io/fits/tests/test_fitsheader.py ..........                      [ 42%]
+astropy/io/fits/tests/test_fitsinfo.py ....                              [ 42%]
+astropy/io/fits/tests/test_fitstime.py .F...........................     [ 45%]
+astropy/io/fits/tests/test_fsspec.py ....sss                             [ 45%]
+astropy/io/fits/tests/test_groups.py ............                        [ 47%]
+astropy/io/fits/tests/test_hdulist.py .................................. [ 50%]
+............................................                             [ 54%]
+astropy/io/fits/tests/test_header.py ................................... [ 57%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+                                                                         [ 71%]
+astropy/io/fits/tests/test_image.py .................................... [ 74%]
+..........                                                               [ 75%]
+astropy/io/fits/tests/test_nonstandard.py ...                            [ 76%]
+astropy/io/fits/tests/test_structured.py .                               [ 76%]
+astropy/io/fits/tests/test_table.py .................................... [ 79%]
+........................................................................ [ 86%]
+...................................sss.................ss............... [ 93%]
+....................                                                     [ 95%]
+astropy/io/fits/tests/test_tilde_path.py ............................... [ 98%]
+..                                                                       [ 98%]
+astropy/io/fits/tests/test_uint.py .........                             [ 99%]
+astropy/io/fits/tests/test_util.py .........                             [100%]
+
+=================================== FAILURES ===================================
+__________________ TestFitsTime.test_time_to_fits_loc[Table] ___________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/io/fits/tests/test_fitstime.py:123: in test_time_to_fits_loc
+    t.replace_column("a", getattr(t["a"], scale))
+                          ^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:1768: in __getattr__
+    tm._set_scale(attr)
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+==================================== PASSES ====================================
+________________________ TestConvenience.test_printdiff ________________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /testbed/astropy/io/fits/tests/data/arange.fits
+ b: /testbed/astropy/io/fits/tests/data/blank.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Primary HDU:
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 7
+      b: 6
+     Extra keyword 'EXTEND' in a: True
+     Extra keyword 'NAXIS3' in a: 7
+     Extra keyword 'BLANK'  in b: 2
+     Keyword BITPIX   has different values:
+        a> 32
+        b> 64
+     Keyword NAXIS    has different values:
+        a> 3
+        b> 2
+     Keyword NAXIS1   has different values:
+        a> 11
+        b> 1
+     Keyword NAXIS2   has different values:
+        a> 10
+        b> 1
+
+   Data contains differences:
+     Data dimensions differ:
+      a: 11 x 10 x 7
+      b: 1 x 1
+     No further data comparison performed.
+
+
+ Headers contain differences:
+   Headers have different number of cards:
+    a: 7
+    b: 6
+   Extra keyword 'EXTEND' in a: True
+   Extra keyword 'NAXIS3' in a: 7
+   Extra keyword 'BLANK'  in b: 2
+   Keyword BITPIX   has different values:
+      a> 32
+      b> 64
+   Keyword NAXIS    has different values:
+      a> 3
+      b> 2
+   Keyword NAXIS1   has different values:
+      a> 11
+      b> 1
+   Keyword NAXIS2   has different values:
+      a> 10
+      b> 1
+
+ Data contains differences:
+   Data dimensions differ:
+    a: 11 x 10 x 7
+    b: 1 x 1
+   No further data comparison performed.
+
+ No differences found.
+
+
+ Headers contain differences:
+   Headers have different number of cards:
+    a: 4
+    b: 28
+   Extra keyword 'CDELT1' in b: -0.001944444492
+   Extra keyword 'CDELT2' in b: 0.001944444492
+   Extra keyword 'CHECKSUM' in b: 'MPAGOM8DMMADMM5D'
+   Extra keyword 'COMMENT' in b: '  FITS (Flexible Image Transport System) format defined in Astronomy and'
+   Extra keyword 'CROTA1' in b: 0.0
+   Extra keyword 'CROTA2' in b: 0.0
+   Extra keyword 'CRPIX1' in b: 226.0
+   Extra keyword 'CRPIX2' in b: 147.0
+   Extra keyword 'CRVAL1' in b: 50.1966661513
+   Extra keyword 'CRVAL2' in b: -37.3856168315
+   Extra keyword 'CTYPE1' in b: 'RA---SIN'
+   Extra keyword 'CTYPE2' in b: 'DEC--SIN'
+   Extra keyword 'DATAMAX' in b: 1037.890381
+   Extra keyword 'DATAMIN' in b: -5.450668335
+   Extra keyword 'DATASUM' in b: '3949456131'
+   Extra keyword 'EQUINOX' in b: 1950.0
+   Extra keyword 'NAXIS1' in b: 30
+   Extra keyword 'NAXIS2' in b: 40
+   Extra keyword 'OBJECT' in b: 'NGC 1316'
+   Extra keyword 'ORIGIN' in b: 'AIPSGorilla (NRAOCV IPX) 15JUL94'
+   Extra keyword 'TELESCOP' in b: 'Optical'
+   Keyword BITPIX   has different values:
+      a> 8
+      b> 16
+   Keyword BITPIX   has different comments:
+      a> Dummy primary header created by MWRFITS
+      b> number of bits per data pixel
+   Keyword EXTEND   has different comments:
+      a> Extensions may (will!) be present
+      b> FITS dataset may contain extensions
+   Keyword NAXIS    has different values:
+      a> 0
+      b> 2
+   Keyword NAXIS    has different comments:
+      a> No data is associated with this header
+      b> number of data axes
+   Keyword SIMPLE   has different comments:
+      a> Dummy Created by MWRFITS v1.8
+      b> file does conform to FITS standard
+
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /testbed/astropy/io/fits/tests/data/stddata.fits
+ b: /testbed/astropy/io/fits/tests/data/checksum.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Files contain different numbers of HDUs:
+ a: 3
+ b: 2
+
+Primary HDU:
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 4
+      b: 28
+     Extra keyword 'CDELT1' in b: -0.001944444492
+     Extra keyword 'CDELT2' in b: 0.001944444492
+     Extra keyword 'CHECKSUM' in b: 'MPAGOM8DMMADMM5D'
+     Extra keyword 'COMMENT' in b: '  FITS (Flexible Image Transport System) format defined in Astronomy and'
+     Extra keyword 'CROTA1' in b: 0.0
+     Extra keyword 'CROTA2' in b: 0.0
+     Extra keyword 'CRPIX1' in b: 226.0
+     Extra keyword 'CRPIX2' in b: 147.0
+     Extra keyword 'CRVAL1' in b: 50.1966661513
+     Extra keyword 'CRVAL2' in b: -37.3856168315
+     Extra keyword 'CTYPE1' in b: 'RA---SIN'
+     Extra keyword 'CTYPE2' in b: 'DEC--SIN'
+     Extra keyword 'DATAMAX' in b: 1037.890381
+     Extra keyword 'DATAMIN' in b: -5.450668335
+     Extra keyword 'DATASUM' in b: '3949456131'
+     Extra keyword 'EQUINOX' in b: 1950.0
+     Extra keyword 'NAXIS1' in b: 30
+     Extra keyword 'NAXIS2' in b: 40
+     Extra keyword 'OBJECT' in b: 'NGC 1316'
+     Extra keyword 'ORIGIN' in b: 'AIPSGorilla (NRAOCV IPX) 15JUL94'
+     Extra keyword 'TELESCOP' in b: 'Optical'
+     Keyword BITPIX   has different values:
+        a> 8
+        b> 16
+     Keyword BITPIX   has different comments:
+        a> Dummy primary header created by MWRFITS
+        b> number of bits per data pixel
+     Keyword EXTEND   has different comments:
+        a> Extensions may (will!) be present
+        b> FITS dataset may contain extensions
+     Keyword NAXIS    has different values:
+        a> 0
+        b> 2
+     Keyword NAXIS    has different comments:
+        a> No data is associated with this header
+        b> number of data axes
+     Keyword SIMPLE   has different comments:
+        a> Dummy Created by MWRFITS v1.8
+        b> file does conform to FITS standard
+
+Extension HDU 1:
+   Extension names differ:
+    a: 
+    b: RATE
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 33
+      b: 51
+     Extra keyword 'COMMENT' in a: ''
+     Extra keyword 'TFORM4' in a: '6A'
+     Extra keyword 'TFORM5' in a: '6A'
+     Extra keyword 'TFORM6' in a: '10A'
+     Extra keyword 'TFORM7' in a: '10A'
+     Extra keyword 'TFORM8' in a: '8A'
+     Extra keyword 'TTYPE4' in a: 'BOSSTARGET_V'
+     Extra keyword 'TTYPE5' in a: 'IDLUTILS_V'
+     Extra keyword 'TTYPE6' in a: 'PHOTO_SWEEP'
+     Extra keyword 'TTYPE7' in a: 'PHOTO_RESOLVE'
+     Extra keyword 'TTYPE8' in a: 'PHOTO_CALIB'
+     Extra keyword 'BACKAPP' in b: True
+     Extra keyword 'CHECKSUM' in b: '9nhRHkZO9kfOGkZO'
+     Extra keyword 'CLOCKCOR' in b: False
+     Extra keyword 'CONTENT' in b: 'Light Curves'
+     Extra keyword 'CREATOR' in b: 'mk_asm_infits'
+     Extra keyword 'DATASUM' in b: '2008423139'
+     Extra keyword 'DATE'   in b: '03/09/96'
+     Extra keyword 'DATE-END' in b: '12/03/97'
+     Extra keyword 'DATE-OBS' in b: '06/01/96'
+     Extra keyword 'DEC_OBJ' in b: 10.95
+     Extra keyword 'EQUINOX' in b: 2000.0
+     Extra keyword 'EXTNAME' in b: 'RATE'
+     Extra keyword 'INSTRUME' in b: 'ASM'
+     Extra keyword 'MJDREFF' in b: 0.000696574076
+     Extra keyword 'MJDREFI' in b: 49353
+     Extra keyword 'OBJECT' in b: 'grs1915+105'
+     Extra keyword 'ORIGIN' in b: 'NASA/GSFC/XTE/MIT_c'
+     Extra keyword 'RADECSYS' in b: 'FK5'
+     Extra keyword 'RA_OBJ' in b: 288.8
+     Extra keyword 'TASSIGN' in b: 'SATELLITE'
+     Extra keyword 'TELESCOP' in b: 'XTE'
+     Extra keyword 'TIERABSO' in b: 'Absolute timing precision'
+     Extra keyword 'TIERRELA' in b: 'Timing error as a rate'
+     Extra keyword 'TIME-END' in b: '06:18:34'
+     Extra keyword 'TIME-OBS' in b: '08:56:00'
+     Extra keyword 'TIMEREF' in b: 'LOCAL'
+     Extra keyword 'TIMESYS' in b: 'TT'
+     Extra keyword 'TIMEUNIT' in b: 'd'
+     Extra keyword 'TIMEZERO' in b: 0.0
+     Extra keyword 'TSTARTF' in b: 0.371525425922
+     Extra keyword 'TSTARTI' in b: 735
+     Extra keyword 'TSTOPF' in b: 0.262197425924
+     Extra keyword 'TSTOPI' in b: 1166
+     Extra keyword 'TUNIT1' in b: 'd'
+     Extra keyword 'TUNIT2' in b: 'counts/s'
+     Extra keyword 'TUNIT3' in b: 'counts/s'
+     Extra keyword 'VIGNAPP' in b: True
+     Keyword BITPIX   has different comments:
+        a> Required value
+        b> 8-bit bytes
+     Keyword GCOUNT   has different comments:
+        a> Required value
+        b> one data group (required keyword)
+     Keyword NAXIS    has different comments:
+        a> Required value
+        b> 2-dimensional binary table
+     Keyword NAXIS1   has different values:
+        a> 54
+        b> 16
+     Keyword NAXIS1   has different comments:
+        a> Number of bytes per row
+        b> width of table in bytes
+     Keyword NAXIS2   has different values:
+        a> 1
+        b> 5
+     Keyword PCOUNT   has different comments:
+        a> Normally 0 (no varying arrays)
+        b> size of special data area
+     Keyword TFIELDS  has different values:
+        a> 8
+        b> 3
+     Keyword TFIELDS  has different comments:
+        a> Number of columns in table
+        b> number of fields in each row
+     Keyword TFORM1   has different values:
+        a> 3A
+        b> D
+     Keyword TFORM1   has different comments:
+        b> data format of the field: 8-byte DOUBLE
+     Keyword TFORM2   has different values:
+        a> 5A
+        b> E
+     Keyword TFORM2   has different comments:
+        b> data format of the field: 4-byte REAL
+     Keyword TFORM3   has different values:
+        a> 6A
+        b> E
+     Keyword TFORM3   has different comments:
+        b> data format of the field: 4-byte REAL
+     Keyword TTYPE1   has different values:
+        a> TARGET_TYPE
+        b> TIME
+     Keyword TTYPE1   has different comments:
+        b> label for field   1
+     Keyword TTYPE2   has different values:
+        a> TARGET_RUN
+        b> RATE
+     Keyword TTYPE2   has different comments:
+        b> label for field   8
+     Keyword TTYPE3   has different values:
+        a> PHOTOOP_V
+        b> ERROR
+     Keyword TTYPE3   has different comments:
+        b> label for field   9
+     Keyword XTENSION has different comments:
+        a> Binary table written by MWRFITS v1.8
+        b> binary table extension
+
+   Data contains differences:
+     Tables have different number of columns:
+      a: 8
+      b: 3
+     Extra column TARGET_TYPE of format 3A in a
+     Extra column TARGET_RUN of format 5A in a
+     Extra column PHOTOOP_V of format 6A in a
+     Extra column BOSSTARGET_V of format 6A in a
+     Extra column IDLUTILS_V of format 6A in a
+     Extra column PHOTO_SWEEP of format 10A in a
+     Extra column PHOTO_RESOLVE of format 10A in a
+     Extra column PHOTO_CALIB of format 8A in a
+     Extra column TIME of format D in b
+     Extra column RATE of format E in b
+     Extra column ERROR of format E in b
+     Table rows differ:
+      a: 1
+      b: 5
+     No further data comparison performed.
+
+_________________ TestConvenienceFunctions.test_writeto_stdout _________________
+----------------------------- Captured stdout call -----------------------------
+SIMPLE  =                    T / conforms to FITS standard                      BITPIX  =                   64 / array data type                                NAXIS   =                    1 / number of array dimensions                     NAXIS1  =                    2                                                  EXTEND  =                    T                                                  END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+________________ TestFileFunctions.test_HDUList_writeto_stdout _________________
+----------------------------- Captured stdout call -----------------------------
+SIMPLE  =                    T / conforms to FITS standard                      BITPIX  =                    8 / array data type                                NAXIS   =                    0 / number of array dimensions                     EXTEND  =                    T                                                  END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+___________________________ TestFitscheck.test_help ____________________________
+----------------------------- Captured stdout call -----------------------------
+usage: pytest [-h] [--version] [-k {standard,remove,none}] [-w] [-f] [-c] [-i]
+              [-v]
+              file [file ...]
+
+e.g. fitscheck example.fits
+
+Verifies and optionally re-writes the CHECKSUM and DATASUM keywords
+for a .fits file.
+Optionally detects and fixes FITS standard compliance problems.
+
+This script is part of the Astropy package. See
+https://docs.astropy.org/en/latest/io/fits/usage/scripts.html#module-astropy.io.fits.scripts.fitscheck
+for further documentation.
+
+positional arguments:
+  file                  .fits files to process.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -k {standard,remove,none}, --checksum {standard,remove,none}
+                        Choose FITS checksum mode or none. Defaults standard.
+  -w, --write           Write out file checksums and/or FITS compliance fixes.
+  -f, --force           Do file update even if original checksum was bad.
+  -c, --compliance      Do FITS compliance checking; fix if possible.
+  -i, --ignore-missing  Ignore missing checksums.
+  -v, --verbose         Generate extra output.
+__________________________ TestFitscheck.test_version __________________________
+----------------------------- Captured stdout call -----------------------------
+pytest 8.0.0.dev49+gb0db0daac
+_______________________ TestFitscheck.test_missing_file ________________________
+------------------------------ Captured log call -------------------------------
+ERROR    fitscheck:fitscheck.py:256 EXCEPTION 'missing.fits' .. [Errno 2] No such file or directory: 'missing.fits'
+WARNING  fitscheck:fitscheck.py:271 1 errors
+________________________ TestFitscheck.test_valid_file _________________________
+------------------------------ Captured log call -------------------------------
+INFO     fitscheck:fitscheck.py:202 OK '/testbed/astropy/io/fits/tests/data/checksum.fits'
+_____________________ TestFitscheck.test_remove_checksums ______________________
+------------------------------ Captured log call -------------------------------
+WARNING  fitscheck:fitscheck.py:181 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Checksum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:192 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Datasum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:181 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Checksum not found in HDU #1
+WARNING  fitscheck:fitscheck.py:192 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Datasum not found in HDU #1
+WARNING  fitscheck:fitscheck.py:271 4 errors
+WARNING  fitscheck:fitscheck.py:181 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Checksum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:192 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Datasum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:181 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Checksum not found in HDU #1
+WARNING  fitscheck:fitscheck.py:192 MISSING '/tmp/fits-test-l6_ma0l7/checksum.fits' .. Datasum not found in HDU #1
+WARNING  fitscheck:fitscheck.py:271 4 errors
+_______________________ TestFitscheck.test_no_checksums ________________________
+------------------------------ Captured log call -------------------------------
+WARNING  fitscheck:fitscheck.py:181 MISSING '/testbed/astropy/io/fits/tests/data/arange.fits' .. Checksum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:192 MISSING '/testbed/astropy/io/fits/tests/data/arange.fits' .. Datasum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:271 2 errors
+_____________________ TestFitscheck.test_overwrite_invalid _____________________
+----------------------------- Captured stderr call -----------------------------
+BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 0
+BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 0
+BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 1
+BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 1
+4 errors
+BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 0
+BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 0
+BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 1
+BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 1
+4 errors
+------------------------------ Captured log call -------------------------------
+WARNING  fitscheck:fitscheck.py:186 BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 0
+WARNING  fitscheck:fitscheck.py:197 BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 0
+WARNING  fitscheck:fitscheck.py:186 BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 1
+WARNING  fitscheck:fitscheck.py:197 BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 1
+WARNING  fitscheck:fitscheck.py:271 4 errors
+WARNING  fitscheck:fitscheck.py:186 BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 0
+WARNING  fitscheck:fitscheck.py:197 BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 0
+WARNING  fitscheck:fitscheck.py:186 BAD '/tmp/fits-test-bct4to5c/test.fits' Checksum verification failed for HDU 1
+WARNING  fitscheck:fitscheck.py:197 BAD '/tmp/fits-test-bct4to5c/test.fits' Datasum verification failed for HDU 1
+WARNING  fitscheck:fitscheck.py:271 4 errors
+______________________ TestFitscheck.test_missing_invalid ______________________
+----------------------------- Captured stderr call -----------------------------
+MISSING '/tmp/fits-test-2uyp5w2z/test.fits' .. Checksum not found in HDU #0
+MISSING '/tmp/fits-test-2uyp5w2z/test.fits' .. Datasum not found in HDU #0
+2 errors
+------------------------------ Captured log call -------------------------------
+WARNING  fitscheck:fitscheck.py:181 MISSING '/tmp/fits-test-2uyp5w2z/test.fits' .. Checksum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:192 MISSING '/tmp/fits-test-2uyp5w2z/test.fits' .. Datasum not found in HDU #0
+WARNING  fitscheck:fitscheck.py:271 2 errors
+________________________ TestFITSDiff_script.test_help _________________________
+----------------------------- Captured stdout call -----------------------------
+usage: pytest [-h] [--version] [-q] [-n INTEGER] [-r NUMBER] [-a NUMBER] [-b]
+              [--no-ignore-blank-cards] [--exact] [-o FILE] [-u HDU_NAMES]
+              [-k KEYWORDS] [-c COMMENTS] [-f COLUMNS]
+              file [file ...]
+
+Compare two FITS image files and report the differences in header keywords and
+data.
+
+    fitsdiff [options] filename1 filename2
+
+where filename1 filename2 are the two files to be compared.  They may also be
+wild cards, in such cases, they must be enclosed by double or single quotes, or
+they may be directory names.  If both are directory names, all files in each of
+the directories will be included; if only one is a directory name, then the
+directory name will be prefixed to the file name(s) specified by the other
+argument.  for example::
+
+    fitsdiff "*.fits" "/machine/data1"
+
+will compare all FITS files in the current directory to the corresponding files
+in the directory /machine/data1.
+
+This script is part of the Astropy package. See
+https://docs.astropy.org/en/latest/io/fits/usage/scripts.html#fitsdiff
+for further documentation.
+
+positional arguments:
+  file                  .fits files to process.
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -q, --quiet           Produce no output and just return a status code.
+  -n INTEGER, --num-diffs INTEGER
+                        Max number of data differences (image pixel or table
+                        element) to report per extension (default 10).
+  -r NUMBER, --rtol NUMBER, --relative-tolerance NUMBER
+                        The relative tolerance for comparison of two numbers,
+                        specifically two floating point numbers. This applies
+                        to data in both images and tables, and to floating
+                        point keyword values in headers (default None).
+  -a NUMBER, --atol NUMBER, --absolute-tolerance NUMBER
+                        The absolute tolerance for comparison of two numbers,
+                        specifically two floating point numbers. This applies
+                        to data in both images and tables, and to floating
+                        point keyword values in headers (default None).
+  -b, --no-ignore-blanks
+                        Don't ignore trailing blanks (whitespace) in string
+                        values. Otherwise trailing blanks both in header
+                        keywords/values and in table column values) are not
+                        treated as significant i.e., without this option
+                        'ABCDEF ' and 'ABCDEF' are considered equivalent.
+  --no-ignore-blank-cards
+                        Don't ignore entirely blank cards in headers. Normally
+                        fitsdiff does not consider blank cards when comparing
+                        headers, but this will ensure that even blank cards
+                        match up.
+  --exact               Report ALL differences, overriding command-line
+                        options and FITSDIFF_SETTINGS.
+  -o FILE, --output-file FILE
+                        Output results to this file; otherwise results are
+                        printed to stdout.
+  -u HDU_NAMES, --ignore-hdus HDU_NAMES
+                        Comma-separated list of HDU names not to be compared.
+                        HDU names may contain wildcard patterns.
+
+Header Comparison Options:
+  -k KEYWORDS, --ignore-keywords KEYWORDS
+                        Comma-separated list of keywords not to be compared.
+                        Keywords may contain wildcard patterns. To exclude all
+                        keywords, use "*"; make sure to have double or single
+                        quotes around the asterisk on the command-line.
+  -c COMMENTS, --ignore-comments COMMENTS
+                        Comma-separated list of keywords whose comments will
+                        not be compared. Wildcards may be used as with
+                        --ignore-keywords.
+
+Table Comparison Options:
+  -f COLUMNS, --ignore-fields COLUMNS
+                        Comma-separated list of fields (i.e. columns) not to
+                        be compared. All columns may be excluded using "*" as
+                        with --ignore-keywords.
+
+If the two files are identical within the specified conditions, it will report
+"No difference is found." If the value(s) of -c and -k takes the form
+'@filename', list is in the text file 'filename', and each line in that text
+file contains one keyword.
+
+Example
+-------
+
+    fitsdiff -k filename,filtnam1 -n 5 -r 1.e-6 test1.fits test2
+
+This command will compare files test1.fits and test2.fits, report maximum of 5
+different pixels values per extension, only report data values larger than
+1.e-6 relative to each other, and will neglect the different values of keywords
+FILENAME and FILTNAM1 (or their very existence).
+
+fitsdiff command-line arguments can also be set using the environment variable
+FITSDIFF_SETTINGS.  If the FITSDIFF_SETTINGS environment variable is present,
+each argument present will override the corresponding argument on the
+command-line unless the --exact option is specified.  The FITSDIFF_SETTINGS
+environment variable exists to make it easier to change the
+behavior of fitsdiff on a global level, such as in a set of regression tests.
+_______________________ TestFITSDiff_script.test_version _______________________
+----------------------------- Captured stdout call -----------------------------
+pytest 8.0.0.dev49+gb0db0daac
+_______________________ TestFITSDiff_script.test_noargs ________________________
+----------------------------- Captured stderr call -----------------------------
+usage: pytest [-h] [--version] [-q] [-n INTEGER] [-r NUMBER] [-a NUMBER] [-b]
+              [--no-ignore-blank-cards] [--exact] [-o FILE] [-u HDU_NAMES]
+              [-k KEYWORDS] [-c COMMENTS] [-f COLUMNS]
+              file [file ...]
+pytest: error: 
+fitsdiff requires two arguments; see `fitsdiff --help` for more details.
+_____________________ TestFITSDiff_script.test_oneargargs ______________________
+----------------------------- Captured stderr call -----------------------------
+usage: pytest [-h] [--version] [-q] [-n INTEGER] [-r NUMBER] [-a NUMBER] [-b]
+              [--no-ignore-blank-cards] [--exact] [-o FILE] [-u HDU_NAMES]
+              [-k KEYWORDS] [-c COMMENTS] [-f COLUMNS]
+              file [file ...]
+pytest: error: 
+fitsdiff requires two arguments; see `fitsdiff --help` for more details.
+_______________________ TestFITSDiff_script.test_nodiff ________________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-dqu3o6o8/testa.fits
+ b: /tmp/fits-test-dqu3o6o8/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+No differences found.
+_______________________ TestFITSDiff_script.test_onediff _______________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-pgpyrroy/testa.fits
+ b: /tmp/fits-test-pgpyrroy/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Primary HDU:
+
+   Data contains differences:
+     Data differs at [1, 2]:
+        a> 10
+        b> 12
+     1 different pixels found (1.00% different).
+     Maximum relative difference: 0.16666666666666666
+     Maximum absolute difference: 2.0
+________________________ TestFITSDiff_script.test_atol _________________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-jvdqqr0d/testa.fits
+ b: /tmp/fits-test-jvdqqr0d/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 1.0
+
+No differences found.
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-jvdqqr0d/testa.fits
+ b: /tmp/fits-test-jvdqqr0d/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Primary HDU:
+
+   Data contains differences:
+     Data differs at [1, 2]:
+        a> 10.0
+         ?  ^
+        b> 11.0
+         ?  ^
+     1 different pixels found (1.00% different).
+     Maximum relative difference: 0.09090909090909091
+     Maximum absolute difference: 1.0
+________________________ TestFITSDiff_script.test_rtol _________________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-lxl5cdrq/testa.fits
+ b: /tmp/fits-test-lxl5cdrq/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.1, Absolute tolerance: 0.0
+
+No differences found.
+______________________ TestFITSDiff_script.test_wildcard _______________________
+----------------------------- Captured stderr call -----------------------------
+--- Logging error ---
+Traceback (most recent call last):
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/logging/__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+ValueError: I/O operation on closed file.
+Call stack:
+  File "/opt/miniconda3/envs/testbed/bin/pytest", line 7, in <module>
+    sys.exit(console_main())
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/config/__init__.py", line 221, in console_main
+    code = main()
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/config/__init__.py", line 197, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 365, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/main.py", line 396, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 137, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 244, in call_and_report
+    call = CallInfo.from_call(
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 353, in from_call
+    result: TResult | None = func()
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 245, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    item.runtest()
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/python.py", line 1720, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+  File "/testbed/astropy/io/fits/tests/test_fitsdiff.py", line 195, in test_wildcard
+    fitsdiff.main([tmp1 + "*", "ACME"])
+  File "/testbed/astropy/io/fits/scripts/fitsdiff.py", line 388, in main
+    files = match_files(opts.fits_files)
+  File "/testbed/astropy/io/fits/scripts/fitsdiff.py", line 321, in match_files
+    log.error("Wildcard pattern %r did not match any files.", path)
+Message: 'Wildcard pattern %r did not match any files.'
+Arguments: ('/tmp/fits-test-f9a8r_6w/tmp_file1*',)
+ERROR: Wildcard pattern '/tmp/fits-test-f9a8r_6w/tmp_file1*' did not match any files.
+------------------------------ Captured log call -------------------------------
+ERROR    fitsdiff:fitsdiff.py:321 Wildcard pattern '/tmp/fits-test-f9a8r_6w/tmp_file1*' did not match any files.
+_____________________ TestFITSDiff_script.test_ignore_hdus _____________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-m84y971t/testa.fits
+ b: /tmp/fits-test-m84y971t/testb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Extension HDU 1 (SCI, 1):
+
+   Data contains differences:
+     Data differs at [1, 1]:
+        a> 0
+        b> 1
+     Data differs at [2, 1]:
+        a> 1
+        b> 2
+     Data differs at [3, 1]:
+        a> 2
+        b> 3
+     Data differs at [4, 1]:
+        a> 3
+        b> 4
+     Data differs at [5, 1]:
+        a> 4
+        b> 5
+     Data differs at [6, 1]:
+        a> 5
+        b> 6
+     Data differs at [7, 1]:
+        a> 6
+        b> 7
+     Data differs at [8, 1]:
+        a> 7
+        b> 8
+     Data differs at [9, 1]:
+        a> 8
+        b> 9
+     Data differs at [10, 1]:
+        a> 9
+        b> 10
+     ...
+     100 different pixels found (100.00% different).
+     Maximum relative difference: 1.0
+     Maximum absolute difference: 1.0
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /tmp/fits-test-m84y971t/testa.fits
+ b: /tmp/fits-test-m84y971t/testb.fits
+ HDU(s) not to be compared:
+  SCI
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+No differences found.
+_______________________ TestFITSheader_script.test_help ________________________
+----------------------------- Captured stdout call -----------------------------
+usage: pytest [-h] [--version] [-e HDU] [-k KEYWORD] [-t [FORMAT] | -f]
+              [-s SORT_KEYWORD] [-c]
+              filename [filename ...]
+
+Print the header(s) of a FITS file. Optional arguments allow the desired
+extension(s), keyword(s), and output format to be specified.
+Note that in the case of a compressed image, the decompressed header is
+shown by default.
+
+This script is part of the Astropy package. See
+https://docs.astropy.org/en/latest/io/fits/usage/scripts.html#module-astropy.io.fits.scripts.fitsheader
+for further documentation.
+
+positional arguments:
+  filename              path to one or more files; wildcards are supported
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -e HDU, --extension HDU
+                        specify the extension by name or number; this argument
+                        can be repeated to select multiple extensions
+  -k KEYWORD, --keyword KEYWORD
+                        specify a keyword; this argument can be repeated to
+                        select multiple keywords; also supports wildcards
+  -t [FORMAT], --table [FORMAT]
+                        print the header(s) in machine-readable table format;
+                        the default format is "ascii.fixed_width" (can be
+                        "ascii.csv", "ascii.html", "ascii.latex", "fits", etc)
+  -f, --fitsort         print the headers as a table with each unique keyword
+                        in a given column (fitsort format)
+  -s SORT_KEYWORD, --sort SORT_KEYWORD
+                        sort output by the specified header keywords, can be
+                        repeated to sort by multiple keywords; Only supported
+                        with -f/--fitsort
+  -c, --compressed      for compressed image data, show the true header which
+                        describes the compression rather than the data
+______________________ TestFITSheader_script.test_version ______________________
+----------------------------- Captured stdout call -----------------------------
+pytest 8.0.0.dev49+gb0db0daac
+____________________ TestFITSheader_script.test_by_keyword _____________________
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:fitsheader.py:229 /testbed/astropy/io/fits/tests/data/arange.fits (HDU 0): Keyword RANDOMKEY not found.
+___________________ TestFITSheader_script.test_by_extension ____________________
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:fitsheader.py:229 /testbed/astropy/io/fits/tests/data/test0.fits (HDU 0): Keyword BACKGRND not found.
+WARNING  astropy:fitsheader.py:229 /testbed/astropy/io/fits/tests/data/test0.fits (HDU 3): Keyword FOO not found.
+_______________________ TestFITSheader_script.test_table _______________________
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:fitsheader.py:229 /testbed/astropy/io/fits/tests/data/test0.fits (HDU 0): Keyword BACKGRND not found.
+_________ TestFITSheader_script.test_fitsort_sorting_keyword_complains _________
+------------------------------ Captured log call -------------------------------
+ERROR    astropy:fitsheader.py:493 Sorting with -s/--sort is only supported in conjunction with -f/--fitsort
+ERROR    astropy:fitsheader.py:493 Sorting with -s/--sort is only supported in conjunction with -f/--fitsort
+____________________________ TestFitsinfo.test_help ____________________________
+----------------------------- Captured stdout call -----------------------------
+usage: pytest [-h] [--version] filename [filename ...]
+
+Print a summary of the HDUs in a FITS file(s).
+
+This script is part of the Astropy package. See
+https://docs.astropy.org/en/latest/io/fits/usage/scripts.html#module-astropy.io.fits.scripts.fitsinfo
+for further documentation.
+
+positional arguments:
+  filename    Path to one or more FITS files. Wildcards are supported.
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+__________________________ TestFitsinfo.test_version ___________________________
+----------------------------- Captured stdout call -----------------------------
+pytest 8.0.0.dev49+gb0db0daac
+__________ TestHDUListFunctions.test_open_file_with_bad_file_padding ___________
+----------------------------- Captured stdout call -----------------------------
+Filename: /tmp/fits-test-mq4ql362/temp.fits
+No.    Name      Ver    Type      Cards   Dimensions   Format
+  0  PRIMARY       1 PrimaryHDU       5   (100,)   int64   
+__________ TestHeaderFunctions.test_short_hierarch_create_and_update ___________
+----------------------------- Captured stdout call -----------------------------
+[<class 'astropy.io.fits.verify.VerifyWarning'>]
+__________ TestRecordValuedKeywordCards.test_fitsheader_table_feature __________
+----------------------------- Captured stderr call -----------------------------
+WARNING: /testbed/astropy/io/fits/tests/data/zerowidth.fits: Extension DOES_NOT_EXIST not found. [astropy.io.fits.scripts.fitsheader]
+WARNING: /testbed/astropy/io/fits/tests/data/zerowidth.fits (HDU AIPS FQ): Keyword DOES_NOT_EXIST not found. [astropy.io.fits.scripts.fitsheader]
+------------------------------ Captured log call -------------------------------
+WARNING  astropy:fitsheader.py:213 /testbed/astropy/io/fits/tests/data/zerowidth.fits: Extension DOES_NOT_EXIST not found.
+WARNING  astropy:fitsheader.py:229 /testbed/astropy/io/fits/tests/data/zerowidth.fits (HDU AIPS FQ): Keyword DOES_NOT_EXIST not found.
+__________________________ test_bzero_mishandled_info __________________________
+----------------------------- Captured stdout call -----------------------------
+Filename: /tmp/pytest-of-root/pytest-8/test_bzero_mishandled_info0/floatimg_with_bzero.fits
+No.    Name      Ver    Type      Cards   Dimensions   Format
+  0  PRIMARY       1 PrimaryHDU       4   ()      
+  1                1 ImageHDU         8   (10, 10)   float64   
+________________________ TestStructured.test_structured ________________________
+----------------------------- Captured stdout call -----------------------------
+    testing field: 'TARGET_TYPE'
+        shape...........OK
+        elements........OK
+    testing field: 'TARGET_RUN'
+        shape...........OK
+        elements........OK
+    testing field: 'PHOTOOP_V'
+        shape...........OK
+        elements........OK
+    testing field: 'BOSSTARGET_V'
+        shape...........OK
+        elements........OK
+    testing field: 'IDLUTILS_V'
+        shape...........OK
+        elements........OK
+    testing field: 'PHOTO_SWEEP'
+        shape...........OK
+        elements........OK
+    testing field: 'PHOTO_RESOLVE'
+        shape...........OK
+        elements........OK
+    testing field: 'PHOTO_CALIB'
+        shape...........OK
+        elements........OK
+All tests passed
+    testing field: 'RUN'
+        shape...........OK
+        elements........OK
+    testing field: 'RERUN'
+        shape...........OK
+        elements........OK
+    testing field: 'CAMCOL'
+        shape...........OK
+        elements........OK
+    testing field: 'FIELD'
+        shape...........OK
+        elements........OK
+    testing field: 'ID'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_TYPE'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_FLAGS'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_FLAGS2'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_ROWC'
+        shape...........OK
+        elements........OK
+    testing field: 'ROWV'
+        shape...........OK
+        elements........OK
+    testing field: 'ROWVERR'
+        shape...........OK
+        elements........OK
+    testing field: 'COLV'
+        shape...........OK
+        elements........OK
+    testing field: 'COLVERR'
+        shape...........OK
+        elements........OK
+    testing field: 'COLC'
+        shape...........OK
+        elements........OK
+    testing field: 'FLAGS'
+        shape...........OK
+        elements........OK
+    testing field: 'FLAGS2'
+        shape...........OK
+        elements........OK
+    testing field: 'PSP_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'RA'
+        shape...........OK
+        elements........OK
+    testing field: 'DEC'
+        shape...........OK
+        elements........OK
+    testing field: 'PSF_FWHM'
+        shape...........OK
+        elements........OK
+    testing field: 'EXTINCTION'
+        shape...........OK
+        elements........OK
+    testing field: 'SKYFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'PSFFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'PSFFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBERFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBERFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBER2FLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBER2FLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'MODELFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'MODELFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'CALIB_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'NMGYPERCOUNT'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_J'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_J_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_H'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_H_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_K'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_K_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_PH_QUAL'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_RD_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_BL_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_CC_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_GAL_CONTAM'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_MP_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_JDATE'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_MATCHDIST'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_NMATCH'
+        shape...........OK
+        elements........OK
+    testing field: 'RESOLVE_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'THING_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'IFIELD'
+        shape...........OK
+        elements........OK
+    testing field: 'BALKAN_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'NDETECT'
+        shape...........OK
+        elements........OK
+    testing field: 'APERFLUX6'
+        shape...........OK
+        elements........OK
+    testing field: 'ZHEDFLAG'
+        shape...........OK
+        elements........OK
+    testing field: 'KNOWN_QSO_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'BOSS_TARGET1'
+        shape...........OK
+        elements........OK
+All tests passed
+    testing field: 'f1'
+        shape...........OK
+        elements........OK
+    testing field: 'f2'
+        shape...........OK
+        elements........OK
+    testing field: 'f3'
+        shape...........OK
+        elements........OK
+All tests passed
+    testing field: 'RUN'
+        shape...........OK
+        elements........OK
+    testing field: 'RERUN'
+        shape...........OK
+        elements........OK
+    testing field: 'CAMCOL'
+        shape...........OK
+        elements........OK
+    testing field: 'FIELD'
+        shape...........OK
+        elements........OK
+    testing field: 'ID'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_TYPE'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_FLAGS'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_FLAGS2'
+        shape...........OK
+        elements........OK
+    testing field: 'OBJC_ROWC'
+        shape...........OK
+        elements........OK
+    testing field: 'ROWV'
+        shape...........OK
+        elements........OK
+    testing field: 'ROWVERR'
+        shape...........OK
+        elements........OK
+    testing field: 'COLV'
+        shape...........OK
+        elements........OK
+    testing field: 'COLVERR'
+        shape...........OK
+        elements........OK
+    testing field: 'COLC'
+        shape...........OK
+        elements........OK
+    testing field: 'FLAGS'
+        shape...........OK
+        elements........OK
+    testing field: 'FLAGS2'
+        shape...........OK
+        elements........OK
+    testing field: 'PSP_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'RA'
+        shape...........OK
+        elements........OK
+    testing field: 'DEC'
+        shape...........OK
+        elements........OK
+    testing field: 'PSF_FWHM'
+        shape...........OK
+        elements........OK
+    testing field: 'EXTINCTION'
+        shape...........OK
+        elements........OK
+    testing field: 'SKYFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'PSFFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'PSFFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBERFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBERFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBER2FLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'FIBER2FLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'MODELFLUX'
+        shape...........OK
+        elements........OK
+    testing field: 'MODELFLUX_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'CALIB_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'NMGYPERCOUNT'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_J'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_J_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_H'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_H_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_K'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_K_IVAR'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_PH_QUAL'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_RD_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_BL_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_CC_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_GAL_CONTAM'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_MP_FLG'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_JDATE'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_MATCHDIST'
+        shape...........OK
+        elements........OK
+    testing field: 'TMASS_NMATCH'
+        shape...........OK
+        elements........OK
+    testing field: 'RESOLVE_STATUS'
+        shape...........OK
+        elements........OK
+    testing field: 'THING_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'IFIELD'
+        shape...........OK
+        elements........OK
+    testing field: 'BALKAN_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'NDETECT'
+        shape...........OK
+        elements........OK
+    testing field: 'APERFLUX6'
+        shape...........OK
+        elements........OK
+    testing field: 'ZHEDFLAG'
+        shape...........OK
+        elements........OK
+    testing field: 'KNOWN_QSO_ID'
+        shape...........OK
+        elements........OK
+    testing field: 'BOSS_TARGET1'
+        shape...........OK
+        elements........OK
+All tests passed
+____________________ TestVLATables.test_multidim_VLA_tables ____________________
+----------------------------- Captured stdout call -----------------------------
+[[0. 1. 2. 3. 4.]]
+_____________________ TestTildePaths.test_fits_printdiff[] _____________________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /testbed/astropy/io/fits/tests/data/test0.fits
+ b: /testbed/astropy/io/fits/tests/data/tb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Files contain different numbers of HDUs:
+ a: 5
+ b: 2
+
+Primary HDU:
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 117
+      b: 11
+     Extra keyword ''       in a: ''
+     Extra keyword 'ATODCORR' in a: 'PERFORM'
+     Extra keyword 'ATODFILE' in a: 'uref$e1b09594u.r1h'
+     Extra keyword 'ATODGAIN' in a: 7.0
+     Extra keyword 'BIASCORR' in a: 'PERFORM'
+     Extra keyword 'BIASDFIL' in a: 'uref$e6o0937du.b2h'
+     Extra keyword 'BIASFILE' in a: 'uref$e6o0937du.r2h'
+     Extra keyword 'BLEVCORR' in a: 'PERFORM'
+     Extra keyword 'BLEVDFIL' in a: 'ucal$u2eq0201t.q1h'
+     Extra keyword 'BLEVFILE' in a: 'ucal$u2eq0201t.x0h'
+     Extra keyword 'BSCALE' in a: 1.0
+     Extra keyword 'BZERO'  in a: 32768.0
+     Extra keyword 'CDBSFILE' in a: 'NO'
+     Extra keyword 'COMPTAB' in a: 'mtab$f7j1535pm.tmc'
+     Extra keyword 'DARKCORR' in a: 'OMIT'
+     Extra keyword 'DARKDFIL' in a: 'uref$e6o09384u.b3h'
+     Extra keyword 'DARKFILE' in a: 'uref$e6o09384u.r3h'
+     Extra keyword 'DARKTIME' in a: 0.23
+     Extra keyword 'DATE'   in a: '01/04/99'
+     Extra keyword 'DATE-OBS' in a: '19/05/94'
+     Extra keyword 'DEC_SUN' in a: 19.8289107164
+     Extra keyword 'DOHISTOS' in a: 'OMIT'
+     Extra keyword 'DOPHOTOM' in a: 'PERFORM'
+     Extra keyword 'DOSATMAP' in a: 'OMIT'
+     Extra keyword 'EPLONGPM' in a: 0.0
+     Extra keyword 'EQNX_SUN' in a: 2000.0
+     Extra keyword 'EQRADTRG' in a: 0.0
+     Extra keyword 'EXPEND' in a: 49491.65366441
+     Extra keyword 'EXPFLAG' in a: 'NORMAL'
+     Extra keyword 'EXPSTART' in a: 49491.65366175
+     Extra keyword 'EXPTIME' in a: 0.23
+     Extra keyword 'FGSLOCK' in a: 'FINE'
+     Extra keyword 'FILETYPE' in a: 'SCI'
+     Extra keyword 'FILTER1' in a: 33
+     Extra keyword 'FILTER2' in a: 0
+     Extra keyword 'FILTNAM1' in a: 'F673N'
+     Extra keyword 'FILTNAM2' in a: ''
+     Extra keyword 'FILTROT' in a: 0.0
+     Extra keyword 'FLATCORR' in a: 'PERFORM'
+     Extra keyword 'FLATDFIL' in a: 'uref$e1c1404ju.b4h'
+     Extra keyword 'FLATFILE' in a: 'uref$e1c1404ju.r4h'
+     Extra keyword 'FLATNTRG' in a: 0.0
+     Extra keyword 'GRAPHTAB' in a: 'mtab$f7d1401pm.tmg'
+     Extra keyword 'GROUPS' in a: False
+     Extra keyword 'IMAGETYP' in a: 'EXT'
+     Extra keyword 'INSTRUME' in a: 'WFPC2'
+     Extra keyword 'IRAF-TLM' in a: 'xxx'
+     Extra keyword 'KSPOTS' in a: 'OFF'
+     Extra keyword 'LONGPMER' in a: 0.0
+     Extra keyword 'LRFWAVE' in a: 0.0
+     Extra keyword 'MASKCORR' in a: 'PERFORM'
+     Extra keyword 'MASKFILE' in a: 'uref$fan15478u.r0h'
+     Extra keyword 'MODE'   in a: 'AREA'
+     Extra keyword 'MOONANGL' in a: 54.995346
+     Extra keyword 'MTFLAG' in a: True
+     Extra keyword 'NPDECTRG' in a: 0.0
+     Extra keyword 'NPRATRG' in a: 0.0
+     Extra keyword 'NSHUTA17' in a: 0
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OUTDTYPE' in a: 'REAL'
+     Extra keyword 'PA_V3'  in a: 292.387786865
+     Extra keyword 'PHOTTAB' in a: ''
+     Extra keyword 'PKTFMT' in a: 96
+     Extra keyword 'PODPSFF' in a: False
+     Extra keyword 'PSTPTIME' in a: '1994.139:16:14:39'
+     Extra keyword 'PSTRTIME' in a: '1994.139:15:41:39'
+     Extra keyword 'RA_SUN' in a: 56.2731208362
+     Extra keyword 'READTIME' in a: 151
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'ROTRTTRG' in a: 0.0
+     Extra keyword 'RSDPFILL' in a: -100
+     Extra keyword 'SATURATE' in a: 4095
+     Extra keyword 'SERIALS' in a: 'OFF'
+     Extra keyword 'SHADCORR' in a: 'PERFORM'
+     Extra keyword 'SHADFILE' in a: 'uref$e6o09405u.r5h'
+     Extra keyword 'SHUTTER' in a: 'B'
+     Extra keyword 'STDCFFF' in a: False
+     Extra keyword 'STDCFFP' in a: '0x5569'
+     Extra keyword 'SUNANGLE' in a: 158.939133
+     Extra keyword 'SUN_ALT' in a: -11.552458
+     Extra keyword 'SURFALTD' in a: 0.0
+     Extra keyword 'SURFLATD' in a: 0.0
+     Extra keyword 'SURFLONG' in a: 0.0
+     Extra keyword 'TIME-OBS' in a: '15:41:16'
+     Extra keyword 'UBAY3TMP' in a: 14.5969
+     Extra keyword 'UCH1CJTM' in a: -88.3486
+     Extra keyword 'UCH2CJTM' in a: -88.8073
+     Extra keyword 'UCH3CJTM' in a: -88.3945
+     Extra keyword 'UCH4CJTM' in a: -88.9041
+     Extra keyword 'UEXPODUR' in a: 0
+     Extra keyword 'UEXPOTIM' in a: 20272
+     Extra keyword 'USCALE' in a: 1.0
+     Extra keyword 'UZERO'  in a: 0.0
+     Extra keyword 'COMMENT' in b: '  FITS (Flexible Image Transport System) format defined in Astronomy and'
+     Keyword FILENAME has different values:
+        a> vtest3.fits
+        b> tb.fits
+     Keyword FILENAME has different comments:
+        a> File name
+        b> name of file
+     Keyword NEXTEND  has different values:
+        a> 4
+        b> 1
+     Keyword NEXTEND  has different comments:
+        a> Number of standard extensions
+        b> number of extensions in file
+     Keyword ORIGIN   has different values:
+        a> NOAO-IRAF FITS Image Kernel Aug 1 1997
+        b> STScI-STSDAS/TABLES
+     Keyword ORIGIN   has different comments:
+        a> FITS file originator
+        b> Tables version 1999-09-07
+
+Extension HDU 1:
+   Extension types differ:
+    a: IMAGE
+    b: BINTABLE
+   Extension names differ:
+    a: SCI
+    b: 
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 61
+      b: 24
+     Extra keyword 'ATODSAT' in a: 0
+     Extra keyword 'BACKGRND' in a: 316.0
+     Extra keyword 'BADPIXEL' in a: 0
+     Extra keyword 'BIASEVEN' in a: 0.0
+     Extra keyword 'BIASODD' in a: 0.0
+     Extra keyword 'CALIBDEF' in a: 0
+     Extra keyword 'CD1_1'  in a: 2.33019e-05
+     Extra keyword 'CD1_2'  in a: 9.85029e-06
+     Extra keyword 'CD2_1'  in a: 9.85462e-06
+     Extra keyword 'CD2_2'  in a: -2.32916e-05
+     Extra keyword 'CRPIX1' in a: 210.25
+     Extra keyword 'CRPIX2' in a: 212.5
+     Extra keyword 'CRVAL1' in a: 215.597167517
+     Extra keyword 'CRVAL2' in a: -12.7376058132
+     Extra keyword 'CTYPE1' in a: 'UNITLESS'
+     Extra keyword 'CTYPE2' in a: 'LINE'
+     Extra keyword 'DATALOST' in a: 0
+     Extra keyword 'DATAMAX' in a: 0.0
+     Extra keyword 'DATAMEAN' in a: 0.0
+     Extra keyword 'DATAMIN' in a: 0.0
+     Extra keyword 'DETECTOR' in a: 1
+     Extra keyword 'DEZERO' in a: 0.0
+     Extra keyword 'ERRCNT' in a: 0
+     Extra keyword 'EXPNAME' in a: 'U2EQ0201T'
+     Extra keyword 'EXTNAME' in a: 'SCI'
+     Extra keyword 'EXTVER' in a: 1
+     Extra keyword 'FILLCNT' in a: 0
+     Extra keyword 'FPKTTIME' in a: 49491.654167
+     Extra keyword 'GOODMAX' in a: 0.0
+     Extra keyword 'GOODMIN' in a: 0.0
+     Extra keyword 'GPIXELS' in a: 0
+     Extra keyword 'HISTWIDE' in a: 1.0
+     Extra keyword 'INHERIT' in a: True
+     Extra keyword 'LPKTTIME' in a: 49491.65422
+     Extra keyword 'MEANC10' in a: 313.16
+     Extra keyword 'MEANC100' in a: 313.4404
+     Extra keyword 'MEANC200' in a: 313.3406
+     Extra keyword 'MEANC25' in a: 313.2493
+     Extra keyword 'MEANC300' in a: 313.3636
+     Extra keyword 'MEANC50' in a: 313.5349
+     Extra keyword 'MEDIAN' in a: 312.0
+     Extra keyword 'MEDSHADO' in a: 314.0
+     Extra keyword 'MIR_REVR' in a: True
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OVERLAP' in a: 0
+     Extra keyword 'PHOTBW' in a: 0.0
+     Extra keyword 'PHOTFLAM' in a: 0.0
+     Extra keyword 'PHOTMODE' in a: ''
+     Extra keyword 'PHOTPLAM' in a: 0.0
+     Extra keyword 'PHOTZPT' in a: 0.0
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'SKEWNESS' in a: -0.003205
+     Extra keyword 'SOFTERRS' in a: 0
+     Extra keyword 'STATICD' in a: 0
+     Extra keyword 'HISTORY' in b: 'Created Mon 15:05:16 10-Sep-2001'
+     Extra keyword 'TDISP1' in b: 'I11'
+     Extra keyword 'TDISP2' in b: 'A3'
+     Extra keyword 'TDISP3' in b: 'G15.7'
+     Extra keyword 'TDISP4' in b: 'L6'
+     Extra keyword 'TFIELDS' in b: 4
+     Extra keyword 'TFORM1' in b: '1J'
+     Extra keyword 'TFORM2' in b: '3A'
+     Extra keyword 'TFORM3' in b: '1E'
+     Extra keyword 'TFORM4' in b: '1L'
+     Extra keyword 'TNULL1' in b: -2147483647
+     Extra keyword 'TSCAL3' in b: 3
+     Extra keyword 'TTYPE1' in b: 'c1'
+     Extra keyword 'TTYPE2' in b: 'c2'
+     Extra keyword 'TTYPE3' in b: 'c3'
+     Extra keyword 'TTYPE4' in b: 'c4'
+     Extra keyword 'TZERO3' in b: 0.4
+     Keyword BITPIX   has different values:
+        a> 16
+        b> 8
+     Keyword BITPIX   has different comments:
+        a> number of bits per data pixel
+        b> 8-bit bytes
+     Keyword GCOUNT   has different comments:
+        a> required keyword; must = 1
+        b> one data group (required keyword)
+     Keyword NAXIS    has different comments:
+        a> number of data axes
+        b> 2-dimensional binary table
+     Keyword NAXIS1   has different values:
+        a> 40
+        b> 12
+     Keyword NAXIS1   has different comments:
+        a> length of data axis 1
+        b> width of table in bytes
+     Keyword NAXIS2   has different values:
+        a> 40
+        b> 2
+     Keyword NAXIS2   has different comments:
+        a> length of data axis 2
+     Keyword PCOUNT   has different comments:
+        a> required keyword; must = 0
+        b> size of special data area
+     Keyword XTENSION has different values:
+        a> IMAGE
+        b> BINTABLE
+     Keyword XTENSION has different comments:
+        a> IMAGE extension
+        b> binary table extension
+
+_______________ TestTildePaths.test_fits_printdiff[home_is_data] _______________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /testbed/astropy/io/fits/tests/data/test0.fits
+ b: /testbed/astropy/io/fits/tests/data/tb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Files contain different numbers of HDUs:
+ a: 5
+ b: 2
+
+Primary HDU:
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 117
+      b: 11
+     Extra keyword ''       in a: ''
+     Extra keyword 'ATODCORR' in a: 'PERFORM'
+     Extra keyword 'ATODFILE' in a: 'uref$e1b09594u.r1h'
+     Extra keyword 'ATODGAIN' in a: 7.0
+     Extra keyword 'BIASCORR' in a: 'PERFORM'
+     Extra keyword 'BIASDFIL' in a: 'uref$e6o0937du.b2h'
+     Extra keyword 'BIASFILE' in a: 'uref$e6o0937du.r2h'
+     Extra keyword 'BLEVCORR' in a: 'PERFORM'
+     Extra keyword 'BLEVDFIL' in a: 'ucal$u2eq0201t.q1h'
+     Extra keyword 'BLEVFILE' in a: 'ucal$u2eq0201t.x0h'
+     Extra keyword 'BSCALE' in a: 1.0
+     Extra keyword 'BZERO'  in a: 32768.0
+     Extra keyword 'CDBSFILE' in a: 'NO'
+     Extra keyword 'COMPTAB' in a: 'mtab$f7j1535pm.tmc'
+     Extra keyword 'DARKCORR' in a: 'OMIT'
+     Extra keyword 'DARKDFIL' in a: 'uref$e6o09384u.b3h'
+     Extra keyword 'DARKFILE' in a: 'uref$e6o09384u.r3h'
+     Extra keyword 'DARKTIME' in a: 0.23
+     Extra keyword 'DATE'   in a: '01/04/99'
+     Extra keyword 'DATE-OBS' in a: '19/05/94'
+     Extra keyword 'DEC_SUN' in a: 19.8289107164
+     Extra keyword 'DOHISTOS' in a: 'OMIT'
+     Extra keyword 'DOPHOTOM' in a: 'PERFORM'
+     Extra keyword 'DOSATMAP' in a: 'OMIT'
+     Extra keyword 'EPLONGPM' in a: 0.0
+     Extra keyword 'EQNX_SUN' in a: 2000.0
+     Extra keyword 'EQRADTRG' in a: 0.0
+     Extra keyword 'EXPEND' in a: 49491.65366441
+     Extra keyword 'EXPFLAG' in a: 'NORMAL'
+     Extra keyword 'EXPSTART' in a: 49491.65366175
+     Extra keyword 'EXPTIME' in a: 0.23
+     Extra keyword 'FGSLOCK' in a: 'FINE'
+     Extra keyword 'FILETYPE' in a: 'SCI'
+     Extra keyword 'FILTER1' in a: 33
+     Extra keyword 'FILTER2' in a: 0
+     Extra keyword 'FILTNAM1' in a: 'F673N'
+     Extra keyword 'FILTNAM2' in a: ''
+     Extra keyword 'FILTROT' in a: 0.0
+     Extra keyword 'FLATCORR' in a: 'PERFORM'
+     Extra keyword 'FLATDFIL' in a: 'uref$e1c1404ju.b4h'
+     Extra keyword 'FLATFILE' in a: 'uref$e1c1404ju.r4h'
+     Extra keyword 'FLATNTRG' in a: 0.0
+     Extra keyword 'GRAPHTAB' in a: 'mtab$f7d1401pm.tmg'
+     Extra keyword 'GROUPS' in a: False
+     Extra keyword 'IMAGETYP' in a: 'EXT'
+     Extra keyword 'INSTRUME' in a: 'WFPC2'
+     Extra keyword 'IRAF-TLM' in a: 'xxx'
+     Extra keyword 'KSPOTS' in a: 'OFF'
+     Extra keyword 'LONGPMER' in a: 0.0
+     Extra keyword 'LRFWAVE' in a: 0.0
+     Extra keyword 'MASKCORR' in a: 'PERFORM'
+     Extra keyword 'MASKFILE' in a: 'uref$fan15478u.r0h'
+     Extra keyword 'MODE'   in a: 'AREA'
+     Extra keyword 'MOONANGL' in a: 54.995346
+     Extra keyword 'MTFLAG' in a: True
+     Extra keyword 'NPDECTRG' in a: 0.0
+     Extra keyword 'NPRATRG' in a: 0.0
+     Extra keyword 'NSHUTA17' in a: 0
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OUTDTYPE' in a: 'REAL'
+     Extra keyword 'PA_V3'  in a: 292.387786865
+     Extra keyword 'PHOTTAB' in a: ''
+     Extra keyword 'PKTFMT' in a: 96
+     Extra keyword 'PODPSFF' in a: False
+     Extra keyword 'PSTPTIME' in a: '1994.139:16:14:39'
+     Extra keyword 'PSTRTIME' in a: '1994.139:15:41:39'
+     Extra keyword 'RA_SUN' in a: 56.2731208362
+     Extra keyword 'READTIME' in a: 151
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'ROTRTTRG' in a: 0.0
+     Extra keyword 'RSDPFILL' in a: -100
+     Extra keyword 'SATURATE' in a: 4095
+     Extra keyword 'SERIALS' in a: 'OFF'
+     Extra keyword 'SHADCORR' in a: 'PERFORM'
+     Extra keyword 'SHADFILE' in a: 'uref$e6o09405u.r5h'
+     Extra keyword 'SHUTTER' in a: 'B'
+     Extra keyword 'STDCFFF' in a: False
+     Extra keyword 'STDCFFP' in a: '0x5569'
+     Extra keyword 'SUNANGLE' in a: 158.939133
+     Extra keyword 'SUN_ALT' in a: -11.552458
+     Extra keyword 'SURFALTD' in a: 0.0
+     Extra keyword 'SURFLATD' in a: 0.0
+     Extra keyword 'SURFLONG' in a: 0.0
+     Extra keyword 'TIME-OBS' in a: '15:41:16'
+     Extra keyword 'UBAY3TMP' in a: 14.5969
+     Extra keyword 'UCH1CJTM' in a: -88.3486
+     Extra keyword 'UCH2CJTM' in a: -88.8073
+     Extra keyword 'UCH3CJTM' in a: -88.3945
+     Extra keyword 'UCH4CJTM' in a: -88.9041
+     Extra keyword 'UEXPODUR' in a: 0
+     Extra keyword 'UEXPOTIM' in a: 20272
+     Extra keyword 'USCALE' in a: 1.0
+     Extra keyword 'UZERO'  in a: 0.0
+     Extra keyword 'COMMENT' in b: '  FITS (Flexible Image Transport System) format defined in Astronomy and'
+     Keyword FILENAME has different values:
+        a> vtest3.fits
+        b> tb.fits
+     Keyword FILENAME has different comments:
+        a> File name
+        b> name of file
+     Keyword NEXTEND  has different values:
+        a> 4
+        b> 1
+     Keyword NEXTEND  has different comments:
+        a> Number of standard extensions
+        b> number of extensions in file
+     Keyword ORIGIN   has different values:
+        a> NOAO-IRAF FITS Image Kernel Aug 1 1997
+        b> STScI-STSDAS/TABLES
+     Keyword ORIGIN   has different comments:
+        a> FITS file originator
+        b> Tables version 1999-09-07
+
+Extension HDU 1:
+   Extension types differ:
+    a: IMAGE
+    b: BINTABLE
+   Extension names differ:
+    a: SCI
+    b: 
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 61
+      b: 24
+     Extra keyword 'ATODSAT' in a: 0
+     Extra keyword 'BACKGRND' in a: 316.0
+     Extra keyword 'BADPIXEL' in a: 0
+     Extra keyword 'BIASEVEN' in a: 0.0
+     Extra keyword 'BIASODD' in a: 0.0
+     Extra keyword 'CALIBDEF' in a: 0
+     Extra keyword 'CD1_1'  in a: 2.33019e-05
+     Extra keyword 'CD1_2'  in a: 9.85029e-06
+     Extra keyword 'CD2_1'  in a: 9.85462e-06
+     Extra keyword 'CD2_2'  in a: -2.32916e-05
+     Extra keyword 'CRPIX1' in a: 210.25
+     Extra keyword 'CRPIX2' in a: 212.5
+     Extra keyword 'CRVAL1' in a: 215.597167517
+     Extra keyword 'CRVAL2' in a: -12.7376058132
+     Extra keyword 'CTYPE1' in a: 'UNITLESS'
+     Extra keyword 'CTYPE2' in a: 'LINE'
+     Extra keyword 'DATALOST' in a: 0
+     Extra keyword 'DATAMAX' in a: 0.0
+     Extra keyword 'DATAMEAN' in a: 0.0
+     Extra keyword 'DATAMIN' in a: 0.0
+     Extra keyword 'DETECTOR' in a: 1
+     Extra keyword 'DEZERO' in a: 0.0
+     Extra keyword 'ERRCNT' in a: 0
+     Extra keyword 'EXPNAME' in a: 'U2EQ0201T'
+     Extra keyword 'EXTNAME' in a: 'SCI'
+     Extra keyword 'EXTVER' in a: 1
+     Extra keyword 'FILLCNT' in a: 0
+     Extra keyword 'FPKTTIME' in a: 49491.654167
+     Extra keyword 'GOODMAX' in a: 0.0
+     Extra keyword 'GOODMIN' in a: 0.0
+     Extra keyword 'GPIXELS' in a: 0
+     Extra keyword 'HISTWIDE' in a: 1.0
+     Extra keyword 'INHERIT' in a: True
+     Extra keyword 'LPKTTIME' in a: 49491.65422
+     Extra keyword 'MEANC10' in a: 313.16
+     Extra keyword 'MEANC100' in a: 313.4404
+     Extra keyword 'MEANC200' in a: 313.3406
+     Extra keyword 'MEANC25' in a: 313.2493
+     Extra keyword 'MEANC300' in a: 313.3636
+     Extra keyword 'MEANC50' in a: 313.5349
+     Extra keyword 'MEDIAN' in a: 312.0
+     Extra keyword 'MEDSHADO' in a: 314.0
+     Extra keyword 'MIR_REVR' in a: True
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OVERLAP' in a: 0
+     Extra keyword 'PHOTBW' in a: 0.0
+     Extra keyword 'PHOTFLAM' in a: 0.0
+     Extra keyword 'PHOTMODE' in a: ''
+     Extra keyword 'PHOTPLAM' in a: 0.0
+     Extra keyword 'PHOTZPT' in a: 0.0
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'SKEWNESS' in a: -0.003205
+     Extra keyword 'SOFTERRS' in a: 0
+     Extra keyword 'STATICD' in a: 0
+     Extra keyword 'HISTORY' in b: 'Created Mon 15:05:16 10-Sep-2001'
+     Extra keyword 'TDISP1' in b: 'I11'
+     Extra keyword 'TDISP2' in b: 'A3'
+     Extra keyword 'TDISP3' in b: 'G15.7'
+     Extra keyword 'TDISP4' in b: 'L6'
+     Extra keyword 'TFIELDS' in b: 4
+     Extra keyword 'TFORM1' in b: '1J'
+     Extra keyword 'TFORM2' in b: '3A'
+     Extra keyword 'TFORM3' in b: '1E'
+     Extra keyword 'TFORM4' in b: '1L'
+     Extra keyword 'TNULL1' in b: -2147483647
+     Extra keyword 'TSCAL3' in b: 3
+     Extra keyword 'TTYPE1' in b: 'c1'
+     Extra keyword 'TTYPE2' in b: 'c2'
+     Extra keyword 'TTYPE3' in b: 'c3'
+     Extra keyword 'TTYPE4' in b: 'c4'
+     Extra keyword 'TZERO3' in b: 0.4
+     Keyword BITPIX   has different values:
+        a> 16
+        b> 8
+     Keyword BITPIX   has different comments:
+        a> number of bits per data pixel
+        b> 8-bit bytes
+     Keyword GCOUNT   has different comments:
+        a> required keyword; must = 1
+        b> one data group (required keyword)
+     Keyword NAXIS    has different comments:
+        a> number of data axes
+        b> 2-dimensional binary table
+     Keyword NAXIS1   has different values:
+        a> 40
+        b> 12
+     Keyword NAXIS1   has different comments:
+        a> length of data axis 1
+        b> width of table in bytes
+     Keyword NAXIS2   has different values:
+        a> 40
+        b> 2
+     Keyword NAXIS2   has different comments:
+        a> length of data axis 2
+     Keyword PCOUNT   has different comments:
+        a> required keyword; must = 0
+        b> size of special data area
+     Keyword XTENSION has different values:
+        a> IMAGE
+        b> BINTABLE
+     Keyword XTENSION has different comments:
+        a> IMAGE extension
+        b> binary table extension
+
+__________ TestTildePaths.test_fits_printdiff[home_is_data, pathlib] ___________
+----------------------------- Captured stdout call -----------------------------
+
+ fitsdiff: 8.0.0.dev49+gb0db0daac
+ a: /testbed/astropy/io/fits/tests/data/test0.fits
+ b: /testbed/astropy/io/fits/tests/data/tb.fits
+ Maximum number of different data values to be reported: 10
+ Relative tolerance: 0.0, Absolute tolerance: 0.0
+
+Files contain different numbers of HDUs:
+ a: 5
+ b: 2
+
+Primary HDU:
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 117
+      b: 11
+     Extra keyword ''       in a: ''
+     Extra keyword 'ATODCORR' in a: 'PERFORM'
+     Extra keyword 'ATODFILE' in a: 'uref$e1b09594u.r1h'
+     Extra keyword 'ATODGAIN' in a: 7.0
+     Extra keyword 'BIASCORR' in a: 'PERFORM'
+     Extra keyword 'BIASDFIL' in a: 'uref$e6o0937du.b2h'
+     Extra keyword 'BIASFILE' in a: 'uref$e6o0937du.r2h'
+     Extra keyword 'BLEVCORR' in a: 'PERFORM'
+     Extra keyword 'BLEVDFIL' in a: 'ucal$u2eq0201t.q1h'
+     Extra keyword 'BLEVFILE' in a: 'ucal$u2eq0201t.x0h'
+     Extra keyword 'BSCALE' in a: 1.0
+     Extra keyword 'BZERO'  in a: 32768.0
+     Extra keyword 'CDBSFILE' in a: 'NO'
+     Extra keyword 'COMPTAB' in a: 'mtab$f7j1535pm.tmc'
+     Extra keyword 'DARKCORR' in a: 'OMIT'
+     Extra keyword 'DARKDFIL' in a: 'uref$e6o09384u.b3h'
+     Extra keyword 'DARKFILE' in a: 'uref$e6o09384u.r3h'
+     Extra keyword 'DARKTIME' in a: 0.23
+     Extra keyword 'DATE'   in a: '01/04/99'
+     Extra keyword 'DATE-OBS' in a: '19/05/94'
+     Extra keyword 'DEC_SUN' in a: 19.8289107164
+     Extra keyword 'DOHISTOS' in a: 'OMIT'
+     Extra keyword 'DOPHOTOM' in a: 'PERFORM'
+     Extra keyword 'DOSATMAP' in a: 'OMIT'
+     Extra keyword 'EPLONGPM' in a: 0.0
+     Extra keyword 'EQNX_SUN' in a: 2000.0
+     Extra keyword 'EQRADTRG' in a: 0.0
+     Extra keyword 'EXPEND' in a: 49491.65366441
+     Extra keyword 'EXPFLAG' in a: 'NORMAL'
+     Extra keyword 'EXPSTART' in a: 49491.65366175
+     Extra keyword 'EXPTIME' in a: 0.23
+     Extra keyword 'FGSLOCK' in a: 'FINE'
+     Extra keyword 'FILETYPE' in a: 'SCI'
+     Extra keyword 'FILTER1' in a: 33
+     Extra keyword 'FILTER2' in a: 0
+     Extra keyword 'FILTNAM1' in a: 'F673N'
+     Extra keyword 'FILTNAM2' in a: ''
+     Extra keyword 'FILTROT' in a: 0.0
+     Extra keyword 'FLATCORR' in a: 'PERFORM'
+     Extra keyword 'FLATDFIL' in a: 'uref$e1c1404ju.b4h'
+     Extra keyword 'FLATFILE' in a: 'uref$e1c1404ju.r4h'
+     Extra keyword 'FLATNTRG' in a: 0.0
+     Extra keyword 'GRAPHTAB' in a: 'mtab$f7d1401pm.tmg'
+     Extra keyword 'GROUPS' in a: False
+     Extra keyword 'IMAGETYP' in a: 'EXT'
+     Extra keyword 'INSTRUME' in a: 'WFPC2'
+     Extra keyword 'IRAF-TLM' in a: 'xxx'
+     Extra keyword 'KSPOTS' in a: 'OFF'
+     Extra keyword 'LONGPMER' in a: 0.0
+     Extra keyword 'LRFWAVE' in a: 0.0
+     Extra keyword 'MASKCORR' in a: 'PERFORM'
+     Extra keyword 'MASKFILE' in a: 'uref$fan15478u.r0h'
+     Extra keyword 'MODE'   in a: 'AREA'
+     Extra keyword 'MOONANGL' in a: 54.995346
+     Extra keyword 'MTFLAG' in a: True
+     Extra keyword 'NPDECTRG' in a: 0.0
+     Extra keyword 'NPRATRG' in a: 0.0
+     Extra keyword 'NSHUTA17' in a: 0
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OUTDTYPE' in a: 'REAL'
+     Extra keyword 'PA_V3'  in a: 292.387786865
+     Extra keyword 'PHOTTAB' in a: ''
+     Extra keyword 'PKTFMT' in a: 96
+     Extra keyword 'PODPSFF' in a: False
+     Extra keyword 'PSTPTIME' in a: '1994.139:16:14:39'
+     Extra keyword 'PSTRTIME' in a: '1994.139:15:41:39'
+     Extra keyword 'RA_SUN' in a: 56.2731208362
+     Extra keyword 'READTIME' in a: 151
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'ROTRTTRG' in a: 0.0
+     Extra keyword 'RSDPFILL' in a: -100
+     Extra keyword 'SATURATE' in a: 4095
+     Extra keyword 'SERIALS' in a: 'OFF'
+     Extra keyword 'SHADCORR' in a: 'PERFORM'
+     Extra keyword 'SHADFILE' in a: 'uref$e6o09405u.r5h'
+     Extra keyword 'SHUTTER' in a: 'B'
+     Extra keyword 'STDCFFF' in a: False
+     Extra keyword 'STDCFFP' in a: '0x5569'
+     Extra keyword 'SUNANGLE' in a: 158.939133
+     Extra keyword 'SUN_ALT' in a: -11.552458
+     Extra keyword 'SURFALTD' in a: 0.0
+     Extra keyword 'SURFLATD' in a: 0.0
+     Extra keyword 'SURFLONG' in a: 0.0
+     Extra keyword 'TIME-OBS' in a: '15:41:16'
+     Extra keyword 'UBAY3TMP' in a: 14.5969
+     Extra keyword 'UCH1CJTM' in a: -88.3486
+     Extra keyword 'UCH2CJTM' in a: -88.8073
+     Extra keyword 'UCH3CJTM' in a: -88.3945
+     Extra keyword 'UCH4CJTM' in a: -88.9041
+     Extra keyword 'UEXPODUR' in a: 0
+     Extra keyword 'UEXPOTIM' in a: 20272
+     Extra keyword 'USCALE' in a: 1.0
+     Extra keyword 'UZERO'  in a: 0.0
+     Extra keyword 'COMMENT' in b: '  FITS (Flexible Image Transport System) format defined in Astronomy and'
+     Keyword FILENAME has different values:
+        a> vtest3.fits
+        b> tb.fits
+     Keyword FILENAME has different comments:
+        a> File name
+        b> name of file
+     Keyword NEXTEND  has different values:
+        a> 4
+        b> 1
+     Keyword NEXTEND  has different comments:
+        a> Number of standard extensions
+        b> number of extensions in file
+     Keyword ORIGIN   has different values:
+        a> NOAO-IRAF FITS Image Kernel Aug 1 1997
+        b> STScI-STSDAS/TABLES
+     Keyword ORIGIN   has different comments:
+        a> FITS file originator
+        b> Tables version 1999-09-07
+
+Extension HDU 1:
+   Extension types differ:
+    a: IMAGE
+    b: BINTABLE
+   Extension names differ:
+    a: SCI
+    b: 
+
+   Headers contain differences:
+     Headers have different number of cards:
+      a: 61
+      b: 24
+     Extra keyword 'ATODSAT' in a: 0
+     Extra keyword 'BACKGRND' in a: 316.0
+     Extra keyword 'BADPIXEL' in a: 0
+     Extra keyword 'BIASEVEN' in a: 0.0
+     Extra keyword 'BIASODD' in a: 0.0
+     Extra keyword 'CALIBDEF' in a: 0
+     Extra keyword 'CD1_1'  in a: 2.33019e-05
+     Extra keyword 'CD1_2'  in a: 9.85029e-06
+     Extra keyword 'CD2_1'  in a: 9.85462e-06
+     Extra keyword 'CD2_2'  in a: -2.32916e-05
+     Extra keyword 'CRPIX1' in a: 210.25
+     Extra keyword 'CRPIX2' in a: 212.5
+     Extra keyword 'CRVAL1' in a: 215.597167517
+     Extra keyword 'CRVAL2' in a: -12.7376058132
+     Extra keyword 'CTYPE1' in a: 'UNITLESS'
+     Extra keyword 'CTYPE2' in a: 'LINE'
+     Extra keyword 'DATALOST' in a: 0
+     Extra keyword 'DATAMAX' in a: 0.0
+     Extra keyword 'DATAMEAN' in a: 0.0
+     Extra keyword 'DATAMIN' in a: 0.0
+     Extra keyword 'DETECTOR' in a: 1
+     Extra keyword 'DEZERO' in a: 0.0
+     Extra keyword 'ERRCNT' in a: 0
+     Extra keyword 'EXPNAME' in a: 'U2EQ0201T'
+     Extra keyword 'EXTNAME' in a: 'SCI'
+     Extra keyword 'EXTVER' in a: 1
+     Extra keyword 'FILLCNT' in a: 0
+     Extra keyword 'FPKTTIME' in a: 49491.654167
+     Extra keyword 'GOODMAX' in a: 0.0
+     Extra keyword 'GOODMIN' in a: 0.0
+     Extra keyword 'GPIXELS' in a: 0
+     Extra keyword 'HISTWIDE' in a: 1.0
+     Extra keyword 'INHERIT' in a: True
+     Extra keyword 'LPKTTIME' in a: 49491.65422
+     Extra keyword 'MEANC10' in a: 313.16
+     Extra keyword 'MEANC100' in a: 313.4404
+     Extra keyword 'MEANC200' in a: 313.3406
+     Extra keyword 'MEANC25' in a: 313.2493
+     Extra keyword 'MEANC300' in a: 313.3636
+     Extra keyword 'MEANC50' in a: 313.5349
+     Extra keyword 'MEDIAN' in a: 312.0
+     Extra keyword 'MEDSHADO' in a: 314.0
+     Extra keyword 'MIR_REVR' in a: True
+     Extra keyword 'ORIENTAT' in a: 157.076
+     Extra keyword 'OVERLAP' in a: 0
+     Extra keyword 'PHOTBW' in a: 0.0
+     Extra keyword 'PHOTFLAM' in a: 0.0
+     Extra keyword 'PHOTMODE' in a: ''
+     Extra keyword 'PHOTPLAM' in a: 0.0
+     Extra keyword 'PHOTZPT' in a: 0.0
+     Extra keyword 'ROOTNAME' in a: 'U2EQ0201T'
+     Extra keyword 'SKEWNESS' in a: -0.003205
+     Extra keyword 'SOFTERRS' in a: 0
+     Extra keyword 'STATICD' in a: 0
+     Extra keyword 'HISTORY' in b: 'Created Mon 15:05:16 10-Sep-2001'
+     Extra keyword 'TDISP1' in b: 'I11'
+     Extra keyword 'TDISP2' in b: 'A3'
+     Extra keyword 'TDISP3' in b: 'G15.7'
+     Extra keyword 'TDISP4' in b: 'L6'
+     Extra keyword 'TFIELDS' in b: 4
+     Extra keyword 'TFORM1' in b: '1J'
+     Extra keyword 'TFORM2' in b: '3A'
+     Extra keyword 'TFORM3' in b: '1E'
+     Extra keyword 'TFORM4' in b: '1L'
+     Extra keyword 'TNULL1' in b: -2147483647
+     Extra keyword 'TSCAL3' in b: 3
+     Extra keyword 'TTYPE1' in b: 'c1'
+     Extra keyword 'TTYPE2' in b: 'c2'
+     Extra keyword 'TTYPE3' in b: 'c3'
+     Extra keyword 'TTYPE4' in b: 'c4'
+     Extra keyword 'TZERO3' in b: 0.4
+     Keyword BITPIX   has different values:
+        a> 16
+        b> 8
+     Keyword BITPIX   has different comments:
+        a> number of bits per data pixel
+        b> 8-bit bytes
+     Keyword GCOUNT   has different comments:
+        a> required keyword; must = 1
+        b> one data group (required keyword)
+     Keyword NAXIS    has different comments:
+        a> number of data axes
+        b> 2-dimensional binary table
+     Keyword NAXIS1   has different values:
+        a> 40
+        b> 12
+     Keyword NAXIS1   has different comments:
+        a> length of data axis 1
+        b> width of table in bytes
+     Keyword NAXIS2   has different values:
+        a> 40
+        b> 2
+     Keyword NAXIS2   has different comments:
+        a> length of data axis 2
+     Keyword PCOUNT   has different comments:
+        a> required keyword; must = 0
+        b> size of special data area
+     Keyword XTENSION has different values:
+        a> IMAGE
+        b> BINTABLE
+     Keyword XTENSION has different comments:
+        a> IMAGE extension
+        b> binary table extension
+
+=========================== short test summary info ============================
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_sample_file
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_image_create
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_scaled_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_scaled_data_auto_rescale
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_uint16_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_groups_hdu_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_binary_table_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_variable_length_table_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_variable_length_table_data2
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_variable_length_table_data3
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_small_heap
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_ascii_table_data
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_open_with_no_keywords
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_append
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_writeto_convenience
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_hdu_writeto
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_hdu_writeto_existing
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_datasum_only
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_open_update_mode_preserve_checksum
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_open_update_mode_update_checksum
+PASSED astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_overwrite_invalid
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_overwrite_with_path
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_to_fileobj
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_simple
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_simple_pathlib
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_simple_meta
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_simple_meta_conflicting
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_simple_noextension
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_with_units[Table]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_with_units[QTable]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_with_custom_units_qtable
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_read_with_unit_aliases[Table]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_read_with_unit_aliases[QTable]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_with_format[Table]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_with_format[QTable]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_masked
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_masked_nan[True]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_masked_nan[False]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_masked_serialize_data_mask
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_read_from_fileobj
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_read_with_nonstandard_units
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_drop_nonstandard_units[Table]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_drop_nonstandard_units[QTable]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_memmap
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_character_as_bytes[False]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_character_as_bytes[True]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_strip_spaces[False]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_strip_spaces[True]
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_oned_single_element
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_append
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_names
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_overwrite
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_mask_nans_on_read
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_mask_null_on_read
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_mask_str_on_read
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_heterogeneous_VLA_tables
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_object_tables_with_unified
+PASSED astropy/io/fits/tests/test_connect.py::TestSingleTable::test_write_VLA_tables_with_unified
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_0
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_1[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_1[first]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_2[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_2[second]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_3[3]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_3[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_4
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_missing[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_missing[3]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_missing[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_missing[second]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_missing[]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_warning[0]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_warning[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_with_hdu_warning[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_in_last_hdu[0]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_in_last_hdu[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_in_last_hdu[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_0
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[first]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[None]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_1[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_1[first]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_2[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_2[second]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_3[3]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_3[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[0]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[2]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[3]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[second]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[0]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[third]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_single_hdu[None]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_single_hdu[1]
+PASSED astropy/io/fits/tests/test_connect.py::TestMultipleHDU::test_read_from_single_hdu[first]
+PASSED astropy/io/fits/tests/test_connect.py::test_masking_regression_1795
+PASSED astropy/io/fits/tests/test_connect.py::test_scale_error
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[EN10.5-format_return0]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[F6.2-format_return1]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[F12.10-format_return2]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[ES12.11-format_return3]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[EN12.11-format_return4]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[B5.10-format_return5]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[E10.5E3-format_return6]
+PASSED astropy/io/fits/tests/test_connect.py::test_parse_tdisp_format[A21-format_return7]
+PASSED astropy/io/fits/tests/test_connect.py::test_fortran_to_python_format[G15.4E2-{:15.4g}]
+PASSED astropy/io/fits/tests/test_connect.py::test_fortran_to_python_format[Z5.10-{:5x}]
+PASSED astropy/io/fits/tests/test_connect.py::test_fortran_to_python_format[I6.5-{:6d}]
+PASSED astropy/io/fits/tests/test_connect.py::test_fortran_to_python_format[L8-{:>8}]
+PASSED astropy/io/fits/tests/test_connect.py::test_fortran_to_python_format[E20.7-{:20.7e}]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[{:3d}-I3]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[3d-I3]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[7.3f-F7.3]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[{:>4}-A4]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[{:7.4f}-F7.4]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[%5.3g-G5.3]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[%10s-A10]
+PASSED astropy/io/fits/tests/test_connect.py::test_python_to_tdisp[%.4f-F13.4]
+PASSED astropy/io/fits/tests/test_connect.py::test_logical_python_to_tdisp
+PASSED astropy/io/fits/tests/test_connect.py::test_bool_column
+PASSED astropy/io/fits/tests/test_connect.py::test_unicode_column
+PASSED astropy/io/fits/tests/test_connect.py::test_unit_warnings_read_write
+PASSED astropy/io/fits/tests/test_connect.py::test_convert_comment_convention
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_qtable_to_table
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_as_one[Table]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_as_one[QTable]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col0]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col1]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col2]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col3]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col4]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col5]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col6]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col7]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col8]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col9]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col10]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col11]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col12]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col17]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col18]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col19]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col20]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col21]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col22]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[Table-name_col25]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col0]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col1]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col2]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col3]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col4]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col5]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col6]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col7]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col8]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col9]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col10]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col11]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col12]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col13]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col14]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col15]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col16]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col17]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col18]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col19]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col20]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col21]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col22]
+PASSED astropy/io/fits/tests/test_connect.py::test_fits_mixins_per_column[QTable-name_col25]
+PASSED astropy/io/fits/tests/test_connect.py::test_info_attributes_with_no_mixins
+PASSED astropy/io/fits/tests/test_connect.py::test_round_trip_masked_table_serialize_mask[set_cols]
+PASSED astropy/io/fits/tests/test_connect.py::test_round_trip_masked_table_serialize_mask[names]
+PASSED astropy/io/fits/tests/test_connect.py::test_round_trip_masked_table_serialize_mask[class]
+PASSED astropy/io/fits/tests/test_connect.py::test_meta_not_modified
+PASSED astropy/io/fits/tests/test_connect.py::test_is_fits_gh_14305
+PASSED astropy/io/fits/tests/test_connect.py::test_keep_masked_state_integer_columns
+PASSED astropy/io/fits/tests/test_connect.py::test_null_propagation_in_table_read
+PASSED astropy/io/fits/tests/test_connect.py::test_unsigned_int_dtype_propagation_for_zero_length_table
+PASSED astropy/io/fits/tests/test_connect.py::test_zero_length_string_columns_can_be_read_into_table[Table]
+PASSED astropy/io/fits/tests/test_connect.py::test_zero_length_string_columns_can_be_read_into_table[QTable]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_resource_warning
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_fileobj_not_closed
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_masked_table_to_hdu
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_masked_integer_arrays
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_non_stringifyable_unit_to_hdu
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_convert_comment_convention
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_filter_reserved
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[XTENSION]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[BITPIX]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[NAXIS]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[NAXIS1]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[NAXIS2]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[PCOUNT]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[GCOUNT]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[TFIELDS]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_warn_reserved[THEAP]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_to_hdu_filter_incompatible
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_table_writeto_header
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_image_extension_update_header[]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_image_extension_update_header[home_is_data]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_image_extension_update_header[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_printdiff
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_tabledump
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_dump_load_round_trip[table.fits]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_dump_load_round_trip[tb.fits]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filename[]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filename[home_is_data]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filename[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filehandle[wb]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filehandle[wb+]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filehandle[ab]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_filehandle[ab+]
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_append_with_header
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_pathlib
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_given
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_given_nodata
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_not_given_with_data_in_primary
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_not_given_with_data_in_ext
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_not_given_nodata_any
+PASSED astropy/io/fits/tests/test_convenience.py::TestConvenience::test_getdata_ext_not_given_nodata_noext
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_missing_file
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_naxisj_check
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_byteswap
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_fits_file_path_object
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_fits_pathlike_object
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_fits_file_bytes_object
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_add_del_columns
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_add_del_columns2
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_update_header_card
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_set_card_value
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_uint
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_fix_missing_card_append
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_fix_invalid_keyword_value
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_unfixable_missing_card
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_exception_on_verification_error
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_ignore_verification_error
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_unrecognized_verify_option
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_errlist_basic
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_combined_verify_options
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_getext
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_extension_name_case_sensitive
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_hdu_fromstring
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_nonstandard_hdu
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_extname
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_extver_extlevel
+PASSED astropy/io/fits/tests/test_core.py::TestCore::test_consecutive_writeto
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto[]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto[home_is_data]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto_2
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto_overwrite[]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto_overwrite[home_is_data]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto_overwrite[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_core.py::TestConvenienceFunctions::test_writeto_stdout
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_nonexistent
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_file_handle
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_fits_file_handle_mode_combo
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_from_url
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_gzipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_gzipped_from_handle
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_detect_gzipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_append_mode_gzip
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_fits_update_mode_gzip
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_fits_append_mode_gzip
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_bzipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_bzipped_from_handle
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_detect_bzipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_bzip2_fileobj
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_bzip2_filename
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_lzma
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_lzma_from_handle
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_detect_lzma
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_lzma_fileobj
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_lzma_filename
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_zipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_zipped_from_handle
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_detect_zipped
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_zipped_writeable
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_read_open_astropy_gzip_file
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_multiple_member_zipfile
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_read_open_file
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_read_closed_file
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_read_open_gzip_file
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_open_gzip_file_for_writing
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_read_gzip_file[]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_read_gzip_file[home_is_data]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_read_gzip_file[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_compressed_ext_but_not_compressed[gz]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_compressed_ext_but_not_compressed[bz2]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_compressed_ext_but_not_compressed[zip]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_compressed_ext_but_not_compressed[xz]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_compressed_ext_but_not_compressed[Z]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_read_file_like_object
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_updated_file_permissions
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_fileobj_mode_guessing
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_mmap_unwriteable
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_mmap_allocate_error
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_mmap_closing
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_uncloseable_file
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_bytesio_discontiguous
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_bytesio
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_filename_with_colon
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_writeto_full_disk
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_flush_full_disk
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_overwrite[]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_overwrite[home_is_data]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_write_overwrite[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_simulateonly
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_bintablehdu_zero_bytes
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_primaryhdu_zero_bytes
+PASSED astropy/io/fits/tests/test_core.py::TestFileFunctions::test_HDUList_writeto_stdout
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu[]
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu[home_is_data]
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu_file_wrong_mode
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu_write_file
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu_write_file_like
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_streaming_hdu_append_extension
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_fix_invalid_extname
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_blank_ignore
+PASSED astropy/io/fits/tests/test_core.py::TestStreamingFunctions::test_error_if_memmap_impossible
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_headers
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_slightly_different_headers
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_common_keywords
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_keyword_count
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_keywords
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_keyword_values
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_keyword_comments
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_keyword_values_with_duplicate
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_asymmetric_duplicate_keywords
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_floating_point_rtol
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_floating_point_atol
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_blanks
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_blank_cards[HeaderDiff]
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_blank_cards[HDUDiff]
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_blank_cards[FITSDiff]
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_hdus
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_keyword_values
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_keyword_comments
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_hierarch_keywords_identical
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_hierarch_keywords_different
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_trivial_identical_images
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_within_relative_tolerance
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_within_absolute_tolerance
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_within_rtol_and_atol
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_not_identical_within_rtol_and_atol
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_comp_image_hdus
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_dimensions
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_pixels
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_tables
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_diff_empty_tables
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_ignore_table_fields
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_table_field_names
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_table_field_counts
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_table_rows
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_different_table_data
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_files_basic
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_partially_identical_files1
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_partially_identical_files2
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_partially_identical_files3
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_diff_nans
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_file_output_from_path_string
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_file_output_overwrite_safety
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_file_output_overwrite_success
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_rawdatadiff_nodiff
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_rawdatadiff_dimsdiff
+PASSED astropy/io/fits/tests/test_diff.py::TestDiff::test_rawdatadiff_bytesdiff
+PASSED astropy/io/fits/tests/test_diff.py::test_fitsdiff_hdu_name
+PASSED astropy/io/fits/tests/test_diff.py::test_fitsdiff_no_hdu_name
+PASSED astropy/io/fits/tests/test_diff.py::test_fitsdiff_with_names
+PASSED astropy/io/fits/tests/test_diff.py::test_rawdatadiff_diff_with_rtol
+PASSED astropy/io/fits/tests/test_division.py::TestDivisionFunctions::test_rec_from_string
+PASSED astropy/io/fits/tests/test_division.py::TestDivisionFunctions::test_card_with_continue
+PASSED astropy/io/fits/tests/test_division.py::TestDivisionFunctions::test_valid_hdu_size
+PASSED astropy/io/fits/tests/test_division.py::TestDivisionFunctions::test_hdu_get_size
+PASSED astropy/io/fits/tests/test_division.py::TestDivisionFunctions::test_section
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_help
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_version
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_missing_file
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_valid_file
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_remove_checksums
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_no_checksums
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_overwrite_invalid
+PASSED astropy/io/fits/tests/test_fitscheck.py::TestFitscheck::test_missing_invalid
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_help
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_version
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_noargs
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_oneargargs
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_nodiff
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_onediff
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_manydiff
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_outputfile
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_atol
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_rtol
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_rtol_diff
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_wildcard
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_not_quiet
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_quiet
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_ignore_hdus
+PASSED astropy/io/fits/tests/test_fitsdiff.py::TestFITSDiff_script::test_ignore_hdus_report
+PASSED astropy/io/fits/tests/test_fitsdiff.py::Test_FITSDiff::test_FITSDiff_report[]
+PASSED astropy/io/fits/tests/test_fitsdiff.py::Test_FITSDiff::test_FITSDiff_report[home_is_data]
+PASSED astropy/io/fits/tests/test_fitsdiff.py::Test_FITSDiff::test_FITSDiff_report[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_help
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_version
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_file_exists
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_by_keyword
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_by_extension
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_table
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_fitsort
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_fitsort_sorting_keyword_fitsort
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_fitsort_sorting_keyword_complains
+PASSED astropy/io/fits/tests/test_fitsheader.py::TestFITSheader_script::test_dotkeyword
+PASSED astropy/io/fits/tests/test_fitsinfo.py::TestFitsinfo::test_help
+PASSED astropy/io/fits/tests/test_fitsinfo.py::TestFitsinfo::test_version
+PASSED astropy/io/fits/tests/test_fitsinfo.py::TestFitsinfo::test_onefile
+PASSED astropy/io/fits/tests/test_fitsinfo.py::TestFitsinfo::test_multiplefiles
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_is_time_column_keyword
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_loc[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[jd1_jd2-False-MaskedArray]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[jd1_jd2-False-Masked]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[jd1_jd2-mask1-MaskedArray]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[jd1_jd2-mask1-Masked]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[formatted_value-False-MaskedArray]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[formatted_value-False-Masked]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[formatted_value-mask1-MaskedArray]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_serialize_method[formatted_value-mask1-Masked]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_header[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_header[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_fits_to_time_meta[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_fits_to_time_meta[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_loc_unit[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_loc_unit[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_fits_to_time_index[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_fits_to_time_index[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_datetime[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_datetime[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_location[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_location[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_scale[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_scale[QTable]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_location_warnings[Table]
+PASSED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_io_time_read_fits_location_warnings[QTable]
+PASSED astropy/io/fits/tests/test_fsspec.py::test_fsspec_local
+PASSED astropy/io/fits/tests/test_fsspec.py::test_fsspec_local_write
+PASSED astropy/io/fits/tests/test_fsspec.py::test_fsspec_cutout2d
+PASSED astropy/io/fits/tests/test_fsspec.py::test_fsspec_compressed
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_open
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_open_groups_in_update_mode
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_random_groups_data_update
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_parnames_round_trip
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_groupdata_slice
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_group_slice
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_create_groupdata[]
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_create_groupdata[home_is_data]
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_create_groupdata[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_duplicate_parameter
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_group_bad_naxis
+PASSED astropy/io/fits/tests/test_groups.py::TestGroupsFunctions::test_not_groups_file
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_name
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_hdu_file_bytes
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_hdulist_file_info
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_create_from_multiple_primary
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_primary_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_extension_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_table_extension_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_groupshdu_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_primary_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_extension_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_groupshdu_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[True-scale.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[True-o4sp040b0_raw.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[True-fixed-1890.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[False-scale.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[False-o4sp040b0_raw.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_append_scaled_image_with_do_not_scale_image_data[False-fixed-1890.fits]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_primary_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_extension_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_table_extension_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_groupshdu_to_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_primary_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_extension_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_groupshdu_to_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_groupshdu_to_begin_of_hdulist_with_groupshdu
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_extension_to_primary_in_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_insert_image_extension_to_primary_in_non_empty_list
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_filename[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_filename[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_filename[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_file_like
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_file_like_2
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_file_like_3
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_shallow_copy
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_deep_copy
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_new_hdu_extname
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_filelike
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_flush_readonly
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_fix_extend_keyword
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_fix_malformed_naxisj
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_fix_wellformed_naxisj
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_new_hdulist_extend_keyword
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_replace_memmaped_array[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_replace_memmaped_array[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_replace_memmaped_array[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_open_file_with_bad_file_padding
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_open_file_with_end_padding
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_open_file_with_bad_header_padding
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_with_truncated_header
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header2[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header2[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_update_resized_header2[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_hdul_fromstring
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_save_backup[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_save_backup[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_save_backup[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_replace_mmap_data
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_replace_mmap_data_2
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_extname_in_hdulist
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_overwrite[]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_overwrite[home_is_data]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_overwrite[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_invalid_hdu_key_in_contains
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_iteration_of_lazy_loaded_hdulist
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_read_non_standard_hdu
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_proper_error_raised_on_non_fits_file
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_proper_error_raised_on_invalid_fits_file
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_warning_raised_on_non_standard_simple_card
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_proper_error_raised_on_non_fits_file_with_unicode
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_no_resource_warning_raised_on_non_fits_file
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_warning_raised_extra_bytes_after_last_hdu
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_pop_with_lazy_load
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_pop_extname
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_write_hdulist_to_stream
+PASSED astropy/io/fits/tests/test_hdulist.py::TestHDUListFunctions::test_output_verify
+PASSED astropy/io/fits/tests/test_header.py::test_shallow_copy
+PASSED astropy/io/fits/tests/test_header.py::test_init_with_header
+PASSED astropy/io/fits/tests/test_header.py::test_init_with_dict
+PASSED astropy/io/fits/tests/test_header.py::test_init_with_ordereddict
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_rename_keyword
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_indexing_case[A]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_indexing_case[a]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_card_constructor_default_args
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_card_from_bytes
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_string_value_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_boolean_value_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_integer_value_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_floating_point_value_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_floating_point_string_representation_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_complex_value_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_card_image_constructed_too_long
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_constructor_filter_illegal_data_structures
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_keyword_too_long
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_illegal_characters_in_key
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_add_history
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_add_blank
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_comment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_commentary_cards
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_commentary_card_created_by_fromstring
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_commentary_card_will_not_parse_numerical_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_equal_sign_after_column8
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_blank_keyword
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_specify_undefined_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_complex_number_using_string_input
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_fixable_non_standard_fits_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_fixable_non_fsc
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_undefined_value_using_string_input
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_undefined_keys_values
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_mislocated_equal_sign
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_equal_only_up_to_column_10
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_verify_invalid_equal_sign
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_fix_invalid_equal_sign
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_value_with_multiple_long_words
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_unicode_string
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_repr
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_blank_keyword_long_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_from_file
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_word_in_long_string_too_long
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_value_via_fromstring
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_value_with_quotes
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_continue_card_with_equals_in_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_final_continue_card_lacks_ampersand
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_final_continue_card_ampersand_removal_on_long_comments
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_card_creation
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_with_abbrev_value_indicator
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_not_warn
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_keyword_whitespace
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_key_with_long_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_key_with_long_value_no_spaces
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_key_with_medium_value_and_comment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_verify_mixed_case_hierarch
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_missing_keyword
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_card_lookup
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_card_delete
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_card_insert_delete
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_hierarch_create_and_update
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_short_hierarch_create_and_update
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_setitem_invalid
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_setitem_1tuple
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_setitem_2tuple
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_set_value_to_none
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_set_comment_only
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_iter
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_slice
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_slice_assignment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_slice_delete
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_wildcard_slice
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_wildcard_with_hyphen
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_wildcard_slice_assignment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_wildcard_slice_deletion
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_history
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_clear
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_clear_write[fitsext0]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_clear_write[fitsext1]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromkeys
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromkeys_with_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromkeys_with_value_and_comment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromkeys_with_duplicates
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_items
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_iterkeys
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_itervalues
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_keys
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_list_like_pop
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_dict_like_pop
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_popitem
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_setdefault
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_from_dict
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_from_iterable
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend_unique
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend_unique_commentary
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend_update
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend_update_commentary
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_extend_exact
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_count
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_append_use_blanks
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_append_keyword_only
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_insert_use_blanks
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_insert_before_keyword
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_remove
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_comments
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_comment_slices_and_filters
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_comment_slice_filter_assign
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_commentary_slicing
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_commentary
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_commentary_comparison
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_commentary_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_totxtfile[]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_totxtfile[home_is_data]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_totxtfile[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_tofile[]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_tofile[home_is_data]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_tofile[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_fromfile
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromtextfile
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromtextfile_with_end_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_append_end_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_invalid_end_cards
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_invalid_characters
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_unnecessary_move
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_invalid_float_cards
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_invalid_float_cards2
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_leading_zeros
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_assign_boolean
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_method_keyword_normalization
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_end_in_comment
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_assign_unicode
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_assign_non_ascii
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_strip_whitespace
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_keep_duplicate_history_in_orig_header
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_invalid_keyword_cards
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_fix_hierarch_with_invalid_value
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_assign_inf_nan
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_bool
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_numeric
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_newlines_in_commentary
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_commentary_card_appended_to_header
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_fromstring_bytes
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_set_keyword_with_space
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_strip
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_update_invalid_card
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_index_numpy_int
+PASSED astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_header_data_size
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_initialize_rvkc
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_parse_field_specifier
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_update_field_specifier
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_field_specifier_case_senstivity
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_get_rvkc_by_index
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_get_rvkc_by_keyword
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_get_rvkc_by_keyword_and_field_specifier
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_access_nonexistent_rvkc
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_update_rvkc
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_update_rvkc_2
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_raw_keyword_value
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_rvkc_insert_after
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_rvkc_delete
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_pattern_matching_keys
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_pattern_matching_key_deletion
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_successive_pattern_matching
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_rvkc_in_cardlist_keys
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_rvkc_in_cardlist_values
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_rvkc_value_attribute
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_overly_permissive_parsing
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_overly_aggressive_rvkc_lookup
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_fitsheader_script
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_fitsheader_compressed_from_primary_image_ext
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_fitsheader_table_feature
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_hdu_writeto_mode[wb]
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_hdu_writeto_mode[wb+]
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_hdu_writeto_mode[ab]
+PASSED astropy/io/fits/tests/test_header.py::TestRecordValuedKeywordCards::test_hdu_writeto_mode[ab+]
+PASSED astropy/io/fits/tests/test_header.py::test_subclass
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_constructor_name_arg
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_constructor_ver_arg
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_constructor_copies_header
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_open
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_open_2
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_open_3
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_fortran_array
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_fortran_array_non_contiguous
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_primary_with_extname
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_io_manipulation
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_memory_mapping
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_verification_on_output
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_single
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_square
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_cube
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_four
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_scaled[scale.fits-float32]
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_section_data_scaled[fixed-1890.fits-uint16]
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_do_not_scale_image_data
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_append_uint_data
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scale_with_explicit_bzero_bscale
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_uint_header_consistency
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_uint_header_keywords_removed_after_bitpix_change[False-False]
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_uint_header_keywords_removed_after_bitpix_change[False-True]
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_blanks
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_invalid_blanks
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scale_back_with_blanks
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_bzero_with_floats
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_rewriting_large_scaled_image
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_image_update_header
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_open_scaled_in_update_mode
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scale_back
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_image_none
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_invalid_blank
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scaled_image_fromfile
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_set_data
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scale_bzero_with_int_data
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_scale_back_uint_assignment
+PASSED astropy/io/fits/tests/test_image.py::TestImageFunctions::test_hdu_creation_with_scalar
+PASSED astropy/io/fits/tests/test_image.py::test_scale_implicit_casting
+PASSED astropy/io/fits/tests/test_image.py::test_scale_floats
+PASSED astropy/io/fits/tests/test_image.py::test_bzero_implicit_casting_compressed
+PASSED astropy/io/fits/tests/test_image.py::test_bzero_mishandled_info
+PASSED astropy/io/fits/tests/test_image.py::test_image_write_readonly
+PASSED astropy/io/fits/tests/test_image.py::test_int8
+PASSED astropy/io/fits/tests/test_nonstandard.py::TestNonstandardHdus::test_create_fitshdu
+PASSED astropy/io/fits/tests/test_nonstandard.py::TestNonstandardHdus::test_create_fitshdu_with_compression
+PASSED astropy/io/fits/tests/test_nonstandard.py::TestNonstandardHdus::test_create_fitshdu_from_filename
+PASSED astropy/io/fits/tests/test_structured.py::TestStructured::test_structured
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_0
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_1[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_1[first]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_2[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_2[second]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_3[3]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_3[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_4
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_missing[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_missing[3]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_missing[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_missing[second]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_missing[]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_warning[0]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_warning[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_with_hdu_warning[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_in_last_hdu[0]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_in_last_hdu[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_in_last_hdu[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_0
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[first]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_single_table[None]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_1[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_1[first]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_2[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_2[second]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_3[3]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_3[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[0]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_warning[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[2]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[3]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[second]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_with_hdu_missing[]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[0]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_hdulist_in_last_hdu[third]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_single_hdu[None]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_single_hdu[1]
+PASSED astropy/io/fits/tests/test_table.py::TestMultipleHDU::test_read_from_single_hdu[first]
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_missing_file
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_naxisj_check
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_byteswap
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_fits_file_path_object
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_fits_pathlike_object
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_fits_file_bytes_object
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_add_del_columns
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_add_del_columns2
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_update_header_card
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_set_card_value
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_uint
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_fix_missing_card_append
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_fix_invalid_keyword_value
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_unfixable_missing_card
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_exception_on_verification_error
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_ignore_verification_error
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_unrecognized_verify_option
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_errlist_basic
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_combined_verify_options
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_getext
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_extension_name_case_sensitive
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_hdu_fromstring
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_nonstandard_hdu
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_extname
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_extver_extlevel
+PASSED astropy/io/fits/tests/test_table.py::TestCore::test_consecutive_writeto
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_constructor_copies_header
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_open[]
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_open[home_is_data]
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_open[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_binary_table
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_ascii_table
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_endianness
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_column_endianness
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_recarray_to_bintablehdu
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_numpy_ndarray_to_bintablehdu
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_numpy_ndarray_to_bintablehdu_with_unicode
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_new_table_from_recarray
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_new_fitsrec
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_appending_a_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_adding_a_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_adding_a_column_inplace
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_adding_a_column_to_file
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_removing_a_column_inplace
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_removing_a_column_from_file
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_merge_tables
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_modify_column_attributes
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_multidimension_table_from_numpy_rec_columns
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_mask_array
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_slice_a_row
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_row_setitem
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_fits_record_len
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_add_data_by_rows
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_assign_multiple_rows_to_table
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_verify_data_references
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_new_table_with_ndarray
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_new_table_with_fits_rec
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_bin_table_hdu_constructor
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_constructor_name_arg
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_constructor_ver_arg
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_unicode_colname
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_bin_table_with_logical_array
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_fits_rec_column_access
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_with_zero_width_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_with_zero_width_str_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_string_column_padding
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_multi_dimensional_columns
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_oned_array_single_element
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_bin_table_init_from_string_array_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_columns_with_truncating_tdim
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_string_array_round_trip
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_new_table_with_nd_column
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_mismatched_tform_and_tdim
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_tdim_of_size_one
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_slicing
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_array_slicing
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_array_broadcasting
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_array_slicing_readonly
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_dump_load_round_trip[table.fits]
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_dump_load_round_trip[tb.fits]
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_dump_load_array_colums
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_load_guess_format
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_attribute_field_shadowing
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_from_bool_fields
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_from_bool_fields2
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_bool_column_update
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_missing_tnull
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_blank_field_zero
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_column_array_type_mismatch
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_none
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_unncessary_table_load
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_table_from_columns_of_other_table
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_bintable_to_asciitable
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_pickle
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_zero_length_table
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_dim_column_byte_order_mismatch
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_fits_rec_from_existing
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_update_string_column_inplace
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_converted_copy
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_dump_overwrite
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_pseudo_unsigned_ints
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_column_with_scaling
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_ascii_inttypes
+PASSED astropy/io/fits/tests/test_table.py::TestTableFunctions::test_ascii_floattypes
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_variable_length_columns
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_extend_variable_length_array
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_variable_length_table_format_pd_from_object_array
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_variable_length_table_format_pd_from_list
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_variable_length_table_format_pa_from_object_array
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_variable_length_table_format_pa_from_list
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_getdata_vla
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_copy_vla
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_vla_with_gap
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_tolist
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_tolist_from_file
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_empty_vla_raw_data
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_multidim_VLA_tables
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_heterogeneous_VLA_tables
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_vla_slice
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_vla_slice2
+PASSED astropy/io/fits/tests/test_table.py::TestVLATables::test_vla_update
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_format_interpretation
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_zero_precision_float_column
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_array_type_mismatch
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_new_coldefs_with_invalid_seqence
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_coldefs_init_from_array
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_pickle
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_lookup_by_name
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_membership
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_attribute_change_after_removal
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_x_column_deepcopy
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_p_column_deepcopy
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_keywords
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_start
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_formats[keys0]
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_formats[keys1]
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_formats[keys2]
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_formats[keys3]
+PASSED astropy/io/fits/tests/test_table.py::TestColumnFunctions::test_column_verify_formats[keys4]
+PASSED astropy/io/fits/tests/test_table.py::test_regression_5383
+PASSED astropy/io/fits/tests/test_table.py::test_table_to_hdu
+PASSED astropy/io/fits/tests/test_table.py::test_regression_scalar_indexing
+PASSED astropy/io/fits/tests/test_table.py::test_empty_table
+PASSED astropy/io/fits/tests/test_table.py::test_a3dtable
+PASSED astropy/io/fits/tests/test_table.py::test_invalid_file
+PASSED astropy/io/fits/tests/test_table.py::test_unit_parse_strict
+PASSED astropy/io/fits/tests/test_table.py::test_invalid_table_array
+PASSED astropy/io/fits/tests/test_table.py::test_repr_scaling
+PASSED astropy/io/fits/tests/test_table.py::test_one_row_string_column
+PASSED astropy/io/fits/tests/test_table.py::test_zero_row_string_column
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_info[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_info[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_info[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_printdiff[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_printdiff[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_printdiff[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_data[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_data[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_data[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_header[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_header[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_header[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_set_del_val[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_set_del_val[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_fits_get_set_del_val[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_header_formatter[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_header_formatter[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_header_formatter[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_dump_load[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_dump_load[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_dump_load[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_writeto[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_writeto[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_BinTableHDU_writeto[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_TableHDU_writeto[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_TableHDU_writeto[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_TableHDU_writeto[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_ImageHDU_writeto[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_ImageHDU_writeto[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_ImageHDU_writeto[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_CompImageHDU_writeto[]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_CompImageHDU_writeto[home_is_data]
+PASSED astropy/io/fits/tests/test_tilde_path.py::TestTildePaths::test_CompImageHDU_writeto[home_is_data, pathlib]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint[u2-False]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint[u4-False]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint[u8-False]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint[u2-True]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint[u4-True]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint_columns[u2]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint_columns[u4]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint_columns[u8]
+PASSED astropy/io/fits/tests/test_uint.py::TestUintFunctions::test_uint_slice
+PASSED astropy/io/fits/tests/test_util.py::TestUtils::test_ignore_sigint
+PASSED astropy/io/fits/tests/test_util.py::TestUtils::test_realign_dtype
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_strings
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_pil_image
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_gzip
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_normal_buffering
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_normal_no_buffering
+PASSED astropy/io/fits/tests/test_util.py::TestUtilMode::test_mode_normalization
+PASSED astropy/io/fits/tests/test_util.py::test_rstrip_inplace
+SKIPPED [2] astropy/io/fits/tests/test_image_dask.py:9: could not import 'dask.array': No module named 'dask'
+SKIPPED [8] astropy/io/fits/tests/test_connect.py:1018: column is not a mixin (e.g. Quantity subclass in Table)
+SKIPPED [2] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+SKIPPED [1] astropy/io/fits/tests/test_core.py:913: Optional package uncompresspy not installed
+SKIPPED [1] astropy/io/fits/tests/test_core.py:946: Optional package uncompresspy not installed
+SKIPPED [1] astropy/io/fits/tests/test_core.py:959: Optional package uncompresspy not installed
+SKIPPED [1] astropy/io/fits/tests/test_core.py:972: Optional package uncompresspy not installed
+SKIPPED [1] astropy/io/fits/tests/test_fitsdiff.py:239: need --run-slow option to run
+SKIPPED [1] astropy/io/fits/tests/test_fitsdiff.py:319: fails intentionally to show open files (see PR #10159)
+SKIPPED [1] astropy/io/fits/tests/test_fsspec.py:110: requires s3fs
+SKIPPED [1] astropy/io/fits/tests/test_fsspec.py:130: requires s3fs
+SKIPPED [1] astropy/io/fits/tests/test_table.py:2819: requires objgraph
+SKIPPED [1] astropy/io/fits/tests/test_table.py:2833: requires objgraph
+SKIPPED [1] astropy/io/fits/tests/test_table.py:2877: requires objgraph
+SKIPPED [1] astropy/io/fits/tests/test_table.py:3235: need --run-hugemem option to run
+SKIPPED [1] astropy/io/fits/tests/test_table.py:3258: need --run-hugemem option to run
+XFAIL astropy/io/fits/tests/test_connect.py::test_fits_unsupported_mixin[name_col0] - column type unsupported
+XFAIL astropy/io/fits/tests/test_connect.py::test_fits_unsupported_mixin[name_col1] - column type unsupported
+XFAIL astropy/io/fits/tests/test_connect.py::test_fits_unsupported_mixin[name_col2] - column type unsupported
+XFAIL astropy/io/fits/tests/test_connect.py::test_fits_unsupported_mixin[name_col3] - column type unsupported
+XFAIL astropy/io/fits/tests/test_connect.py::test_fits_unsupported_mixin[name_col4] - column type unsupported
+FAILED astropy/io/fits/tests/test_fitstime.py::TestFitsTime::test_time_to_fits_loc[Table]
+============ 1 failed, 1024 passed, 25 skipped, 5 xfailed in 13.80s ============

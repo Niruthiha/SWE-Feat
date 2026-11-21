@@ -1,0 +1,107 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.19, pytest-9.0.1, pluggy-1.6.0
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: timeout-2.4.0, xdist-3.8.0, cov-7.0.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 29 items
+
+tests/_marks/test_line.py .......................FF..FF                  [100%]
+
+=================================== FAILURES ===================================
+____________________________ TestDash.test_xy_data _____________________________
+tests/_marks/test_line.py:332: in test_xy_data
+    assert_array_almost_equal(verts[0], [x[i] - .4, x[i] + .4])
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+/opt/miniconda3/envs/testbed/lib/python3.10/site-packages/numpy/_utils/__init__.py:85: in wrapper
+    return fun(*args, **kwargs)
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+E   AssertionError: 
+E   Arrays are not almost equal to 6 decimals
+E   
+E   (shapes (4,), (2,) mismatch)
+E    ACTUAL: array([0., 0., 1., 2.])
+E    DESIRED: array([-0.4,  0.4])
+________________________ TestDash.test_xy_data_grouped _________________________
+tests/_marks/test_line.py:347: in test_xy_data_grouped
+    assert_array_almost_equal(verts[0], [x[i] - .4, x[i] + .4])
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+/opt/miniconda3/envs/testbed/lib/python3.10/site-packages/numpy/_utils/__init__.py:85: in wrapper
+    return fun(*args, **kwargs)
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+E   AssertionError: 
+E   Arrays are not almost equal to 6 decimals
+E   
+E   Mismatched elements: 2 / 2 (100%)
+E   Max absolute difference among violations: 0.6
+E   Max relative difference among violations: 1.5
+E    ACTUAL: array([0., 1.])
+E    DESIRED: array([-0.4,  0.4])
+_____________________________ TestDash.test_width ______________________________
+tests/_marks/test_line.py:391: in test_width
+    assert_array_almost_equal(verts[0], [x[i] - .2, x[i] + .2])
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+/opt/miniconda3/envs/testbed/lib/python3.10/site-packages/numpy/_utils/__init__.py:85: in wrapper
+    return fun(*args, **kwargs)
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+E   AssertionError: 
+E   Arrays are not almost equal to 6 decimals
+E   
+E   (shapes (4,), (2,) mismatch)
+E    ACTUAL: array([0., 0., 1., 2.])
+E    DESIRED: array([-0.2,  0.2])
+_____________________________ TestDash.test_dodge ______________________________
+tests/_marks/test_line.py:406: in test_dodge
+    assert_array_almost_equal(v0[0], [-.4, 0])
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+/opt/miniconda3/envs/testbed/lib/python3.10/site-packages/numpy/_utils/__init__.py:85: in wrapper
+    return fun(*args, **kwargs)
+/opt/miniconda3/envs/testbed/lib/python3.10/contextlib.py:79: in inner
+    return func(*args, **kwds)
+E   AssertionError: 
+E   Arrays are not almost equal to 6 decimals
+E   
+E   (shapes (1,), (2,) mismatch)
+E    ACTUAL: array([-0.2])
+E    DESIRED: array([-0.4,  0. ])
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/_marks/test_line.py::TestPath::test_xy_data
+PASSED tests/_marks/test_line.py::TestPath::test_shared_colors_direct
+PASSED tests/_marks/test_line.py::TestPath::test_separate_colors_direct
+PASSED tests/_marks/test_line.py::TestPath::test_shared_colors_mapped
+PASSED tests/_marks/test_line.py::TestPath::test_separate_colors_mapped
+PASSED tests/_marks/test_line.py::TestPath::test_color_with_alpha
+PASSED tests/_marks/test_line.py::TestPath::test_color_and_alpha
+PASSED tests/_marks/test_line.py::TestPath::test_other_props_direct
+PASSED tests/_marks/test_line.py::TestPath::test_other_props_mapped
+PASSED tests/_marks/test_line.py::TestPath::test_capstyle
+PASSED tests/_marks/test_line.py::TestLine::test_xy_data
+PASSED tests/_marks/test_line.py::TestPaths::test_xy_data
+PASSED tests/_marks/test_line.py::TestPaths::test_set_properties
+PASSED tests/_marks/test_line.py::TestPaths::test_mapped_properties
+PASSED tests/_marks/test_line.py::TestPaths::test_color_with_alpha
+PASSED tests/_marks/test_line.py::TestPaths::test_color_and_alpha
+PASSED tests/_marks/test_line.py::TestPaths::test_capstyle
+PASSED tests/_marks/test_line.py::TestLines::test_xy_data
+PASSED tests/_marks/test_line.py::TestLines::test_single_orient_value
+PASSED tests/_marks/test_line.py::TestRange::test_xy_data
+PASSED tests/_marks/test_line.py::TestRange::test_auto_range
+PASSED tests/_marks/test_line.py::TestRange::test_mapped_color
+PASSED tests/_marks/test_line.py::TestRange::test_direct_properties
+PASSED tests/_marks/test_line.py::TestDash::test_set_properties
+PASSED tests/_marks/test_line.py::TestDash::test_mapped_properties
+FAILED tests/_marks/test_line.py::TestDash::test_xy_data - AssertionError: 
+FAILED tests/_marks/test_line.py::TestDash::test_xy_data_grouped - AssertionE...
+FAILED tests/_marks/test_line.py::TestDash::test_width - AssertionError: 
+FAILED tests/_marks/test_line.py::TestDash::test_dodge - AssertionError: 
+========================= 4 failed, 25 passed in 6.75s =========================

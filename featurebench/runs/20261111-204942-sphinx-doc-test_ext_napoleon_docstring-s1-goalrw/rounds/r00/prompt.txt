@@ -1,0 +1,23 @@
+## Task
+**Google- and NumPy-style docstrings with Napoleon, and intersphinx inventories**
+
+In this Sphinx repository, two documentation features do not work: parts of them are missing from
+the code. Make them work end to end, so that a user can:
+
+- write Google-style and NumPy-style docstrings and have Napoleon convert them to reStructuredText.
+  The converted docstring is available as text, with its lines joined by newlines. In type
+  descriptions such as "int, optional" or "{'a', 'b'}, default: 'a'", each piece is recognised
+  as a literal (numbers, quoted strings, brace sets), a delimiter, a control keyword ("optional",
+  "default"), a Sphinx cross-reference or an object name. A malformed quoted string or brace set
+  produces a warning (at the docstring's location, when known) but is still treated as a literal;
+- link to other projects' documentation with intersphinx. At build time, Sphinx loads the
+  inventories of the configured projects: cache entries for projects no longer configured are
+  dropped, local inventory files are always re-read while remote ones respect the cache expiry,
+  and only when some inventory actually changed are the named and main inventories rebuilt, in
+  a deterministic order by project name and expiry so duplicate entries resolve the same way every
+  time. An invalid mapping entry at that point is a configuration error.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Sphinx. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/sphinx-doc/sphinx/.

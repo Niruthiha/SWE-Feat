@@ -1,0 +1,310 @@
+/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_cython/__init__.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import get_distribution
+[1/1] Generating write_version_file with a custom command
++ /opt/miniconda3/envs/testbed/bin/ninja
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+PyQt5 5.15.11 -- Qt runtime 5.15.18 -- Qt compiled 5.15.14
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: cython-0.3.1, hypothesis-6.148.2, timeout-2.4.0, localserver-0.9.0.post0, xdist-3.8.0, qt-4.5.0, cov-7.0.0, anyio-4.11.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 258 items
+
+pandas/tests/internals/test_api.py ..............
+pandas/tests/internals/test_internals.py ....................................................................................................................................................................................................................................................
+
+==================================== PASSES ====================================
+------------------ generated xml file: /testbed/test-data.xml ------------------
+============================= slowest 30 durations =============================
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: bool-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category2-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: m8[ns]-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[c:sparse;d:sparse_na;b:f8]
+0.01s call     pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr5]
+0.01s call     pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>5-int64]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: bool; b: i8-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8; b: category-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category-i8]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: i8-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category2; b: category2-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: m8[ns]; b: i8-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr5]
+0.01s call     pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>4-uint64]
+0.01s call     pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>4-int64]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category; b: category-i8]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category; b: category2-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f4; b: i8; d: object-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: complex-complex]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_pickle
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: m8[ns]; b: bool-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8; b: i8-f8]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8-f8]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: category-object]
+0.01s call     pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f4; b: i8-f8]
+0.01s call     pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr2]
+0.01s call     pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr4]
+
+(3 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+PASSED pandas/tests/internals/test_api.py::test_internals_api
+PASSED pandas/tests/internals/test_api.py::test_namespace
+PASSED pandas/tests/internals/test_api.py::test_deprecations[Block]
+PASSED pandas/tests/internals/test_api.py::test_deprecations[ExtensionBlock]
+PASSED pandas/tests/internals/test_api.py::test_make_block_2d_with_dti
+PASSED pandas/tests/internals/test_api.py::test_create_block_manager_from_blocks_deprecated
+PASSED pandas/tests/internals/test_api.py::test_maybe_infer_ndim_deprecated
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_types
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_datetimelike
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_1dEA[array0]
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_1dEA[array1]
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_1dEA[array2]
+PASSED pandas/tests/internals/test_api.py::test_create_dataframe_from_blocks_1dEA[array3]
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_constructor
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_pickle[float-data0]
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_pickle[complex-data1]
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_pickle[object-data2]
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_pickle[bool-data3]
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_mgr_locs
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_attrs
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_copy
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_delete
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_delete_datetimelike
+PASSED pandas/tests/internals/test_internals.py::TestBlock::test_split
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_attrs
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_duplicate_ref_loc_failure
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_pickle
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_non_unique_pickle[a,a,a:f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_non_unique_pickle[a: f8; a: i8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_categorical_block_pickle
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_iget
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_set
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_set_change_dtype
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_copy
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_sparse
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_sparse_mixed
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_float[c: f4; d: f2-float32]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_float[c: f4; d: f2; e: f8-float64]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_int_bool[a: bool-1; b: bool-2-bool]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_int_bool[a: i8-1; b: i8-2; c: i4; d: i2; e: u1-int64]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_int_bool[c: i4; d: i2; e: u1-int32]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_datetime
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_as_array_datetime_tz
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_astype[float16]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_astype[float32]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_astype[float64]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_astype[int32]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_astype[int64]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_convert
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category-i8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category; b: category-i8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category; b: category2-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category2-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: category2; b: category2-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8-f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8; b: i8-f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f4; b: i8-f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f4; b: i8; d: object-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: bool; b: i8-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: complex-complex]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: f8; b: category-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: category-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: bool-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: i8-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: m8[ns]; b: bool-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: m8[ns]; b: i8-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_interleave_dtype[a: M8[ns]; b: m8[ns]-object]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_consolidate_ordering_issues
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_reindex_items
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_get_numeric_data
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_get_bool_data
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_unicode_repr_doesnt_raise
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals[a,b,c: i8-1; d,e,f: i8-2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals[a,a,a: i8-1; b,b,b: i8-2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[a:i8;b:f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[a:i8;b:f8;c:c8;d:b]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[a:i8;e:dt;f:td;g:string]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[a:i8;b:category;c:category2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_equals_block_order_different_dtypes[c:sparse;d:sparse_na;b:f8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_single_mgr_ctor
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_validate_bool_args[1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_validate_bool_args[True]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_validate_bool_args[value2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_validate_bool_args[5.0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_iset_split_block
+PASSED pandas/tests/internals/test_internals.py::TestBlockManager::test_iset_split_block_values
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_get_slice[mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_take[mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[None-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[nan-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_axis[100.0-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[None-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[nan-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr0]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr1]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr2]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr3]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr4]
+PASSED pandas/tests/internals/test_internals.py::TestIndexing::test_reindex_indexer[100.0-mgr5]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_len[slc0-4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_len[slc1-2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_len[slc2-2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_len[slc3-1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_len[slc4-1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_zero_step_raises[slc0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_zero_step_raises[slc1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_canonize_negative_stop
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc5]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc6]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc7]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_unbounded_slice_raises[slc9]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_slices[slc0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_slices[slc1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_slices[slc2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_slices[slc3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_slices[slc4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr0-slc0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr1-slc1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr2-slc2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr3-slc3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr4-slc4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_array_to_slice_conversion[arr5-slc5]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr5]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr6]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_not_slice_like_arrays[arr7]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_iter[slc0-expected0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_iter[slc1-expected1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_iter[slc2-expected2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_to_array_conversion[slc0-arr0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_to_array_conversion[slc1-arr1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_to_array_conversion[slc2-arr2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_slice_to_array_conversion[slc3-arr3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val0-0-expected0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val1-0-expected1]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val2-0-expected2]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val3-0-expected3]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val4-10-expected4]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val5-10-expected5]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val6-10-expected6]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val7-10-expected7]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val8--1-expected8]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val9--1-expected9]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int[val10--1-expected10]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int_raises[val0]
+PASSED pandas/tests/internals/test_internals.py::TestBlockPlacement::test_blockplacement_add_int_raises[val1]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_datetime_block_can_hold_element
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>0-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>0-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>0-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>1-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>1-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>1-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>2-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>2-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>2-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>3-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>3-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>3-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>4-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>4-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>4-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>5-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>5-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>5-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>6-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>6-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>6-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>7-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>7-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element_emptylist[<lambda>7-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>0-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>0-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>0-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>1-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>1-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>1-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>2-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>2-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>2-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>3-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>3-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>3-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>4-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>4-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>4-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>5-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>5-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>5-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>6-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>6-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>6-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>7-int64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>7-uint64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_interval_can_hold_element[<lambda>7-float64]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element_emptylist
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>0]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>1]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>2]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>3]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>4]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>5]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>6]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_can_hold_element[<lambda>7]
+PASSED pandas/tests/internals/test_internals.py::TestCanHoldElement::test_period_reindex_axis
+PASSED pandas/tests/internals/test_internals.py::TestShouldStore::test_should_store_categorical
+PASSED pandas/tests/internals/test_internals.py::test_validate_ndim
+PASSED pandas/tests/internals/test_internals.py::test_block_shape
+PASSED pandas/tests/internals/test_internals.py::test_make_block_no_pandas_array[new_block]
+PASSED pandas/tests/internals/test_internals.py::test_make_block_no_pandas_array[make_block]
+============================= 258 passed in 0.97s ==============================

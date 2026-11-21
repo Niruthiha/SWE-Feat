@@ -1,0 +1,48 @@
+## Task
+**Scales, palettes and HUSL color conversion in seaborn**
+
+In this seaborn repository, the scales of the objects interface, some palette helpers and the
+HUSL color conversions do not work: parts of the code they rely on are missing. Make them work,
+so that a user can:
+
+- create any scale of the objects interface and call it on data: a newly created scale has no
+  tick, label or legend configuration; calling it runs its transformation pipeline (unit
+  conversion, transform, normalization, property mapping); a scalar input gives a scalar result,
+  an array-like input the transformed array-like result;
+- set up a continuous scale (with values and norm options): its pipeline, a matplotlib scale with
+  locators and formatters, spacing, and legend tick locations and formatted labels for properties
+  that have a legend. With normalization, the chosen lower and upper bounds map to 0 and 1 in
+  transformed space, and values outside them are not clipped. Properties without a figure axis
+  (color, size, ...) use a minimal stand-in axis built from a matplotlib scale: it returns that
+  scale object as its scale, and stores and returns a (vmin, vmax) view interval, kept separately
+  from the data interval, with no validation, expansion, zoom or pan;
+- finalize a categorical (nominal) axis after the artists are drawn: grid lines off for major and
+  minor ticks, limits from -0.5 to the number of ticks - 0.5 (reversed for y axes), applied only
+  when the user set no limits;
+- configure ticks and labels of a date/time scale: tick(locator=None, *, upto=None) and
+  label(formatter=None, *, concise=False) return a copy of the scale; a locator that is not a
+  matplotlib Locator raises a TypeError, a locator takes precedence over upto, and by default an
+  AutoDateLocator(minticks=2, maxticks=6) is used; a formatter overrides the other label options,
+  and concise=True uses matplotlib's ConciseDateFormatter;
+- convert a color given as "hls", "husl" (clipped to [0, 1] after conversion), an "xkcd" name, or
+  anything matplotlib accepts ("rgb" or other) to an RGB tuple of floats in [0, 1];
+- make cubehelix palettes (n_colors=6, start=0, rot=0.4, gamma=1.0, hue=0.8, light=0.85,
+  dark=0.15, reverse=False, as_cmap=False), as a list of RGB tuples or a ListedColormap, also from
+  strings such as "ch:s=.25,r=-.5": an optional "ch:" prefix, an optional "_r" suffix (reverse),
+  comma-separated plain numbers (positional) and key=value pairs with the shortcuts s (start),
+  r (rot), g (gamma), h (hue), l (light), d (dark); all values are floats; an empty parameter
+  string gives no arguments except reverse;
+- convert colors between HUSL, LCH(uv), CIELUV, XYZ and sRGB (D65 white point, reference values
+  X=0.95047, Y=1.00000, Z=1.08883, U=0.19784, V=0.46834): HUSL saturation is chroma as a
+  percentage of the maximum in-gamut chroma for the lightness and hue; lightness above
+  99.9999999 is treated as 100 and below 0.00000001 as 0, with zero chroma/saturation; hue is
+  kept; LUV to LCH gives the chroma as the distance from the neutral axis and the hue in [0, 360),
+  0 when U and V are both 0; black (XYZ 0, 0, 0 or RGB 0, 0, 0) gives L, U, V (or L, C, H) all 0;
+  LCH to RGB may give components outside [0, 1] for out-of-gamut input; RGB input is ordinary
+  gamma-encoded sRGB, linearized on the way to XYZ; the maximum chroma checks both the t=0 and
+  t=1 gamut bounds and returns the most restrictive limit.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of seaborn. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mwaskom/seaborn.

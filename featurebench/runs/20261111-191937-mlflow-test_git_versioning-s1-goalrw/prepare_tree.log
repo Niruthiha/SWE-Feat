@@ -1,0 +1,17 @@
+== step 1: restore /testbed from /root/my_repo ==
+== step 2: apply mask patch ==
+== step 3: delete F2P test file ==
+deleted /testbed/tests/genai/test_git_versioning.py
+== step 4: repository-specific environment fixes ==
+Removed MLflow parallel source: /testbed/libs/skinny/mlflow
+Removed MLflow parallel source: /testbed/libs/tracing/mlflow
+== step 5: remove stale python bytecode ==
+== step 6: re-initialise git ==
+82d1058d843c8f7613d70755126deb7dcef2af06
+== clear package caches (InferenceRuntime.clear_package_caches) ==
+Cleared package cache: /opt/miniconda3/pkgs (1578856 KB)
+Cleared package cache: /root/.cache/pip (3048404 KB)
+== base tree ==
+BASE_TREE f5858f76935fb4ac4a7995109f46a95d189dfb72
+== harness-only: hand the tree to the agent uid ==
+prepare_tree done

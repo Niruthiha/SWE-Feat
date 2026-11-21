@@ -1,0 +1,22 @@
+ sphinx/application.py                     |  18 +-
+ sphinx/builders/dummy.py                  |  11 +-
+ sphinx/builders/html/__init__.py          |   4 +-
+ sphinx/builders/latex/transforms.py       | 125 ++---
+ sphinx/builders/latex/util.py             |   4 +-
+ sphinx/builders/singlehtml.py             | 249 +++++-----
+ sphinx/config.py                          |  94 ++--
+ sphinx/directives/patches.py              |  64 +--
+ sphinx/domains/math.py                    |  56 +--
+ sphinx/environment/__init__.py            |   2 +-
+ sphinx/environment/adapters/toctree.py    |  88 ++--
+ sphinx/ext/imgmath.py                     | 449 +++++++++---------
+ sphinx/ext/mathjax.py                     |   1 +
+ sphinx/transforms/post_transforms/code.py |   8 +-
+ sphinx/util/_timestamps.py                |   8 +
+ sphinx/util/math.py                       |  50 ++
+ sphinx/util/nodes.py                      |  12 +-
+ sphinx/util/png.py                        |  20 +-
+ sphinx/util/template.py                   |   8 +-
+ sphinx/writers/html5.py                   |  37 +-
+ sphinx/writers/latex.py                   | 764 +++++++++++++++---------------
+ 21 files changed, 1089 insertions(+), 983 deletions(-)

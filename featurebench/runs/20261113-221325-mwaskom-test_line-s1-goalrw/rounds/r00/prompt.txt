@@ -1,0 +1,31 @@
+## Task
+**Dodging, many-path drawing and continuous scale setup in seaborn**
+
+In this seaborn repository, several parts of the objects interface do not work: parts of the code
+they rely on are missing. Make them work, so that a user of the objects interface can:
+
+- dodge overlapping marks with Dodge (options: empty = 'keep', 'drop' or 'fill'; gap, the size of
+  the gap between dodged marks; by, the variables to apply the movement to, otherwise all are used).
+  Dodging is computed independently for each position and facet. Within a group, non-missing widths
+  keep their relative proportions, and their filled widths sum to the largest filled input width.
+  'keep' keeps missing groups at the group's mean width, 'drop' drops them, and 'fill' treats them
+  as zero-width groups. The dodged marks sit next to one another without overlap, and the whole
+  group stays centred on its original position;
+- draw many paths at once with the Paths mark (a faster but less flexible mark than Path, with
+  color, alpha, linewidth and linestyle properties): each data split is drawn as a segment of a
+  matplotlib LineCollection on its axes, with the properties resolved per split; the data are
+  sorted along the orientation axis only for marks that sort (Paths does not); the axes data limits
+  are updated (matplotlib issue #23129); all segments in one axes share the same cap style, also
+  for dashed lines, following the configured artist properties or matplotlib's default;
+- get a legend entry for Paths: an artist with empty data carrying the resolved color, linewidth
+  and linestyle, with a consistent cap style for solid and dashed lines;
+- set up a continuous scale (ContinuousBase, with values and norm options) for coordinates and
+  other properties: its transformation pipeline, matplotlib scale with locators and formatters,
+  spacing, and legend ticks and labels for properties that have a legend. For normalized
+  properties, the pipeline applies an affine normalization relative to data-derived or explicit
+  bounds; values outside those bounds are not clipped to [0, 1].
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of seaborn. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mwaskom/seaborn.

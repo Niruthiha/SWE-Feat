@@ -1,0 +1,67 @@
+## Task
+**Coordinate handling, indexes and array conversion in xarray**
+
+In this xarray repository, a set of core coordinate, index and array-compatibility machinery does
+not work: parts of the code it relies on are missing. As a result, creating and indexing objects
+with default or transform-based (lazy) indexes, building variables, and displaying coordinates are
+broken. Make it work, so that a user can:
+
+- use indexes built on an (experimental) coordinate transform: the index creates its coordinate
+  variables lazily from the transform, all with the transform's dimensions, copying only the
+  attributes (not data or dimensions) of any matching existing variables; the transform can
+  compute all coordinate labels at once, for all its dimensions or a given subset, by applying its
+  forward mapping to a mesh of dimension positions, without casting the result to its dtype;
+- rely on the default rule of the index base class for whether an index coordinate is added to a
+  new data array: yes exactly when the coordinate's dimensions are a subset of the array's;
+- build a pandas multi-index from several 1-D coordinate variables sharing one dimension: level
+  names are the variable names, the dimension name names the multi-index, the original dtypes of
+  the levels are kept, and a ValueError is raised for differing or non-1-D dimensions or a level
+  name equal to the dimension name;
+- get a default index for a 1-D dimension variable: a pandas multi-index (plus one coordinate per
+  level, with a ValueError on name conflicts with existing variables) when the data wraps a
+  pandas.MultiIndex, otherwise a plain pandas index with one coordinate;
+- convert array-likes safely to a pandas.Index: pandas indexes and multi-indexes unchanged;
+  extension arrays, data arrays, variables, indexes and pandas indexing adapters unwrapped; object
+  dtype kept as object; float16 cast to float64 with a deprecation warning; non-empty object
+  indexes converted to a cftime index when possible (left unchanged if cftime is missing or the
+  values don't fit);
+- keep indexes consistent when coordinates are filtered (an index tied to several coordinates is
+  dropped entirely unless all of them remain) and when positional indexing is applied (each index
+  is indexed once, coordinates sharing an index keep sharing its new version, and indexes that
+  cannot survive the selection, e.g. scalar selection, are dropped instead of raising);
+- index with keys for dimensions that don't exist, under missing_dims "raise" (ValueError),
+  "warn" (warning, key dropped) or "ignore" (key dropped); any other value raises a ValueError;
+  the input mapping is never modified;
+- have dtype checks behave: numpy-valid dtype detection (np.float64, "int32", int are valid;
+  "invalid_dtype" or a list are not); the numpy dtype used to wrap a pandas index (object for
+  period data; the categories' dtype for categoricals, or object if that is not numpy-valid;
+  object for any other non-numpy dtype); and which pandas extension arrays and dtypes are
+  accepted (nullable integers/floats/booleans, categoricals and other extension dtypes yes;
+  pandas string dtype, numpy-backed extension arrays, plain numpy dtypes and objects without a
+  dtype no);
+- convert objects into variables: a variable gives a shallow copy; a data array gives its variable;
+  a tuple is (dims, data[, attrs[, encoding]]) and an invalid tuple raises a ValueError, while a
+  data array inside the tuple raises a TypeError; scalars become 0-d; named pandas indexes and index
+  variables use their name; with a name given, 1-D data gets that dimension name (multi-dimensional
+  data without dims raises the missing-dimensions error); sets and dicts raise a TypeError; and,
+  for internal use only, a 1-D variable named after its dimension becomes an index variable
+  (deprecated behaviour);
+- ask any data array or variable for its sizes: a read-only, ordered mapping from dimension names
+  to lengths (e.g. x → 3, y → 4 for a 3 × 4 array);
+- cast data to another dtype through the array's own namespace, or an explicitly given Array API
+  namespace, keeping the backend (NumPy, Dask, ...) and passing extra keyword arguments on;
+- convert any duck array to a NumPy array: unwrap xarray's explicitly indexed wrappers, compute
+  chunked arrays (passing keyword arguments to the compute), move GPU arrays to the CPU, take
+  the magnitude of unit-aware arrays and densify sparse arrays;
+- display coordinates: a block under the usual coordinates header with one aligned line per coordinate (name,
+  dimensions, dtype, size and preview), dimension coordinates first in dimension order and the
+  others in their original order, "*" for coordinates that have an index and " " otherwise, a
+  default name column width from the longest name, and, with a maximum number of rows, roughly
+  the first and last halves with "..." between and the count in that header;
+- use data array coordinates as a view of the parent data array (changes go to the parent), whose
+  set of names is a new set built on each access.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of xarray. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pydata/xarray.

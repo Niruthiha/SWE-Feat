@@ -1,0 +1,164 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+
+Running tests with Astropy version 8.0.0.dev49+gb0db0daac.
+Running tests in /testbed/astropy/wcs/wcsapi/tests.
+
+Date: 2026-11-13T18:31:49
+
+Platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+
+Executable: /opt/miniconda3/envs/testbed/bin/python3.11
+
+Full Python Version: 
+3.11.14 | packaged by conda-forge | (main, Oct 22 2025, 22:46:25) [GCC 14.3.0]
+
+encodings: sys: utf-8, locale: utf-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Package versions: 
+Numpy: 2.3.3
+Scipy: not available
+Matplotlib: not available
+h5py: not available
+Pandas: not available
+PyERFA: 2.0.1.5
+Cython: not available
+Scikit-image: not available
+asdf-astropy: not available
+pyarrow: not available
+
+Using Astropy options: remote_data: none.
+
+CI: undefined
+ARCH_ON_CI: undefined
+IS_CRON: undefined
+
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: astropy-0.11.0, remotedata-0.4.1, timeout-2.4.0, mock-3.15.1, arraydiff-0.6.1, hypothesis-6.147.0, filter-subpackage-0.2.0, xdist-3.8.0, cov-7.0.0, astropy-header-0.2.2, doctestplus-1.5.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 85 items
+
+astropy/wcs/wcsapi/tests/test_fitswcs.py ....F...........sssssss........ [ 36%]
+......................................                                   [ 81%]
+astropy/wcs/wcsapi/tests/test_high_level_api.py .........                [ 91%]
+astropy/wcs/wcsapi/tests/test_high_level_wcs_wrapper.py ..               [ 94%]
+astropy/wcs/wcsapi/tests/test_low_level_api.py .                         [ 95%]
+astropy/wcs/wcsapi/tests/test_utils.py ....                              [100%]
+
+=================================== FAILURES ===================================
+________________________________ test_time_cube ________________________________
+astropy/time/core.py:3406: in update_leap_seconds
+    table = iers.LeapSeconds.auto_open(files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/utils/iers/iers.py:1207: in auto_open
+    warn("leap-second file is expired.", IERSStaleWarning)
+E   astropy.utils.iers.iers.IERSStaleWarning: leap-second file is expired.
+
+During handling of the above exception, another exception occurred:
+astropy/wcs/wcsapi/tests/test_fitswcs.py:522: in test_time_cube
+    coord, time = wcs.pixel_to_world(29, 39, 44)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/wcs/wcsapi/high_level_api.py:370: in pixel_to_world
+    pixel_values = values_to_high_level_objects(
+astropy/wcs/wcsapi/high_level_api.py:337: in values_to_high_level_objects
+    result.append(klass_gen(*args[key], *ar, **kwargs[key], **kw))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/wcs/wcsapi/fitswcs.py:826: in time_from_reference_and_offset
+    return reference_time + TimeDelta(offset, format="sec")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+astropy/time/core.py:2710: in __add__
+    out._set_scale("tai")
+astropy/time/core.py:797: in _set_scale
+    _check_leapsec()
+astropy/time/core.py:3377: in _check_leapsec
+    update_leap_seconds()
+astropy/time/core.py:3410: in update_leap_seconds
+    warn(
+E   astropy.utils.exceptions.AstropyWarning: leap-second auto-update failed due to the following exception: IERSStaleWarning('leap-second file is expired.')
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_empty
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_simple_celestial
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_cube
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_cube_nonaligned
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[tai]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[tcb]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[tcg]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[tdb]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[tt]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[ut1]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[utc]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values[local]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values_gps
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values_deprecated
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_values_time
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_high_precision
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_geodetic
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_geocentric
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_geocenter
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_missing
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_incomplete
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_location_unsupported
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_1d_unsupported_ctype
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_unrecognized_unit
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_distortion_correlations
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_custom_ctype_to_ucd_mappings
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_caching_components_and_classes
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_sub_wcsapi_attributes
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectralcoord_frame
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[False-ZOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[False-BETA]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[False-VELO]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[False-VRAD]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[False-VOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[True-ZOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[True-BETA]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[True-VELO]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[True-VRAD]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_different_ctypes[True-VOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_non_convergence_warning
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[False-ZOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[False-BETA]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[False-VELO]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[False-VRAD]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[False-VOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[True-ZOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[True-BETA]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[True-VELO]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[True-VRAD]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_1d[True-VOPT]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_spectral_with_time_kw
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_fits_tab_time_and_units
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_phys_type_polarization
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_pixel_to_world_stokes
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_out_of_bounds[world_to_pixel]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_out_of_bounds[pixel_to_world]
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_restfrq_restwav
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_array_index_conversions_arrays_1d
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_array_index_conversions_arrays_2d
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_array_index_conversions_scalars_1d
+PASSED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_array_index_conversions_scalars_2d
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_simple_duplicate
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_skycoord_duplicate
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_serialized_classes
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_objects_to_values
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_values_to_objects
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_objects_to_values_invalid_type
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_values_to_objects_invalid_type
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_minimal_mixin_subclass
+PASSED astropy/wcs/wcsapi/tests/test_high_level_api.py::test_world_to_array_index_nan
+PASSED astropy/wcs/wcsapi/tests/test_high_level_wcs_wrapper.py::test_wrapper
+PASSED astropy/wcs/wcsapi/tests/test_high_level_wcs_wrapper.py::test_wrapper_invalid
+PASSED astropy/wcs/wcsapi/tests/test_low_level_api.py::test_validate_physical_types
+PASSED astropy/wcs/wcsapi/tests/test_utils.py::test_construct
+PASSED astropy/wcs/wcsapi/tests/test_utils.py::test_noconstruct
+PASSED astropy/wcs/wcsapi/tests/test_utils.py::test_invalid
+PASSED astropy/wcs/wcsapi/tests/test_utils.py::test_wcs_info_str
+SKIPPED [7] ../opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_remotedata/plugin.py:81: need --remote-data option to run
+FAILED astropy/wcs/wcsapi/tests/test_fitswcs.py::test_time_cube - astropy.uti...
+=================== 1 failed, 77 passed, 7 skipped in 2.48s ====================

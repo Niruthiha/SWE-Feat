@@ -1,0 +1,30 @@
+## Task
+**Git-based versioning of GenAI models in MLflow, and searching logged models**
+
+In this MLflow repository, the GenAI feature that versions models by the state of the user's Git
+repository does not work: parts of it are missing from the code. Make the feature work end to end,
+so that a user can:
+
+- turn Git model versioning on and off for their GenAI work. While it is on, MLflow reads the
+  current Git state of the working directory and records it on the logged model it creates:
+  - the active branch, the HEAD commit hash, and whether the repository is dirty. Only tracked
+    files count as dirty; untracked files do not;
+  - the URL of a chosen Git remote. If that remote does not exist, there is no URL and a warning
+    is logged;
+  - when the repository is dirty, the diff of its uncommitted changes, staged and unstaged together.
+  This Git state is stored as MLflow's standard Git tags: branch, commit, dirty written as "true"
+  or "false", and the repository URL and diff only when they exist. Reading the Git state fails
+  with MLflow's Git operation error when Git support is not available, when the directory is not a
+  Git repository, when HEAD is detached, or when any other Git operation fails;
+- search the logged models from the top-level MLflow API, in the active experiment unless
+  experiment IDs are given. The search takes a SQL-like filter string, dataset filters for metrics,
+  a maximum number of results and an ordering, and returns either a list of logged-model objects or
+  a pandas DataFrame (the default). In the DataFrame each row is the model's dictionary form, with
+  its status shown as the public logged-model status value rather than the stored integer. Results
+  are collected across all pages until the maximum is reached, and never exceed it. Any other
+  output format is rejected with an MLflow exception carrying the invalid-parameter-value error code.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of MLflow. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mlflow/mlflow/.

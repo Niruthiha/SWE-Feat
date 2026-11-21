@@ -1,0 +1,1010 @@
+diff --git a/astropy/uncertainty/core.py b/astropy/uncertainty/core.py
+index aae9832..de052ef 100644
+--- a/astropy/uncertainty/core.py
++++ b/astropy/uncertainty/core.py
+@@ -22,7 +22,11 @@ else:
+     from numpy.lib.array_utils import normalize_axis_index
+ 
+ 
+-from .function_helpers import FUNCTION_HELPERS
++from .function_helpers import (
++    DISPATCHED_FUNCTIONS,
++    FUNCTION_HELPERS,
++    UNSUPPORTED_FUNCTIONS,
++)
+ 
+ __all__ = ["Distribution"]
+ 
+@@ -56,128 +60,124 @@ class Distribution:
+ 
+     _generated_subclasses = {}
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++    def __new__(cls, samples):
++        if isinstance(samples, Distribution):
++            samples = samples.distribution
++        else:
++            # We can handle strides larger than the itemsize by stride trickery,
++            # but the samples do have to have positive offset from each other,
++            # so if that's not the case, we make a copy.
++            if not isinstance(samples, np.ndarray):
++                samples = np.asanyarray(samples)
++            if samples.shape == ():
++                raise TypeError("Attempted to initialize a Distribution with a scalar")
++            if (
++                samples.strides[-1] < samples.dtype.itemsize
++                and samples.shape[-1] != 1  # strides[-1] can be 0.
++            ):
++                samples = samples.copy(order="C")
++
++        n_samples = samples.shape[-1]
++        # For a single sample, the stride is irrelevant (and can be 0).
++        if n_samples == 1:
++            itemsize = samples.dtype.itemsize
++        else:
++            itemsize = samples.strides[-1]
++        # Get the structured dtype with a single "samples" field that holds
++        # a size n_samples array of "sample" fields with individual samples.
++        # We need the double indirection to be able to deal with non-contiguous
++        # samples (such as result from indexing a structured array).
++        new_dtype = cls._get_distribution_dtype(
++            samples.dtype, n_samples, itemsize=itemsize
++        )
++        # Create a structured array with the new dtype. We ensure we start with
++        # a regular ndarray, to avoid interference between our complicated dtype
++        # and something else (such as would be the case for
++        # Quantity.__array_finalize__, which needs the dtype to be correct for
++        # creating a StructuredUnit).
++        if itemsize == samples.dtype.itemsize:
++            # For contiguous last axis, a plain new view suffices.
++            structured = samples.view(np.ndarray)
++        else:
++            # But if the last axis is not contiguous, we use __array_interface__
++            # (as in np.lib.stride_tricks.as_strided) to create a new ndarray
++            # where the last axis is covered by voids with size equal to the
++            # stride (so that the axis becomes contiguous).
++            interface = dict(samples.__array_interface__)
++            interface["descr"] = [("", f"|V{itemsize}")]
++            interface["typestr"] = f"|V{itemsize}"
++            structured = np.asarray(DummyArray(interface, base=samples))
++        # Set our new structured dtype, and remove the now length-1 last axis.
++        structured = structured.view(new_dtype).reshape(samples.shape[:-1])
++
++        # Now view as the Distribution subclass, and finalize based on the
++        # original samples (e.g., to set the unit for QuantityDistribution).
++        new_cls = cls._get_distribution_cls(type(samples))
++        self = structured.view(new_cls)
++        self.__array_finalize__(samples)
++        return self
++
++    @classmethod
++    def _get_distribution_cls(cls, samples_cls):
++        if issubclass(samples_cls, Distribution):
++            return samples_cls
++
++        new_cls = cls._generated_subclasses.get(samples_cls)
++        if new_cls is None:
++            # Walk through MRO and find closest base data class.
++            # Note: right now, will basically always be ndarray, but
++            # one could imagine needing some special care for one subclass,
++            # which would then get its own entry.  E.g., if MaskedAngle
++            # defined something special, then MaskedLongitude should depend
++            # on it.
++            for mro_item in samples_cls.__mro__:
++                base_cls = cls._generated_subclasses.get(mro_item)
++                if base_cls is not None:
++                    break
++            else:
++                # Just hope that NdarrayDistribution can handle it.
++                return NdarrayDistribution
++
++            # We need to get rid of the top _DistributionRepr, since we add
++            # it again below (it should always be on top).
++            if base_cls.__mro__[1] is not _DistributionRepr:
++                # Sanity check. This should never happen!
++                raise RuntimeError(
++                    f"found {base_cls=}, which does not have _DistributionRepr at "
++                    "__mro__[1]. Please raise an issue at "
++                    "https://github.com/astropy/astropy/issues/new/choose."
++                )
++            # Create (and therefore register) new Distribution subclass for the
++            # given samples_cls.
++            new_cls = type(
++                samples_cls.__name__ + "Distribution",
++                (_DistributionRepr, samples_cls) + base_cls.__mro__[2:],
++                {"_samples_cls": samples_cls},
++            )
++            cls._generated_subclasses[samples_cls] = new_cls
++
++        return new_cls
++
++    @classmethod
++    def _get_distribution_dtype(cls, dtype, n_samples, itemsize=None):
++        dtype = np.dtype(dtype)
++        # If not a sample dtype already, create one with a "samples" entry that
++        # holds all the samples.  Here, we create an indirection via "sample"
++        # because selecting an item from a structured array will necessarily
++        # give non-consecutive samples, and these can only be dealt with samples
++        # that are larger than a single element (plus stride tricks; see
++        # __new__).  For those cases, itemsize larger than dtype.itemsize will
++        # be passed in.
++        if dtype.names != ("samples",):
++            sample_dtype = np.dtype(
++                dict(
++                    names=["sample"],
++                    formats=[dtype],
++                    itemsize=dtype.itemsize if itemsize is None else itemsize,
++                )
++            )
++            dtype = np.dtype([("samples", sample_dtype, (n_samples,))])
++        return dtype
+ 
+     @property
+     def distribution(self):
+@@ -198,143 +198,263 @@ class Distribution:
+         dtype = self._get_distribution_dtype(dtype, self.n_samples)
+         return super().astype(dtype, *args, **kwargs)
+ 
++    def __array_function__(self, function, types, args, kwargs):
++        # Some functions should be applied to the distribution samples directly.
++        if function in FUNCTION_HELPERS:
++            function_helper = FUNCTION_HELPERS[function]
++            try:
++                args, kwargs, out = function_helper(*args, **kwargs)
++            except NotImplementedError:
++                return self._not_implemented_or_raise(function, types)
++
++            result = super().__array_function__(function, types, args, kwargs)
++            # Fall through to return section, wrapping distributions, unless
++            # indicated otherwise.
++            if out is True:
++                return result
++
++        elif function in DISPATCHED_FUNCTIONS:
++            dispatched_function = DISPATCHED_FUNCTIONS[function]
++            try:
++                result, out = dispatched_function(*args, **kwargs)
++            except NotImplementedError:
++                return self._not_implemented_or_raise(function, types)
++
++            if out is True:
++                return result
++
++        elif function in UNSUPPORTED_FUNCTIONS:
++            return self._not_implemented_or_raise(function, types)
+ 
++        else:
++            # By default, just pass it through.
++            return super().__array_function__(function, types, args, kwargs)
+ 
++        # We're done if the result was NotImplemented, which can happen
++        # if other inputs/outputs override __array_function__;
++        # hopefully, they can then deal with us.
++        if result is NotImplemented:
++            return NotImplemented
+ 
++        return self._result_as_distribution(result, out=out)
+ 
++    @staticmethod
++    def _parse_gufunc_signature(signature):
++        """Parse a gufunc signature, keeping track of optional dimensions.
+ 
++        Returns lists of input and output core dimensions, with each core
++        dimension given as a tuple of ``(name, optional)``.
++        """
++        signature = signature.replace(" ", "")
++        in_sig, _, out_sig = signature.partition("->")
++
++        def parse(sig):
++            # Strip the outer parentheses, then split on the inner ones.
++            parts = sig[1:-1].split("),(")
++            return [
++                [(dim.rstrip("?"), dim.endswith("?")) for dim in part.split(",") if dim]
++                for part in parts
++            ]
++
++        return parse(in_sig), parse(out_sig)
++
++    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
++        outputs = kwargs.pop("out", None)
++        if outputs is not None and all(output is None for output in outputs):
++            outputs = None
++
++        if method in {"reduce", "accumulate", "reduceat"}:
++            # Axes refer to the distribution, not to the samples. If no axis
++            # is given, operate over all axes of the distribution.
++            ndim = np.ndim(inputs[0])
++            axis = kwargs.get("axis", 0 if method == "reduceat" else None)
++            if axis is None:
++                axis = tuple(range(ndim))
++                if method == "accumulate" and len(axis) == 1:
++                    axis = axis[0]
++            elif isinstance(axis, tuple):
++                axis = tuple(normalize_axis_index(ax, ndim) for ax in axis)
++            else:
++                axis = normalize_axis_index(axis, ndim)
++            kwargs["axis"] = axis
++            if outputs is not None:
++                kwargs["out"] = tuple(
++                    output.distribution if isinstance(output, Distribution) else output
++                    for output in outputs
++                )
++            # Only the first input holds data; for reduceat, the second holds
++            # indices, which should be passed on as is.
++            converted = [self._add_sample_axis(inputs[0]), *inputs[1:]]
++            if "where" in kwargs:
++                kwargs["where"] = self._add_sample_axis(kwargs["where"])
++            results = getattr(ufunc, method)(*converted, **kwargs)
++            return self._result_as_distribution(
++                results, out=None if outputs is None else outputs[0]
++            )
+ 
++        if method != "__call__" or not ufunc.signature:
++            converted = [self._add_sample_axis(input_) for input_ in inputs]
++            if outputs is not None:
++                kwargs["out"] = tuple(
++                    output.distribution if isinstance(output, Distribution) else output
++                    for output in outputs
++                )
++            if "where" in kwargs:
++                kwargs["where"] = self._add_sample_axis(kwargs["where"])
++            results = getattr(ufunc, method)(*converted, **kwargs)
++            if outputs is not None and ufunc.nout == 1:
++                outputs = outputs[0]
++            return self._result_as_distribution(results, out=outputs)
++
++        # We're dealing with a gufunc, for which the sample axis needs to be
++        # moved in front of the core dimensions.
++        if "axes" in kwargs:
++            raise NotImplementedError(
++                "Distribution does not yet support gufunc calls with 'axes'."
++            )
+ 
++        if "axis" in kwargs:
++            # All inputs (and outputs) have the same single core dimension,
++            # which is at the location given by axis.  We keep the sample axis
++            # trailing and just adjust a negative axis to skip it.
++            converted = [self._add_sample_axis(input_) for input_ in inputs]
++            if kwargs["axis"] < 0:
++                kwargs["axis"] -= 1
++            if outputs is not None:
++                kwargs["out"] = tuple(
++                    output.distribution if isinstance(output, Distribution) else output
++                    for output in outputs
++                )
++            results = ufunc(*converted, **kwargs)
++            if outputs is not None and ufunc.nout == 1:
++                outputs = outputs[0]
++            return self._result_as_distribution(results, out=outputs)
++
++        in_sig, out_sig = self._parse_gufunc_signature(ufunc.signature)
++        # Determine which optional dimensions are missing from the inputs.
++        # We will insert those explicitly, and remove them from the output.
++        missing = set()
++        converted = []
++        for input_, sig in zip(inputs, in_sig):
++            ncore = len(sig)
++            if isinstance(input_, Distribution):
++                samples = input_.distribution
++                ndim = input_.ndim
++            else:
++                samples = np.asanyarray(input_)
++                ndim = samples.ndim
++            n_present = ncore
++            insert = []
++            if ndim < ncore:
++                optional = [i for i, (_, opt) in enumerate(sig) if opt]
++                if ncore - ndim <= len(optional):
++                    insert = optional[: ncore - ndim]
++                    missing |= {sig[i][0] for i in insert}
++                    n_present = ndim
++            if isinstance(input_, Distribution):
++                # Move the sample axis in front of the core dimensions.
++                samples = np.moveaxis(samples, -1, samples.ndim - 1 - n_present)
++            elif ndim > n_present:
++                # Add a sample axis in front of the core dimensions.
++                samples = np.expand_dims(samples, ndim - n_present)
++            if insert:
++                samples = np.expand_dims(samples, tuple(i - ncore for i in insert))
++            converted.append(samples)
++
++        # Determine the number of core dimensions of the outputs, and which
++        # of those are to be removed.
++        keepdims = kwargs.get("keepdims", False)
++        out_core = []
++        for sig in out_sig:
++            if keepdims:
++                sig = in_sig[0]
++            remove = tuple(
++                i - len(sig) for i, (name, _) in enumerate(sig) if name in missing
++            )
++            out_core.append((len(sig), remove))
++
++        if outputs is not None:
++            converted_outputs = []
++            for output, (ncore, remove) in zip(outputs, out_core):
++                if isinstance(output, Distribution):
++                    ncore_present = ncore - len(remove)
++                    output = output.distribution
++                    output = np.moveaxis(output, -1, output.ndim - 1 - ncore_present)
++                    if remove:
++                        output = np.expand_dims(output, remove)
++                elif output is not None and remove:
++                    output = np.expand_dims(output, remove)
++                converted_outputs.append(output)
++            kwargs["out"] = tuple(converted_outputs)
++
++        results = ufunc(*converted, **kwargs)
++
++        if ufunc.nout == 1:
++            results = (results,)
++        final = []
++        for i, (result, (ncore, remove)) in enumerate(zip(results, out_core)):
++            output = None if outputs is None else outputs[i]
++            if output is not None:
++                final.append(output)
++                continue
++            if remove:
++                result = result.squeeze(remove)
++            ncore_present = ncore - len(remove)
++            if result.ndim > ncore_present:
++                result = np.moveaxis(result, result.ndim - 1 - ncore_present, -1)
++            final.append(self._result_as_distribution(result, out=None))
++
++        return final[0] if ufunc.nout == 1 else tuple(final)
++
++    @staticmethod
++    def _add_sample_axis(input_):
++        """Get samples for a Distribution, or add a sample axis to an array."""
++        # For any input that is not a Distribution, we add an axis at the
++        # end, to allow proper broadcasting with the distributions.
++        if isinstance(input_, Distribution):
++            return input_.distribution
++        if getattr(input_, "shape", ()):
++            return input_[..., np.newaxis]
++        return input_
++
++    def _result_as_distribution(self, result, out):
++        """Turn result into a distribution.
++
++        If no output is given, it will create a Distribution from the array,
++        If an output is given, it should be fine as is.
+ 
++        Parameters
++        ----------
++        result : ndarray or tuple thereof
++            Array(s) which need to be turned into Distribution.
++        out : Distribution, tuple of Distribution or None
++            Possible output |Distribution|. Should be `None` or a tuple if result
++            is a tuple.
+ 
++        Returns
++        -------
++        out : Distribution
++        """
++        if isinstance(result, (tuple, list)):
++            if out is None:
++                out = (None,) * len(result)
++            # Some np.linalg functions return namedtuple, which is handy to
++            # access elements by name, but cannot be directly initialized with
++            # an iterator.
++            result_cls = getattr(result, "_make", result.__class__)
++            return result_cls(
++                self._result_as_distribution(result_, out=out_)
++                for (result_, out_) in zip(result, out)
++            )
+ 
++        if out is not None:
++            # A Distribution passed in as output already holds the result.
++            return out if isinstance(out, Distribution) else result
+ 
++        if isinstance(result, Distribution) or not getattr(result, "shape", ()):
++            return result
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++        return Distribution(result)
+ 
+     def _not_implemented_or_raise(self, function, types):
+         # Our function helper or dispatcher found that the function does not
+@@ -369,12 +489,12 @@ class Distribution:
+             return NotImplemented
+         return np.not_equal(self, other)
+ 
+-
+-
+-
+-
+-
+-
++    @property
++    def n_samples(self):
++        """
++        The number of samples of this distribution.  A single `int`.
++        """
++        return super().dtype["samples"].shape[0]
+ 
+     def pdf_mean(self, dtype=None, out=None):
+         """
+@@ -384,13 +504,13 @@ class Distribution:
+         """
+         return self.distribution.mean(axis=-1, dtype=dtype, out=out)
+ 
++    def pdf_std(self, dtype=None, out=None, ddof=0):
++        """
++        The standard deviation of this distribution.
+ 
+-
+-
+-
+-
+-
+-
++        Arguments are as for `numpy.std`.
++        """
++        return self.distribution.std(axis=-1, dtype=dtype, out=out, ddof=ddof)
+ 
+     def pdf_var(self, dtype=None, out=None, ddof=0):
+         """
+@@ -400,18 +520,18 @@ class Distribution:
+         """
+         return self.distribution.var(axis=-1, dtype=dtype, out=out, ddof=ddof)
+ 
++    def pdf_median(self, out=None):
++        """
++        The median of this distribution.
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++        Parameters
++        ----------
++        out : array, optional
++            Alternative output array in which to place the result. It must
++            have the same shape and buffer length as the expected output,
++            but the type (of the output) will be cast if necessary.
++        """
++        return np.median(self.distribution, axis=-1, out=out)
+ 
+     def pdf_mad(self, out=None):
+         """
+@@ -526,68 +646,69 @@ class ArrayDistribution(Distribution, np.ndarray):
+ 
+     # Override view so that we stay a Distribution version of the new type.
+ 
++    def view(self, dtype=None, type=None):
++        """New view of array with the same data.
+ 
++        Like `~numpy.ndarray.view` except that the result will always be a new
++        `~astropy.uncertainty.Distribution` instance.  If the requested
++        ``type`` is a `~astropy.uncertainty.Distribution`, then no change in
++        ``dtype`` is allowed.
+ 
++        """
++        if type is None:
++            if isinstance(dtype, builtins.type) and issubclass(dtype, np.ndarray):
++                type = self._get_distribution_cls(dtype)
++                dtype = None
++            else:
++                type = self.__class__
++        else:
++            type = self._get_distribution_cls(type)
+ 
++        if dtype is None:
++            return super().view(type=type)
+ 
++        dtype = np.dtype(dtype)
++        if dtype == self.dtype:
++            return super().view(type=type)
+ 
++        if dtype.names == ("samples",):
++            # Assume the user knows what they are doing.
++            return super().view(dtype, type)
+ 
++        if dtype.shape == () and dtype.itemsize == self.dtype.itemsize:
++            dtype = self._get_distribution_dtype(
++                dtype,
++                self.n_samples,
++                itemsize=super(Distribution, self).dtype["samples"].base.itemsize,
++            )
++            return super().view(dtype, type)
++
++        samples_cls = type._samples_cls
++        sample_itemsize = super(Distribution, self).dtype["samples"].base.itemsize
++        if dtype.itemsize == self.dtype.itemsize:
++            distr = self.distribution
++            distr_view = distr.view(dtype, samples_cls)
++            # This does not necessarily leave the sample axis in the right place.
++            return Distribution(np.moveaxis(distr_view, distr.ndim - 1, -1))
++        elif dtype.itemsize == sample_itemsize:
++            distr = np.moveaxis(self.distribution, -1, 0)
++            distr_view = distr.view(dtype, samples_cls).squeeze(-1)
++            return Distribution(np.moveaxis(distr_view, 0, -1))
++        else:
++            raise ValueError(
++                f"{self.__class__} can only be viewed with a dtype with "
++                f"itemsize {sample_itemsize} or {self.dtype.itemsize}"
++            )
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++    @property
++    def distribution(self):
++        # Like in the creation, we go through an ndarray to ensure we have our
++        # actual dtype and to avoid entering, e.g., Quantity.__getitem__, which
++        # would give problems with units.
++        structured = super().view(np.ndarray)
++        distribution = structured["samples"]["sample"].view(self._samples_cls)
++        distribution.__array_finalize__(self)
++        return distribution
+ 
+     def __getitem__(self, item):
+         if isinstance(item, str):
+diff --git a/astropy/uncertainty/function_helpers.py b/astropy/uncertainty/function_helpers.py
+index ed155f8..c365994 100644
+--- a/astropy/uncertainty/function_helpers.py
++++ b/astropy/uncertainty/function_helpers.py
+@@ -72,81 +72,83 @@ function_helper = FunctionAssigner(FUNCTION_HELPERS)
+ dispatched_function = FunctionAssigner(DISPATCHED_FUNCTIONS)
+ 
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
++def is_distribution(x):
++    from astropy.uncertainty import Distribution
++
++    return isinstance(x, Distribution)
++
++
++def get_n_samples(*arrays):
++    """Get n_samples from the first Distribution among arrays.
++
++    The logic of getting ``n_samples`` from the first |Distribution|
++    is that the code will raise an appropriate exception later if
++    distributions do not have the same ``n_samples``.
++    """
++    # TODO: add verification if another function needs it.
++    for array in arrays:
++        if is_distribution(array):
++            return array.n_samples
++
++    raise RuntimeError("no Distribution found! Please raise an issue.")
++
++
++@function_helper
++def empty_like(prototype, dtype=None, *args, **kwargs):
++    dtype = prototype._get_distribution_dtype(
++        prototype.dtype if dtype is None else dtype, prototype.n_samples
++    )
++    return (prototype, dtype) + args, kwargs, None
++
++
++@function_helper
++def broadcast_arrays(*args, subok=False):
++    """Broadcast arrays to a common shape.
++
++    Like `numpy.broadcast_arrays`, applied to both distributions and other data.
++    Note that ``subok`` is taken to mean whether or not subclasses of
++    the distribution are allowed, i.e., for ``subok=False``,
++    `~astropy.uncertainty.NdarrayDistribution` instances will be returned.
++    """
++    if not subok:
++        args = tuple(
++            arg.view(np.ndarray) if isinstance(arg, np.ndarray) else np.array(arg)
++            for arg in args
++        )
++    return args, {"subok": True}, True
++
++
++@function_helper
++def concatenate(arrays, axis=0, out=None, dtype=None, casting="same_kind"):
++    """Concatenate arrays.
++
++    Like `numpy.concatenate`, but any array that is not already a |Distribution|
++    is turned into one with identical samples.
++    """
++    n_samples = get_n_samples(*arrays, out)
++    converted = tuple(
++        (
++            array.distribution
++            if is_distribution(array)
++            else (
++                np.broadcast_to(
++                    array[..., np.newaxis], array.shape + (n_samples,), subok=True
++                )
++                if getattr(array, "shape", False)
++                else array
++            )
++        )
++        for array in arrays
++    )
++    if axis is not None and axis < 0:
++        axis = axis - 1  # not in-place, just in case.
++    kwargs = dict(axis=axis, dtype=dtype, casting=casting)
++    if out is not None:
++        if is_distribution(out):
++            kwargs["out"] = out.distribution
++        else:
++            raise NotImplementedError
++    return (converted,), kwargs, out
+ 
+ 
+ # Add any dispatched or helper function that has a docstring to __all__, so

