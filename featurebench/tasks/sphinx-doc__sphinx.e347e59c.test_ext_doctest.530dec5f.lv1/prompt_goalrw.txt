@@ -1,0 +1,19 @@
+## Task
+**Python-version conditions in Sphinx's doctest extension**
+
+In this Sphinx repository, the doctest extension's support for running a test only on certain
+Python versions does not work: part of it is missing from the code. Make it work, so that a user
+can restrict a doctest block to Python versions with a PEP 440 version specifier, and the
+extension decides correctly whether a given version is allowed. The check is the doctest extension's
+function `is_allowed_version(spec, version)`, which returns True or False. It must handle:
+
+- simple comparisons such as ">=3.6" or "<=3.5", compound constraints joined by commas such as
+  ">3.2, <4.0", exclusions such as "!=3.0.*", and compatible-release constraints such as "~=3.7.0";
+- full PEP 440 semantics for pre-release, post-release and development versions;
+- an invalid specifier or an invalid version is not treated as "not allowed": the packaging
+  library's own invalid-specifier or invalid-version error propagates.
+
+Find out where in the codebase this belongs and implement it so that it fits the rest of Sphinx.
+All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/sphinx-doc/sphinx/.

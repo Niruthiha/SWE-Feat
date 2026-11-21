@@ -1,0 +1,28 @@
+## Task
+**Math in Sphinx documentation across output formats**
+
+In this Sphinx repository, building documentation that contains math does not work: parts of the
+code that the math extensions and the builders rely on are missing. Make it work end to end, so
+that a user can build a project with math and get correct output:
+
+- in HTML with MathJax: the MathJax script is added to pages, and an extension can choose whether
+  its CSS and JavaScript assets go on every page ("always") or only on the pages that need them
+  ("per_page"); any other choice is rejected with a ValueError;
+- in HTML with images rendered by imgmath: when the images are embedded in the pages (the embed
+  setting), the generated image files are no longer needed and are removed after a successful
+  build. They are kept when the build failed, and failing to remove them never fails a build that
+  otherwise succeeded;
+- in the single-page HTML builder, where all documents are combined into one page: a link to
+  another document becomes an anchor in that page of the form "#document-<docname>", whatever page
+  it comes from, while a link to an additional HTML page that is not a document stays a separate
+  file with the output suffix;
+- in LaTeX: index entries inside a section title are moved out of the title to just after it, in
+  their original order, so LaTeX's title handling (for example uppercasing) does not break;
+- in included files: a highlight-language setting made inside one included file does not leak into
+  the document around it; each file starts from the default, and the surrounding setting is
+  restored when the file ends.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Sphinx. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/sphinx-doc/sphinx/.

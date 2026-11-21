@@ -1,0 +1,30 @@
+## Task
+**Aligning dask chunks with a storage backend's chunk grid in xarray**
+
+In this xarray repository, the logic that lines up a variable's dask chunks with the chunk grid of
+a storage backend (such as Zarr) before writing does not work: parts of the code it relies on are
+missing. Make it work, so that:
+
+- a dimension of a given size can be partitioned into chunks that follow a backend grid of a given
+  chunk size, optionally starting at an offset given by a region slice (only the slice start
+  matters; its stop is ignored). The chunks sum to the size; the first chunk is shortened when the
+  offset is not on a grid boundary, the last may be shorter when the data runs out, and if the
+  first chunk would already cover everything the result is a single chunk of the whole size
+  (size 13 with chunk size 5 and no region gives (5, 5, 3); size 10 with chunk size 15 gives (10,));
+- the chunks of a variable, given per dimension, can be aligned with the backend's chunks, given
+  per dimension, so that no backend chunk is overlapped by more than one variable chunk (a larger
+  variable chunk may still span several whole backend chunks). For each dimension the total size
+  is preserved; existing variable chunks are kept when they are already suitable; a dimension with
+  a single backend chunk or a single variable chunk is returned unchanged; partial chunks at the
+  borders are handled; and no aligned chunk exceeds the larger of the regular backend chunk size
+  and the largest variable chunk. It raises a ValueError when the numbers of dimensions differ,
+  when the backend chunks and the variable chunks cover different total sizes, and when the
+  backend chunks are not uniform apart from the border chunks (an internal error);
+- a variable backed by a chunked dask array can be rechunked to the encoding's chunk sizes and the
+  region it will be written to, using the alignment above, so that parallel writes are safe; a
+  variable that is not chunked is returned unchanged.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of xarray. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pydata/xarray.

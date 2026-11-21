@@ -1,0 +1,31 @@
+## Task
+**VOTable tree navigation and table conversion in Astropy**
+
+In this Astropy repository, several operations of the VOTable element tree do not work: parts of
+the code they rely on are missing. Make them work, so that a user who has read a VOTable file can:
+
+- resolve a PARAMref element (inside a GROUP) to the PARAM element whose ID equals its ref
+  attribute; all FIELD and PARAM elements of the file are searched, wherever they appear (also
+  after the reference), but only a PARAM is a valid match; if none matches, a KeyError is raised;
+- convert a TableElement into an Astropy Table, using the column IDs as column names by default,
+  or the column name attributes when asked to (renaming duplicates by appending numbers); the
+  data types, values, unit, description and UCD of each column are kept, together with the
+  per-column metadata that each FIELD already transfers (including its LINK elements); the
+  table metadata carries the TABLE attributes that are present (ID, name, ref, ucd, utype,
+  description), while table-level INFO and LINK elements are not copied into it;
+  variable-length array columns need not round-trip identically;
+- print a VOTableFile and get a short summary of the form "<VOTABLE>... N tables ...</VOTABLE>",
+  where N counts all tables in all (nested) RESOURCE elements, empty tables included;
+- get the first non-empty table of a VOTableFile, in document order (empty tables are those
+  skipped while reading, e.g. when a table was selected); if there is none, an IndexError is
+  raised;
+- iterate recursively over every VALUES element of a VOTableFile, at every nesting level, through
+  every FIELD and PARAM, including VALUES elements that only hold defaults;
+- keep the version-dependent behaviour of the VOTable element classes: the attributes each
+  element accepts in each VOTable version (e.g. for PARAMref: ref from 1.1 on, with ucd and utype added from 1.2)
+  and the namespace and schema location used for each VOTable version.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Astropy. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/astropy/astropy.

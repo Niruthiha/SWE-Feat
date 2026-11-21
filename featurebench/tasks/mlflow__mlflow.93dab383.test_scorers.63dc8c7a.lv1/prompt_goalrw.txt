@@ -1,0 +1,37 @@
+## Task
+**Custom LLM judges and registered scorers in MLflow GenAI**
+
+In this MLflow repository, parts of the GenAI evaluation feature for custom judges and registered
+scorers are missing from the code. Make the feature work end to end, so that a user can:
+
+- create a custom LLM judge from a name and natural-language instructions, with an optional
+  model, description and feedback value type, through the public GenAI judges API. The
+  instructions must use at least one of the template variables {{ inputs }}, {{ outputs }},
+  {{ expectations }} or {{ trace }}, and no other variables. The feedback value type defaults to
+  str. Accepted types are int, float, str, bool, a Literal of primitive values, dict[str, T] and
+  list[T] where T is exactly one of int, float, str or bool. Anything else (unions, Pydantic
+  models, non-primitive Literal values) is rejected with an MLflow exception;
+- turn a plain Python function into a custom scorer with a decorator that works both bare and
+  with arguments. A name and a description override the scorer's metadata; aggregations can be
+  given as supported aggregation names or as callables. With no aggregations given, the scorer has
+  no explicit aggregation metadata (evaluation then defaults to the mean);
+- on the command line, list the scorers registered in an experiment:
+  `mlflow scorers list --experiment-id <id> [--output table|json]` (short form -x; the experiment
+  can also come from the MLFLOW_EXPERIMENT_ID environment variable; table is the default). The
+  table has a name column and a description column, with a missing description shown as empty.
+  The JSON form is {"scorers": [{"name": ..., "description": ...}]}, with a missing description
+  kept as null. An experiment with no scorers prints blank output, not headers;
+- on the command line, register an LLM judge in an experiment:
+  `mlflow scorers register-llm-judge --name/-n <name> --instructions/-i <text> [--model/-m <model>]
+  --experiment-id/-x <id> [--description/-d <text>]` (the experiment can also come from
+  MLFLOW_EXPERIMENT_ID). The judge is created with feedback type str. On success it prints exactly
+  Successfully created and registered judge scorer '<registered name>' in experiment <experiment_id>
+
+MLflow's text tables, which the command-line tools print, left-align every column, pad each column
+to its longest entry with a minimum width of 4, separate columns with two spaces, and put a line
+of dashes under the headers. With no data rows the result is just a newline.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of MLflow. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mlflow/mlflow/.

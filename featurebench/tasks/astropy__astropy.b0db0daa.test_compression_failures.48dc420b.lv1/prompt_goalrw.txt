@@ -1,0 +1,46 @@
+## Task
+**FITS headers and table formats in Astropy**
+
+In this Astropy repository, working with FITS headers and FITS table column formats does not
+work: parts of the code they rely on are missing (this also breaks reading and writing
+compressed images). Make them work, so that a user can:
+
+- check whether a keyword is in a header (case-insensitive; also by card number, by
+  (keyword, n) for the n-th occurrence counting from 0, for commentary keywords such as HISTORY
+  and COMMENT, and for record-valued keyword (RVKC) field specifiers), look up the value of a
+  keyword with a default when it is missing, and look cards up by keyword, by card number
+  (negative numbers too), or by (keyword, n) for duplicate keywords;
+- set values through slices and through wildcard keywords ("*" for any characters, "?" for one
+  character, a trailing "..." for any non-whitespace characters); a single value that is not a
+  sequence (strings count as single values) is given to every matching card;
+- update a keyword: an existing non-commentary keyword has its first occurrence updated rather
+  than duplicated; commentary keywords always add a new card, and a long commentary value is
+  split over several cards; a "HIERARCH " prefix is ignored for lookup, and the header records
+  that it was modified;
+- insert a card at a position (an index at or past the end appends it), or before/after an
+  existing card ("before" wins when both are given; with replace, the card is moved there, and
+  nothing happens when it would not move); inserting a non-commentary keyword that already exists
+  warns about the duplicate; RVKC field-specifier lookups keep working after insertions;
+- remove the first occurrence of a keyword (case-insensitive), optionally all occurrences, and
+  optionally without an error when it is missing;
+- read and change keyword comments through the comments view of a header, using the same keys
+  as the header itself (keyword, (keyword, n), card number; a slice gives a new comments view);
+  setting a comment on a missing keyword raises a KeyError, and an empty comment is allowed;
+- have the header of an HDU read from a file built only when first accessed: the parsed header
+  is kept and returned on later access, the raw header text is parsed once and then dropped, and
+  an AttributeError is raised when neither is available; and ask an HDU whether it has data,
+  which is true only once its data has really been loaded and is not None;
+- parse table column formats: a binary-table TFORMn value into (repeat, format, option), an
+  ASCII-table TFORMn value into (format, width, precision) with default width and precision when
+  they are left out (unless strict parsing is asked for; precision is 0 except for E, F and D),
+  and a FITS format into the matching NumPy record format (L, B, I, J, K, E, D, C, M, A, X, the
+  variable-length P and Q formats, and the legacy F as f8; for A the repeat count is the string
+  length), raising an error for formats that are not valid.
+
+Keep the existing behaviour for FITS keywords, duplicate cards, commentary cards, RVKC cards,
+default values and exceptions.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of Astropy. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/astropy/astropy.

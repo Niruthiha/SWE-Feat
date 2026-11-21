@@ -1,0 +1,40 @@
+## Task
+**Regression plots in seaborn**
+
+In this seaborn repository, the regression plots (regplot, lmplot and residplot) do not work:
+parts of the code they rely on are missing. Make them work, so that a user can:
+
+- pass x, y and the other variables either as column names of a DataFrame given as data, or
+  directly as lists, arrays or Series (mixing both is allowed); naming a column without giving
+  data, or passing an input with more than one dimension after squeezing, raises a ValueError;
+  lists become numpy arrays, other inputs are used directly and squeezed, and single-element
+  arrays of shape (1,) are kept as they are;
+- drop observations with missing data consistently across all given variables, keeping the order
+  of the remaining observations (when dropna is on);
+- draw the scatter of the observations, with optional uniform jitter in [-jitter, jitter] added to
+  x and/or y for display only (the fit uses the original data);
+- bin x (x_bins): an integer gives evenly spaced percentile bins (bins + 2 percentiles from 0 to
+  100, the two ends excluded), an array gives the bin centres; each x value is replaced by its
+  closest bin centre; the fit still uses the unbinned data, and binning implies a mean estimator;
+- show a point estimate for each discrete x value (x_estimator), at the sorted unique x values,
+  with an interval per point given by x_ci: none, the standard deviation ("sd"), or a bootstrap
+  interval of the given size (by default, the size of the regression interval); the bootstrap
+  respects units;
+- fit one of: a straight line (default), a polynomial of the given order, a logistic, lowess or
+  robust fit (these need statsmodels; if it is unavailable, a RuntimeError is raised), or a fit
+  of y on log(x) (logx). Only one of these options may be used at a time; combining them raises
+  a ValueError. Linear and log(x) fits are least-squares fits with an intercept that stay defined
+  for rank-deficient inputs (minimum-norm solution);
+- get the fitted line on a grid of 100 points spanning the data (truncate) or the axis limits
+  (or a given x range, or a given grid), with bootstrap confidence bands of n_boot resamples
+  (respecting units and seed), shaped (2, n_points); there are no bands when the interval size
+  is None or for lowess;
+- regress confounding variables out of x or y (x_partial, y_partial): the linear effect of the
+  confound is removed while the original mean is kept;
+- get symmetric percentile bounds for an interval of a given size: percentiles 50 - size/2 and
+  50 + size/2.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of seaborn. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mwaskom/seaborn.

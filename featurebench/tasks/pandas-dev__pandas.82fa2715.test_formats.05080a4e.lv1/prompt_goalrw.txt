@@ -1,0 +1,19 @@
+## Task
+**String extension types and datetime assignment into object data in pandas**
+
+In this pandas repository, two pieces of behaviour do not work: parts of the code they rely on
+are missing. Make them work, so that a user can:
+
+- use pandas' storage-backed extension types (such as the string dtype): their missing value is
+  pandas' own NA singleton, so missing entries print and compare as NA;
+- assign datetime-like values (datetime64 or timedelta64 data) into a series or array of object
+  dtype and get correct elements back, as pandas Timestamp/Timedelta objects rather than raw
+  NumPy values; assignments into non-object data, or of values that are not NumPy
+  datetime64/timedelta64, behave exactly as before;
+- print series of all kinds (numbers, categoricals, dates, periods, timedeltas, extension arrays,
+  multi-level index-indexed) with the usual formatting.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of pandas. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pandas-dev/pandas.

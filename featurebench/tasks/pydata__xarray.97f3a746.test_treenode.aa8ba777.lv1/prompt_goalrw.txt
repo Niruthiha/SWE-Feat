@@ -1,0 +1,49 @@
+## Task
+**Tree-node operations in xarray**
+
+In this xarray repository, the basic tree structure that DataTree is built on (the TreeNode class,
+plus group_subtrees and zip_subtrees) does not work: parts of the code it relies on are missing.
+Make it work, so that a user can:
+
+- look up an object in a tree by a Unix-like path: a path starting with "/" is resolved from the
+  topmost node of the tree (whose own name is not a path part), any other path from the current
+  node; ".." moves up one node, "." and "" stay put. A path that leads nowhere, or ".." from the
+  top node, raises a KeyError;
+- put an item into a tree at such a path: optionally creating missing intermediate nodes (of the
+  same type as the current node) and optionally refusing to overwrite an existing node. A path
+  with no final name ("." or "/") raises a ValueError (a trailing slash after a name keeps that
+  name); an unreachable target without node creation raises a KeyError whose message contains
+  "Could not reach"; an existing node with overwriting refused raises a KeyError whose message
+  contains "Already a node object";
+- move a node under a new parent under a given child name, or detach it: a new parent that is
+  not a tree node raises a TypeError; making a node its own parent, or the child of one of its own
+  descendants, raises the tree's invalid-tree error (messages containing "cannot be a parent of
+  itself" and "is already a descendant") before anything changes; asking for a different parent
+  without a child name raises a ValueError; asking for the parent it already has changes nothing,
+  whatever name is given. Detaching a node removes it from its parent's children and leaves it
+  as the top of its own intact tree (doing so on a top node has no effect);
+- ask a node about its place in the tree:
+  - the tuple of nodes above it, closest first (empty at the top);
+  - the topmost node of its tree (itself at the top);
+  - the nodes that share its parent, as a new dict by name in the parent's order, without itself
+    (empty at the top);
+  - its level (0 at the top, +1 per step down); the tree's depth (the greatest level anywhere in
+    the same tree, the same from every node; 0 for a single node); and the width (how many nodes
+    in the whole tree share its level, across all branches);
+  - all nodes below it, breadth-first, excluding itself; the nodes below it that have no
+    children, breadth-first (itself if it has none);
+  - an iteration over itself and everything below it, breadth-first; and the same with each
+    node's relative POSIX path ("." for itself, then "child1", "child2", "child1/grandchild");
+  - two deprecated views that emit a deprecation warning on every access: the chain from the top
+    node down to and including itself, and the chain from itself up to and including the top node;
+- iterate over several trees at once with group_subtrees (yielding each relative path with the
+  tuple of matching nodes) or zip_subtrees (yielding only the node tuples), breadth-first, with
+  paths and order following the first tree (child order may differ between trees). Calling either
+  with no trees raises a TypeError. If the trees' child names differ at some node, the error
+  for non-matching tree structure is raised only when iteration reaches it; at the top it reads
+  "children at root node do not match: <names> vs <names>".
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of xarray. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pydata/xarray.

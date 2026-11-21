@@ -1,0 +1,19 @@
+# fbexp agent image, astropy + current IERS tables -- harness 6.0 environment repair.
+#
+# Why: the benchmark's astropy instance image pins astropy-iers-data 0.2025.11.10,
+# whose bundled leap-second table EXPIRED on 2026-06-28. By the run date
+# (2026-10-26) astropy's leap-second check raises IERSStaleWarning, which astropy's
+# pytest config turns into an error, and the oracle container has no network to
+# refresh it. The task test_lombscargle_multiband therefore fails on the GOLD tree
+# (tasks/_dropped/README.md). This layer upgrades ONLY that data package (tables,
+# no code) to the release current at run time, pinned, with --no-deps, so the
+# environment behaves as it did when the benchmark was built. The repo at
+# /testbed and /root/my_repo is untouched. Used only by the tasks whose
+# tasks/<iid>/image_tag names this tag; the earlier astropy cells ran on the base.
+ARG BASE
+FROM ${BASE}
+USER root
+ARG IERS_VERSION=0.2026.10.19.0.52.1
+RUN . /opt/miniconda3/etc/profile.d/conda.sh && conda activate testbed \
+ && pip install --no-deps --no-cache-dir "astropy-iers-data==${IERS_VERSION}" \
+ && python -c "from astropy.utils import iers; ls=iers.LeapSeconds.from_iers_leap_seconds(); print('Leap_Second.dat expires', ls.expires)"

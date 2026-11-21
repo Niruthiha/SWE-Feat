@@ -1,0 +1,32 @@
+# fbexp agent image -- harness 6.0 (FeatureBench variant of the HotCRP cell harness).
+#
+# ONE image per FeatureBench repository: the benchmark's own instance image (conda
+# env `testbed`, repo installed editable at /testbed, pristine copy at /root/my_repo)
+# plus node + a PINNED claude-code CLI. Nothing task-specific is baked in: the mask
+# patch is applied per cell, as root, before the agent exists (prepare_tree).
+#
+# Carried forward from hcexp-agent (Fault 11): everything the agent could need is
+# provisioned at BUILD time, with internet; at RUN time the cell has no route off
+# the host except the model API allowlist (hcexp-egress:2).
+ARG BASE
+FROM ${BASE}
+USER root
+ARG CLI_VERSION=2.1.310
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates ripgrep procps \
+ && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
+ && npm install -g @anthropic-ai/claude-code@${CLI_VERSION} \
+ && apt-get clean && rm -rf /var/lib/apt/lists/* /root/.npm
+# claude refuses --dangerously-skip-permissions as root (verified on 2.1.259 and
+# 2.1.310), so the agent runs as uid 1000 with an EMPTY home; prepare_tree chowns
+# /testbed to it. The conda env stays root-owned and read-only to the agent, which
+# is also the benchmark's "do not install anything" condition made physical.
+RUN (getent passwd 1000 >/dev/null || useradd -u 1000 -m -s /bin/bash agent) \
+ && mkdir -p /agent-home /creds && chown -R 1000:1000 /agent-home
+COPY prepare_tree.sh /usr/local/bin/prepare_tree
+COPY accept_in_container.sh /usr/local/bin/accept_in_container
+COPY regress_in_container.sh /usr/local/bin/regress_in_container
+RUN chmod 0755 /usr/local/bin/prepare_tree /usr/local/bin/accept_in_container /usr/local/bin/regress_in_container
+# default user stays root: prepare_tree and the acceptance run as root (as the
+# benchmark does); run_cell.sh execs the agent with --user 1000:1000 explicitly.

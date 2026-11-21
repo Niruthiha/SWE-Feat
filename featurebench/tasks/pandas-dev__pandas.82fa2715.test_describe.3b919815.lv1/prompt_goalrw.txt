@@ -1,0 +1,22 @@
+## Task
+**Grouped descriptive statistics, concatenation and reshaping in pandas**
+
+In this pandas repository, several everyday operations do not work: parts of the code they rely on
+are missing. Make them work end to end, so that a user can:
+
+- call describe() on a grouped data frame or series and get the usual per-group summary (count,
+  mean, std, min, quartiles, max for numbers; count, unique, top, freq for objects), with one row
+  per group and the statistics laid out as columns, also when a group is empty or when the frame
+  has duplicate column names; std() on groups works as well, and applying an arbitrary function
+  to groups returns a result shaped and indexed the way pandas normally wraps it;
+- concatenate series and data frames along either axis, with or without keys (which build a
+  multi-level index whose levels must be unique), joining or intersecting the other axis, aligning
+  columns that are missing in some inputs with missing values, keeping dtypes where all inputs
+  agree and finding a common dtype otherwise, and keeping a common name when all inputs share it;
+- stack columns into rows (wide to long), including multi-level index columns;
+- see readable reprs of indexes and other list-likes, truncated and indented the usual way.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of pandas. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pandas-dev/pandas.

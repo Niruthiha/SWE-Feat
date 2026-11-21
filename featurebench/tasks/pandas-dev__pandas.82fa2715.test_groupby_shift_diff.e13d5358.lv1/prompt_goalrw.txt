@@ -1,0 +1,21 @@
+## Task
+**Shifting and differencing within groups in pandas**
+
+In this pandas repository, shifting and differencing grouped data does not work: parts of the
+code it relies on are missing. Make it work end to end, so that a user can:
+
+- shift each group of a grouped data frame or series by a number of periods (forwards or
+  backwards), with values moving only within their own group; with a fill value for the gaps; by
+  a frequency for time-indexed data (fill value and frequency cannot be combined); and with a
+  list of periods, which returns one column per period with the period appended to the column
+  name;
+- take the difference of each element with an earlier (or later) element of the same group, with
+  the result dtype pandas normally gives (for example timedeltas for dates, floats for integers
+  and booleans handled sensibly);
+- rely on groups being split and visited efficiently in the usual group order, and see readable,
+  correctly truncated reprs of indexes and other list-likes.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the
+rest of pandas. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/pandas-dev/pandas.

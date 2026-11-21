@@ -1,0 +1,38 @@
+## Task
+**Size and style semantics in seaborn's relational plots**
+
+In this seaborn repository, the size and style semantics used by the relational plotting functions
+do not work: parts of the code they rely on are missing. Make them work, so that a user can:
+
+- map the size variable to sizes (VectorPlotter's size mapping, with sizes, order and norm).
+  Numeric data map through a (min, max) size range (default: the plotter's default range) with a
+  linear normalization over the full data range unless norm (a Normalize or (vmin, vmax)) is
+  given; supplying norm forces numeric mapping. Categorical data take a dict of level -> size or
+  a list of sizes in level order; by default they get evenly spaced sizes in the default range,
+  with larger sizes for earlier levels. A list forces categorical mapping even for numeric data;
+  a dict does too unless norm is given. A single value that is not a tuple, list or dict raises
+  a ValueError. order sets the level order for categorical data (default: order of appearance,
+  or the categories of a pandas Categorical). Without a size variable the mapping has no effect;
+- map the style variable to markers and dashes (VectorPlotter's style mapping, with markers,
+  dashes and order). The style mapping is always categorical, also for numeric or datetime data.
+  markers and dashes are each True (defaults), a dict of level -> value, a sequence of values in
+  level order, or None/False (no mapping). When both are given, each level's entry holds its
+  marker, the marker's transformed path, and its dashes. Mixing filled and line-art markers,
+  dicts missing levels, and specifications that are not understood raise a ValueError;
+- get the lookup table for one style attribute: True pairs the default values with the levels in
+  order (stopping when either runs out, without warning); a dict is used directly (missing levels
+  raise a ValueError); a sequence is assigned in level order, repeated cyclically if shorter and
+  truncated if longer, either mismatch emitting a UserWarning (an empty sequence with levels gives
+  an empty table after the warning); None, False or another falsey scalar gives an empty table;
+  any other truthy value raises a ValueError;
+- get any number of distinct dash specs for lines: for positive n, the first n entries of a
+  fixed sequence starting "", (4, 1.5), (1, 1), (3, 1.25, 1.5, 1.25), (5, 1, 1, 1), continued
+  as needed with further distinct valid dash tuples; zero gives an empty list;
+- get any number of distinct, filled marker specs for points: a fixed prefix starting
+  "o", "X", (4, 0, 45), "P", (4, 0, 0), continued as needed with distinct regular-polygon and
+  star-like (sides, style, angle) tuples; zero gives an empty list.
+
+Find out where in the codebase these pieces belong and implement them so that they fit the rest
+of seaborn. All dependencies are installed; do not install anything.
+
+You are forbidden to access https://github.com/mwaskom/seaborn.

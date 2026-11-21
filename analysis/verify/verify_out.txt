@@ -1,0 +1,223 @@
+N {'FeatureBench': 21, 'SWE-bench Pro': 50}
+
+== T1 descriptives median [Q1,Q3] ==
+n_files                    Featu 11 [6,21] n=21 | SWE-b 4 [2,7] n=50
+impl_lines                 Featu 609 [430,785] n=21 | SWE-b 112 [83.2,264] n=50
+n_dirs                     Featu 5 [3,10] n=21 | SWE-b 3 [2,4.75] n=50
+dos_dir                    Featu 0.421 [0.045,0.726] n=21 | SWE-b 0.381 [0.0537,0.536] n=50
+cue_files                  Featu 0.19 [0.133,0.267] n=21 | SWE-b 0.155 [0,0.5] n=50
+cue_tokens                 Featu 3 [1,5] n=21 | SWE-b 13.5 [9,30.5] n=50
+recall_all                 Featu 0.96 [0.913,0.989] n=21 | SWE-b 0.429 [0.148,0.703] n=50
+recall_long                Featu 0.959 [0.895,0.982] n=21 | SWE-b 0.308 [0.083,0.545] n=49
+gold_comments              Featu 41 [31,82] n=21 | SWE-b 2.5 [0,5] n=50
+recall_comments            Featu 0.978 [0.545,1] n=21 | SWE-b 0 [0,0.667] n=36
+precision                  Featu 0.972 [0.918,0.992] n=21 | SWE-b 0.627 [0.427,0.823] n=50
+files_outside_gold         Featu 0 [0,0] n=21 | SWE-b 0 [0,1] n=50
+tool_calls                 Featu 50 [25,78] n=21 | SWE-b 10 [7,12] n=50
+api_turns                  Featu 49 [25,74] n=21 | SWE-b 10.5 [8,12.8] n=50
+searches                   Featu 29 [13,60] n=21 | SWE-b 6 [3,8] n=50
+test_runs                  Featu 8 [7,12] n=21 | SWE-b 2 [1,4] n=50
+files_opened               Featu 12 [6,24] n=21 | SWE-b 3 [2,6] n=50
+files_read_full            Featu 4 [1,5] n=21 | SWE-b 2 [0,4] n=50
+listings                   Featu 4 [1,5] n=21 | SWE-b 1 [0,2] n=50
+orient_calls               Featu 6 [4,8] n=21 | SWE-b 4 [3,5] n=50
+orient_searches            Featu 6 [3,9] n=21 | SWE-b 4 [2,6] n=50
+gold_found_pre_edit        Featu 0.2 [0.091,0.5] n=21 | SWE-b 0.562 [0.267,1] n=48
+gold_found_by_done         Featu 1 [0.667,1] n=21 | SWE-b 0.803 [0.333,1] n=48
+rework                     Featu 0 [0,1] n=21 | SWE-b 0 [0,0] n=50
+navshare_search            Featu 0.909 [0.5,1] n=21 | SWE-b 0.5 [0.0622,0.877] n=48
+navshare_following_code    Featu 0 [0,0] n=21 | SWE-b 0 [0,0] n=48
+navshare_recall            Featu 0 [0,0.067] n=21 | SWE-b 0 [0,0.175] n=48
+navshare_benchmark_clue    Featu 0 [0,0] n=21 | SWE-b 0 [0,0] n=48
+navshare_not_found         Featu 0 [0,0] n=21 | SWE-b 0.064 [0,0.5] n=48
+r0_pass                    Featu 1 [1,1] n=21 | SWE-b 1 [1,1] n=50
+accept_final               Featu 1 [1,1] n=21 | SWE-b 1 [1,1] n=50
+rounds                     Featu 1 [1,1] n=21 | SWE-b 1 [1,1] n=50
+cost_usd                   Featu 2.09 [1.22,3.56] n=21 | SWE-b 0.345 [0.24,0.439] n=50
+wall_s                     Featu 646 [467,996] n=21 | SWE-b 218 [126,316] n=50
+
+== T2 MWU / Cliff / perm / BH ==
+                        var   p_mwu  cliff_SW_vs_FB  p_perm    q_bh
+0                   n_files  0.0002         -0.5524  0.0002  0.0005
+1                impl_lines  0.0000         -0.8114  0.0002  0.0000
+2                    n_dirs  0.0267         -0.3314  0.0470  0.0355
+3                   dos_dir  0.3387         -0.1448  0.5113  0.3738
+4                 cue_files  0.4615         -0.1105  0.9612  0.4923
+5                cue_tokens  0.0000          0.8219  0.0004  0.0000
+6                recall_all  0.0000         -0.8638  0.0002  0.0000
+7               recall_long  0.0000         -0.9359  0.0002  0.0000
+8             gold_comments  0.0000         -0.8933  0.0002  0.0000
+9           recall_comments  0.0000         -0.6958  0.0002  0.0000
+10                precision  0.0000         -0.7981  0.0002  0.0000
+11       files_outside_gold  0.0296          0.2343  0.0464  0.0379
+12               tool_calls  0.0000         -0.9581  0.0002  0.0000
+13                api_turns  0.0000         -0.9590  0.0002  0.0000
+14                 searches  0.0000         -0.9048  0.0002  0.0000
+15                test_runs  0.0000         -0.8552  0.0002  0.0000
+16             files_opened  0.0000         -0.7581  0.0002  0.0000
+17          files_read_full  0.0737         -0.2676  0.0308  0.0908
+18                 listings  0.0000         -0.6610  0.0002  0.0000
+19             orient_calls  0.0073         -0.4010  0.0006  0.0106
+20          orient_searches  0.0171         -0.3581  0.0008  0.0238
+21      gold_found_pre_edit  0.0032          0.4405  0.0078  0.0051
+22       gold_found_by_done  0.2212         -0.1766  0.0998  0.2528
+23                   rework  0.0014         -0.3162  0.0014  0.0025
+24          navshare_search  0.0073         -0.4038  0.0032  0.0106
+25  navshare_following_code  0.1815          0.0833  0.3533  0.2151
+26          navshare_recall  0.7264          0.0456  0.0534  0.7264
+27  navshare_benchmark_clue  0.5287          0.0208  1.0000  0.5458
+28       navshare_not_found  0.0002          0.4980  0.0004  0.0003
+29                   rounds  0.0017         -0.1905  0.0058  0.0029
+30                 cost_usd  0.0000         -0.9790  0.0002  0.0000
+31                   wall_s  0.0000         -0.7867  0.0002  0.0000
+r0_pass        False  True 
+bench                      
+FeatureBench       4     17
+SWE-bench Pro      0     50
+Fisher r0_pass SignificanceResult(statistic=inf, pvalue=np.float64(0.006159720471164583))
+
+Recall overlap: FB min 0.624 SW max 1.0 | SW cells with recall>=FB min: 18
+
+== T2b rank regression: rank(DV) ~ sw + rank(recall) + rank(logsize); permutation of sw (Freedman-Lane) ==
+tool_calls           none: b=-34.0 p=0.000 | +size: b=-30.6 p=0.000 | +recall: b=-26.1 p=0.000 | +recall+size: b=-17.2 p=0.002
+api_turns            none: b=-34.0 p=0.000 | +size: b=-31.3 p=0.000 | +recall: b=-26.9 p=0.000 | +recall+size: b=-19.1 p=0.002
+searches             none: b=-32.1 p=0.000 | +size: b=-29.3 p=0.000 | +recall: b=-25.7 p=0.000 | +recall+size: b=-17.0 p=0.006
+files_opened         none: b=-26.9 p=0.000 | +size: b=-14.5 p=0.004 | +recall: b=-21.2 p=0.000 | +recall+size: b=+0.2 p=0.978
+test_runs            none: b=-30.4 p=0.000 | +size: b=-33.5 p=0.000 | +recall: b=-18.6 p=0.000 | +recall+size: b=-17.9 p=0.004
+gold_found_pre_edit  none: b=+15.2 p=0.003 | +size: b=+1.2 p=0.792 | +recall: b=+29.9 p=0.000 | +recall+size: b=+10.1 p=0.095
+navshare_search      none: b=-13.9 p=0.009 | +size: b=-13.0 p=0.050 | +recall: b=-7.0 p=0.302 | +recall+size: b=-3.2 p=0.718
+navshare_recall      none: b=+1.6 p=0.736 | +size: b=-6.7 p=0.245 | +recall: b=+7.1 p=0.257 | +recall+size: b=-1.2 p=0.873
+cost_usd             none: b=-34.8 p=0.000 | +size: b=-25.9 p=0.000 | +recall: b=-25.6 p=0.000 | +recall+size: b=-11.2 p=0.029
+wall_s               none: b=-27.9 p=0.000 | +size: b=-17.9 p=0.000 | +recall: b=-27.0 p=0.000 | +recall+size: b=-11.9 p=0.082
+
+VIF-ish: corr(sw, rank recall)=-0.68 corr(sw,rank logsize)=-0.64
+
+== T2c comment-line matching ==
+FeatureBench gold_comments==0: 0 recall_comments median 0.978
+SWE-bench Pro gold_comments==0: 14 recall_comments median 0.0
+rho(recall_all, recall_comments) all: SignificanceResult(statistic=np.float64(0.8266768357949082), pvalue=np.float64(2.361780876859021e-15))
+tool_calls: sw|recall_comments (n=57) b=-25.4 p=0.000
+searches: sw|recall_comments (n=57) b=-25.0 p=0.000
+cost_usd: sw|recall_comments (n=57) b=-24.7 p=0.000
+gold_found_pre_edit: sw|recall_comments (n=55) b=+11.5 p=0.028
+
+== T2d stratum: recall in overlap [0.6,0.9] ==
+            bench                       task  recall_all  tool_calls  searches  cost_usd
+1    FeatureBench                    scorers       0.680          78        60    2.9898
+2    FeatureBench             git_versioning       0.624          40        23    1.1661
+11   FeatureBench       compression_failures       0.885          36        35    1.5473
+12   FeatureBench                 containers       0.720          17         8    1.2808
+18   FeatureBench            backends_chunks       0.785          21        12    0.7142
+24  SWE-bench Pro           ansible-40ade1f8       0.649           9         3    0.9859
+25  SWE-bench Pro           ansible-c1f2df47       0.859          11         8    0.5175
+33  SWE-bench Pro          flipt-io-524f2773       0.697          31        23    0.9327
+34  SWE-bench Pro     gravitational-82185f23       0.839          12         7    0.3767
+38  SWE-bench Pro        element-hq-772df302       0.670          14         5    0.5141
+39  SWE-bench Pro        element-hq-2760bfc8       0.850          12         6    0.4398
+41  SWE-bench Pro           ansible-5d253a13       0.725          12         5    0.3651
+42  SWE-bench Pro  future-architect-50580f6e       0.747           7         4    0.3331
+46  SWE-bench Pro       qutebrowser-16de0540       0.756          11         3    0.3910
+50  SWE-bench Pro       qutebrowser-ec2dcfce       0.841          16        11    0.4018
+56  SWE-bench Pro         navidrome-8d56ec89       0.659          10         8    0.3087
+57  SWE-bench Pro        protonmail-1501eb76       0.708           7         6    0.3281
+60  SWE-bench Pro          flipt-io-f743945d       0.857           8         6    0.2586
+63  SWE-bench Pro          flipt-io-72d06db1       0.705           4         0    0.1856
+64  SWE-bench Pro       qutebrowser-0aa57e4f       0.692           8         8    0.3130
+65  SWE-bench Pro          flipt-io-c1fd7a81       0.727          16         9    0.4362
+
+== T3 within-bench Spearman (and partial on recall) ==
+-- FeatureBench 21
+  n_files    ~cost_usd             rho=+0.88 p=0.000 q=0.000 partial|recall=+0.88
+  n_files    ~tool_calls           rho=+0.89 p=0.000 q=0.000 partial|recall=+0.89
+  n_files    ~searches             rho=+0.89 p=0.000 q=0.000 partial|recall=+0.89
+  n_files    ~gold_found_pre_edit  rho=-0.70 p=0.000 q=0.001 partial|recall=-0.71
+  n_files    ~wall_s               rho=+0.82 p=0.000 q=0.000 partial|recall=+0.82
+  impl_lines ~cost_usd             rho=+0.87 p=0.000 q=0.000 partial|recall=+0.88
+  impl_lines ~tool_calls           rho=+0.80 p=0.000 q=0.000 partial|recall=+0.81
+  impl_lines ~searches             rho=+0.77 p=0.000 q=0.000 partial|recall=+0.79
+  impl_lines ~gold_found_pre_edit  rho=-0.64 p=0.002 q=0.003 partial|recall=-0.63
+  impl_lines ~wall_s               rho=+0.71 p=0.000 q=0.001 partial|recall=+0.71
+  n_dirs     ~cost_usd             rho=+0.76 p=0.000 q=0.000 partial|recall=+0.77
+  n_dirs     ~tool_calls           rho=+0.83 p=0.000 q=0.000 partial|recall=+0.84
+  n_dirs     ~searches             rho=+0.82 p=0.000 q=0.000 partial|recall=+0.82
+  n_dirs     ~gold_found_pre_edit  rho=-0.52 p=0.016 q=0.022 partial|recall=-0.54
+  n_dirs     ~wall_s               rho=+0.70 p=0.000 q=0.001 partial|recall=+0.71
+  dos_dir    ~cost_usd             rho=+0.64 p=0.002 q=0.003 partial|recall=+0.65
+  dos_dir    ~tool_calls           rho=+0.67 p=0.001 q=0.001 partial|recall=+0.68
+  dos_dir    ~searches             rho=+0.76 p=0.000 q=0.000 partial|recall=+0.76
+  dos_dir    ~gold_found_pre_edit  rho=-0.51 p=0.019 q=0.025 partial|recall=-0.53
+  dos_dir    ~wall_s               rho=+0.48 p=0.029 q=0.037 partial|recall=+0.49
+  recall_all ~cost_usd             rho=+0.09 p=0.701 q=0.792 partial|recall=+nan
+  recall_all ~tool_calls           rho=+0.05 p=0.827 q=0.861 partial|recall=+nan
+  recall_all ~searches             rho=-0.01 p=0.958 q=0.958 partial|recall=+nan
+  recall_all ~gold_found_pre_edit  rho=-0.16 p=0.481 q=0.573 partial|recall=+nan
+  recall_all ~wall_s               rho=+0.08 p=0.729 q=0.792 partial|recall=+nan
+-- SWE-bench Pro 50
+  n_files    ~cost_usd             rho=+0.10 p=0.501 q=0.627 partial|recall=+0.35
+  n_files    ~tool_calls           rho=+0.12 p=0.419 q=0.589 partial|recall=+0.32
+  n_files    ~searches             rho=+0.15 p=0.289 q=0.482 partial|recall=+0.30
+  n_files    ~gold_found_pre_edit  rho=-0.71 p=0.000 q=0.000 partial|recall=-0.63
+  n_files    ~wall_s               rho=+0.18 p=0.206 q=0.392 partial|recall=+0.27
+  impl_lines ~cost_usd             rho=+0.31 p=0.029 q=0.089 partial|recall=+0.45
+  impl_lines ~tool_calls           rho=+0.04 p=0.806 q=0.845 partial|recall=+0.12
+  impl_lines ~searches             rho=-0.05 p=0.721 q=0.819 partial|recall=+0.00
+  impl_lines ~gold_found_pre_edit  rho=-0.30 p=0.040 q=0.112 partial|recall=-0.15
+  impl_lines ~wall_s               rho=+0.33 p=0.018 q=0.064 partial|recall=+0.37
+  n_dirs     ~cost_usd             rho=+0.07 p=0.616 q=0.734 partial|recall=+0.26
+  n_dirs     ~tool_calls           rho=+0.18 p=0.219 q=0.392 partial|recall=+0.34
+  n_dirs     ~searches             rho=+0.25 p=0.084 q=0.195 partial|recall=+0.36
+  n_dirs     ~gold_found_pre_edit  rho=-0.66 p=0.000 q=0.000 partial|recall=-0.62
+  n_dirs     ~wall_s               rho=+0.11 p=0.460 q=0.605 partial|recall=+0.16
+  dos_dir    ~cost_usd             rho=+0.03 p=0.811 q=0.845 partial|recall=+0.22
+  dos_dir    ~tool_calls           rho=+0.12 p=0.424 q=0.589 partial|recall=+0.28
+  dos_dir    ~searches             rho=+0.20 p=0.158 q=0.329 partial|recall=+0.32
+  dos_dir    ~gold_found_pre_edit  rho=-0.61 p=0.000 q=0.000 partial|recall=-0.54
+  dos_dir    ~wall_s               rho=-0.02 p=0.887 q=0.887 partial|recall=+0.03
+  recall_all ~cost_usd             rho=+0.42 p=0.002 q=0.012 partial|recall=+nan
+  recall_all ~tool_calls           rho=+0.34 p=0.014 q=0.060 partial|recall=+nan
+  recall_all ~searches             rho=+0.25 p=0.086 q=0.195 partial|recall=+nan
+  recall_all ~gold_found_pre_edit  rho=+0.59 p=0.000 q=0.000 partial|recall=+nan
+  recall_all ~wall_s               rho=+0.12 p=0.396 q=0.589 partial|recall=+nan
+
+== T4 robustness ==
+drop protonmail: {'tool_calls': (np.float64(-0.96), np.float64(0.0)), 'searches': (np.float64(-0.922), np.float64(0.0)), 'files_opened': (np.float64(-0.802), np.float64(0.0)), 'cost_usd': (np.float64(-0.982), np.float64(0.0)), 'gold_found_pre_edit': (np.float64(0.515), np.float64(0.001)), 'recall_all': (np.float64(-0.826), np.float64(0.0)), 'impl_lines': (np.float64(-0.83), np.float64(0.0)), 'n_files': (np.float64(-0.668), np.float64(0.0))}
+ LORO -mlflow           {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.89), 'files_opened': np.float64(-0.72), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.47)} max p 0.003
+ LORO -sphinx-doc       {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.75), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.46)} max p 0.005
+ LORO -pandas-dev       {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.89), 'files_opened': np.float64(-0.75), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.35)} max p 0.025
+ LORO -astropy          {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.92), 'files_opened': np.float64(-0.76), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.44)} max p 0.005
+ LORO -mwaskom          {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.92), 'files_opened': np.float64(-0.78), 'cost_usd': np.float64(-0.97), 'gold_found_pre_edit': np.float64(0.44)} max p 0.006
+ LORO -pydata           {'tool_calls': np.float64(-0.97), 'searches': np.float64(-0.91), 'files_opened': np.float64(-0.78), 'cost_usd': np.float64(-0.99), 'gold_found_pre_edit': np.float64(0.47)} max p 0.003
+ LORO -element-hq       {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.75), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.48)} max p 0.002
+ LORO -navidrome        {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.77), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.41)} max p 0.007
+ LORO -future-architect {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.75), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.41)} max p 0.007
+ LORO -ansible          {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.75), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.43)} max p 0.004
+ LORO -protonmail       {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.92), 'files_opened': np.float64(-0.8), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.51)} max p 0.001
+ LORO -flipt-io         {'tool_calls': np.float64(-0.97), 'searches': np.float64(-0.92), 'files_opened': np.float64(-0.77), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.43)} max p 0.005
+ LORO -gravitational    {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.74), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.43)} max p 0.005
+ LORO -internetarchive  {'tool_calls': np.float64(-0.96), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.74), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.46)} max p 0.002
+ LORO -qutebrowser      {'tool_calls': np.float64(-0.95), 'searches': np.float64(-0.9), 'files_opened': np.float64(-0.73), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.4)} max p 0.009
+ LORO -NodeBB           {'tool_calls': np.float64(-0.97), 'searches': np.float64(-0.92), 'files_opened': np.float64(-0.77), 'cost_usd': np.float64(-0.98), 'gold_found_pre_edit': np.float64(0.44)} max p 0.003
+bootstrap 95% CI of Cliff delta (SW vs FB) and median diff:
+  tool_calls           delta=-0.96 CI[-1.00,-0.90] meddiff CI[-60,-18]
+  searches             delta=-0.90 CI[-0.98,-0.80] meddiff CI[-53,-11]
+  files_opened         delta=-0.76 CI[-0.90,-0.57] meddiff CI[-21,-2.5]
+  cost_usd             delta=-0.98 CI[-1.00,-0.94] meddiff CI[-2.85,-0.86]
+  gold_found_pre_edit  delta=+0.44 CI[+0.16,+0.69] meddiff CI[0,0.838]
+  recall_all           delta=-0.86 CI[-0.97,-0.73] meddiff CI[-0.731,-0.365]
+  impl_lines           delta=-0.81 CI[-0.93,-0.66] meddiff CI[-665,-318]
+  n_files              delta=-0.55 CI[-0.78,-0.29] meddiff CI[-14,-2]
+Power: MWU 21 vs 50, alpha .05, 80% power -> simulate min |Cliff delta| (normal shift)
+  shift d=0.4: power=0.31, Cliff~0.22
+  shift d=0.5: power=0.44, Cliff~0.28
+  shift d=0.6: power=0.58, Cliff~0.33
+  shift d=0.8: power=0.83, Cliff~0.43
+  shift d=1.0: power=0.96, Cliff~0.52
+  shift d=1.2: power=0.99, Cliff~0.60
+  Spearman n=21 rho=0.4: approx power=0.44
+  Spearman n=21 rho=0.5: approx power=0.64
+  Spearman n=21 rho=0.6: approx power=0.84
+  Spearman n=21 rho=0.7: approx power=0.96
+  Spearman n=50 rho=0.4: approx power=0.83
+  Spearman n=50 rho=0.5: approx power=0.96
+  Spearman n=50 rho=0.6: approx power=1.00
+  Spearman n=50 rho=0.7: approx power=1.00

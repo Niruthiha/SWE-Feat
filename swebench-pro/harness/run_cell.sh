@@ -1,0 +1,214 @@
+#!/usr/bin/env bash
+# run_cell.sh <instance_id> [seed] - ONE CELL on a SWE-bench Pro V2 task. Harness sbp-1.0 (2026-11-03), the
+# SWE-bench Pro port of experiment-featurebench/run_cell.sh v6.0 (same protocol, same rules):
+#   round 0   tasks/<id>/prompt.txt = the task's instruction.md, byte-for-byte (GOAL=1: prompt_goal.txt)
+#   round n>0 blind_msg.txt only, --resume of the same session
+# Agent: fresh container from sbpexp-agent:<id> (= the V2 image + pinned CLI), uid 1000, empty HOME, no MCP,
+# WebSearch/WebFetch disallowed, internal network + allowlist egress proxy (hcexp-egress:2: Anthropic API only),
+# credential read-only outside HOME. The image's /tests, /solution never exist there (prep_agent.sh checks).
+# After EVERY round: diff vs the base commit (temp index, binaries dropped) -> FRESH --network none container
+# from the PRISTINE V2 image -> git apply as the official patch_replay does -> the task's unchanged tests/test.sh.
+# STOP_RULE=official (default): test.sh exit 0 (every fail_to_pass AND pass_to_pass passes). f2p-only is recorded.
+# Stops: converged | stall 10 identical trees | caps | agent_unavailable (exit 3, invalid) | session_broken.
+set -euo pipefail
+HARNESS_VERSION="sbp-1.0"
+MODEL="${MODEL:-claude-opus-5-5}"; MAX_ROUNDS="${MAX_ROUNDS:-0}"; MAX_USD="${MAX_USD:-0}"; STALL_ROUNDS="${STALL_ROUNDS:-10}"
+STOP_RULE="${STOP_RULE:-official}"; MEM="${MEM:-4g}"
+IID="$1"; SEED="${2:-1}"
+HERE=$(realpath "$(dirname "$0")"); TASK_DIR="$HERE/tasks/$IID"
+[ -d "$TASK_DIR" ] || { echo "no such task $TASK_DIR" >&2; exit 1; }
+PRISTINE=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['image'])" "$TASK_DIR/meta.json")
+SHORT=$(echo "$IID" | sed -E 's/^instance_//; s/-v[0-9a-f]{20,}$//; s/__/-/' | cut -c1-60)
+IMAGE="sbpexp-agent:$(echo "$IID" | sed -E 's/^instance_//' | cut -c1-120)"
+docker image inspect "$IMAGE" >/dev/null 2>&1 || { echo "no image $IMAGE (./build_image.sh $IID)" >&2; exit 1; }
+[ -n "${CLAUDE_CREDS:-}${ANTHROPIC_API_KEY:-}" ] || { echo "set CLAUDE_CREDS" >&2; exit 1; }
+python3 - "$TASK_DIR/preflight.json" "$PRISTINE" "$(docker image inspect -f '{{.Id}}' "$PRISTINE")" <<'PY' 2>/dev/null || { echo "CELL REFUSED TO START: preflight missing/failed/stale" >&2; exit 4; }
+import json, sys
+p = json.load(open(sys.argv[1])); assert p["gold"] == "PASS" and p["noop"] == "FAIL" and p["image"] == sys.argv[2] and p["image_id"] == sys.argv[3]
+PY
+ARM=baseline; PROMPT="$TASK_DIR/prompt.txt"; RUN_ID="$(date +%Y%m%d-%H%M%S)-${SHORT}-s${SEED}"
+if [ "${GOAL:-0}" = 1 ]; then ARM=goal; PROMPT="$TASK_DIR/prompt_goal.txt"; RUN_ID="$RUN_ID-goal"; fi
+if [ "${VERB:-0}" = 1 ]; then ARM=verbatim; PROMPT="$TASK_DIR/prompt_verbatim.txt"; RUN_ID="$RUN_ID-verb"; fi
+if [ "${GOALRW:-0}" = 1 ]; then ARM=goalrw; PROMPT="$TASK_DIR/prompt_goalrw.txt"; RUN_ID="$RUN_ID-goalrw"; fi
+[ -n "${SMOKE_PROMPT:-}" ] && { PROMPT="$SMOKE_PROMPT"; RUN_ID="smoke-$RUN_ID"; }
+PROMPT_SHA=$(sha256sum "$PROMPT" | cut -d' ' -f1); SESSION_ID=$(python3 -c 'import uuid;print(uuid.uuid4())')
+RUN_DIR="$HERE/runs/$RUN_ID"; mkdir -p "$RUN_DIR/rounds" "$RUN_DIR/snapshots"
+CONTAINER="sbpcell-$(echo "$RUN_ID" | tr -cd 'a-zA-Z0-9_.-' | tail -c 40 | sed 's/^[^a-zA-Z0-9]*//')"
+
+# ---- 1. agent container: internal network, allowlist egress --------------------------------------------------
+docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+CRED_MOUNT=(); [ -n "${CLAUDE_CREDS:-}" ] && CRED_MOUNT=(-v "$(realpath "$CLAUDE_CREDS")":/creds/credentials.json:ro)
+docker network inspect hcexp-cellnet >/dev/null 2>&1 || docker network create --internal hcexp-cellnet >/dev/null
+docker network inspect hcexp-egressnet >/dev/null 2>&1 || docker network create hcexp-egressnet >/dev/null
+EGRESS_IMAGE="hcexp-egress:2"
+if [ "$(docker inspect -f '{{.State.Running}} {{.Config.Image}}' hcexp-egress 2>/dev/null)" != "true $EGRESS_IMAGE" ]; then
+  docker rm -f hcexp-egress >/dev/null 2>&1 || true
+  docker run -d --name hcexp-egress --network hcexp-cellnet "$EGRESS_IMAGE" >/dev/null
+  docker network connect hcexp-egressnet hcexp-egress; sleep 2
+fi
+PROXY="http://hcexp-egress:8888"
+docker run -d --name "$CONTAINER" --network hcexp-cellnet --memory "$MEM" "${CRED_MOUNT[@]+"${CRED_MOUNT[@]}"}" \
+  ${ANTHROPIC_API_KEY:+-e ANTHROPIC_API_KEY} -e HOME=/agent-home \
+  -e HTTPS_PROXY="$PROXY" -e HTTP_PROXY="$PROXY" -e https_proxy="$PROXY" -e http_proxy="$PROXY" \
+  -e NO_PROXY=localhost,127.0.0.1 -e no_proxy=localhost,127.0.0.1 "$IMAGE" sleep infinity >/dev/null
+trap 'docker rm -f "$CONTAINER" "acc-$CONTAINER" >/dev/null 2>&1 || true' EXIT
+
+# ---- 2. root prep before the agent exists ---------------------------------------------------------------------
+docker cp "$HERE/instruments/prep_agent.sh" "$CONTAINER:/tmp/prep_agent.sh"
+docker exec --user 0:0 "$CONTAINER" bash /tmp/prep_agent.sh > "$RUN_DIR/prep.log" 2>&1 || { echo "prep failed: $(tail -3 "$RUN_DIR/prep.log")" >&2; exit 5; }
+docker exec --user 0:0 "$CONTAINER" rm -f /tmp/prep_agent.sh
+WORK=$(sed -n 's/^WORKDIR //p' "$RUN_DIR/prep.log")
+docker exec --user 0:0 "$CONTAINER" chown 1000:1000 /agent-home
+AGENT_SHELL="source /etc/sbpexp-agent.env; cd $WORK && "
+BASE_COMMIT=$(docker exec --user 1000:1000 "$CONTAINER" git -C "$WORK" rev-parse HEAD)
+[ -n "${CLAUDE_CREDS:-}" ] && docker exec --user 1000:1000 "$CONTAINER" bash -c 'mkdir -p "$HOME/.claude" && cp /creds/credentials.json "$HOME/.claude/.credentials.json" && chmod 600 "$HOME/.claude/.credentials.json"'
+CLI_VERSION=$(docker exec --user 1000:1000 "$CONTAINER" claude --version 2>/dev/null | tr -d '\r')
+[ -n "$CLI_VERSION" ] || { echo "claude not runnable" >&2; exit 1; }
+
+# ---- 2b. isolation attestation, BEFORE the agent runs ---------------------------------------------------------
+TP_FILES=$(grep '^diff --git' "$TASK_DIR/verifier/test_patch.patch" | sed -E 's#^diff --git a/([^ ]+) .*#\1#' | tr '\n' ' ')
+docker exec --user 1000:1000 "$CONTAINER" bash -c "$AGENT_SHELL"'
+  echo "== whoami =="; id; echo "== HOME =="; echo "$HOME"; echo "== find \$HOME =="; find "$HOME" -maxdepth 3 | sort
+  echo "== env (claude/anthropic names; proxy values) =="; env | grep -iE "claude|anthropic" | sed "s/=.*/=<redacted>/" | sort
+  env | grep -E "^(HOME|HTTPS_PROXY|NO_PROXY|GOCACHE|GOMODCACHE|GOFLAGS)=" | sort
+  echo "== verifier / solution / reward paths absent =="; for p in /tests /solution /logs/verifier /oracle; do [ -e $p ] && echo "PRESENT $p" || echo "absent  $p"; done
+  echo "== hidden test patch not applied (files it touches, as in HEAD) =="
+  for f in '"$TP_FILES"'; do if [ -e "$f" ]; then git diff --quiet HEAD -- "$f" && echo "HEAD-version $f" || echo "MODIFIED $f"; else echo "absent       $f"; fi; done
+  echo "== instruction files =="; for d in / '"$WORK"' /agent-home; do for f in CLAUDE.md AGENTS.md .mcp.json; do [ -e "$d/$f" ] && echo "PRESENT $d/$f" || echo "absent  $d/$f"; done; done
+  find . -maxdepth 4 \( -iname CLAUDE.md -o -iname AGENTS.md -o -name .claude -o -name .mcp.json \) 2>/dev/null | sed "s/^/  repo-shipped: /"; echo "  (find done)"
+  echo "== git history visible =="; git log --oneline | head -3; echo "commits $(git rev-list --count HEAD) refs_ahead_of_HEAD $(git rev-list --all --not HEAD | wc -l) stash $(git stash list | wc -l)"; git status --porcelain | head -3
+  echo "== mounts =="; grep -E " /creds| /agent-home| '"$WORK"'" /proc/self/mountinfo | awk "{print \$5, \$6}"
+  echo "== egress (only the model API may answer) =="
+  for h in api.anthropic.com platform.claude.com github.com pypi.org proxy.golang.org registry.npmjs.org; do
+    c=$(timeout 12 curl -s -o /dev/null -w "%{http_code}" "https://$h/" 2>/dev/null); echo "  $h -> ${c:-000}"; done
+' > "$RUN_DIR/isolation.txt" 2>&1 || true
+echo "== prep ==" >> "$RUN_DIR/isolation.txt"; cat "$RUN_DIR/prep.log" >> "$RUN_DIR/isolation.txt"
+
+cp "$PROMPT" "$RUN_DIR/task.md"; cp "$TASK_DIR/meta.json" "$RUN_DIR/task_meta.json"
+python3 - "$RUN_DIR/manifest.json" <<PY
+import json, sys
+json.dump({"run_id": "$RUN_ID", "instance_id": "$IID", "task": "$SHORT", "seed": "$SEED", "arm": "$ARM",
+  "image": "$IMAGE", "image_id": "$(docker image inspect -f '{{.Id}}' "$IMAGE")", "pristine_image": "$PRISTINE",
+  "pristine_image_id": "$(docker image inspect -f '{{.Id}}' "$PRISTINE")", "cli_version": "$CLI_VERSION",
+  "model_requested": "$MODEL", "harness_version": "$HARNESS_VERSION", "protocol": "run-to-acceptance", "feedback": "blind",
+  "session_id": "$SESSION_ID", "prompt_sha256": "$PROMPT_SHA", "stop_rule": "$STOP_RULE",
+  "acceptance": "official tests/test.sh in a fresh --network none container from the pristine image; agent diff applied as patch_replay does",
+  "workdir": "$WORK", "base_commit": "$BASE_COMMIT", "memory": "$MEM",
+  "max_rounds": $MAX_ROUNDS, "max_usd": $MAX_USD, "stall_rounds": $STALL_ROUNDS, "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "$EGRESS_IMAGE", "started": "$(date -Iseconds)"}, open(sys.argv[1], "w"), indent=2)
+PY
+
+# ---- helpers ---------------------------------------------------------------------------------------------------
+snapshot () { # temp index: the agent's own index/status are never touched
+  docker exec --user 1000:1000 -e BASE_COMMIT="$BASE_COMMIT" "$CONTAINER" bash -c "cd $WORK"' && export GIT_INDEX_FILE=/tmp/.sbpsnap.index && rm -f "$GIT_INDEX_FILE"
+    git read-tree "$BASE_COMMIT" && git add -A
+    git diff --cached --no-color --stat "$BASE_COMMIT" > /tmp/.sbpsnap.stat; git diff --cached --no-color --name-status "$BASE_COMMIT" > /tmp/.sbpsnap.names
+    git diff --cached --no-color "$BASE_COMMIT"; echo "@@TREE $(git write-tree)" >&2' > "$1/diff.raw" 2> "$1/snapshot.stderr" || true
+  python3 - "$1" <<'PY'
+import pathlib, sys
+rd = pathlib.Path(sys.argv[1]); raw = (rd / "diff.raw").read_text(errors="replace")
+had_nl = raw.endswith("\n"); out = []; skip = False
+for line in raw.split("\n"):
+    if line.startswith("diff --git"): skip = False
+    if "Binary files" in line or "GIT binary patch" in line:
+        while out and not out[-1].startswith("diff --git"): out.pop()
+        if out and out[-1].startswith("diff --git"): out.pop()
+        skip = True; continue
+    if not skip: out.append(line)
+txt = "\n".join(out)
+if had_nl and not txt.endswith("\n"): txt += "\n"
+(rd / "diff.patch").write_text(txt)
+PY
+  docker exec --user 1000:1000 "$CONTAINER" bash -c 'cat /tmp/.sbpsnap.stat; echo ---; cat /tmp/.sbpsnap.names' \
+    | awk -v rd="$1" 'BEGIN{f=rd"/diff.stat"} /^---$/{f=rd"/files_touched.txt"; next} {print > f}' || true
+  touch "$1/diff.stat" "$1/files_touched.txt"; sed -n 's/^@@TREE //p' "$1/snapshot.stderr" | tail -1 > "$1/tree"
+}
+run_accept () { # -> PASS|FAIL|ERROR ; <rd>/accept/ = /logs/verifier
+  local rd="$1" acc="acc-$CONTAINER"; docker rm -f "$acc" >/dev/null 2>&1 || true
+  docker run -d --name "$acc" --network none --memory "$MEM" "$PRISTINE" sleep infinity >/dev/null
+  docker cp "$TASK_DIR/verifier" "$acc:/tests"; docker cp "$HERE/instruments/accept_in_container.sh" "$acc:/tmp/accept_in_container.sh"
+  docker cp "$rd/diff.patch" "$acc:/tmp/agent.patch"
+  set +e; docker exec "$acc" bash /tmp/accept_in_container.sh > "$rd/accept.stdout" 2>&1; local rc=$?; set -e
+  docker cp "$acc:/logs/verifier" "$rd/accept" >/dev/null 2>&1 || mkdir -p "$rd/accept"
+  docker rm -f "$acc" >/dev/null 2>&1 || true; echo "$rc" > "$rd/accept_exit"
+  grep -a '^ACCEPT SUMMARY' "$rd/accept.stdout" | tail -1 > "$rd/accept/VERDICT.txt" || true
+  case "$rc" in 0) echo PASS;; 1) echo FAIL;; 2) echo FAIL;; *) echo ERROR;; esac
+}
+usd_so_far () { python3 "$HERE/cell_cost.py" "$RUN_DIR" 2>/dev/null || echo 0; }
+over_cap () { python3 -c "import sys;sys.exit(0 if float('$MAX_USD')>0 and float('$1')>=float('$MAX_USD') else 1)"; }
+
+# ---- 3. run-to-acceptance loop -----------------------------------------------------------------------------------
+START_NS=$(date +%s%N); ROUND=0; BLIND=0; AGENT_UNAVAILABLE=0; STALL=0; TREE_PREV=""; VERDICT=unknown; STOP_REASON=""; ACCEPT_ROUND=""; F2P_ROUND=""
+printf 'round\tkind\taccept\tf2p\tp2p\ttest_integrity\tcum_usd\twall_ms\n' > "$RUN_DIR/rounds.tsv"
+while : ; do
+  RD="$RUN_DIR/rounds/$(printf 'r%02d' "$ROUND")"; mkdir -p "$RD"
+  if [ "$ROUND" -eq 0 ]; then KIND=task; PF="$PROMPT"; CLI_ARGS=(--session-id "$SESSION_ID")
+  else KIND=blind; PF="$HERE/blind_msg.txt"; CLI_ARGS=(--resume "$SESSION_ID"); fi
+  echo "$KIND" > "$RD/kind"; cp -f "$PF" "$RD/prompt.txt"
+  R_START=$(date +%s%N); set +e
+  docker exec -i --user 1000:1000 "$CONTAINER" bash -c "$AGENT_SHELL claude -p \"\$(cat /dev/stdin)\" \
+       --model $MODEL ${CLI_ARGS[*]} --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' \
+       --output-format stream-json --verbose --disallowedTools WebSearch WebFetch --dangerously-skip-permissions" \
+    < "$PF" > "$RD/transcript.jsonl" 2> "$RD/agent.stderr"
+  echo $? > "$RD/agent_exit"; set -e; WALL=$(( ($(date +%s%N) - R_START) / 1000000 )); echo "$WALL" > "$RD/wall_ms"
+  grep -qa '"type":"result"' "$RD/transcript.jsonl" 2>/dev/null || { VERDICT=session_broken; STOP_REASON="no result event in round $ROUND"; break; }
+  AERR=$(python3 -c "
+import sys; sys.path.insert(0, '$HERE')
+from roundcost import final_result
+r = final_result('$RD/transcript.jsonl') or {}
+print('1' if r.get('is_error') else '0'); print((str(r.get('result') or '')[:200]).replace(chr(10), ' '))" 2>/dev/null || printf '0\n')
+  if [ "$(printf '%s' "$AERR" | head -1)" = 1 ]; then printf '%s' "$AERR" | tail -n +2 > "$RD/agent_error.txt"
+    VERDICT=agent_unavailable; STOP_REASON="round $ROUND error result: $(cat "$RD/agent_error.txt")"; AGENT_UNAVAILABLE=1; break; fi
+  snapshot "$RD"
+  python3 "$HERE/test_integrity.py" "$RD/diff.patch" > "$RD/test_integrity.json" 2>/dev/null || echo '{"total":-1}' > "$RD/test_integrity.json"
+  TI=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['total'])" "$RD/test_integrity.json" 2>/dev/null || echo -1)
+  TREE_NOW=$(cat "$RD/tree" 2>/dev/null || echo none)
+  if [ "$ROUND" -gt 0 ] && [ "$TREE_NOW" = "$TREE_PREV" ]; then STALL=$((STALL+1)); else STALL=0; fi; TREE_PREV="$TREE_NOW"
+  cp -f "$RD/diff.patch" "$RUN_DIR/snapshots/$(printf 'r%02d' "$ROUND")-$KIND.diff.patch"
+  ACC=$(run_accept "$RD"); echo "$ACC" > "$RD/accept_result"
+  F2PR=$(sed -nE 's/.*f2p=([0-9]+\/[0-9]+).*/\1/p' "$RD/accept/VERDICT.txt" | tail -1); P2PR=$(sed -nE 's/.*p2p=([0-9]+\/[0-9]+).*/\1/p' "$RD/accept/VERDICT.txt" | tail -1)
+  F2P_ALL=$(python3 -c "a,b='${F2PR:-0/1}'.split('/');print(1 if a==b and int(b)>0 else 0)")
+  [ "$F2P_ALL" = 1 ] && [ -z "$F2P_ROUND" ] && F2P_ROUND=$ROUND
+  [ "$STOP_RULE" = f2p ] && [ "$ACC" = FAIL ] && [ "$F2P_ALL" = 1 ] && { ACC=PASS; echo PASS > "$RD/accept_result"; }
+  SPENT=$(usd_so_far)
+  printf '%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$ROUND" "$KIND" "$ACC" "${F2PR:--}" "${P2PR:--}" "$TI" "$SPENT" "$WALL" >> "$RUN_DIR/rounds.tsv"
+  echo "round $ROUND ($KIND): accept=$ACC f2p=${F2PR:--} p2p=${P2PR:--} integrity=$TI cum=\$$SPENT wall=${WALL}ms"
+  [ -n "${SMOKE_PROMPT:-}" ] && { VERDICT=smoke; STOP_REASON="smoke: round 0 only"; break; }
+  if [ "$ACC" = PASS ]; then VERDICT=converged; STOP_REASON="acceptance passed"; ACCEPT_ROUND=$ROUND; break; fi
+  if [ "$ACC" = ERROR ]; then VERDICT=acceptance_error; STOP_REASON="acceptance exit $(cat "$RD/accept_exit")"; break; fi
+  if over_cap "$SPENT"; then VERDICT=did_not_converge; STOP_REASON="cost cap"; break; fi
+  if [ "$STALL_ROUNDS" -gt 0 ] && [ "$STALL" -ge "$STALL_ROUNDS" ]; then VERDICT=did_not_converge; STOP_REASON="stalled $STALL rounds"; break; fi
+  if [ "$MAX_ROUNDS" -gt 0 ] && [ "$BLIND" -ge "$MAX_ROUNDS" ]; then VERDICT=did_not_converge; STOP_REASON="blind-round cap"; break; fi
+  BLIND=$((BLIND+1)); ROUND=$((ROUND+1))
+done
+END_NS=$(date +%s%N)
+docker cp "$CONTAINER:/agent-home/.claude/projects" "$RUN_DIR/session" >/dev/null 2>&1 || echo "  note: no session store" >&2
+find "$RUN_DIR/session" -name '*.jsonl' -exec sh -c 'grep -l "sk-ant\|accessToken" "$1" >/dev/null 2>&1 && echo "WARNING: credential-like string in $1"' _ {} \; 2>/dev/null || true
+if [ "$AGENT_UNAVAILABLE" = 1 ]; then
+  python3 - "$RUN_DIR/manifest.json" <<PY
+import json, sys
+p = sys.argv[1]; m = json.load(open(p))
+m.update(finished="$(date -Iseconds)", verdict="agent_unavailable", stop_reason="""$STOP_REASON""", converged=False, valid=False,
+         note="INVALID CELL: a round returned an error result. Exclude; do not restart as if continuous.")
+json.dump(m, open(p, "w"), indent=2)
+PY
+  echo "cell INVALID (agent unavailable)" >&2; exit 3
+fi
+COST_ATTEMPT1=$(python3 "$HERE/cell_cost.py" "$RUN_DIR" 0); COST_TOTAL=$(usd_so_far)
+LAST="$RUN_DIR/rounds/$(printf 'r%02d' "$ROUND")"
+cat "$RUN_DIR"/rounds/r*/transcript.jsonl > "$RUN_DIR/transcript.jsonl"
+cp -f "$LAST/diff.patch" "$RUN_DIR/diff.patch"; cp -f "$LAST/diff.stat" "$RUN_DIR/diff.stat"; cp -f "$LAST/files_touched.txt" "$RUN_DIR/files_touched.txt"
+cp -f "$LAST/accept/VERDICT.txt" "$RUN_DIR/accept_final.txt" 2>/dev/null || true
+python3 - "$RUN_DIR/manifest.json" <<PY
+import json, sys
+p = sys.argv[1]; m = json.load(open(p))
+f = lambda x: float(x) if x not in ("", None) else None
+m.update(finished="$(date -Iseconds)", wall_ms=$(( (END_NS - START_NS) / 1000000 )), verdict="$VERDICT", stop_reason="""$STOP_REASON""",
+         rounds_used=$((ROUND+1)), blind_rounds=$BLIND, acceptance_round=${ACCEPT_ROUND:-None}, f2p_all_round=${F2P_ROUND:-None},
+         converged=("$VERDICT" == "converged"), accept=("PASS" if "$VERDICT" == "converged" else "FAIL"), valid=True,
+         cost_layers={"attempt1_oneshot": f("$COST_ATTEMPT1"), "to_acceptance": f("$COST_TOTAL")})
+json.dump(m, open(p, "w"), indent=2)
+PY
+python3 "$HERE/collect_metrics.py" "$RUN_DIR" > "$RUN_DIR/collect_metrics.log" 2>&1 || echo "  collect_metrics failed (see log)" >&2
+echo "cell complete: $RUN_DIR"; echo "  verdict=$VERDICT rounds=$((ROUND+1)) \$$COST_TOTAL"
