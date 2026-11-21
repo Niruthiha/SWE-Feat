@@ -37,10 +37,23 @@ The question: when the agent's diff is spread across more files and packages, do
 - Python 3.12 on the host, with pandas 3.0.1, numpy 2.4.2 and scipy 1.17.1, for `make_task.py` and the analysis. The harness itself needs only bash, python3, git and docker.
 - At least 25 GB free disk. Task images are 2–20 GB, the chain deletes each one after its task, and it stops below 25 GB. On WSL, run `wsl -d docker-desktop fstrim -av` before compacting the Docker disk.
 
-### Datasets
-- **SWE-bench Pro:** a clone of the SWE-bench Pro OS repo with the `v2/tasks/<instance_id>/` layout (`instruction.md`, `tests/`, `solution/`, `task.toml`). Set `SRC` in `swebench-pro/harness/make_task.py`. `SEL` there points to our candidate CSV; only selection columns go into `meta.json`, so you can drop it.
-- **FeatureBench:** the dataset saved as a parquet file (our path: `featurebench/analysis/full.parquet`). Set the path in `featurebench/harness/make_task.py`.
-- **Hard-coded paths:** several scripts contain `/home/niruthi/...`. Run `grep -rn /home/niruthi` and point each at your copies.
+### Datasets (pinned versions we used)
+
+**SWE-bench Pro v2.** Your repo does not include it. Clone it and check out the commit we used:
+```bash
+git clone https://github.com/scaleapi/SWE-bench_Pro-os.git
+cd SWE-bench_Pro-os && git checkout 66f92766bba642462d4bbe5479e83f91f9211862   # 2026-09-22, 642 tasks in v2/tasks/
+```
+Set `SRC` in `swebench-pro/harness/make_task.py` to this folder. `make_task.py` records the commit in each `meta.json` (`source_repo_commit`), so you can check you match. Task images are pulled from `ghcr.io/scaleapi/swe-bench_pro-v2:<instance_id>`.
+
+**FeatureBench.** We used the Hugging Face dataset `LiberCoders/FeatureBench` (200 rows) saved as one parquet file:
+```bash
+python3 -c "from datasets import load_dataset; load_dataset('LiberCoders/FeatureBench', split='full').to_parquet('full.parquet')"
+sha256sum full.parquet   # ours: 1989012f1d7003bde5e79cb5d6f7b5580c1597ae36d533019a53a1da44b2c160
+```
+If the hash differs, the dataset has changed since our runs. Check the 21 tasks in `featurebench/ran21.tsv` against our `prompt_goalrw.txt` and `meta.json` before running. The benchmark code is at https://github.com/LiberCoders/FeatureBench (we used commit `8d4e347ec57546685c5a87e8676bf575db022ea6`). Task images are pulled from Docker Hub (`image_name` in each `meta.json`).
+
+**Hard-coded paths:** several scripts contain `/home/niruthi/...`. Run `grep -rn /home/niruthi` and point each at your copies.
 
 ### Claude CLI (pinned 2.1.310)
 - **SWE-bench Pro:** the image takes the native CLI binary from the build context.
