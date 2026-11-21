@@ -22,18 +22,88 @@ The question: when the agent's diff is spread across more files and packages, do
 - The pinned Claude CLI binary (`instruments/claude-cli`, 279 MB) and `musl`. `claude-cli.sha256` records the exact build.
 - Credentials.
 
-## Setup
+## Setup, exactly as we ran it
 
-1. **Datasets.**
-   - SWE-bench Pro: clone the SWE-bench Pro OS repo, with its `v2/tasks/` layout.
-   - FeatureBench: save the dataset as a parquet file (`featurebench/analysis/full.parquet` in our layout).
-2. **Edit the hard-coded paths.** Several scripts contain `/home/niruthi/...`; point them at your own copies (`grep -rn /home/niruthi`).
-3. **Docker.**
-   - Task images: `ghcr.io/scaleapi/swe-bench_pro-v2:<instance_id>` for SWE-bench Pro, and the FeatureBench images listed in each `meta.json`.
-   - Egress proxy: build it from `swebench-pro/harness/instruments/docker-egress/` and tag it `hcexp-egress:2`. It allows only the Anthropic API.
-4. **Claude CLI.** Put a Claude Code CLI binary at `instruments/claude-cli`; the version we used is in `claude-cli.sha256`.
-5. **Credentials.** Set `CLAUDE_CREDS` to your own `~/.claude/.credentials.json`. It is mounted **read-only**, outside the agent's HOME. Never copy it into the repo or a run directory. `run_cell.sh` scans every session log for credential strings after each run.
-6. **Disk.** One task image is 2–20 GB. The chain deletes images after each task and stops below 25 GB free.
+### Machine
+- Windows 11 + WSL2 (Ubuntu), Docker Desktop with the WSL backend, Docker Engine 29.9.2.
+- `%USERPROFILE%\.wslconfig`:
+  ```ini
+  [wsl2]
+  memory=12GB
+  swap=8GB
+  [experimental]
+  bestEffortDnsParsing=true
+  ```
+- Python 3.12 on the host, with pandas 3.0.1, numpy 2.4.2 and scipy 1.17.1, for `make_task.py` and the analysis. The harness itself needs only bash, python3, git and docker.
+- At least 25 GB free disk. Task images are 2–20 GB, the chain deletes each one after its task, and it stops below 25 GB. On WSL, run `wsl -d docker-desktop fstrim -av` before compacting the Docker disk.
+
+### Datasets
+- **SWE-bench Pro:** a clone of the SWE-bench Pro OS repo with the `v2/tasks/<instance_id>/` layout (`instruction.md`, `tests/`, `solution/`, `task.toml`). Set `SRC` in `swebench-pro/harness/make_task.py`. `SEL` there points to our candidate CSV; only selection columns go into `meta.json`, so you can drop it.
+- **FeatureBench:** the dataset saved as a parquet file (our path: `featurebench/analysis/full.parquet`). Set the path in `featurebench/harness/make_task.py`.
+- **Hard-coded paths:** several scripts contain `/home/niruthi/...`. Run `grep -rn /home/niruthi` and point each at your copies.
+
+### Claude CLI (pinned 2.1.310)
+- **SWE-bench Pro:** the image takes the native CLI binary from the build context.
+  - glibc images: put it at `swebench-pro/harness/instruments/claude-cli`.
+  - Alpine images (some NodeBB/element tasks): put it at `instruments/musl/claude-cli-musl`.
+  - The `.sha256` files record the exact builds. `build_image.sh` picks glibc or musl automatically.
+- **FeatureBench:** the image installs `@anthropic-ai/claude-code@2.1.310` from npm at build time, so no binary is needed.
+- **Model:** `claude-opus-5-5`, set by `MODEL`, with default effort.
+
+### Docker images
+| Image | Built by | From |
+|---|---|---|
+| `sbpexp-agent:<iid>` | `swebench-pro/harness/build_image.sh <iid>` | `ghcr.io/scaleapi/swe-bench_pro-v2:<iid>` unchanged + CLI at `/opt/claude-cli` + wrapper at `/usr/local/bin/claude` |
+| `fbexp-agent:<repo>` | `featurebench/harness/build_image.sh <iid>` | `docker.io/<image_name from meta.json>` (libercoders FeatureBench images) + node 22 + ripgrep + CLI (one image per repo) |
+| `hcexp-egress:2` | `docker build -t hcexp-egress:2 swebench-pro/harness/instruments/docker-egress` | alpine 3.20 + tinyproxy, allowlist in `filter` |
+
+The SWE-bench Pro build sets `DOCKER_CONFIG=instruments/docker-anon` (an empty `config.json`), which pulls public ghcr images without the Windows credential helper. On WSL that helper times out now and then.
+
+The acceptance check uses the **pristine** task image, not the agent image, so keep both until the cell ends.
+
+### Networks (made on first run by `run_cell.sh`)
+```bash
+docker network create --internal hcexp-cellnet   # agent containers: no route out
+docker network create hcexp-egressnet            # normal bridge
+docker run -d --name hcexp-egress --network hcexp-cellnet hcexp-egress:2
+docker network connect hcexp-egressnet hcexp-egress
+```
+- The agent reaches the internet only through `HTTP(S)_PROXY=http://hcexp-egress:8888`.
+- The allowlist is `api.anthropic.com`, `statsig.anthropic.com`, `console.anthropic.com` and `platform.claude.com`. Nothing else answers: no pip, npm, git or web.
+- Every run tests this before the agent starts and logs the result in `isolation.txt`.
+- Acceptance containers run with `--network none`.
+
+### Credentials
+- `export CLAUDE_CREDS=$HOME/.claude/.credentials.json`, which must be your own subscription login.
+- It is mounted read-only at `/creds/credentials.json` and copied into the agent's empty HOME at start.
+- If `ANTHROPIC_API_KEY` is set instead, it is passed through, but all our runs used `CLAUDE_CREDS`. After each run, `run_cell.sh` greps the session logs for `sk-ant` / `accessToken` and fails the run if either appears.
+- Never copy the file into the repo or a run directory.
+
+### Agent container settings
+- Runs as uid 1000 with HOME `/agent-home`, which is empty: no CLAUDE.md and no memory.
+- `--strict-mcp-config` with an empty MCP config; `WebSearch` and `WebFetch` disallowed.
+- Run as `claude -p --output-format stream-json --verbose --dangerously-skip-permissions`. Round 0 uses `--session-id`; each later round uses `--resume` of the same session.
+- Memory cap:
+  - SWE-bench Pro: `MEM` (default `4g`).
+  - FeatureBench: `AGENT_MEM` (unset by default; `6g` for the pandas runs).
+- `/tests`, `/solution`, `/logs/verifier` and `/oracle` must be absent from the agent container. `prep_agent.sh` checks this as root before the agent exists and stops the run if any is present.
+- **Stop settings** (env vars):
+  - `MAX_ROUNDS=0`: no cap on blind rounds.
+  - `STALL_ROUNDS=10`: stop after 10 identical trees.
+  - `MAX_USD=0`: no cost cap.
+  - `STOP_RULE=official`: all FAIL_TO_PASS and PASS_TO_PASS tests must pass.
+
+### Before every run
+- `docker info` must work, and `hcexp-egress` must be running from `hcexp-egress:2`.
+- Run one cell at a time. Launch it detached so it survives the terminal:
+  `setsid nohup ./run_nohint_chain.sh <iid> > runs/<name>.log 2>&1 < /dev/null &`
+- **Exit codes:**
+  - 3 = agent unavailable (usage limit or login). The run is invalid: rerun it, don't score it.
+  - 4 = refused to start (for example, low disk).
+- **After the run:**
+  - check `isolation.txt` and `manifest.json` in the run folder;
+  - read the verdict from `accept_final.txt`;
+  - cost is in `metrics.json` (computed by `roundcost.py`).
 
 ## Running tasks
 

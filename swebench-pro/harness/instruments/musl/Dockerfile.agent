@@ -1,0 +1,9 @@
+# sbpexp agent image, musl variant: for SWE-bench Pro V2 task images that are Alpine (musl libc), e.g. protonmail/webclients.
+# Task image UNCHANGED, plus the pinned claude-code CLI 2.1.310 musl native binary (sha256 in musl/claude-cli-musl.sha256).
+# Same version as the glibc variant (instruments/Dockerfile.agent); only the libc build differs. Nothing else is added.
+ARG BASE
+FROM ${BASE}
+USER root
+COPY claude-cli-musl /opt/claude-cli
+COPY claude-wrapper.sh /usr/local/bin/claude
+RUN chmod 0755 /usr/local/bin/claude && mkdir -p /agent-home /creds
