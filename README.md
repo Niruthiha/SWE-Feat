@@ -3,6 +3,7 @@
 This repo holds the harness, task lists, prompts and analysis for the scattering study. There are 61 SWE-bench Pro runs (50 earlier + 11 multi-file batch-4 runs) and 21 FeatureBench runs, 82 in all, each with Claude Code (Opus 5.5), 1 seed per task. With it you can rerun the same tasks.
 
 - **[`RUNS.md`](RUNS.md)** lists every run: task, run directory, pass/rounds, cost, tool calls, diff size and recall.
+- **[`ISOLATION.md`](ISOLATION.md)** explains every isolation mechanism: network allowlist, disabled web tools and MCP, empty HOME, credentials, hidden tests, blind feedback. It also covers what was *not* disabled (account skills, SWE-Pro git identity), with per-run checks.
 - **[`analysis/STATISTICS.md`](analysis/STATISTICS.md)** documents the statistics: variables, every test, the corrections, the decisions and caveats, and the results at 82 runs.
 
 The question: when the agent's diff is spread across more files and packages, does the agent explore more and cost more?
@@ -144,6 +145,7 @@ LIST=lists/batch4_multifile.txt MATCH=verb setsid nohup ./run_batch3.sh > runs/b
 - **The agent's container** is fresh, runs as uid 1000 with an empty HOME and no MCP. WebSearch and WebFetch are disabled, and the network allows the Anthropic API only.
 - **The acceptance check** runs after every round in a separate `--network none` container built from the pristine image. It applies the agent's diff and runs the benchmark's own tests. A run passes when every FAIL_TO_PASS and PASS_TO_PASS test passes.
 - **Stops:** the run stops when it converges, after 10 identical trees, at the round cap, or if the agent is unavailable (exit 3: invalid, never a verdict).
+- **Full detail on every mechanism, and how each was checked, is in [`ISOLATION.md`](ISOLATION.md).**
 - **Not disabled: account skills.** The harness turns off MCP servers and web tools, but not Claude Code skills. The skills list in each transcript's `init` event shows two setups:
   - the CLI's built-in skills only;
   - the built-ins plus the account's `anthropic-skills:*` set (docs, pdf, xlsx, browser, …).
