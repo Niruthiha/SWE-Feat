@@ -144,6 +144,14 @@ LIST=lists/batch4_multifile.txt MATCH=verb setsid nohup ./run_batch3.sh > runs/b
 - **The agent's container** is fresh, runs as uid 1000 with an empty HOME and no MCP. WebSearch and WebFetch are disabled, and the network allows the Anthropic API only.
 - **The acceptance check** runs after every round in a separate `--network none` container built from the pristine image. It applies the agent's diff and runs the benchmark's own tests. A run passes when every FAIL_TO_PASS and PASS_TO_PASS test passes.
 - **Stops:** the run stops when it converges, after 10 identical trees, at the round cap, or if the agent is unavailable (exit 3: invalid, never a verdict).
+- **Not disabled: account skills.** The harness turns off MCP servers and web tools, but not Claude Code skills. The skills list in each transcript's `init` event shows two setups:
+  - the CLI's built-in skills only;
+  - the built-ins plus the account's `anthropic-skills:*` set (docs, pdf, xlsx, browser, …).
+  - The account set was loaded in 40 of 61 SWE-bench Pro runs and 9 of 21 FeatureBench runs.
+  - **No agent called the Skill tool in any of the 82 runs,** so the difference was never exercised. It is still a setup difference between runs.
+  - **For new runs:** turn account skills off (or pin one fixed set) so every run starts identically, and record the `init` skills list per run.
+- **Git identity:** FeatureBench containers set a neutral git identity (`fb@bench.com` / `FeatureBench`, in `prepare_tree.sh`); SWE-bench Pro containers don't. No agent in the 82 runs made a commit. For new runs, set a neutral `user.name`/`user.email` in every container so the account email can't end up in commits.
+- **What is graded:** the diff against the base commit, built through a temporary index. It includes uncommitted working-tree edits and any commits alike. DeepSWE's official harness grades committed changes only, so for new runs record both.
 
 ## Prompts used
 

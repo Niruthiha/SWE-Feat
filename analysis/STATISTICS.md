@@ -275,6 +275,8 @@ Seeds fixed; these are the outputs of the current pipeline (`stats_out.json`, `v
 
 ## 7. Caveats
 
+- **Account skills were not held constant:** loaded in 40/61 SWE-bench Pro and 9/21 FeatureBench runs, never invoked (0 Skill tool calls). We treat this as having no effect on the measures, but it is disclosed; see the README's Protocol section.
+
 1. **One seed per task.** Run-to-run variance is unknown; a single run's cost or tool calls can vary between reruns.
 2. **Small n.**
    - FB has 21 runs. Only |ρ| ≳ .58 is reliably detectable there (power .8, α .05).
