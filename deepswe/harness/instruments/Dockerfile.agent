@@ -1,0 +1,9 @@
+# sbpexp agent image: the SWE-bench Pro V2 task image (ghcr.io/scaleapi/swe-bench_pro-v2:<iid>) UNCHANGED, plus the
+# pinned claude-code CLI 2.1.310 (native linux-x64 binary, sha256 in claude-cli.sha256) copied from the build context
+# into /opt/claude-cli. No other base image is pulled; the repo's own node/go/python stay as the image has them.
+ARG BASE
+FROM ${BASE}
+USER root
+COPY claude-cli /opt/claude-cli
+COPY claude-wrapper.sh /usr/local/bin/claude
+RUN chmod 0755 /usr/local/bin/claude && mkdir -p /agent-home /creds

