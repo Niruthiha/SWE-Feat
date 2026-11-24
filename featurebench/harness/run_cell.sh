@@ -107,7 +107,7 @@ RUN_ID="$(date +%Y%m%d-%H%M%S)-${SHORT}-s${SEED}"
 # its base commit. INDEX_ONLY=1 stops after the index audit (dry run, no agent).
 ARM=baseline
 # one arm per cell: combining arm flags would silently prepare the tree for only one of them
-[ $(( ${INDEX:-0} + ${DOCSTRIP:-0} + ${IMPACT:-0} + ${VAGUE:-0} + ${GOAL:-0} + ${GOALRW:-0} )) -le 1 ] || { echo "CELL REFUSED TO START: more than one of INDEX/DOCSTRIP/IMPACT/VAGUE/GOAL/GOALRW set" >&2; exit 4; }
+[ $(( ${INDEX:-0} + ${DOCSTRIP:-0} + ${IMPACT:-0} + ${VAGUE:-0} + ${GOAL:-0} + ${GOALRW:-0} + $([ -n "${PROMPT_ARM:-}" ] && echo 1 || echo 0) )) -le 1 ] || { echo "CELL REFUSED TO START: more than one of INDEX/DOCSTRIP/IMPACT/VAGUE/GOAL/GOALRW/PROMPT_ARM set" >&2; exit 4; }
 if [ "${INDEX:-0}" = "1" ]; then ARM=index; RUN_ID="$RUN_ID-map"; fi
 # DOCSTRIP=1: docstring arm (DOCSTRING-ARM.md). Same task, prompt (no preamble), image,
 # oracle; every docstring in the repo's non-test source is "" in the base commit, and the
@@ -139,6 +139,14 @@ if [ "${GOAL:-0}" = "1" ]; then
 if [ "${GOALRW:-0}" = "1" ]; then
   [ -s "$TASK_DIR/prompt_goalrw.txt" ] || { echo "CELL REFUSED TO START: no prompt_goalrw.txt" >&2; exit 4; }
   ARM=goalrw; RUN_ID="$RUN_ID-goalrw"; PROMPT_SHA=$(sha256sum "$TASK_DIR/prompt_goalrw.txt" | cut -d" " -f1); fi
+# PROMPT_ARM=<name>: generic custom-prompt arm (added 2026-11-24 for prompt reruns, see RUN_NEW_PROMPT.md).
+# Baseline in every respect (image, tree, oracle, blind retry message) except round 0 sends
+# tasks/<id>/prompt_<name>.txt raw. <name>: lowercase letters, digits, '-'; not an existing arm name.
+if [ -n "${PROMPT_ARM:-}" ]; then
+  echo "$PROMPT_ARM" | grep -qE '^[a-z0-9][a-z0-9-]{0,23}$' || { echo "CELL REFUSED TO START: PROMPT_ARM must match [a-z0-9][a-z0-9-]*" >&2; exit 4; }
+  case "$PROMPT_ARM" in baseline|index|map|docstrip|doc|impact|imp|vague|goal|goalrw) echo "CELL REFUSED TO START: PROMPT_ARM=$PROMPT_ARM is an existing arm name" >&2; exit 4;; esac
+  [ -s "$TASK_DIR/prompt_$PROMPT_ARM.txt" ] || { echo "CELL REFUSED TO START: no $TASK_DIR/prompt_$PROMPT_ARM.txt" >&2; exit 4; }
+  ARM="$PROMPT_ARM"; RUN_ID="$RUN_ID-$PROMPT_ARM"; PROMPT_SHA=$(sha256sum "$TASK_DIR/prompt_$PROMPT_ARM.txt" | cut -d" " -f1); fi
 # Index arm v2 (user decision 2026-10-27 12:36): (appended after the prompt since 2026-10-31, user decision) round 0 = index_preamble.txt + blank
 # line + the verbatim problem_statement. The preamble is task-independent; the blind
 # message is unchanged. Baseline round 0 stays the problem_statement alone.
@@ -328,6 +336,7 @@ docker exec --user 0:0 "$CONTAINER" bash -c '
 cp "$TASK_DIR/prompt.txt" "$RUN_DIR/task.md"
 if [ "$ARM" = vague ]; then cp "$TASK_DIR/prompt_vague.txt" "$RUN_DIR/task.md"; fi
 if [ "$ARM" = goal ]; then cp "$TASK_DIR/prompt_goal.txt" "$RUN_DIR/task.md"; fi
+if [ -n "${PROMPT_ARM:-}" ]; then cp "$TASK_DIR/prompt_$PROMPT_ARM.txt" "$RUN_DIR/task.md"; fi
 cp "$TASK_DIR/meta.json" "$RUN_DIR/task_meta.json"
 python3 - "$RUN_DIR/manifest.json" <<PY
 import json, sys
@@ -446,6 +455,10 @@ while : ; do
     fi
     if [ "$ARM" = "goalrw" ] && [ -z "${SMOKE_PROMPT:-}" ]; then
       PROMPT_FILE="$TASK_DIR/prompt_goalrw.txt"
+      sha256sum "$PROMPT_FILE" | cut -d' ' -f1 > "$RUN_DIR/prompt_r0.sha256"
+    fi
+    if [ -n "${PROMPT_ARM:-}" ] && [ -z "${SMOKE_PROMPT:-}" ]; then
+      PROMPT_FILE="$TASK_DIR/prompt_$PROMPT_ARM.txt"
       sha256sum "$PROMPT_FILE" | cut -d' ' -f1 > "$RUN_DIR/prompt_r0.sha256"
     fi
     if [ "$ARM" = "impact" ] && [ -z "${SMOKE_PROMPT:-}" ]; then

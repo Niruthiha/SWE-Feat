@@ -3,6 +3,7 @@
 This repo holds the harness, task lists, prompts and analysis for the scattering study. There are 61 SWE-bench Pro runs (50 earlier + 11 multi-file batch-4 runs) and 21 FeatureBench runs, 82 in all, each with Claude Code (Opus 5.5), 1 seed per task. With it you can rerun the same tasks.
 
 - **[`RUNS.md`](RUNS.md)** lists every run: task, run directory, pass/rounds, cost, tool calls, diff size and recall.
+- **[`featurebench/RUN_NEW_PROMPT.md`](featurebench/RUN_NEW_PROMPT.md)** is a step-by-step guide to rerunning the 21 FeatureBench tasks with a different prompt (`PROMPT_ARM=<name>`): dataset, images, preflight, prompt audit, run, outputs.
 - **[`ISOLATION.md`](ISOLATION.md)** explains every isolation mechanism: network allowlist, disabled web tools and MCP, empty HOME, credentials, hidden tests, blind feedback. It also covers what was *not* disabled (account skills, SWE-Pro git identity), with per-run checks.
 - **[`analysis/STATISTICS.md`](analysis/STATISTICS.md)** documents the statistics: variables, every test, the corrections, the decisions and caveats, and the results at 82 runs.
 
@@ -15,7 +16,7 @@ The question: when the agent's diff is spread across more files and packages, do
 | `swebench-pro/harness/` | `run_cell.sh` (one task × one seed), `run_nohint_chain.sh` (build → preflight → cell → cleanup), `run_batch3.sh` (a list of tasks, strictly one at a time), `build_image.sh`, `preflight_task.sh`, `make_task.py`, `collect_metrics.py`, cost scripts, `instruments/` (agent Dockerfile, acceptance/regression scripts, egress proxy) |
 | `swebench-pro/tasks/<instance_id>/` | for each of the 61 tasks run: `prompt.txt` (the dataset's `instruction.md`), `prompt_verbatim.txt` (what the 38 batch-3 and 11 batch-4 runs got), `meta.json` |
 | `swebench-pro/lists/` | `ran50.tsv` (the 50 runs), `neither121.json` + `select_121.py` (the 121 "no-hint" tasks the 50 came from), `batch3_cap50.txt`, `batch4_multifile.txt` (the 12 multi-file tasks), `ran_batch4.tsv` (the 11 that ran), `NOHINT_PLAN.md` |
-| `featurebench/harness/` | `run_cell.sh`, `prep_goalrw*.sh`, `build_image.sh`, `preflight_task.sh`, `make_task.py`, `audit_isolation.sh`, `HARNESS.md` (full protocol), `*-GOALRW-SELECTION.md` (how tasks were picked per repo) |
+| `featurebench/harness/` | `run_cell.sh`, `run_seeds.sh`, `run_regress.sh`, `prep_goalrw*.sh`, `build_image.sh`, `preflight_task.sh`, `make_task.py`, `make_vague_prompt.py`, `audit_isolation.sh`, `HARNESS.md` (full protocol), `*-GOALRW-SELECTION.md` (how tasks were picked per repo) |
 | `featurebench/tasks/<instance_id>/` | `prompt_goalrw.txt` (the goal-only prompt each run got), `meta.json` |
 | `featurebench/ran21.tsv` | the 21 runs |
 | `swebench-pro/runs/`, `featurebench/runs/` | full output of the 82 runs: transcripts, per-round snapshots and diffs, acceptance logs, `manifest.json`, `metrics.json`. The account email and organization id are replaced with `<redacted-email>` / `<redacted-org>`. Regression `results.tsv` files over 20 MB (3 pandas runs) are left out |

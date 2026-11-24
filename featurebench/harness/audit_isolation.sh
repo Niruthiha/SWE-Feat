@@ -28,6 +28,7 @@ ok "impact_preamble.txt: $(tr -d '\n' < "$HERE/impact_preamble.txt")"
 # dataset prompt.txt or an "Importable as `...`" line (the only test-derived text), so nothing else from the test can enter
 grep -qF 'PROMPT_FILE="$TASK_DIR/prompt_vague.txt"' "$RC" && ok "vague round 0 sends tasks/<id>/prompt_vague.txt raw" || bad "vague round 0 assembly changed"
 for v in "$HERE"/tasks/*/prompt_vague.txt; do
+  [ -e "$v" ] || continue
   extra=$(python3 -c "import sys;o=set(open(sys.argv[1]).read().splitlines());print(sum(1 for l in open(sys.argv[2]).read().splitlines() if l not in o and not l.startswith('Importable as \`')))" "$(dirname "$v")/prompt.txt" "$v")
   [ "$extra" = 0 ] && ok "$(basename "$(dirname "$v")" | cut -c1-50): prompt_vague.txt adds only Importable lines" || bad "$(dirname "$v"): prompt_vague.txt has $extra lines not in prompt.txt"
 done
@@ -44,8 +45,10 @@ done
 # (2026-11-13: tested names / test imports matched as whole words, not substrings: unit names m, s matched every prompt)
 # except a name that the dataset's own pre-interface text (task statement, NOTE, black_links in prompt.txt) already uses as a word (2026-11-11)
 grep -qF 'PROMPT_FILE="$TASK_DIR/prompt_goalrw.txt"' "$RC" && ok "goalrw round 0 sends tasks/<id>/prompt_goalrw.txt raw" || bad "goalrw round 0 assembly changed"
-for v in "$HERE"/tasks/*/prompt_goalrw.txt; do
+# PROMPT_ARM=<name> (2026-11-24): the same name check runs on tasks/*/prompt_<name>.txt
+for v in "$HERE"/tasks/*/prompt_goalrw.txt ${PROMPT_ARM:+"$HERE"/tasks/*/prompt_$PROMPT_ARM.txt}; do
   [ -e "$v" ] || continue
+  [ -s "$(dirname "$v")/prompt_vague.json" ] || { bad "$(dirname "$v"): no prompt_vague.json (run make_vague_prompt.py tasks/<id>) - name check impossible"; continue; }
   hits=$(python3 -c "
 import re,sys,json,os
 g=open(sys.argv[1]).read(); j=json.load(open(os.path.join(os.path.dirname(sys.argv[1]),'prompt_vague.json')))
@@ -57,7 +60,7 @@ for n,ms in j.get('test_project_imports',{}).items(): bad+=[x for x in [n]+ms if
 pre=open(os.path.join(os.path.dirname(sys.argv[1]),'prompt.txt')).read().split('## Interface Descriptions')[0]
 bad=[x for x in bad if x in ('/testbed','Path:') or x.endswith('.py') or not re.search(r'(?<![\w.])'+re.escape(x)+r'(?![\w])',pre)]
 print(' '.join(sorted(set(bad))))" "$v")
-  [ -z "$hits" ] && ok "$(basename "$(dirname "$v")" | cut -c1-50): prompt_goalrw.txt names no path, module or masked/tested symbol" || bad "$(dirname "$v"): prompt_goalrw.txt names: $hits"
+  [ -z "$hits" ] && ok "$(basename "$(dirname "$v")" | cut -c1-50): $(basename "$v") names no path, module or masked/tested symbol" || bad "$(dirname "$v"): $(basename "$v") names: $hits"
 done
 grep -q 'PROMPT_FILE="\$HERE/blind_msg.txt"' "$RC" && ok "later rounds send blind_msg.txt only" || bad "later rounds send something else"
 grep -q 'cat /dev/stdin' "$RC" && ok "prompt passed through stdin: no shell interpolation into the text" || bad "prompt interpolated"

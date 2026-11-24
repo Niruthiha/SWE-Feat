@@ -11,19 +11,21 @@ Nothing here is ever mounted into the agent container: the cell copies ONLY
 prompt.txt into the round-0 message, and mask.patch is applied as root BEFORE the
 agent exists, then deleted.
 """
-import csv, hashlib, json, pathlib, sys
+import csv, hashlib, json, os, pathlib, sys
 import pandas as pd
 
 HERE = pathlib.Path(__file__).resolve().parent
 FB = HERE.parent / "featurebench"
-PARQUET = FB / "analysis" / "full.parquet"
-SELECTION = FB / "inventory" / "selection.csv"
+# FB_PARQUET: path to the FeatureBench "full" split as parquet (HF LiberCoders/FeatureBench, 200 rows).
+# FB_SELECTION: optional covariate CSV (our sampling inventory; not in the public repo).
+PARQUET = pathlib.Path(os.environ.get("FB_PARQUET", FB / "analysis" / "full.parquet"))
+SELECTION = pathlib.Path(os.environ.get("FB_SELECTION", FB / "inventory" / "selection.csv"))
 
 # verbatim from featurebench/harness/test_parsers.py (only pydantic is overridden)
 MAP_REPO_TO_TEST_CMD = {"pydantic/pydantic": "pytest -rA -v --color=no"}  # = featurebench/harness/test_parsers.py
 
 t = pd.read_parquet(PARQUET)
-sel = {r["instance_id"]: r for r in csv.DictReader(open(SELECTION))}
+sel = {r["instance_id"]: r for r in csv.DictReader(open(SELECTION))} if SELECTION.exists() else {}
 for iid in sys.argv[1:]:
     rows = t[t.instance_id == iid]
     assert len(rows) == 1, f"{iid}: {len(rows)} rows"
@@ -51,6 +53,13 @@ for iid in sys.argv[1:]:
         "covariates": {k: cov.get(k) for k in ("stratum", "dos_pkg", "dos_file", "n_files", "n_packages",
                                                "impl_loc", "n_ops", "hidden_tests", "task_kind")},
     }
-    (d / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    old = d / "meta.json"
+    if old.exists():   # repo-shipped meta.json (with covariates) wins; it must describe the same statement
+        om = json.loads(old.read_text())
+        assert om.get("problem_statement_sha256") == meta["problem_statement_sha256"], \
+            f"{iid}: dataset problem_statement differs from the shipped meta.json - wrong dataset version"
+        print(f"{iid}: kept existing meta.json (problem_statement sha256 matches)")
+    else:
+        old.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"{iid}: prompt {len(r['problem_statement'])} chars, mask {len(r['patch'])}, "
           f"F2P {meta['FAIL_TO_PASS']}, P2P {len(meta['PASS_TO_PASS'])}, image {r['image_name']}")
